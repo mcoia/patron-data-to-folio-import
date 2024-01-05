@@ -11,5 +11,7 @@ print "working...\n";
 my $utils = MOBIUS::Utils->new();
 
 print $utils->generateRandomString();
+print $utils->generateRandomString();
+
 
 1;

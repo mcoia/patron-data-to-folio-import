@@ -21,7 +21,7 @@ package MOBIUS::Utils;
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 # This code may be distributed under the same terms as Perl itself.
 
-# Please note that these modules are not products of or supported by the
+# Please notes that these modules are not products of or supported by the
 # employers of the various contributors to the code.
 
 =head1 NAME

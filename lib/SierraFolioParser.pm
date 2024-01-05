@@ -1,30 +1,25 @@
 package SierraFolioParser;
+
 use strict;
 use warnings FATAL => 'all';
 
+=pod
+
+
+=head1 new(log,fileManager)
+
+=cut
 sub new {
     my $class = shift;
     my $self = {
         'log' => shift,
+        'fileManager' => shift,
     };
     bless $self, $class;
     return $self;
 }
 
-sub parse {
-
-
-
-
-
-}
-
-=pod
-
-Should we read files from this class?
-No
-
-I think the data should be passed into this class. Lets just focus on parsing.
+=head1 parse()
 
 The initial field: Always 24 char long
 example: 0101c-003clb  --01/31/24
@@ -54,5 +49,9 @@ z = Email Address
 x = Note
 
 =cut
+sub parse {
+
+
+}
 
 1;
