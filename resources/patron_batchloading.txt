@@ -1,0 +1,181 @@
+Batchloading
+Patron Records
+Loading PATRON records from a file
+into a MOBIUS System
+Each library creates a record for each patron by keying or loading. Regardless of the method used for creating a
+patron record, it must have enough information to allow checkout, renewal, notices, and requests if applicable. For
+the patron record to successfully update via subsequent patron record loads, the record must also have a match key
+(UNIQUEID Field). The handout provides information on content of patron records and the format for loading
+records.
+There should be only one record in the database for a person at a given institution. If a patron is both a staff member
+and a student, the library decides which set of privileges apply. The method of loading can determine this. If a
+person is affiliated with more than one institution, each institution creates a record for that patron. Be careful not to
+modify or delete another library’s record for a patron.
+Explanation of Fields
+Each patron record contains three kinds of fields: system created, fixed length fields, and variable length fields.
+Every record has the same system created elements: record number, created date, modified date, and number of
+revisions. As the system writes a record to the database for the first time it assigns a sequential record number. For
+patron records that number begins with a “P”. The middle portion of the number is a sequential number, and the
+final digit is a check digit. The check digit may be 0-9 or an “x”. This number uniquely identifies a record. If the
+record is deleted, the number is not reused. The system maintains the modified date and the number of revisions
+counter
+All patron records contain a single occurrence of the fixed-length fields. These fields contain either a coded value
+defined in a table or a date.
+Patron records may have up to twenty-six different types of variable-length fields. These fields can be repeated. A
+record does not contain a variable-length field if it is empty. In addition to NAME and ADDRESS, MOBIUS
+requires UNIQUEID and DEPARTMENT. These last two are specific to MOBIUS and are not documented in the
+User Manual.
+MOBIUS Consortium Office - 1 -
+Batchloading Patron Records
+Fixed Length Fields
+The libraries of each system (cluster) and MCO work together to define values for the coded fixed fields. All
+libraries will not use all of the codes; some ranges of values may be specific to an institution. If your library does
+not use one or more of the codes in the fixed fields, the patron record must still have a placeholder value because the
+fixed fields are positionally defined.
+Field code ('0')
+This is the signal of the beginning of a new record and is always ‘0’.
+Patron Type (000 to 255)
+Each library defines a specific set of values for locally needed patron types. This value determines the borrowers’
+privileges, renewals, loan periods, notices, and fine amounts if any.
+PCODE1 (1 character)
+This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
+determine the codes used. If no code is assigned, the field should contain a hyphen (“-“).
+PCODE2 (1 character)
+This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
+determine the codes used. If no code is assigned, the field should contain a hyphen (“-“).
+PCODE3 (000 to 255)
+This three-digit numeric code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
+determine the codes used. (If your cluster does not have a PCODE3 value for N/A, enter “ “ three blanks if
+PCODE3 is not defined on your system.)
+Home Library (5 characters)
+This field uses a location code defined in the location tables. For all MOBIUS libraries this code should be one of
+the three-character bibliographic locations entered in lower case letters and padded with two blanks. For example:
+“wdb “
+Patron Message Code (1 character)
+A value in this field triggers the display of the associated message each time a user selects and displays the patron
+record. Libraries in a system (cluster) determine the codes used and the messages associated with them. (Hyphen
+unless defined)
+Patron Block Code (1 character)
+This code allows libraries to manually block a patron from checking-out or renewing items even if the patron has not
+exceeded any of the library-specified thresholds on the system. It allows blocks from elsewhere on campus to be
+reflected in the library system. The institution can set a code in the file of patron records to be loaded to either
+create a new record on the system already blocked to update an existing borrower to block. Libraries in a system
+(cluster) determine the codes used and the meaning associated with each. Codes must be entered in a system table.
+(Hyphen unless defined)
+Patron Expiration Date (8 characters, mm-dd-yy)
+Patron records loaded into the system overlay on a key-match (see UNIQUEID). The incoming record expiration
+date replaces the one in the database record. Libraries determine the expiration date needed to prevent loan periods
+longer than the expiration date in the patron’s record.
+MOBIUS Consortium Office - 2 -
+Batchloading Patron Records
+Variable Length Fields
+The software does not require all fields listed. However, for a patron to circulate, place requests, and receive notices
+in a MOBIUS system the record must contain: FIXED FIELDS, NAME, ADDRESS, DEPARTMENT, and
+UNIQUE ID.
+Name
+The name is entered as indexed: last name, first middle. It will display online and print on notices as entered. If you
+want mixed case or if you want all capitals for mailing, enter the name in that format.
+Address
+This is the primary or local address field. Enter a dollar sign (“$”) to indicate a line break as shown in the example
+record. Notice production does not upcase name and address information. If your library will be sending notices
+through the mail, you may want to enter all this information in capital letters.
+Address2
+This is a secondary or permanent address. For students this may be the home address.
+Telephone
+This is the primary or local telephone number. There is no automatic formatting of this data. If you want “( )”
+around the area code and “-“ after the exchange, those characters need to be in the record.
+Telephone2
+Secondary telephone number.
+Department
+MOBIUS systems use this field to provide a library return address for INN-Reach (Direct Patron) Request notices.
+This is a local adaptation and is not documented in the User Manual. Enter the same three-character bibliographic
+location code used in the Home Library fixed field in lower case letters. Do not follow it with blank spaces.
+Unique ID
+This is an extremely important field for patron records in a MOBIUS system. Whether a record is loaded or keyed
+in at a circulation desk, it should have a properly constructed Unique ID. The patron keys this number to see
+information about his account and to place requests, and the patron load program uses this field as the key for
+updating existing patron records in the database.
+The MOBIUS implementation of Unique ID is a combination of a patron identification number and an alpha suffix
+identifying the institution. The identification number can be any number unique within your institution and easily
+known by the patron, for example, a student number. The alpha suffix follows the number in all capital letters with
+no spaces.
+Example:
+Using Sequential Campus Number
+12345678CC (Columbia College)
+MOBIUS Consortium Office - 3 -
+Batchloading Patron Records
+Barcode
+The patron barcode field is an indexed variable length field. It is usually the quickest and most precise patron search
+at the circulation desk. Circulation staff does not have to use the patron barcode to check out a book to a patron. If
+your institution uses a campus identification card, you can load the number encoded on the card into this field. If
+your institution uses a separate barcode (i.e., issued by the library, not the campus), the barcodes must be added
+manually. This can be done when keying a new record or later if patron records are loaded from a registration
+database.
+Email Address
+Enter a complete email address if you want a patron to receive all borrower notices via email.
+Note
+This is free text note field. A Patron record can contain multiple note fields. The patron note fields only display to
+staff, not to patrons in the VIEW your circulation record function.
+Record Loading
+The MOBIUS Consortium Office loads files of patron records for member libraries. We can schedule these loads as
+frequently as once a week to keep your patron data current. The Innovative load format with which we’ve been
+most successful is Text File Image (Format 3). The User Manual includes the formats for patron data. Below is a
+description of the format from the User Manual and also fields to the MOBIUS implementation.
+Text File Image (Format 3)
+This format carries both fixed-length and variable length data. The fixed-length data are grouped in the first field of
+each new record. Each field in this format is a new line and begins with a single-character field tag. Each field ends
+with a carriage return (hexadecimal 0D) and a line feed (hexadecimal 0A).
+Example Record:
+0001ab001shb --12-31-01<0D0A>
+nSmith, Jane<0D0A>
+aP.O. Box 177$305B East Hall<0D0A>
+t(510) 555-1305<0D0A>
+h123 Hill St.$Oakland, CA 95155<0D0A>
+p(510)444-1010<0D0A>
+dshb<0D0A>
+u123456789UU<0D0A>
+b2117102003159<0D0A>
+zjanesmith@campus.edu<0D0A>
+Note
+Each line ends with a hard return. Do not put the ASCII characters “<0D0A>” in your patron records. “<0D0A>”
+is the translation of the hexadecimal character for hard return.
+Fixed Length Fields
+The first line of each record in the file is called the "zero" field because its field tag is “0”. It contains the fixed-
+length data for each patron record.
+MOBIUS Consortium Office - 4 -
+Batchloading Patron Records
+Enter a character (either hyphen or blank [Hexadecimal 20] according to the field descriptions above) for any
+unused fixed-length field value so the zero field is always 24 characters long.
+Field Length
+Field Code 1 Character (Always a ‘0’)
+Patron Type 3 Digits (000 to 255)
+PCODE1 1 Character
+PCODE2 1 Character
+PCODE3 3 Digits (000 to 255)
+Home Library 5 Characters, padded with blanks if needed (e.g., “shb “)
+Patron Message Code 1 Character
+Patron Block Code 1 Character
+Patron Expiration Date 8 Characters (mm-dd-yy)
+Variable Length Fields
+Each line following the zero field line contains a single-character field tag in the first column, followed by that
+field's data. Each field code used in the incoming Patron record must be defined in the system.
+Code Field
+n Name
+a Address
+t Telephone
+h Address2
+p Telephone2
+d Department
+u Unique ID
+b Barcode
+z Email Address
+x Note
+Transferring Patron Files to the MOBIUS Consortium Office
+MCO uses secure copy (SCP) to receive patron files from the MOBIUS institutions. Please see the document File
+Transfer Policy & Procedures for instructions on setting up secure copy and connecting to the SCP server.
+File Naming
+Patron Files should have descriptive names, including elements identifying the School and the type of patron.
+Examples:
+Drury students,
+drustu
+MOBIUS Consortium Office - 5 -

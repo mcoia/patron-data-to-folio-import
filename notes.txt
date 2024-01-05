@@ -1,0 +1,74 @@
+################################################################################
+                            PATRON RECORD LOADS
+################################################################################
+                    Patron Record loads for Sierra->Folio
+
+GIST: They need to load user/patrons into folio. Adrienne is currently doing it thru postman. lol
+Get some data from text file or csv, parse it into json, send a post request.
+There's an authentication portion to this whole thing.
+
+################################################################################
+                        !!! This is a requirement !!!
+                WE DON'T HAVE AN EXTERNAL ID FOR THE PATRON LOADS.
+################################################################################
+
+Brooks: name of dev guy for folio
+
+Donna posted this in slack help desk 
+https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
+
+# FOLIO - mod-user-import 
+https://github.com/folio-org/mod-user-import
+
+Where to find patron data? It's a text file located
+X: drive
+\\dropbox\{library}\home\{user}\incoming\*Student|Staff*
+
+
+
+### Demo Site
+Login: diku_admin / admin
+
+https://folio-snapshot.dev.folio.org/
+
+https://folio-snapshot-2.dev.folio.org/
+
+################################################################################
+                                FOLIO WIKI
+################################################################################
+https://wiki.folio.org/
+
+# Refresh Token Rotation (RTR)
+https://wiki.folio.org/pages/viewpage.action?pageId=96414255
+
+https://wiki.folio.org/display/DD/Refresh+Tokens#RefreshTokens-GracefullyHandleAccessTokenExpirationinModule-to-ModuleRequests
+
+# Locate URLs and Authentication
+https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZaj7M/edit#gid=541091413
+
+
+
+
+# Folio Maven Nexus repo
+https://repository.folio.org/#browse/browse:maven-folio
+
+
+img here --> notes/screenshots/patron-group-mapping-(staff-student).png
+Last thing for today.  Here's the Patron Group mapping:  https://docs.google.com/spreadsheets/d/18Svxcc7oqanAFVve8hwt2rDuy_-9DwUfIQq_eCx2yLg/edit?usp=sharing
+The PTYPE in Sierra maps to the Patron Group in FOLIO, so in this example for ECC, the PTYPE is 3 (or 003) and that translates to "EC Student":
+0003e-001ecb  --05-08-24
+nJohnsen, Donya R
+a550 Crestfall Dr$Washington, MO  63090-7123
+t573-205-1594
+decb
+u0005468EC
+b0005468
+zdonya.johnsen@student.eastcentral.edu
+
+
+
+
+
+
+
+
