@@ -31,6 +31,10 @@ GetOptions(
 --debug                                       [Cause more log output]
 \n");
 
+
+our $clusters =
+
+
 init();
 main();
 
@@ -51,6 +55,22 @@ sub main {
     $log->addLogLine("****************** Starting ******************");
 
     print "dropbox path: $conf{dropboxPath}\n";
+
+
+
+    # How do we start all of this?
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
