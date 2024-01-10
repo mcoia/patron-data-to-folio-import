@@ -6,14 +6,14 @@ use warnings FATAL => 'all';
 =pod
 
 
-=head1 new(log,fileManager)
+=head1 new(log)
 
 =cut
-sub new {
+sub new
+{
     my $class = shift;
     my $self = {
         'log' => shift,
-        'fileManager' => shift,
     };
     bless $self, $class;
     return $self;
@@ -49,7 +49,47 @@ z = Email Address
 x = Note
 
 =cut
-sub parse {
+sub parse
+{
+
+    my $self = shift;
+    my $data = shift; # <== array of lines read from some file
+
+    my @jsonArray = ();
+
+    my @patronRecord = ();
+    my $patronRecordSize = 0;
+
+    for my $line (@{$data})
+    {
+
+        my $json;
+
+        # start a new patron record  
+        if ($line =~ /^0/ && length($line) == 24)
+        {
+            $patronRecordSize = @patronRecord;
+
+            $self->processPatronRecord(\@patronRecord) if ($patronRecordSize > 0);
+            @patronRecord = (); # clear our patron record 
+        }
+
+        push(@patronRecord, $line);
+
+    }
+
+    return @jsonArray;
+
+}
+
+sub processPatronRecord
+{
+    my $self = shift;
+    my $patron = shift;
+
+    print "---------- processPatronRecord ----------\n";
+
+    print "$_\n" for(@{$patron});
 
 
 }

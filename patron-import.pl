@@ -12,6 +12,7 @@ use MOBIUS::Loghandler;
 use JSON;
 use Data::Dumper;
 use MOBIUS::Utils;
+use PatronFiles;
 use SierraFolioParser;
 
 our $configFile;
@@ -19,8 +20,10 @@ our $debug = 0;
 our $dbHandler;
 our %conf;
 our $log;
+
+# Local imports  
 our $parser;
-our $fileManager;
+our $files;
 
 GetOptions(
     "config=s" => \$configFile,
@@ -31,80 +34,77 @@ GetOptions(
 --debug                                       [Cause more log output]
 \n");
 
-
-our $clusters =
-
+# Should this be in our conf file? 
+our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
 
 init();
 main();
 
-sub init {
+sub init
+{
 
     initConf();
     initLogger();
-    initDatabase();
-    initFileManager();
+    # initDatabase(); 
+    initPatronFiles(\@clusters);
     initParser();
 
 }
 
-sub main {
+sub main
+{
 
+    # our $parser;
+    # our $files;
+    
     # file path: rootPath\{clusterName}\home\{clusterName}\incoming
 
     $log->addLogLine("****************** Starting ******************");
+    $log->addLogLine("Root path: $conf{rootPath}\n");
 
-    print "dropbox path: $conf{dropboxPath}\n";
-
-
-
-    # How do we start all of this?
-
-
-
-
-
-
-
-
-
-
-
-
-
+    my $patronImportFilePaths = $files->getPatronImportFiles();
+    
+    
+    
 }
 
-sub initConf {
+sub initConf
+{
 
     my $utils = MOBIUS::Utils->new();
 
     # Check our conf file
     $configFile = "default.conf" if (!defined $configFile);
-    our $conf = $utils->readConfFile($configFile);
+    my $conf = $utils->readConfFile($configFile);
     exit if ($conf eq "false");
     %conf = %{$conf};
 
 }
 
-sub initLogger {
-    $log = Loghandler->new($conf->{"logfile"});
+sub initLogger
+{
+    $log = Loghandler->new($conf{"logfile"});
     $log->truncFile("");
 }
 
-sub initDatabase {
+sub initDatabase
+{
     initDatabaseConnection();
     buildSchema();
 }
 
-sub initDatabaseConnection {
+sub initDatabaseConnection
+{
     eval {$dbHandler = new DBhandler($conf{"db"}, $conf{"dbhost"}, $conf{"dbuser"}, $conf{"dbpass"}, $conf{"port"} || "3306", "mysql", 1);};
-    if ($@) {
+    if ($@)
+    {
         print "Could not establish a connection to the database\n";
-        exit 1;
+        # exit 1;
     }
 }
 
-sub buildSchema {
+sub buildSchema
+{
     # Placeholder, we may not need db connections
 
     # my $query = "";
@@ -113,19 +113,23 @@ sub buildSchema {
 
 }
 
-sub initParser {
-
+sub initParser
+{
     # Create our parser
     $parser = SierraFolioParser->new($log);
 
 }
 
-sub initFileManager {
+sub initPatronFiles
+{
+    my $clusters = shift;
 
-    $fileManager = ParserFiles->new(
+    $files = PatronFiles->new(
         $log,
-        $conf->{rootPath},
+        $conf{rootPath},
+        $clusters
     );
+
 
 }
 
