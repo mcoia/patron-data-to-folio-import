@@ -2,7 +2,7 @@ package PatronFiles;
 use strict;
 use warnings FATAL => 'all';
 
-=head1 new(log, rootPath)
+=head1 new(conf, log)
 
 
 =cut
@@ -10,9 +10,8 @@ sub new
 {
     my $class = shift;
     my $self = {
-        'log'      => shift,
-        'rootPath' => shift,
-        'clusters' => shift,
+        'conf' => shift,
+        'log'  => shift,
     };
     bless $self, $class;
     return $self;
@@ -30,7 +29,7 @@ sub listFiles
 sub getClusterDirectories
 {
     my $self = shift;
-    return $self->listFiles($self->{rootPath});
+    return $self->listFiles($self->{conf}->{rootPath});
 }
 
 sub getPatronImportFiles
@@ -39,10 +38,11 @@ sub getPatronImportFiles
     my $self = shift;
     my @patronImportFiles = ();
 
-    # loop over clusters & get all of our files 
-    for my $cluster (@{$self->{clusters}})
-    {
+    my @clusters = split(' ', $self->{conf}->{clusters});
 
+    # loop over clusters & get all of our files 
+    for my $cluster (@clusters)
+    {
 
         # TODO: Write this!!! 
 
@@ -77,7 +77,7 @@ sub readPatronFile
     close $fileHandle;
 
     $self->{log}->addLogLine("total lines read: [$lineCount]");
-    
+
     return \@data;
 
 }

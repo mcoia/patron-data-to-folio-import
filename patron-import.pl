@@ -18,7 +18,7 @@ use SierraFolioParser;
 our $configFile;
 our $debug = 0;
 our $dbHandler;
-our %conf;
+our $conf;
 our $log;
 
 # Local imports  
@@ -34,9 +34,6 @@ GetOptions(
 --debug                                       [Cause more log output]
 \n");
 
-# Should this be in our conf file? 
-our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
-
 init();
 main();
 
@@ -46,9 +43,9 @@ sub init
     initConf();
     initLogger();
     # initDatabase(); 
-    initPatronFiles(\@clusters);
-    initParser();
-
+    $files = PatronFiles->new($conf, $log);
+    $parser = SierraFolioParser->new($conf,$log);
+    
 }
 
 sub main
@@ -60,10 +57,9 @@ sub main
     # file path: rootPath\{clusterName}\home\{clusterName}\incoming
 
     $log->addLogLine("****************** Starting ******************");
-    $log->addLogLine("Root path: $conf{rootPath}\n");
+    $log->addLogLine("Root path: $conf->{rootPath}\n");
 
     my $patronImportFilePaths = $files->getPatronImportFiles();
-    
     
     
 }
@@ -75,15 +71,18 @@ sub initConf
 
     # Check our conf file
     $configFile = "default.conf" if (!defined $configFile);
-    my $conf = $utils->readConfFile($configFile);
+    $conf = $utils->readConfFile($configFile);
+    
     exit if ($conf eq "false");
-    %conf = %{$conf};
+   
+    # leave it derefed 
+    # %conf = %{$conf};
 
 }
 
 sub initLogger
 {
-    $log = Loghandler->new($conf{"logfile"});
+    $log = Loghandler->new($conf->{logfile});
     $log->truncFile("");
 }
 
@@ -95,11 +94,11 @@ sub initDatabase
 
 sub initDatabaseConnection
 {
-    eval {$dbHandler = new DBhandler($conf{"db"}, $conf{"dbhost"}, $conf{"dbuser"}, $conf{"dbpass"}, $conf{"port"} || "3306", "mysql", 1);};
+    eval {$dbHandler = DBhandler->new($conf->{"db"}, $conf->{"dbhost"}, $conf->{"dbuser"}, $conf->{"dbpass"}, $conf->{"port"} || "3306", "mysql", 1);};
     if ($@)
     {
         print "Could not establish a connection to the database\n";
-        # exit 1;
+        exit 1;
     }
 }
 
@@ -110,26 +109,6 @@ sub buildSchema
     # my $query = "";
     # $log->addLine($query);
     # $dbHandler->update($query);
-
-}
-
-sub initParser
-{
-    # Create our parser
-    $parser = SierraFolioParser->new($log);
-
-}
-
-sub initPatronFiles
-{
-    my $clusters = shift;
-
-    $files = PatronFiles->new(
-        $log,
-        $conf{rootPath},
-        $clusters
-    );
-
 
 }
 
