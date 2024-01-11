@@ -8,7 +8,7 @@ use MOBIUS::Utils;
 use MOBIUS::Loghandler;
 
 use SierraFolioParser;
-use PatronFiles;
+use PatronImportFiles;
 
 # This is our test file
 my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
@@ -22,7 +22,7 @@ our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan s
 my $conf;
 
 my $parser = SierraFolioParser->new($log);
-my $files = PatronFiles->new($conf, $log, ".", \@clusters);
+my $files = PatronImportFiles->new($conf, $log, ".", \@clusters);
 
 
 test_processPatronRecord();
@@ -52,7 +52,7 @@ sub test_processPatronRecord
     
     my @patronRecord = ();
 
-    push(@patronRecord, "0155m 004lmb    06-30-24");
+    push(@patronRecord, "0012--000srb  --07-31-24");
     push(@patronRecord, "nSOUCHEK, MARILYN KAY");
     push(@patronRecord, "a239 MARTIGNEY DR\$SAINT LOUIS, MO 63129-3411");
     push(@patronRecord, "t618-789-2955");

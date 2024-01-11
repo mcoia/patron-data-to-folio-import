@@ -12,7 +12,7 @@ use MOBIUS::Loghandler;
 use JSON;
 use Data::Dumper;
 use MOBIUS::Utils;
-use PatronFiles;
+use PatronImportFiles;
 use SierraFolioParser;
 
 our $configFile;
@@ -43,7 +43,7 @@ sub init
     initConf();
     initLogger();
     # initDatabase(); 
-    $files = PatronFiles->new($conf, $log);
+    $files = PatronImportFiles->new($conf, $log);
     $parser = SierraFolioParser->new($conf,$log);
     
 }
@@ -70,12 +70,12 @@ sub initConf
     my $utils = MOBIUS::Utils->new();
 
     # Check our conf file
-    $configFile = "default.conf" if (!defined $configFile);
+    $configFile = "patron-import.conf" if (!defined $configFile);
     $conf = $utils->readConfFile($configFile);
     
     exit if ($conf eq "false");
    
-    # leave it derefed 
+    # leave it de-reffed, talk with blake about this being the norm.
     # %conf = %{$conf};
 
 }

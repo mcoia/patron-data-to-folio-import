@@ -11,6 +11,7 @@ There's an authentication portion to this whole thing.
                         !!! This is a requirement !!!
                 WE DON'T HAVE AN EXTERNAL ID FOR THE PATRON LOADS.
 ################################################################################
+folio mod-user-import GITHUB ==> https://github.com/folio-org/mod-user-import
 
 Brooks: name of dev guy for folio
 

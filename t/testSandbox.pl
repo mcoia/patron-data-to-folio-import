@@ -3,13 +3,50 @@ use strict;
 use warnings FATAL => 'all';
 use Data::Dumper;
 
+use lib qw(../lib);
+use MOBIUS::Loghandler;
+
+our $log = Loghandler->new("test.log");
+$log->truncFile("");
+
 print "-------- Sandbox --------\n";
 
+my $filePath = "/home/owner/repo/mobius/folio/patron-import/resources/mapping/patron-type/archway-patron-mapping-2.csv";
 
-my $data = "0155m 004lmb    06-30-24";
+my @mappingData = @{openMappingSheet($filePath)};
 
-my @d = $data =~ /^0(\d{3}).*/gm;
-my $test = ($data =~ /^0(\d{3}).*/gm)[0];
+print "=============== Test\n";
 
-# print "@d\n";
-print "$test\n";
+sub openMappingSheet
+{
+    my @data = ();
+
+    open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
+    while (my $line = <$fileHandle>)
+    {
+        chomp ($line);
+
+        if (!($line =~ /Sierra PTYPE/) && !($line =~ /^0/))
+        {
+            my @row = split(',', $line);
+            # push(@data, \@row) if($row[]);
+            push(@data, \@row);
+        }
+    }
+
+    close $fileHandle;
+    return \@data;
+}
+
+
+my @a = ();
+for(0..100){
+
+    my $data;
+    $data->{count} = $_;
+    $data->{time} = localtime;
+    push(@a, $data);
+
+}
+
+print  $a[1]->{count} . "\n";

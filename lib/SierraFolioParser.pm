@@ -71,6 +71,34 @@ handed off to our patron parser. and returns an array of json data.
 
 }
 
+sub initPatronHash
+{
+    my $self = shift;
+
+    my $patron;
+    $patron->{'field_code'} = "";
+    $patron->{'patron_type'} = "";
+    $patron->{'pcode1'} = "";
+    $patron->{'pcode2'} = "";
+    $patron->{'pcode3'} = "";
+    $patron->{'home_library'} = "";
+    $patron->{'patron_message_code'} = "";
+    $patron->{'patron_block_code'} = "";
+    $patron->{'patron_expiration_date'} = "";
+    $patron->{'name'} = "";
+    $patron->{'address'} = "";
+    $patron->{'telephone'} = "";
+    $patron->{'address2'} = "";
+    $patron->{'telephone2'} = "";
+    $patron->{'department'} = "";
+    $patron->{'unique_id'} = "";
+    $patron->{'barcode'} = "";
+    $patron->{'email_address'} = "";
+    $patron->{'note'} = "";
+
+    return $patron;
+}
+
 =head1 buildPatronHash(@patronrecord)
 
 The initial field: Always 24 char long
@@ -116,7 +144,7 @@ sub buildPatronHash
         # TODO: this should be in conf: uncomment to replace spaces with hyphens. 
         # $data = $data =~ s/\s/-/gr if ($data =~ /^0/);
 
-        # zero field 
+        # zero field
         $patron->{'field_code'} = '0' if ($data =~ /^0/);
         $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
@@ -144,34 +172,6 @@ sub buildPatronHash
     return $patron;
 }
 
-sub initPatronHash
-{
-    my $self = shift;
-
-    my $patron;
-    $patron->{'field_code'} = "";
-    $patron->{'patron_type'} = "";
-    $patron->{'pcode1'} = "";
-    $patron->{'pcode2'} = "";
-    $patron->{'pcode3'} = "";
-    $patron->{'home_library'} = "";
-    $patron->{'patron_message_code'} = "";
-    $patron->{'patron_block_code'} = "";
-    $patron->{'patron_expiration_date'} = "";
-    $patron->{'name'} = "";
-    $patron->{'address'} = "";
-    $patron->{'telephone'} = "";
-    $patron->{'address2'} = "";
-    $patron->{'telephone2'} = "";
-    $patron->{'department'} = "";
-    $patron->{'unique_id'} = "";
-    $patron->{'barcode'} = "";
-    $patron->{'email_address'} = "";
-    $patron->{'note'} = "";
-    
-    return $patron;
-}
-
 =head1 processPatronRecord($patron) returns a single json record for this patron.
 
 
@@ -180,6 +180,23 @@ sub processPatronRecord
 {
     my $self = shift;
     my $patron = shift;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
