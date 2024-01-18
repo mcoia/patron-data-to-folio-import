@@ -12,7 +12,7 @@ use Data::Dumper;
 our $conf;
 initConf();
 
-print Dumper($conf);
+# print Dumper($conf);
 
 our $log = Loghandler->new("test.log");
 $log->truncFile("");
@@ -38,8 +38,8 @@ sub initConf
 
 }
 
-$files->getSierraImportFilePaths();
+my $csv = $files->getPTYPEMappingSheet('archway');
 
-
+# print Dumper($csv);
 
 1;

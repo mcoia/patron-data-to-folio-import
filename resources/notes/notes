@@ -11,12 +11,21 @@ There's an authentication portion to this whole thing.
                         !!! This is a requirement !!!
                 WE DON'T HAVE AN EXTERNAL ID FOR THE PATRON LOADS.
 ################################################################################
-folio mod-user-import GITHUB ==> https://github.com/folio-org/mod-user-import
+folio mod-user-import GITHUB:
+https://github.com/folio-org/mod-user-import
 
 Brooks: name of dev guy for folio
 
-Donna posted this in slack help desk 
+Mapping Sheets
+
+Cluster Files
 https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
+
+Patron Group Mapping sheet
+https://docs.google.com/spreadsheets/d/18Svxcc7oqanAFVve8hwt2rDuy_-9DwUfIQq_eCx2yLg/edit#gid=0
+
+Locate URLs & Authentication
+https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZaj7M/edit#gid=541091413
 
 # FOLIO - mod-user-import 
 https://github.com/folio-org/mod-user-import

@@ -100,6 +100,33 @@ sub getPTYPEMappingSheet
     my $self = shift;
     my $cluster = shift;
 
+    my @csvData = ();
+
+    my $filePath = "$self->{conf}->{patronTypeMappingSheetPath}/$cluster.csv";
+    print "\n\n $filePath \n\n";
+
+    open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
+
+    my $count = 0;
+    while (my $line = <$fileHandle>)
+    {
+        # chomp $line;
+        print $line;
+
+        # my @row = split(',', $line);
+        # my $colCount = 0;
+        # for my $rowLine (@row)
+        # {
+        #     print "$rowLine";
+        #     $colCount++;
+        # }
+        #
+        # push(@csvData, \@row);
+    }
+
+    close $fileHandle;
+
+    return \@csvData;
 }
 
 =head1 getSierraImportFilePaths()
@@ -115,9 +142,9 @@ set the name in conf
 sub getSierraImportFilePaths
 {
     my $self = shift;
-    my $filePath = $self->{patronLoadsMappingSheetPath};
+    my $filePath = $self->{clusterFilesMappingSheetPath};
 
-    print "csv filename: [$self->{conf}->{patronLoadsMappingSheetPath}]\n";
+    # print "CSV filename: [$self->{conf}->{clusterFilesMappingSheetPath}]\n";
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
     while (my $line = <$fileHandle>)
@@ -144,8 +171,6 @@ ect...
 
 basically loop over everything and if we have a value in that column ,set it otherwise it rolls on to the next.
 or... I just modify the damn thing to fit my needs. Tell them how I needs it.
-
-
 
 Ultimately it returns an array of hashes.
 
