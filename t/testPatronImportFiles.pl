@@ -8,7 +8,9 @@ use MOBIUS::Utils;
 
 use PatronImportFiles;
 use SierraFolioParser;
+use Text::CSV::Simple;
 use Data::Dumper;
+
 our $conf;
 initConf();
 
@@ -38,8 +40,30 @@ sub initConf
 
 }
 
-my $csv = $files->getPTYPEMappingSheet('archway');
+sub test_getPTYPEMappingSheet
+{
 
-# print Dumper($csv);
+    # my $csv = $files->getPTYPEMappingSheet('archway');
+    # my $csv = $files->getPTYPEMappingSheet('arthur');
+    # my $csv = $files->getPTYPEMappingSheet('avalon');
+    my $csv = $files->getPTYPEMappingSheet('bridges');
+    # my $csv = $files->getPTYPEMappingSheet('explore');
+    # my $csv = $files->getPTYPEMappingSheet('kc-towers');
+    # my $csv = $files->getPTYPEMappingSheet('palmer');
+    # my $csv = $files->getPTYPEMappingSheet('swan');
+    # my $csv = $files->getPTYPEMappingSheet('swbts');
+
+    for my $row (@{$csv})
+    {
+        for my $cell (@{$row})
+        {
+            print "[$cell]";
+        }
+        print "\n";
+    }
+}
+
+
+my $importFilesPaths = $files->getSierraImportFilePaths();
 
 1;

@@ -64,7 +64,6 @@ handed off to our patron parser. and returns an array of json data.
 
     }
 
-
     # take our jsonEntries and build out a complete json array. 
     # Basically "[@jsonEntries]"
     return "[@jsonEntries]";
@@ -141,8 +140,6 @@ sub buildPatronHash
     for my $data (@{$patronRecord})
     {
 
-        # TODO: this should be in conf: uncomment to replace spaces with hyphens. 
-        # $data = $data =~ s/\s/-/gr if ($data =~ /^0/);
 
         # zero field
         $patron->{'field_code'} = '0' if ($data =~ /^0/);
@@ -155,7 +152,10 @@ sub buildPatronHash
         $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'patron_expiration_date'} = ($data =~ /^0\d{3}.{2}\d{3}.{7}(.{8}).*/gm)[0] if ($data =~ /^0/);
 
-        # variable length fields 
+        # replace spaces with hyphens.
+        $data = $data =~ s/\s/-/gr if ($data =~ /^0/ && $self->{conf}->{replaceSpaceWithHyphen});
+
+        # variable length fields
         $patron->{'name'} = ($data =~ /^n(.*)$/gm)[0] if ($data =~ /^n/);
         $patron->{'address'} = ($data =~ /^a(.*)$/gm)[0] if ($data =~ /^a/);
         $patron->{'telephone'} = ($data =~ /^t(.*)$/gm)[0] if ($data =~ /^t/);

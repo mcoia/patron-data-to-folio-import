@@ -80,5 +80,15 @@ zdonya.johnsen@student.eastcentral.edu
 
 
 
+Archway	''	3.16.146.156	iii	1032	bnl	P71bWgVMvOj
+Arthur	''	3.16.146.129	iii	1032	bnl	P71bWgVMvOj
+Avalon	''	3.16.146.142	iii	1032	bnl	P71bWgVMvOj
+Bridges	''	3.16.146.189	iii	1032	bnl	P71bWgVMvOj
+COOL	''	18.216.247.29	iii	1032	bnl	20sgclmobstats
+KC-Towers	''	3.16.146.166	iii	1032	bnl	P71bWgVMvOj
+Swan	''	3.16.146.176	iii	1032	bnl	P71bWgVMvOj
+Explore	''	3.16.146.135	iii	1032	bnl	bcn2XFH.hbd!qwg5hye
 
+https://techdocs.iii.com/sierradna/Content/Entities/Patron.htm?Highlight=ptype%20
 
+select * from sierra_view.ptype_property

@@ -1,0 +1,257 @@
+Sierra,,,FOLIO
+0,ZZ-Unused,,
+1,Crowder Student,,Crowder Student
+2,Crowder Faculty,,Crowder Faculty
+3,Crowder Staff,,Crowder Staff
+4,Crowder Guest,,Crowder Guest
+5,Crowder ILL,,Crowder ILL
+6,Crowder Booking Test,,
+7,,,
+8,ZZ-Unused,,
+9,,,
+10,,,
+11,,,
+12,,,
+13,,,
+14,,,
+15,,,
+16,,,
+17,,,
+18,,,
+19,,,
+20,,,
+21,,,
+22,,,
+23,,,
+24,,,
+25,,,
+26,Drury Student,,Drury Student
+27,Drury Alumni,,Drury Alumni
+28,Drury Faculty,,Drury Faculty
+29,Drury Staff,,Drury Staff
+30,,,
+31,,,
+32,Drury Other,,Drury Other
+33,Drury Adjunct,,Drury Adjunct
+34,,,
+35,,,
+36,,,
+37,,,
+38,,,
+39,,,
+40,,,
+41,,,
+42,ZZ-Unused,,
+43,ZZ-Unused,,
+44,,,
+45,,,
+46,,,
+47,,,
+48,,,
+49,,,
+50,,,
+51,MSSU Undergrad,,MSSU Undergrad
+52,MSSU Faculty,,MSSU Faculty
+53,MSSU Staff,,MSSU Staff
+54,MSSU Community,,MSSU Community
+55,MSSU ILL,,MSSU ILL
+56,MSSU VIPS,,MSSU VIPS
+57,MSSU Area Student,,MSSU Area Student
+58,MSSU Area Faculty,,
+59,MSSU Coop Faculty,,
+60,MSSU Coop Undergrad,,
+61,MSSU Coop Graduate,,
+62,MSSU In House,,MSSU In House
+63,MSSU Grad Student,,MSSU Grad Student
+64,MSSU Friend,,MSSU Friend
+65,,,
+66,,,
+67,,,
+68,,,
+69,,,
+70,,,
+71,,,
+72,,,
+73,,,
+74,,,
+75,,,
+76,OTC Student,,OTC Student
+77,OTC Faculty,,OTC Faculty
+78,OTC Staff,,OTC Staff
+79,OTC Community,,OTC Community
+80,OTC ILL,,
+81,OTC High School,,
+82,OTC Placeholder,,
+83,,,
+84,,,
+85,,,
+86,,,
+87,,,
+88,,,
+89,,,
+90,,,
+91,,,
+92,,,
+93,,,
+94,,,
+95,,,
+96,,,
+97,,,
+98,,,
+99,,,
+100,,,
+101,SBU Undergraduate,,SBU Undergraduate
+102,SBU Graduate,,SBU Graduate
+103,SBU Faculty Full Time,-->>,SBU Faculty
+104,SBU Faculty Retired,,SBU Faculty Retired
+105,SBU Faculty Adjunct,,
+106,SBU Faculty Affilate,,
+107,SBU Staff,,SBU Staff
+108,SBU Guest Adult,-->>,SBU Guest
+109,SBU Guest Juvenile,,
+110,SBU ILL,,SBU ILL
+111,SBU Associate Student,,
+112,SBU Area College Student,,
+113,SBU Student-Dual Enrolled,,
+114,SBU Student Correspondance,,SBU Online
+115,SBU Graduate PT,,
+116,SBU Staff Affiliate,,
+117,,,
+118,,,
+119,,,
+120,,,
+121,,,
+122,,,
+123,,,
+124,,,
+125,,,
+126,,,
+127,,,
+128,,,
+129,,,
+130,,,
+131,,,
+132,,,
+133,,,
+134,,,
+135,,,
+136,,,
+137,,,
+138,,,
+139,,,
+140,,,
+141,,,
+142,,,
+143,,,
+144,,,
+145,,,
+146,,,
+147,,,
+148,,,
+149,,,
+150,Cottey/Admin,,Cottey/Admin
+151,Cottey/Alumnae,,Cottey/Alumnae
+152,Cottey/Emeritus Faculty,,Cottey/Emeritus Faculty
+153,Cottey/Retired Staff,,Cottey/Retired Staff
+154,Cottey/Faculty,,Cottey/Faculty
+155,Cottey/Family,,Cottey/Family
+156,Cottey/1st Year,--->>>,Cottey/Student
+157,Cottey/ILL,,Cottey/ILL
+158,Cottey/PEO,,Cottey/PEO
+159,Cottey/2nd Year,,Cottey/2nd Year
+160,Cottey/Staff,,Cottey/Staff
+161,Cottey/Placeholder,,
+162,Cottey/Public,,Cottey/Public
+163,Cottey/Nevada R-V Teacher,,Cottey/Nevada R-V Teacher
+164,Cottey/3rd Year,,Cottey/3rd Year
+165,Cottey/4th Year,,Cottey/4th Year
+166,,,
+167,,,
+168,,,
+169,,,
+170,EU Masters Student,,EU Masters Student
+171,EU Faculty & Administration,,EU Faculty & Administration
+172,EU Staff,,EU Staff
+173,EU Adjunct Faculty,,EU Adjunct Faculty
+174,EU Alumni,,EU Alumni
+175,EU Distance Masters Student,,EU Distance Masters Student
+176,EU Doctoral Student,,EU Doctoral Student
+177,EU ILL,,EU ILL
+178,EU Guest,,EU Guest
+179,EU Classroom Assignment,,EU Classroom Assignment
+180,EU Departmental,,EU Departmental
+181,EU Undergraduate Student,,EU Undergraduate Student
+182,EU Reciprocal Borrower,,EU Reciprocal Borrower
+183,EU Global Faculty,,EU Global Faculty
+184,EU Temp,,EU Temp
+185,OCC Student,,OCC Residential
+186,OCC Graduating Senior,,
+187,OCC Faculty,,OCC Faculty
+188,OCC Staff,,OCC Staff
+189,OCC Affiliates,,OCC Community
+190,OCC Grad Student,,OCC Graduate
+191,OCC ILL,,
+192,OCC Homeschoolers,,
+193,OCC Placeholder,,OCC Online
+194,OCC Placeholder,,OCC Alumni
+195,OCC Placeholder,,
+196,OCC Placeholder,,
+197,OCC Placeholder,,
+198,OCC Placeholder,,
+199,OCC Placeholder,,
+200,Local Loans Only,,
+201,Academic Undergrad,,
+202,Academic Grad,,
+203,Academic Faculty,,
+204,Academic Staff,,
+205,Academic Affiliates,,
+206,Academic Other,,
+207,Public,,
+208,Public Staff,,
+209,Public Other,,
+210,Test - Borrowing,,
+211,Test - Non-Borrowing,,
+212,CRL - Local Loans Only,,
+213,CRL - Acad Undergrad,,
+214,CRL - Academic Grad,,
+215,CRL - Academic Faculty,,
+216,CRL - Academic Staff,,
+217,CRL - Acad Affiliates,,
+218,CRL Test,,
+219,CRL Test,,
+220,MOBIUS VP 20 BOOK-AV,,
+221,MOBIUS Placeholder,,
+222,MOBIUS Placeholder,,
+223,MOBIUS Placeholder,,
+224,MOBIUS VP 10 BOOK-AV,,
+225,MOBIUS VP Placeholder,,
+226,MOBIUS Placeholder,,
+227,MOBIUS 30 VP BOOK-AV,,
+228,MOBIUS 30 BOOK,,
+229,MOBIUS 20 BOOK-AV,,
+230,MOBIUS 30 BOOK-AV,,
+231,MOBIUS Placeholder,,
+232,MOBIUS Placeholder,,
+233,MOBIUS Placeholder,,
+234,MOBIUS Placeholder,,
+235,MOBIUS 20 BOOK-WAM,,
+236,MOBIUS 20 BOOK-AV-WAM,,
+237,MOBIUS 10 BOOK-AV-WAM,,
+238,MOBIUS 30 BOOK-AV-WAM,,
+239,MOBIUS 10 BOOK-WAM,,
+240,MOBIUS 10 BOOK-AV,,
+241,MOBIUS 30 BOOK-WAM,,
+242,MOBIUS VP 20 BOOK,,
+243,SLU-MERLINVP30ExtB-AV-W,,
+244,SLU-MERLINVP20ExtB-AV-W,,
+245,SLU-MERLIN30ExtB-AV-W,,
+246,MOBIUS VP 10 BOOK,,
+247,SLU-MERLIN20ExtB-AV-W,,
+248,MOBIUS VP 30 BOOK,,
+249,MOBIUS 20 BOOK,,
+250,MOBIUS 10 BOOK,,
+251,SLU-MERLINVP30ExtB-AV,,
+252,SLU-MERLINVP20ExtB-AV,,
+253,MOBIUS Reserve Recall,,
+254,MOBIUS VP Restricted,,
+255,MOBIUS Restricted,,

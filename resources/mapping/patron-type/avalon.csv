@@ -1,0 +1,257 @@
+Sierra,,,FOLIO
+0,Unknown,,
+1,CS Student,,CS Student
+2,CS Employee,,CS Employee
+3,CS Staff,,
+4,CS ILL,,CS ILL
+5,CS Community Borrower,,CS Community Borrower
+6,CS Canton R-5 Staff,,
+7,CS Library Staff,,
+8,CMU Extended Student,,CMU Extended Student
+9,CMU Placeholder,,
+10,CMU Student,,CMU Student
+11,CMU Staff,,CMU Staff
+12,CMU Faculty,,CMU Faculty
+13,,,
+14,CMU Guest,,CMU Guest
+15,CMU Grad/Honors,,CMU Grad/Honors
+16,,,
+17,,,
+18,,,
+19,,,
+20,,,
+21,,,
+22,,,
+23,,,
+24,,,
+25,,,
+26,,,
+27,,,
+28,,,
+29,,,
+30,MVC Student,,MVC Student
+31,MVC Faculty/Staff,,MVC Faculty/Staff
+32,MVC ILL,,MVC ILL
+33,MVC Public,,MVC Public
+34,MVC High School,,
+35,MVC GRAD,,MVC GRAD
+36,,,
+37,,,
+38,,,
+39,,,
+40,SFCC Student,,SFCC Student
+41,SFCC Faculty/Staff,,SFCC Faculty/Staff
+42,SFCC ILL,,
+43,SFCC Community,,SFCC Community
+44,,,
+45,,,
+46,,,
+47,,,
+48,,,
+49,,,
+50,CMU MCO Staff,,CMU MCO Staff
+51,ATSU Student,,ATSU Student
+52,ATSU Faculty,,ATSU Faculty
+53,ATSU Staff,,ATSU Staff
+54,ATSU Hospital Staff,,ATSU Hospital Staff
+55,ATSU Community Borrower,,ATSU Community Borrower
+56,ATSU Binding,,ATSU Binding
+57,ATSU ILL,,ATSU ILL
+58,ATSU ILL Arizona,,ATSU ILL Arizona
+59,ATSU Library Staff,,ATSU Library Staff
+60,,,
+61,STC Student,,STC Student
+62,STC Staff,,STC Staff
+63,STC Faculty,,STC Faculty
+64,STC Administration,,STC Administration
+65,STC Board,,STC Board
+66,STC Alumni,,STC Alumni
+67,STC Community,,STC Community
+68,STC Interlibrary Loan,,
+69,STC Other,,
+70,STC Department Program,,
+71,STC Library Staff,,
+72,,,
+73,,,
+74,,,
+75,,,
+76,,,
+77,,,
+78,,,
+79,,,
+80,,,
+81,MACC Student,,MACC Student
+82,MACC Faculty/Staff/Board Member,,MACC Faculty/Staff/Board Member
+83,MACC Community Borrower,,MACC Community Borrower
+84,MACC ILL,,
+85,,,
+86,,,
+87,,,
+88,,,
+89,,,
+90,,,
+91,HLG Student,,HLG Student
+92,HLG Faculty/Staff,,HLG Faculty/Staff
+93,HLG ILL,,HLG ILL
+94,HLG Community Borrower,,HLG Community Borrower
+95,HLG Affiliate,,HLG Affiliate
+96,HLG Library Staff,,
+97,,,
+98,,,
+99,,,
+100,BAD PATRON,,
+101,TSU Community Borrower,,TSU Community Borrower
+102,TSU Academy,,TSU Academy
+103,TSU Undergraduate,,TSU Undergraduate
+104,TSU Graduate,,TSU Graduate
+105,TSU Designated Guest,,TSU Designated Guest
+106,TSU Staff,,TSU Staff
+107,TSU Faculty,--->>,TSU Faculty
+108,TSU Library in House,-->>,TSU Library in House
+109,TSU ILL,,TSU ILL
+110,TSU Bindery,,TSU Bindery
+111,TSU Plus,,TSU Plus
+112,TSU Library Staff,,TSU Library Staff
+113,,,
+114,,,
+115,,,
+116,,,
+117,,,
+118,,,
+119,,,
+120,,,
+121,,,
+122,,,
+123,,,
+124,,,
+125,,,
+126,,,
+127,,,
+128,,,
+129,,,
+130,,,
+131,,,
+132,,,
+133,,,
+134,,,
+135,,,
+136,,,
+137,,,
+138,,,
+139,,,
+140,,,
+141,,,
+142,,,
+143,,,
+144,,,
+145,,,
+146,,,
+147,,,
+148,,,
+149,,,
+150,,,
+151,,,
+152,,,
+153,,,
+154,,,
+155,,,
+156,,,
+157,,,
+158,,,
+159,,,
+160,,,
+161,,,
+162,,,
+163,,,
+164,,,
+165,,,
+166,,,
+167,,,
+168,,,
+169,,,
+170,,,
+171,,,
+172,,,
+173,,,
+174,,,
+175,,,
+176,,,
+177,,,
+178,,,
+179,,,
+180,,,
+181,,,
+182,,,
+183,,,
+184,,,
+185,,,
+186,,,
+187,,,
+188,,,
+189,,,
+190,,,
+191,,,
+192,,,
+193,,,
+194,,,
+195,,,
+196,,,
+197,,,
+198,,,
+199,,,
+200,Local Loans Only,,
+201,Academic Undergrad,,
+202,Academic Grad,,
+203,Academic Faculty,,
+204,Academic Staff,,
+205,Academic Affiliates,,
+206,Academic Other,,
+207,Public,,
+208,Public Staff,,
+209,Public Other,,
+210,Test - Borrowing,,
+211,Test - Non-Borrowing,,
+212,CRL - Local Loans Only,,
+213,CRL - Acad Undergrad,,
+214,CRL - Academic Grad,,
+215,CRL - Academic Faculty,,
+216,CRL - Academic Staff,,
+217,CRL - Acad Affiliates,,
+218,CRL Test,,
+219,CRL - Test,,
+220,MOBIUS VP 20 BOOK-AV,,
+221,MOBIUS Placeholder,,
+222,MOBIUS Placeholder,,
+223,MOBIUS Placeholder,,
+224,MOBIUS VP 10 BOOK-AV,,
+225,MOBIUS VP Placeholder,,
+226,MOBIUS Placeholder,,
+227,MOBIUS 30 VP BOOK-AV,,
+228,MOBIUS 30 BOOK,,
+229,MOBIUS 20 BOOK-AV,,
+230,MOBIUS 30 BOOK-AV,,
+231,MOBIUS Placeholder,,
+232,MOBIUS Placeholder,,
+233,MOBIUS Placeholder,,
+234,MOBIUS Placeholder,,
+235,MOBIUS 20 BOOK-WAM,,
+236,MOBIUS 20 BOOK-AV-WAM,,
+237,MOBIUS 10 BOOK-AV-WAM,,
+238,MOBIUS 30 BOOK-AV-WAM,,
+239,MOBIUS 10 BOOK-WAM,,
+240,MOBIUS 10 BOOK-AV,,
+241,MOBIUS 30 BOOK-WAM,,
+242,MOBIUS VP 20 BOOK,,
+243,SLU-MERLINVP30ExtB-AV-W,,
+244,SLU-MERLINVP20ExtB-AV-W,,
+245,SLU-MERLIN30ExtB-AV-W,,
+246,MOBIUS VP 10 BOOK,,
+247,SLU-MERLIN20ExtB-AV-W,,
+248,MOBIUS VP 30 BOOK,,
+249,MOBIUS 20 BOOK,,
+250,MOBIUS 10 BOOK,,
+251,SLU-MERLINVP30ExtB-AV,,
+252,SLU-MERLINVP20ExtB-AV,,
+253,MOBIUS Reserve Recall,,
+254,MOBIUS VP Restricted,,
+255,MOBIUS Restricted,,

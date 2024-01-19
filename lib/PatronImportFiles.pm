@@ -100,36 +100,16 @@ sub getPTYPEMappingSheet
     my $self = shift;
     my $cluster = shift;
 
-    my @csvData = ();
-
     my $filePath = "$self->{conf}->{patronTypeMappingSheetPath}/$cluster.csv";
-    print "\n\n $filePath \n\n";
 
-    open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
-
-    my $count = 0;
-    while (my $line = <$fileHandle>)
-    {
-        # chomp $line;
-        print $line;
-
-        # my @row = split(',', $line);
-        # my $colCount = 0;
-        # for my $rowLine (@row)
-        # {
-        #     print "$rowLine";
-        #     $colCount++;
-        # }
-        #
-        # push(@csvData, \@row);
-    }
-
-    close $fileHandle;
-
-    return \@csvData;
+    return $self->loadCSVFileAsArray($filePath);
 }
 
-=head1 getSierraImportFilePaths()
+=head1 getSierraImportFilePaths() returns a hash of cluster names with file paths as an array.
+
+example:
+my $importFilePaths = getSierraImportFilePaths();
+my @arthurFilePaths = $importFilePaths->{arthur};
 
 Get the sheet from here
 # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
@@ -142,40 +122,66 @@ set the name in conf
 sub getSierraImportFilePaths
 {
     my $self = shift;
-    my $filePath = $self->{clusterFilesMappingSheetPath};
+    my $csv = $self->loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
 
-    # print "CSV filename: [$self->{conf}->{clusterFilesMappingSheetPath}]\n";
+    my $filePathHash;
+    my $currentCluster;
 
-    open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
-    while (my $line = <$fileHandle>)
+    for my $row (@{$csv})
     {
-        # chomp $line;
-        # push(@data, $line);
+
+
+
+        if ($row->[0] ne '' && $self->rowContainsClusterName($row->[0]))
+        {
+            print lc $row->[0] . "\n";
+            $currentCluster=$row->[0];
+
+        }
+
+
+        # for my $cell (@{$row})
+        # {
+        #     print "[$cell]" if($cell ne '');
+        # }
+
+        # print "\n";
+
     }
 
-    close $fileHandle;
 
-=pod
-sudo code...
 
-for(googleSheetRows){
 
-if(col[0] ne '')
-    cluster = col[0];
 
-// logic stuff.
-institution = col[1] if ne ''
-ect...
+
 
 }
 
-basically loop over everything and if we have a value in that column ,set it otherwise it rolls on to the next.
-or... I just modify the damn thing to fit my needs. Tell them how I needs it.
+sub loadCSVFileAsArray
+{
+    my $self = shift;
+    my $filePath = shift;
 
-Ultimately it returns an array of hashes.
+    my $parser = Text::CSV::Simple->new;
+    my @csvData = $parser->read_file($filePath);
 
+    return \@csvData;
 
-=cut
+}
+
+sub rowContainsClusterName
+{
+    my $self = shift;
+    my $row = lc shift;
+
+    my @clusters = split(' ', $self->{conf}->{clusters});
+
+    for (@clusters)
+    {
+        return 1 if ($row eq $_);
+    }
+
+    return 0;
 
 }
 

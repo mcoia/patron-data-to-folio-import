@@ -32,7 +32,7 @@ use strict;
 
 use DBD::Pg;
 use DBD::mysql;
-use Loghandler;
+use MOBIUS::Loghandler;
 use Encode;
 use utf8;
 use Data::Dumper;
