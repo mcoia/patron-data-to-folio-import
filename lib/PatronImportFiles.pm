@@ -162,12 +162,21 @@ sub getSierraImportFilePaths_old
 
 sub getFilePatterns
 {
-    for my $file (@{$files->getSierraImportFilePaths()})
+    my $self = shift;
+    my $files = shift;
+    my @filePatterns = ();
+
+    for my $file (@{$files})
     {
         $file =~ s/dd.*//g;
         $file =~ s/mm.*//g;
         $file =~ s/yy.*//g;
+
+        push(@filePatterns, $file);
+
     }
+
+    return \@filePatterns;
 }
 
 sub getSierraImportFilePaths

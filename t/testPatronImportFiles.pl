@@ -13,15 +13,8 @@ use Data::Dumper;
 our $conf;
 initConf();
 
-# print Dumper($conf);
-
 our $log = Loghandler->new("test.log");
 $log->truncFile("");
-
-my $files = PatronImportFiles->new($conf, $log);
-
-# my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
-# my @data = @{$files->readPatronFile($patronFilePath)};
 
 sub initConf
 {
@@ -39,30 +32,14 @@ sub initConf
 
 }
 
-sub test_getPTYPEMappingSheet
+
+my $files = PatronImportFiles->new($conf, $log);
+my $importFilesPaths = $files->getSierraImportFilePaths();
+
+for my $file (@{$files->getFilePatterns($importFilesPaths)})
 {
-
-    # my $csv = $files->getPTYPEMappingSheet('archway');
-    # my $csv = $files->getPTYPEMappingSheet('arthur');
-    # my $csv = $files->getPTYPEMappingSheet('avalon');
-    my $csv = $files->getPTYPEMappingSheet('bridges');
-    # my $csv = $files->getPTYPEMappingSheet('explore');
-    # my $csv = $files->getPTYPEMappingSheet('kc-towers');
-    # my $csv = $files->getPTYPEMappingSheet('palmer');
-    # my $csv = $files->getPTYPEMappingSheet('swan');
-    # my $csv = $files->getPTYPEMappingSheet('swbts');
-
-    for my $row (@{$csv})
-    {
-        for my $cell (@{$row})
-        {
-            print "[$cell]";
-        }
-        print "\n";
-    }
+    print "Processing $file\n";
+    $log->addLine("$file");
 }
-
-my $importFilesPaths = $files->getSierraImportFilePaths_old();
-getFilePatterns();
 
 1;
