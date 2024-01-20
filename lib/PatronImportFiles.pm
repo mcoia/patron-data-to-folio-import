@@ -111,6 +111,14 @@ example:
 my $importFilePaths = getSierraImportFilePaths();
 my @arthurFilePaths = $importFilePaths->{arthur};
 
+
+
+
+
+
+
+
+
 Get the sheet from here
 # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
 
@@ -119,42 +127,62 @@ Save it and put it in the resources/mapping folder.
 set the name in conf
 
 =cut
-sub getSierraImportFilePaths
+sub getSierraImportFilePaths_old
 {
+
     my $self = shift;
     my $csv = $self->loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
 
-    my $filePathHash;
-    my $currentCluster;
+    my %filePathHash;
+    my $filePathHash = \%filePathHash;
+    my $currentCluster = '';
+    my $institution = '';
+    my @files = ();
 
     for my $row (@{$csv})
     {
 
-
-
-        if ($row->[0] ne '' && $self->rowContainsClusterName($row->[0]))
+        $currentCluster = lc $row->[0] if ($row->[0] ne '' && $self->rowContainsClusterName($row->[0]));
+        if ($row->[1] ne '' && $row->[1] ne 'Institution')
         {
-            print lc $row->[0] . "\n";
-            $currentCluster=$row->[0];
-
+            $institution = lc $row->[1];
+            @files = ();
         }
 
+        push(@files, $row->[2]) if ($row->[2] ne '' && $row->[2] ne 'n/a');
 
-        # for my $cell (@{$row})
-        # {
-        #     print "[$cell]" if($cell ne '');
-        # }
-
-        # print "\n";
+        my $fileSize = @files;
+        $filePathHash->{$currentCluster}->{$institution} = \@files if ($fileSize && $currentCluster && $institution);
 
     }
 
+    return $filePathHash;
 
+}
 
+sub getFilePatterns
+{
+    for my $file (@{$files->getSierraImportFilePaths()})
+    {
+        $file =~ s/dd.*//g;
+        $file =~ s/mm.*//g;
+        $file =~ s/yy.*//g;
+    }
+}
 
+sub getSierraImportFilePaths
+{
 
+    my $self = shift;
+    my $csv = $self->loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
+    my @files = ();
 
+    for my $row (@{$csv})
+    {
+        push(@files, $row->[2]) if ($row->[2] ne '' && $row->[2] ne 'n/a');
+    }
 
+    return \@files;
 }
 
 sub loadCSVFileAsArray

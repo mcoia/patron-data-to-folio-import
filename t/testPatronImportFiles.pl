@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-use strict;
 use warnings FATAL => 'all';
 use lib qw(../lib);
 
@@ -63,7 +62,7 @@ sub test_getPTYPEMappingSheet
     }
 }
 
-
-my $importFilesPaths = $files->getSierraImportFilePaths();
+my $importFilesPaths = $files->getSierraImportFilePaths_old();
+getFilePatterns();
 
 1;
