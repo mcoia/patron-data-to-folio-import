@@ -376,6 +376,611 @@ sub fastcwd;
 sub getcwd;
 sub realpath;
 }
+package DBD::Pg {
+sub PG_ACLITEM() ;
+sub PG_ACLITEMARRAY() ;
+sub PG_ANY() ;
+sub PG_ANYARRAY() ;
+sub PG_ANYCOMPATIBLE() ;
+sub PG_ANYCOMPATIBLEARRAY() ;
+sub PG_ANYCOMPATIBLEMULTIRANGE() ;
+sub PG_ANYCOMPATIBLENONARRAY() ;
+sub PG_ANYCOMPATIBLERANGE() ;
+sub PG_ANYELEMENT() ;
+sub PG_ANYENUM() ;
+sub PG_ANYMULTIRANGE() ;
+sub PG_ANYNONARRAY() ;
+sub PG_ANYRANGE() ;
+sub PG_ASYNC() ;
+sub PG_BIT() ;
+sub PG_BITARRAY() ;
+sub PG_BOOL() ;
+sub PG_BOOLARRAY() ;
+sub PG_BOX() ;
+sub PG_BOXARRAY() ;
+sub PG_BPCHAR() ;
+sub PG_BPCHARARRAY() ;
+sub PG_BYTEA() ;
+sub PG_BYTEAARRAY() ;
+sub PG_CHAR() ;
+sub PG_CHARARRAY() ;
+sub PG_CID() ;
+sub PG_CIDARRAY() ;
+sub PG_CIDR() ;
+sub PG_CIDRARRAY() ;
+sub PG_CIRCLE() ;
+sub PG_CIRCLEARRAY() ;
+sub PG_CSTRING() ;
+sub PG_CSTRINGARRAY() ;
+sub PG_DATE() ;
+sub PG_DATEARRAY() ;
+sub PG_DATEMULTIRANGE() ;
+sub PG_DATEMULTIRANGEARRAY() ;
+sub PG_DATERANGE() ;
+sub PG_DATERANGEARRAY() ;
+sub PG_EVENT_TRIGGER() ;
+sub PG_FDW_HANDLER() ;
+sub PG_FLOAT4() ;
+sub PG_FLOAT4ARRAY() ;
+sub PG_FLOAT8() ;
+sub PG_FLOAT8ARRAY() ;
+sub PG_GTSVECTOR() ;
+sub PG_GTSVECTORARRAY() ;
+sub PG_INDEX_AM_HANDLER() ;
+sub PG_INET() ;
+sub PG_INETARRAY() ;
+sub PG_INT2() ;
+sub PG_INT2ARRAY() ;
+sub PG_INT2VECTOR() ;
+sub PG_INT2VECTORARRAY() ;
+sub PG_INT4() ;
+sub PG_INT4ARRAY() ;
+sub PG_INT4MULTIRANGE() ;
+sub PG_INT4MULTIRANGEARRAY() ;
+sub PG_INT4RANGE() ;
+sub PG_INT4RANGEARRAY() ;
+sub PG_INT8() ;
+sub PG_INT8ARRAY() ;
+sub PG_INT8MULTIRANGE() ;
+sub PG_INT8MULTIRANGEARRAY() ;
+sub PG_INT8RANGE() ;
+sub PG_INT8RANGEARRAY() ;
+sub PG_INTERNAL() ;
+sub PG_INTERVAL() ;
+sub PG_INTERVALARRAY() ;
+sub PG_JSON() ;
+sub PG_JSONARRAY() ;
+sub PG_JSONB() ;
+sub PG_JSONBARRAY() ;
+sub PG_JSONPATH() ;
+sub PG_JSONPATHARRAY() ;
+sub PG_LANGUAGE_HANDLER() ;
+sub PG_LINE() ;
+sub PG_LINEARRAY() ;
+sub PG_LSEG() ;
+sub PG_LSEGARRAY() ;
+sub PG_MACADDR() ;
+sub PG_MACADDR8() ;
+sub PG_MACADDR8ARRAY() ;
+sub PG_MACADDRARRAY() ;
+sub PG_MONEY() ;
+sub PG_MONEYARRAY() ;
+sub PG_NAME() ;
+sub PG_NAMEARRAY() ;
+sub PG_NUMERIC() ;
+sub PG_NUMERICARRAY() ;
+sub PG_NUMMULTIRANGE() ;
+sub PG_NUMMULTIRANGEARRAY() ;
+sub PG_NUMRANGE() ;
+sub PG_NUMRANGEARRAY() ;
+sub PG_OID() ;
+sub PG_OIDARRAY() ;
+sub PG_OIDVECTOR() ;
+sub PG_OIDVECTORARRAY() ;
+sub PG_OLDQUERY_CANCEL() ;
+sub PG_OLDQUERY_WAIT() ;
+sub PG_PATH() ;
+sub PG_PATHARRAY() ;
+sub PG_PG_ATTRIBUTE() ;
+sub PG_PG_ATTRIBUTEARRAY() ;
+sub PG_PG_BRIN_BLOOM_SUMMARY() ;
+sub PG_PG_BRIN_MINMAX_MULTI_SUMMARY() ;
+sub PG_PG_CLASS() ;
+sub PG_PG_CLASSARRAY() ;
+sub PG_PG_DDL_COMMAND() ;
+sub PG_PG_DEPENDENCIES() ;
+sub PG_PG_LSN() ;
+sub PG_PG_LSNARRAY() ;
+sub PG_PG_MCV_LIST() ;
+sub PG_PG_NDISTINCT() ;
+sub PG_PG_NODE_TREE() ;
+sub PG_PG_PROC() ;
+sub PG_PG_PROCARRAY() ;
+sub PG_PG_SNAPSHOT() ;
+sub PG_PG_SNAPSHOTARRAY() ;
+sub PG_PG_TYPE() ;
+sub PG_PG_TYPEARRAY() ;
+sub PG_POINT() ;
+sub PG_POINTARRAY() ;
+sub PG_POLYGON() ;
+sub PG_POLYGONARRAY() ;
+sub PG_RECORD() ;
+sub PG_RECORDARRAY() ;
+sub PG_REFCURSOR() ;
+sub PG_REFCURSORARRAY() ;
+sub PG_REGCLASS() ;
+sub PG_REGCLASSARRAY() ;
+sub PG_REGCOLLATION() ;
+sub PG_REGCOLLATIONARRAY() ;
+sub PG_REGCONFIG() ;
+sub PG_REGCONFIGARRAY() ;
+sub PG_REGDICTIONARY() ;
+sub PG_REGDICTIONARYARRAY() ;
+sub PG_REGNAMESPACE() ;
+sub PG_REGNAMESPACEARRAY() ;
+sub PG_REGOPER() ;
+sub PG_REGOPERARRAY() ;
+sub PG_REGOPERATOR() ;
+sub PG_REGOPERATORARRAY() ;
+sub PG_REGPROC() ;
+sub PG_REGPROCARRAY() ;
+sub PG_REGPROCEDURE() ;
+sub PG_REGPROCEDUREARRAY() ;
+sub PG_REGROLE() ;
+sub PG_REGROLEARRAY() ;
+sub PG_REGTYPE() ;
+sub PG_REGTYPEARRAY() ;
+sub PG_TABLE_AM_HANDLER() ;
+sub PG_TEXT() ;
+sub PG_TEXTARRAY() ;
+sub PG_TID() ;
+sub PG_TIDARRAY() ;
+sub PG_TIME() ;
+sub PG_TIMEARRAY() ;
+sub PG_TIMESTAMP() ;
+sub PG_TIMESTAMPARRAY() ;
+sub PG_TIMESTAMPTZ() ;
+sub PG_TIMESTAMPTZARRAY() ;
+sub PG_TIMETZ() ;
+sub PG_TIMETZARRAY() ;
+sub PG_TRIGGER() ;
+sub PG_TSMULTIRANGE() ;
+sub PG_TSMULTIRANGEARRAY() ;
+sub PG_TSM_HANDLER() ;
+sub PG_TSQUERY() ;
+sub PG_TSQUERYARRAY() ;
+sub PG_TSRANGE() ;
+sub PG_TSRANGEARRAY() ;
+sub PG_TSTZMULTIRANGE() ;
+sub PG_TSTZMULTIRANGEARRAY() ;
+sub PG_TSTZRANGE() ;
+sub PG_TSTZRANGEARRAY() ;
+sub PG_TSVECTOR() ;
+sub PG_TSVECTORARRAY() ;
+sub PG_TXID_SNAPSHOT() ;
+sub PG_TXID_SNAPSHOTARRAY() ;
+sub PG_UNKNOWN() ;
+sub PG_UUID() ;
+sub PG_UUIDARRAY() ;
+sub PG_VARBIT() ;
+sub PG_VARBITARRAY() ;
+sub PG_VARCHAR() ;
+sub PG_VARCHARARRAY() ;
+sub PG_VOID() ;
+sub PG_XID() ;
+sub PG_XID8() ;
+sub PG_XID8ARRAY() ;
+sub PG_XIDARRAY() ;
+sub PG_XML() ;
+sub PG_XMLARRAY() ;
+sub constant() ;
+}
+package DBD::Pg::db {
+sub DESTROY;
+sub FETCH;
+sub SQL_ALL_TYPES() ;
+sub SQL_ARRAY() ;
+sub SQL_ARRAY_LOCATOR() ;
+sub SQL_BIGINT() ;
+sub SQL_BINARY() ;
+sub SQL_BIT() ;
+sub SQL_BLOB() ;
+sub SQL_BLOB_LOCATOR() ;
+sub SQL_BOOLEAN() ;
+sub SQL_CHAR() ;
+sub SQL_CLOB() ;
+sub SQL_CLOB_LOCATOR() ;
+sub SQL_DATE() ;
+sub SQL_DATETIME() ;
+sub SQL_DECIMAL() ;
+sub SQL_DOUBLE() ;
+sub SQL_FLOAT() ;
+sub SQL_GUID() ;
+sub SQL_INTEGER() ;
+sub SQL_INTERVAL() ;
+sub SQL_INTERVAL_DAY() ;
+sub SQL_INTERVAL_DAY_TO_HOUR() ;
+sub SQL_INTERVAL_DAY_TO_MINUTE() ;
+sub SQL_INTERVAL_DAY_TO_SECOND() ;
+sub SQL_INTERVAL_HOUR() ;
+sub SQL_INTERVAL_HOUR_TO_MINUTE() ;
+sub SQL_INTERVAL_HOUR_TO_SECOND() ;
+sub SQL_INTERVAL_MINUTE() ;
+sub SQL_INTERVAL_MINUTE_TO_SECOND() ;
+sub SQL_INTERVAL_MONTH() ;
+sub SQL_INTERVAL_SECOND() ;
+sub SQL_INTERVAL_YEAR() ;
+sub SQL_INTERVAL_YEAR_TO_MONTH() ;
+sub SQL_LONGVARBINARY() ;
+sub SQL_LONGVARCHAR() ;
+sub SQL_MULTISET() ;
+sub SQL_MULTISET_LOCATOR() ;
+sub SQL_NUMERIC() ;
+sub SQL_REAL() ;
+sub SQL_REF() ;
+sub SQL_ROW() ;
+sub SQL_SMALLINT() ;
+sub SQL_TIME() ;
+sub SQL_TIMESTAMP() ;
+sub SQL_TINYINT() ;
+sub SQL_TYPE_DATE() ;
+sub SQL_TYPE_TIME() ;
+sub SQL_TYPE_TIMESTAMP() ;
+sub SQL_TYPE_TIMESTAMP_WITH_TIMEZONE() ;
+sub SQL_TYPE_TIME_WITH_TIMEZONE() ;
+sub SQL_UDT() ;
+sub SQL_UDT_LOCATOR() ;
+sub SQL_UNKNOWN_TYPE() ;
+sub SQL_VARBINARY() ;
+sub SQL_VARCHAR() ;
+sub SQL_WCHAR() ;
+sub SQL_WLONGVARCHAR() ;
+sub SQL_WVARCHAR() ;
+sub STORE;
+sub _login;
+sub _pg_type_info;
+sub _ping;
+sub commit;
+sub disconnect;
+sub do($$;$@) ;
+sub endcopy;
+sub getfd;
+sub getline;
+sub lo_close;
+sub lo_creat;
+sub lo_export;
+sub lo_import;
+sub lo_lseek;
+sub lo_open;
+sub lo_read;
+sub lo_tell;
+sub lo_unlink;
+sub lo_write;
+sub pg_cancel;
+sub pg_endcopy;
+sub pg_error_field;
+sub pg_getcopydata;
+sub pg_getcopydata_async;
+sub pg_getline;
+sub pg_lo_close;
+sub pg_lo_creat;
+sub pg_lo_export;
+sub pg_lo_import;
+sub pg_lo_import_with_oid;
+sub pg_lo_lseek64;
+sub pg_lo_lseek;
+sub pg_lo_open;
+sub pg_lo_read;
+sub pg_lo_tell64;
+sub pg_lo_tell;
+sub pg_lo_truncate64;
+sub pg_lo_truncate;
+sub pg_lo_unlink;
+sub pg_lo_write;
+sub pg_notifies;
+sub pg_putcopydata;
+sub pg_putcopyend;
+sub pg_putline;
+sub pg_ready;
+sub pg_release;
+sub pg_result;
+sub pg_rollback_to;
+sub pg_savepoint;
+sub pg_server_trace;
+sub pg_server_untrace;
+sub putline;
+sub quote;
+sub rollback;
+sub selectall_arrayref;
+sub selectrow_array;
+sub selectrow_arrayref;
+sub state;
+}
+package DBD::Pg::dr {
+sub dbixs_revision;
+sub discon_all_;
+sub disconnect_all;
+}
+package DBD::Pg::st {
+sub DESTROY;
+sub FETCH;
+sub FETCH_attrib;
+sub STORE;
+sub _prepare;
+sub bind_param;
+sub bind_param_inout;
+sub blob_read;
+sub cancel;
+sub execute;
+sub fetch;
+sub fetchall_arrayref;
+sub fetchrow;
+sub fetchrow_array;
+sub fetchrow_arrayref;
+sub finish;
+sub pg_cancel;
+sub pg_canonical_ids;
+sub pg_canonical_names;
+sub pg_ready;
+sub pg_result;
+sub rows;
+sub state;
+}
+package DBD::_::common {
+sub DELETE;
+sub DESTROY;
+sub FETCH;
+sub STORE;
+sub debug;
+sub dump_handle;
+sub err;
+sub errstr;
+sub private_data;
+sub rows;
+sub set_err;
+sub state;
+sub swap_inner_handle;
+sub trace;
+sub trace_msg;
+}
+package DBD::_::db {
+sub connected;
+sub preparse;
+sub take_imp_data;
+}
+package DBD::_::dr {
+sub dbixs_revision;
+}
+package DBD::_::st {
+sub DESTROY;
+sub _get_fbav;
+sub _set_fbav;
+sub bind_col;
+sub fetch;
+sub fetchrow;
+sub fetchrow_array;
+sub fetchrow_arrayref;
+sub fetchrow_hashref;
+sub finish;
+sub rows;
+}
+package DBD::_mem::common {
+sub DESTROY;
+}
+package DBI {
+sub DBIf_TRACE_CON() ;
+sub DBIf_TRACE_DBD() ;
+sub DBIf_TRACE_ENC() ;
+sub DBIf_TRACE_SQL() ;
+sub DBIf_TRACE_TXN() ;
+sub DBIpp_cm_XX() ;
+sub DBIpp_cm_br() ;
+sub DBIpp_cm_cs() ;
+sub DBIpp_cm_dd() ;
+sub DBIpp_cm_dw() ;
+sub DBIpp_cm_hs() ;
+sub DBIpp_ph_XX() ;
+sub DBIpp_ph_cn() ;
+sub DBIpp_ph_cs() ;
+sub DBIpp_ph_qm() ;
+sub DBIpp_ph_sp() ;
+sub DBIpp_st_XX() ;
+sub DBIpp_st_bs() ;
+sub DBIpp_st_qq() ;
+sub DBIstcf_DISCARD_STRING() ;
+sub DBIstcf_STRICT() ;
+sub SQL_ALL_TYPES() ;
+sub SQL_ARRAY() ;
+sub SQL_ARRAY_LOCATOR() ;
+sub SQL_BIGINT() ;
+sub SQL_BINARY() ;
+sub SQL_BIT() ;
+sub SQL_BLOB() ;
+sub SQL_BLOB_LOCATOR() ;
+sub SQL_BOOLEAN() ;
+sub SQL_CHAR() ;
+sub SQL_CLOB() ;
+sub SQL_CLOB_LOCATOR() ;
+sub SQL_CURSOR_DYNAMIC() ;
+sub SQL_CURSOR_FORWARD_ONLY() ;
+sub SQL_CURSOR_KEYSET_DRIVEN() ;
+sub SQL_CURSOR_STATIC() ;
+sub SQL_CURSOR_TYPE_DEFAULT() ;
+sub SQL_DATE() ;
+sub SQL_DATETIME() ;
+sub SQL_DECIMAL() ;
+sub SQL_DOUBLE() ;
+sub SQL_FLOAT() ;
+sub SQL_GUID() ;
+sub SQL_INTEGER() ;
+sub SQL_INTERVAL() ;
+sub SQL_INTERVAL_DAY() ;
+sub SQL_INTERVAL_DAY_TO_HOUR() ;
+sub SQL_INTERVAL_DAY_TO_MINUTE() ;
+sub SQL_INTERVAL_DAY_TO_SECOND() ;
+sub SQL_INTERVAL_HOUR() ;
+sub SQL_INTERVAL_HOUR_TO_MINUTE() ;
+sub SQL_INTERVAL_HOUR_TO_SECOND() ;
+sub SQL_INTERVAL_MINUTE() ;
+sub SQL_INTERVAL_MINUTE_TO_SECOND() ;
+sub SQL_INTERVAL_MONTH() ;
+sub SQL_INTERVAL_SECOND() ;
+sub SQL_INTERVAL_YEAR() ;
+sub SQL_INTERVAL_YEAR_TO_MONTH() ;
+sub SQL_LONGVARBINARY() ;
+sub SQL_LONGVARCHAR() ;
+sub SQL_MULTISET() ;
+sub SQL_MULTISET_LOCATOR() ;
+sub SQL_NUMERIC() ;
+sub SQL_REAL() ;
+sub SQL_REF() ;
+sub SQL_ROW() ;
+sub SQL_SMALLINT() ;
+sub SQL_TIME() ;
+sub SQL_TIMESTAMP() ;
+sub SQL_TINYINT() ;
+sub SQL_TYPE_DATE() ;
+sub SQL_TYPE_TIME() ;
+sub SQL_TYPE_TIMESTAMP() ;
+sub SQL_TYPE_TIMESTAMP_WITH_TIMEZONE() ;
+sub SQL_TYPE_TIME_WITH_TIMEZONE() ;
+sub SQL_UDT() ;
+sub SQL_UDT_LOCATOR() ;
+sub SQL_UNKNOWN_TYPE() ;
+sub SQL_VARBINARY() ;
+sub SQL_VARCHAR() ;
+sub SQL_WCHAR() ;
+sub SQL_WLONGVARCHAR() ;
+sub SQL_WVARCHAR() ;
+sub _clone_dbis;
+sub _concat_hash_sorted;
+sub _dbi_state_lval;
+sub _debug_dispatch;
+sub _get_imp_data;
+sub _handles;
+sub _install_method;
+sub _new_handle;
+sub _setup_handle;
+sub _svdump;
+sub constant() ;
+sub dbi_profile;
+sub dbi_profile_merge;
+sub dbi_profile_merge_nodes;
+sub dbi_time;
+sub dump_handle;
+sub hash;
+sub looks_like_number;
+sub neat;
+sub set_err;
+sub sql_type_cast;
+sub trace;
+sub trace_msg;
+}
+package DBI::common {
+sub CLEAR;
+sub DELETE;
+sub DESTROY;
+sub EXISTS;
+sub FETCH;
+sub FETCH_many;
+sub FIRSTKEY;
+sub NEXTKEY;
+sub STORE;
+sub can;
+sub debug;
+sub dump_handle;
+sub err;
+sub errstr;
+sub func;
+sub parse_trace_flag;
+sub parse_trace_flags;
+sub private_attribute_info;
+sub private_data;
+sub set_err;
+sub state;
+sub swap_inner_handle;
+sub trace;
+sub trace_msg;
+sub visit_child_handles;
+}
+package DBI::db {
+sub TIEHASH;
+sub begin_work;
+sub clone;
+sub column_info;
+sub commit;
+sub connected;
+sub data_sources;
+sub disconnect;
+sub do;
+sub foreign_key_info;
+sub get_info;
+sub last_insert_id;
+sub ping;
+sub prepare;
+sub prepare_cached;
+sub preparse;
+sub primary_key;
+sub primary_key_info;
+sub quote;
+sub quote_identifier;
+sub rollback;
+sub rows;
+sub selectall_array;
+sub selectall_arrayref;
+sub selectall_hashref;
+sub selectcol_arrayref;
+sub selectrow_array;
+sub selectrow_arrayref;
+sub selectrow_hashref;
+sub statistics_info;
+sub table_info;
+sub tables;
+sub take_imp_data;
+sub type_info;
+sub type_info_all;
+}
+package DBI::dr {
+sub TIEHASH;
+sub connect;
+sub connect_cached;
+sub data_sources;
+sub dbixs_revision;
+sub default_user;
+sub disconnect_all;
+}
+package DBI::st {
+sub TIEHASH;
+sub _get_fbav;
+sub _set_fbav;
+sub bind_col;
+sub bind_columns;
+sub bind_param;
+sub bind_param_array;
+sub bind_param_inout;
+sub bind_param_inout_array;
+sub blob_copy_to_file;
+sub blob_read;
+sub cancel;
+sub dump_results;
+sub execute;
+sub execute_array;
+sub execute_for_fetch;
+sub fetch;
+sub fetchall_arrayref;
+sub fetchall_hashref;
+sub fetchrow;
+sub fetchrow_array;
+sub fetchrow_arrayref;
+sub fetchrow_hashref;
+sub finish;
+sub last_insert_id;
+sub more_results;
+sub rows;
+}
+package DBI::var {
+sub FETCH;
+}
 package DateTime {
 sub _accumulated_leap_seconds($$) ;
 sub _day_has_leap_second($$) ;
@@ -427,6 +1032,66 @@ sub from_to($$$;$) ;
 sub is_utf8($;$) ;
 sub onBOOT() ;
 sub str2bytes($$;$) ;
+}
+package Encode::Byte {
+sub bytes2str($$;$) ;
+sub decode($$;$) ;
+sub decode_utf8($;$) ;
+sub encode($$;$) ;
+sub encode_utf8($) ;
+sub str2bytes($$;$) ;
+}
+package Encode::CN {
+sub bytes2str($$;$) ;
+sub decode($$;$) ;
+sub decode_utf8($;$) ;
+sub encode($$;$) ;
+sub encode_utf8($) ;
+sub str2bytes($$;$) ;
+}
+package Encode::EBCDIC {
+sub bytes2str($$;$) ;
+sub decode($$;$) ;
+sub decode_utf8($;$) ;
+sub encode($$;$) ;
+sub encode_utf8($) ;
+sub str2bytes($$;$) ;
+}
+package Encode::JP {
+sub bytes2str($$;$) ;
+sub decode($$;$) ;
+sub decode_utf8($;$) ;
+sub encode($$;$) ;
+sub encode_utf8($) ;
+sub str2bytes($$;$) ;
+}
+package Encode::KR {
+sub bytes2str($$;$) ;
+sub decode($$;$) ;
+sub decode_utf8($;$) ;
+sub encode($$;$) ;
+sub encode_utf8($) ;
+sub str2bytes($$;$) ;
+}
+package Encode::Symbol {
+sub bytes2str($$;$) ;
+sub decode($$;$) ;
+sub decode_utf8($;$) ;
+sub encode($$;$) ;
+sub encode_utf8($) ;
+sub str2bytes($$;$) ;
+}
+package Encode::TW {
+sub bytes2str($$;$) ;
+sub decode($$;$) ;
+sub decode_utf8($;$) ;
+sub encode($$;$) ;
+sub encode_utf8($) ;
+sub str2bytes($$;$) ;
+}
+package Encode::Unicode {
+sub decode;
+sub encode;
 }
 package Encode::XS {
 sub cat_decode;
@@ -515,6 +1180,14 @@ sub S_ISTXT() ;
 package File::Find {
 sub is_tainted($) ;
 }
+package File::Glob {
+sub AUTOLOAD;
+sub CLONE;
+sub GLOB_ERROR;
+sub bsd_glob;
+sub bsd_glob_override;
+sub csh_glob;
+}
 package File::ShareDir {
 sub _STRING($) ;
 sub firstres(&@) ;
@@ -531,6 +1204,49 @@ package Hash::StoredIterator {
 sub hash_get_iterator;
 sub hash_init_iterator;
 sub hash_set_iterator;
+}
+package Hash::Util {
+sub _clear_placeholders(\%) ;
+sub all_keys(\%\@\@) ;
+sub bucket_array;
+sub bucket_info;
+sub bucket_ratio(\%) ;
+sub hash_seed() ;
+sub hash_traversal_mask;
+sub hash_value($;$) ;
+sub hidden_ref_keys;
+sub hv_store(\%$$) ;
+sub legal_ref_keys;
+sub num_buckets(\%) ;
+sub reftype($) ;
+sub used_buckets(\%) ;
+}
+package IO::File {
+sub new_tmpfile;
+}
+package IO::Handle {
+sub blocking($;$) ;
+sub clearerr;
+sub error;
+sub flush;
+sub getline;
+sub getlines;
+sub gets;
+sub setbuf;
+sub setvbuf;
+sub sync;
+sub ungetc;
+sub untaint;
+}
+package IO::Poll {
+sub _poll;
+}
+package IO::Seekable {
+sub getpos;
+sub setpos;
+}
+package IO::Socket {
+sub sockatmark($) ;
 }
 package Internals {
 sub SvREADONLY(\[$%@];$) ;
@@ -1190,6 +1906,14 @@ package PerlIO::Layer {
 sub NoWarnings;
 sub find;
 }
+package Proc::ProcessTable {
+sub _initialize_os;
+sub constant;
+sub fields;
+sub mutex_new;
+sub mutex_table;
+sub table;
+}
 package Ref::Util {
 sub _using_custom_ops;
 sub is_arrayref($) ;
@@ -1268,6 +1992,112 @@ sub reftype($) ;
 sub tainted($) ;
 sub unweaken($) ;
 sub weaken($) ;
+}
+package Socket {
+sub AF_802() ;
+sub AF_AAL() ;
+sub AF_CCITT() ;
+sub AF_CHAOS() ;
+sub AF_CTF() ;
+sub AF_DATAKIT() ;
+sub AF_DLI() ;
+sub AF_ECMA() ;
+sub AF_GOSIP() ;
+sub AF_HYLINK() ;
+sub AF_IMPLINK() ;
+sub AF_ISO() ;
+sub AF_LAST() ;
+sub AF_LAT() ;
+sub AF_LINK() ;
+sub AF_NBS() ;
+sub AF_NIT() ;
+sub AF_NS() ;
+sub AF_OSI() ;
+sub AF_OSINET() ;
+sub AF_PUP() ;
+sub AF_USER() ;
+sub AF_WAN() ;
+sub AUTOLOAD;
+sub EAI_BADHINTS() ;
+sub EAI_PROTOCOL() ;
+sub IPTOS_LOWDELAY() ;
+sub IPTOS_MINCOST() ;
+sub IPTOS_RELIABILITY() ;
+sub IPTOS_THROUGHPUT() ;
+sub IPV6_ADDRFROM() ;
+sub MSG_BCAST() ;
+sub MSG_BTAG() ;
+sub MSG_CTLFLAGS() ;
+sub MSG_CTLIGNORE() ;
+sub MSG_EOF() ;
+sub MSG_ETAG() ;
+sub MSG_MAXIOVLEN() ;
+sub MSG_MCAST() ;
+sub MSG_URG() ;
+sub MSG_WIRE() ;
+sub PF_802() ;
+sub PF_AAL() ;
+sub PF_CCITT() ;
+sub PF_CHAOS() ;
+sub PF_CTF() ;
+sub PF_DATAKIT() ;
+sub PF_DLI() ;
+sub PF_ECMA() ;
+sub PF_GOSIP() ;
+sub PF_HYLINK() ;
+sub PF_IMPLINK() ;
+sub PF_ISO() ;
+sub PF_LAST() ;
+sub PF_LAT() ;
+sub PF_LINK() ;
+sub PF_NBS() ;
+sub PF_NIT() ;
+sub PF_NS() ;
+sub PF_OSI() ;
+sub PF_OSINET() ;
+sub PF_PUP() ;
+sub PF_USER() ;
+sub PF_WAN() ;
+sub SCM_CONNECT() ;
+sub SCM_CREDS() ;
+sub SO_BACKLOG() ;
+sub SO_CHAMELEON() ;
+sub SO_DGRAM_ERRIND() ;
+sub SO_DONTLINGER() ;
+sub SO_FAMILY() ;
+sub SO_PASSIFNAME() ;
+sub SO_PROTOTYPE() ;
+sub SO_STATE() ;
+sub SO_USELOOPBACK() ;
+sub SO_XOPEN() ;
+sub SO_XSE() ;
+sub TCP_CONNECTIONTIMEOUT() ;
+sub TCP_INIT_CWND() ;
+sub TCP_KEEPALIVE() ;
+sub TCP_MAXRT() ;
+sub TCP_NOOPT() ;
+sub TCP_NOPUSH() ;
+sub TCP_SACK_ENABLE() ;
+sub TCP_STDURG() ;
+sub getaddrinfo;
+sub getnameinfo;
+sub inet_aton;
+sub inet_ntoa;
+sub inet_ntop;
+sub inet_pton;
+sub pack_ip_mreq;
+sub pack_ip_mreq_source;
+sub pack_ipv6_mreq;
+sub pack_sockaddr_in6;
+sub pack_sockaddr_in;
+sub pack_sockaddr_un;
+sub sockaddr_family;
+sub unpack_ip_mreq;
+sub unpack_ip_mreq_source;
+sub unpack_ipv6_mreq;
+sub unpack_sockaddr_in6;
+sub unpack_sockaddr_in;
+sub unpack_sockaddr_un;
 }
 package Specio::Constraint::AnyCan {
 sub perlstring;
@@ -1349,6 +2179,24 @@ sub set_prototype;
 sub set_subname;
 sub subname;
 }
+package Term::ReadKey {
+sub GetControlChars;
+sub GetSpeed;
+sub GetTermSizeGSIZE;
+sub GetTermSizeGWINSZ;
+sub GetTermSizeVIO;
+sub GetTermSizeWin32;
+sub SetControlChars;
+sub SetReadMode;
+sub SetTerminalSize;
+sub Win32PeekChar;
+sub blockoptions;
+sub pollfile;
+sub selectfile;
+sub setnodelay;
+sub termoptions;
+sub termsizeoptions;
+}
 package Test2::API {
 sub blessed($) ;
 sub time() ;
@@ -1367,9 +2215,6 @@ sub reftype($) ;
 }
 package Test2::Event::V2 {
 sub reftype($) ;
-}
-package Test2::EventFacet::Trace {
-sub time() ;
 }
 package Test2::Hub {
 sub first(&@) ;
@@ -1392,6 +2237,17 @@ sub _finish;
 sub _runops_installed;
 sub _start;
 sub count_sv;
+}
+package Text::CSV_XS {
+sub Combine;
+sub Parse;
+sub SetDiag;
+sub _cache_diag;
+sub _cache_set;
+sub error_input;
+sub getline;
+sub getline_all;
+sub print;
 }
 package Text::CharWidth {
 sub mblen;
