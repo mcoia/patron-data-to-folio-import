@@ -3,15 +3,30 @@ use strict;
 use warnings FATAL => 'all';
 use Data::Dumper;
 
-# my $hash;
-# $hash->{'title'} = 'something';
-# print $hash->{'title'};
+my $a;
+
+for (0 .. 10)
+{
+
+    my $h = {
+        'id'   => $_,
+        'rand' => rand(10),
+    };
+    push(@$a, $h);
+}
 
 
-my %hash;
-my $hash = \%hash;
-$hash->{'title'} = 'something';
-print $hash->{'title'};
+$a = t1($a);
+print Dumper($a);
 
+sub t1
+{
+    my $b = shift;
+    for my $h (@$b)
+    {
+        $h->{name} = "TEST";
+    }
+    return $b;
+}
 
 1;

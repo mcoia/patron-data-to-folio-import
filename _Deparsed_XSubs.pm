@@ -767,6 +767,178 @@ sub rows;
 package DBD::_mem::common {
 sub DESTROY;
 }
+package DBD::mysql {
+sub constant;
+}
+package DBD::mysql::GetInfo {
+sub dbd_mysql_get_info;
+}
+package DBD::mysql::db {
+sub DESTROY;
+sub FETCH;
+sub SQL_ALL_TYPES() ;
+sub SQL_ARRAY() ;
+sub SQL_ARRAY_LOCATOR() ;
+sub SQL_BIGINT() ;
+sub SQL_BINARY() ;
+sub SQL_BIT() ;
+sub SQL_BLOB() ;
+sub SQL_BLOB_LOCATOR() ;
+sub SQL_BOOLEAN() ;
+sub SQL_CHAR() ;
+sub SQL_CLOB() ;
+sub SQL_CLOB_LOCATOR() ;
+sub SQL_DATE() ;
+sub SQL_DATETIME() ;
+sub SQL_DECIMAL() ;
+sub SQL_DOUBLE() ;
+sub SQL_FLOAT() ;
+sub SQL_GUID() ;
+sub SQL_INTEGER() ;
+sub SQL_INTERVAL() ;
+sub SQL_INTERVAL_DAY() ;
+sub SQL_INTERVAL_DAY_TO_HOUR() ;
+sub SQL_INTERVAL_DAY_TO_MINUTE() ;
+sub SQL_INTERVAL_DAY_TO_SECOND() ;
+sub SQL_INTERVAL_HOUR() ;
+sub SQL_INTERVAL_HOUR_TO_MINUTE() ;
+sub SQL_INTERVAL_HOUR_TO_SECOND() ;
+sub SQL_INTERVAL_MINUTE() ;
+sub SQL_INTERVAL_MINUTE_TO_SECOND() ;
+sub SQL_INTERVAL_MONTH() ;
+sub SQL_INTERVAL_SECOND() ;
+sub SQL_INTERVAL_YEAR() ;
+sub SQL_INTERVAL_YEAR_TO_MONTH() ;
+sub SQL_LONGVARBINARY() ;
+sub SQL_LONGVARCHAR() ;
+sub SQL_MULTISET() ;
+sub SQL_MULTISET_LOCATOR() ;
+sub SQL_NUMERIC() ;
+sub SQL_REAL() ;
+sub SQL_REF() ;
+sub SQL_ROW() ;
+sub SQL_SMALLINT() ;
+sub SQL_TIME() ;
+sub SQL_TIMESTAMP() ;
+sub SQL_TINYINT() ;
+sub SQL_TYPE_DATE() ;
+sub SQL_TYPE_TIME() ;
+sub SQL_TYPE_TIMESTAMP() ;
+sub SQL_TYPE_TIMESTAMP_WITH_TIMEZONE() ;
+sub SQL_TYPE_TIME_WITH_TIMEZONE() ;
+sub SQL_UDT() ;
+sub SQL_UDT_LOCATOR() ;
+sub SQL_UNKNOWN_TYPE() ;
+sub SQL_VARBINARY() ;
+sub SQL_VARCHAR() ;
+sub SQL_WCHAR() ;
+sub SQL_WLONGVARCHAR() ;
+sub SQL_WVARCHAR() ;
+sub STORE;
+sub _ListDBs;
+sub _async_check;
+sub _login;
+sub commit;
+sub disconnect;
+sub do($$;$@) ;
+sub last_insert_id;
+sub mysql_async_ready;
+sub mysql_async_result;
+sub mysql_fd;
+sub ping($) ;
+sub quote($$;$) ;
+sub rollback;
+sub selectall_arrayref;
+sub selectrow_array;
+sub selectrow_arrayref;
+sub type_info_all;
+}
+package DBD::mysql::dr {
+sub SQL_ALL_TYPES() ;
+sub SQL_ARRAY() ;
+sub SQL_ARRAY_LOCATOR() ;
+sub SQL_BIGINT() ;
+sub SQL_BINARY() ;
+sub SQL_BIT() ;
+sub SQL_BLOB() ;
+sub SQL_BLOB_LOCATOR() ;
+sub SQL_BOOLEAN() ;
+sub SQL_CHAR() ;
+sub SQL_CLOB() ;
+sub SQL_CLOB_LOCATOR() ;
+sub SQL_DATE() ;
+sub SQL_DATETIME() ;
+sub SQL_DECIMAL() ;
+sub SQL_DOUBLE() ;
+sub SQL_FLOAT() ;
+sub SQL_GUID() ;
+sub SQL_INTEGER() ;
+sub SQL_INTERVAL() ;
+sub SQL_INTERVAL_DAY() ;
+sub SQL_INTERVAL_DAY_TO_HOUR() ;
+sub SQL_INTERVAL_DAY_TO_MINUTE() ;
+sub SQL_INTERVAL_DAY_TO_SECOND() ;
+sub SQL_INTERVAL_HOUR() ;
+sub SQL_INTERVAL_HOUR_TO_MINUTE() ;
+sub SQL_INTERVAL_HOUR_TO_SECOND() ;
+sub SQL_INTERVAL_MINUTE() ;
+sub SQL_INTERVAL_MINUTE_TO_SECOND() ;
+sub SQL_INTERVAL_MONTH() ;
+sub SQL_INTERVAL_SECOND() ;
+sub SQL_INTERVAL_YEAR() ;
+sub SQL_INTERVAL_YEAR_TO_MONTH() ;
+sub SQL_LONGVARBINARY() ;
+sub SQL_LONGVARCHAR() ;
+sub SQL_MULTISET() ;
+sub SQL_MULTISET_LOCATOR() ;
+sub SQL_NUMERIC() ;
+sub SQL_REAL() ;
+sub SQL_REF() ;
+sub SQL_ROW() ;
+sub SQL_SMALLINT() ;
+sub SQL_TIME() ;
+sub SQL_TIMESTAMP() ;
+sub SQL_TINYINT() ;
+sub SQL_TYPE_DATE() ;
+sub SQL_TYPE_TIME() ;
+sub SQL_TYPE_TIMESTAMP() ;
+sub SQL_TYPE_TIMESTAMP_WITH_TIMEZONE() ;
+sub SQL_TYPE_TIME_WITH_TIMEZONE() ;
+sub SQL_UDT() ;
+sub SQL_UDT_LOCATOR() ;
+sub SQL_UNKNOWN_TYPE() ;
+sub SQL_VARBINARY() ;
+sub SQL_VARCHAR() ;
+sub SQL_WCHAR() ;
+sub SQL_WLONGVARCHAR() ;
+sub SQL_WVARCHAR() ;
+sub _ListDBs;
+sub _admin_internal;
+sub dbixs_revision;
+}
+package DBD::mysql::st {
+sub DESTROY;
+sub FETCH;
+sub FETCH_attrib;
+sub STORE;
+sub _async_check;
+sub _prepare;
+sub bind_param;
+sub bind_param_inout;
+sub blob_read;
+sub dataseek($$) ;
+sub execute;
+sub fetch;
+sub fetchall_arrayref;
+sub fetchrow;
+sub fetchrow_array;
+sub fetchrow_arrayref;
+sub finish;
+sub more_results;
+sub mysql_async_ready;
+sub mysql_async_result;
+sub rows;
+}
 package DBI {
 sub DBIf_TRACE_CON() ;
 sub DBIf_TRACE_DBD() ;
@@ -1180,14 +1352,6 @@ sub S_ISTXT() ;
 package File::Find {
 sub is_tainted($) ;
 }
-package File::Glob {
-sub AUTOLOAD;
-sub CLONE;
-sub GLOB_ERROR;
-sub bsd_glob;
-sub bsd_glob_override;
-sub csh_glob;
-}
 package File::ShareDir {
 sub _STRING($) ;
 sub firstres(&@) ;
@@ -1204,22 +1368,6 @@ package Hash::StoredIterator {
 sub hash_get_iterator;
 sub hash_init_iterator;
 sub hash_set_iterator;
-}
-package Hash::Util {
-sub _clear_placeholders(\%) ;
-sub all_keys(\%\@\@) ;
-sub bucket_array;
-sub bucket_info;
-sub bucket_ratio(\%) ;
-sub hash_seed() ;
-sub hash_traversal_mask;
-sub hash_value($;$) ;
-sub hidden_ref_keys;
-sub hv_store(\%$$) ;
-sub legal_ref_keys;
-sub num_buckets(\%) ;
-sub reftype($) ;
-sub used_buckets(\%) ;
 }
 package IO::File {
 sub new_tmpfile;
@@ -1906,14 +2054,6 @@ package PerlIO::Layer {
 sub NoWarnings;
 sub find;
 }
-package Proc::ProcessTable {
-sub _initialize_os;
-sub constant;
-sub fields;
-sub mutex_new;
-sub mutex_table;
-sub table;
-}
 package Ref::Util {
 sub _using_custom_ops;
 sub is_arrayref($) ;
@@ -1992,112 +2132,6 @@ sub reftype($) ;
 sub tainted($) ;
 sub unweaken($) ;
 sub weaken($) ;
-}
-package Socket {
-sub AF_802() ;
-sub AF_AAL() ;
-sub AF_CCITT() ;
-sub AF_CHAOS() ;
-sub AF_CTF() ;
-sub AF_DATAKIT() ;
-sub AF_DLI() ;
-sub AF_ECMA() ;
-sub AF_GOSIP() ;
-sub AF_HYLINK() ;
-sub AF_IMPLINK() ;
-sub AF_ISO() ;
-sub AF_LAST() ;
-sub AF_LAT() ;
-sub AF_LINK() ;
-sub AF_NBS() ;
-sub AF_NIT() ;
-sub AF_NS() ;
-sub AF_OSI() ;
-sub AF_OSINET() ;
-sub AF_PUP() ;
-sub AF_USER() ;
-sub AF_WAN() ;
-sub AUTOLOAD;
-sub EAI_BADHINTS() ;
-sub EAI_PROTOCOL() ;
-sub IPTOS_LOWDELAY() ;
-sub IPTOS_MINCOST() ;
-sub IPTOS_RELIABILITY() ;
-sub IPTOS_THROUGHPUT() ;
-sub IPV6_ADDRFROM() ;
-sub MSG_BCAST() ;
-sub MSG_BTAG() ;
-sub MSG_CTLFLAGS() ;
-sub MSG_CTLIGNORE() ;
-sub MSG_EOF() ;
-sub MSG_ETAG() ;
-sub MSG_MAXIOVLEN() ;
-sub MSG_MCAST() ;
-sub MSG_URG() ;
-sub MSG_WIRE() ;
-sub PF_802() ;
-sub PF_AAL() ;
-sub PF_CCITT() ;
-sub PF_CHAOS() ;
-sub PF_CTF() ;
-sub PF_DATAKIT() ;
-sub PF_DLI() ;
-sub PF_ECMA() ;
-sub PF_GOSIP() ;
-sub PF_HYLINK() ;
-sub PF_IMPLINK() ;
-sub PF_ISO() ;
-sub PF_LAST() ;
-sub PF_LAT() ;
-sub PF_LINK() ;
-sub PF_NBS() ;
-sub PF_NIT() ;
-sub PF_NS() ;
-sub PF_OSI() ;
-sub PF_OSINET() ;
-sub PF_PUP() ;
-sub PF_USER() ;
-sub PF_WAN() ;
-sub SCM_CONNECT() ;
-sub SCM_CREDS() ;
-sub SO_BACKLOG() ;
-sub SO_CHAMELEON() ;
-sub SO_DGRAM_ERRIND() ;
-sub SO_DONTLINGER() ;
-sub SO_FAMILY() ;
-sub SO_PASSIFNAME() ;
-sub SO_PROTOTYPE() ;
-sub SO_STATE() ;
-sub SO_USELOOPBACK() ;
-sub SO_XOPEN() ;
-sub SO_XSE() ;
-sub TCP_CONNECTIONTIMEOUT() ;
-sub TCP_INIT_CWND() ;
-sub TCP_KEEPALIVE() ;
-sub TCP_MAXRT() ;
-sub TCP_NOOPT() ;
-sub TCP_NOPUSH() ;
-sub TCP_SACK_ENABLE() ;
-sub TCP_STDURG() ;
-sub getaddrinfo;
-sub getnameinfo;
-sub inet_aton;
-sub inet_ntoa;
-sub inet_ntop;
-sub inet_pton;
-sub pack_ip_mreq;
-sub pack_ip_mreq_source;
-sub pack_ipv6_mreq;
-sub pack_sockaddr_in6;
-sub pack_sockaddr_in;
-sub pack_sockaddr_un;
-sub sockaddr_family;
-sub unpack_ip_mreq;
-sub unpack_ip_mreq_source;
-sub unpack_ipv6_mreq;
-sub unpack_sockaddr_in6;
-sub unpack_sockaddr_in;
-sub unpack_sockaddr_un;
 }
 package Specio::Constraint::AnyCan {
 sub perlstring;
@@ -2179,24 +2213,6 @@ sub set_prototype;
 sub set_subname;
 sub subname;
 }
-package Term::ReadKey {
-sub GetControlChars;
-sub GetSpeed;
-sub GetTermSizeGSIZE;
-sub GetTermSizeGWINSZ;
-sub GetTermSizeVIO;
-sub GetTermSizeWin32;
-sub SetControlChars;
-sub SetReadMode;
-sub SetTerminalSize;
-sub Win32PeekChar;
-sub blockoptions;
-sub pollfile;
-sub selectfile;
-sub setnodelay;
-sub termoptions;
-sub termsizeoptions;
-}
 package Test2::API {
 sub blessed($) ;
 sub time() ;
@@ -2215,6 +2231,9 @@ sub reftype($) ;
 }
 package Test2::Event::V2 {
 sub reftype($) ;
+}
+package Test2::EventFacet::Trace {
+sub time() ;
 }
 package Test2::Hub {
 sub first(&@) ;

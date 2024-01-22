@@ -1,6 +1,7 @@
 package PatronImportFiles;
 use strict;
 use warnings FATAL => 'all';
+use Data::Dumper;
 
 =head1 new(conf, log)
 
@@ -26,42 +27,13 @@ sub listFiles
     return \@files;
 }
 
-sub getClusterDirectories
-{
-    my $self = shift;
-    return $self->listFiles($self->{conf}->{rootPath});
-}
-
-sub getPatronImportFiles
-{
-
-    my $self = shift;
-    my @patronImportFiles = ();
-
-    my @clusters = split(' ', $self->{conf}->{clusters});
-
-    # loop over clusters & get all of our files 
-    for my $cluster (@clusters)
-    {
-
-        # TODO: Write this!!! 
-
-
-        print "cluster: $cluster\n";
-
-    }
-
-    return \@patronImportFiles;
-
-}
-
-sub readPatronFile
+sub readFileToArray
 {
 
     my $self = shift;
     my $filePath = shift;
 
-    $self->{log}->addLogLine("reading patron file: [$filePath]");
+    $self->{log}->addLogLine("reading file: [$filePath]");
 
     my @data = ();
 
@@ -76,7 +48,9 @@ sub readPatronFile
 
     close $fileHandle;
 
-    $self->{log}->addLogLine("total lines read: [$lineCount]");
+    my $arraySize = @data;
+    $self->{log}->addLogLine("Total lines read: [$lineCount]");
+    $self->{log}->addLogLine("Total array size: [$arraySize]");
 
     return \@data;
 
@@ -105,93 +79,121 @@ sub getPTYPEMappingSheet
     return $self->loadCSVFileAsArray($filePath);
 }
 
-=head1 getSierraImportFilePaths() returns a hash of cluster names with file paths as an array.
-
-example:
-my $importFilePaths = getSierraImportFilePaths();
-my @arthurFilePaths = $importFilePaths->{arthur};
-
-
-
-
-
-
-
-
-
-Get the sheet from here
-# https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
-
-Save it and put it in the resources/mapping folder.
-
-set the name in conf
-
-=cut
-sub getSierraImportFilePaths_old
-{
-
-    my $self = shift;
-    my $csv = $self->loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
-
-    my %filePathHash;
-    my $filePathHash = \%filePathHash;
-    my $currentCluster = '';
-    my $institution = '';
-    my @files = ();
-
-    for my $row (@{$csv})
-    {
-
-        $currentCluster = lc $row->[0] if ($row->[0] ne '' && $self->rowContainsClusterName($row->[0]));
-        if ($row->[1] ne '' && $row->[1] ne 'Institution')
-        {
-            $institution = lc $row->[1];
-            @files = ();
-        }
-
-        push(@files, $row->[2]) if ($row->[2] ne '' && $row->[2] ne 'n/a');
-
-        my $fileSize = @files;
-        $filePathHash->{$currentCluster}->{$institution} = \@files if ($fileSize && $currentCluster && $institution);
-
-    }
-
-    return $filePathHash;
-
-}
-
-sub getFilePatterns
+# sub getPatronLoadsFilePatters
+sub buildFilePatterns
 {
     my $self = shift;
-    my $files = shift;
-    my @filePatterns = ();
+    my $clusterFileHashArray = shift;
+    my $filePatterns;
 
-    for my $file (@{$files})
+    for my $clusterFileHash (@{$clusterFileHashArray})
     {
+
+        my $file = $clusterFileHash->{file};
+
         $file =~ s/dd.*//g;
         $file =~ s/mm.*//g;
         $file =~ s/yy.*//g;
 
-        push(@filePatterns, $file);
+        $file =~ s/DD.*//g;
+        $file =~ s/MM.*//g;
+        $file =~ s/YY.*//g;
+
+        $file =~ s/month.*//g;
+        $file =~ s/day.*//g;
+        $file =~ s/year.*//g;
+
+        $clusterFileHash->{pattern} = $file;
+
+        push(@$filePatterns, $clusterFileHash);
 
     }
 
-    return \@filePatterns;
+    return $filePatterns;
 }
 
-sub getSierraImportFilePaths
+sub loadMOBIUSPatronLoadsCSV
 {
 
     my $self = shift;
     my $csv = $self->loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
-    my @files = ();
+    my @clusterFiles = ();
+    my $cluster = '';
+    my $institution = '';
 
+    my $rowCount = 0;
     for my $row (@{$csv})
     {
-        push(@files, $row->[2]) if ($row->[2] ne '' && $row->[2] ne 'n/a');
+
+        # Skip the header row
+        if ($rowCount > 0)
+        {
+
+            $cluster = $row->[0] if ($row->[0] ne '');
+            $institution = $row->[1] if ($row->[1] ne '');
+
+            # We have a filename in this column, it's what we're after!
+            if ($row->[2] ne '' && $row->[2] ne 'n/a' && $row->[2] ne 'Patron Files')
+            {
+
+                my $files = {
+                    'cluster'     => lc $cluster,
+                    'institution' => $institution,
+                    'file'        => $row->[2],
+                };
+
+                push(@clusterFiles, $files);
+            }
+
+        }
+        $rowCount++;
     }
 
-    return \@files;
+    return \@clusterFiles;
+}
+
+sub getPatronFilePaths
+{
+    my $self = shift;
+    my @filePathsArray = ();
+
+    my $clusterFileHashArray = $self->loadMOBIUSPatronLoadsCSV();
+    $clusterFileHashArray = $self->buildFilePatterns($clusterFileHashArray);
+
+    for my $clusterFileHash (@$clusterFileHashArray)
+    {
+        $self->{log}->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
+
+        my $filePaths = $self->patronFileDiscovery($clusterFileHash);
+        push(@filePathsArray, $filePaths);
+
+    }
+
+    return \@filePathsArray;
+}
+
+sub patronFileDiscovery
+{
+    my $self = shift;
+    my $clusterFileHash = shift;
+
+    my @filePaths = ();
+
+    my $command = "find $self->{conf}->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -name $clusterFileHash->{pattern}*";
+
+    $self->{log}->addLine("Looking for patron files: [$command]");
+    print "Looking for patron files: [$command]";
+
+    my @paths = `$command`;
+    push(@filePaths, @paths) if (@paths);
+
+    return \@filePaths if (@filePaths);
+
+    $self->{log}->addLine("File NOT FOUND! File Pattern: [$clusterFileHash]");
+
+    # we found zero files for this pattern in all the clusters
+    return 0;
+
 }
 
 sub loadCSVFileAsArray

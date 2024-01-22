@@ -14,7 +14,7 @@ our $conf;
 initConf();
 
 our $log = Loghandler->new("test.log");
-$log->truncFile("");
+$log->truncFile("----- [test.log] -----");
 
 sub initConf
 {
@@ -32,14 +32,10 @@ sub initConf
 
 }
 
-
 my $files = PatronImportFiles->new($conf, $log);
-my $importFilesPaths = $files->getSierraImportFilePaths();
 
-for my $file (@{$files->getFilePatterns($importFilesPaths)})
-{
-    print "Processing $file\n";
-    $log->addLine("$file");
-}
+my $clusterFiles = $files->loadMOBIUSPatronLoadsCSV();
+my $filePaths = $files->getPatronFilePaths();
+
 
 1;

@@ -29,7 +29,7 @@ test_processPatronRecord();
 
 sub test01
 {
-    my @data = @{$files->readPatronFile($patronFilePath)};
+    my @data = @{$files->readFileToArray($patronFilePath)};
     my $json = $parser->parse(\@data);
    
     print $json;

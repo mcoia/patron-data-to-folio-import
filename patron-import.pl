@@ -50,18 +50,7 @@ sub init
 
 sub main
 {
-
-    # our $parser;
-    # our $files;
-    
-    # file path: rootPath\{clusterName}\home\{clusterName}\incoming
-
-    $log->addLogLine("****************** Starting ******************");
-    $log->addLogLine("Root path: $conf->{rootPath}\n");
-
-    my $patronImportFilePaths = $files->getPatronImportFiles();
-    
-    
+    # still building program parts
 }
 
 sub initConf

@@ -1,83 +1,189 @@
-
-Patron Files
-eccpat.txt
-jcpat.txt
-MACStu
-MACStaff
-MACAdjunct
-SCCstudent
-SCCstaff
-SLCCStudent
-SLCCStaff
-TRCstu
-TRCstaff
-stlcoppat.txt
-COLUMBIA_PATRONS
-LUPAT.D
-scstudent
-wcstudents.txt
-WWUpatrons.txt
-WWUbarcodesUG.txt
-ATSU_
-CMUstu
-CMUgr
-CMUfac
-csct
-HLG-STUDENTS
-MVC_Student_Updates_
-MACCPatLoad
-SFCC_Student_
-SFCC_Staff_
-STC_
-tpbstupat
-cslpatrons.txt
-covstu.txt
-covfac.txt
-FCstuPAT.DAT
-FCfacPAT.DAT
-HSSU
-LUSTUPAT.txt
-LUFACPAT.txt
-loganstu.txt
-mustupat.d
-mustapat.d
-mufacpat.d
-muadjpat.d
-mobapstu.txt
-EWLPat.txt
-Avila_Upload_
-bcpatrons.txt
-KCAI_PATRON_LOAD_
-KCKCC_LIB_STU.txt
-KCKCC_LIB_EMP.txt
-KCU-
-mccstuMMYY.txt
-mccfacMMYY.txt
-mbtsstu.d
-mwsuugr.txt
-mwsugr.txt
-mwsufac.txt
-mwsuexp.txt
-mwsuadj.txt
-mwsuinst.txt
-mwsuwdraw.txt
-nts_patrons.txt
-ncmcstu.txt
-nwmsustu.txt
-nwmsuempl.txt
-parkstufac.txt
-RKRST_Stu_
-RKRST_Staff_
-RKRST_Faculty_
-WJC_MOBIUS_STUDENTS.txt
-COTT
-ccstupat.txt
-DRURYPAT_students.txt
-DRURYPAT_employees.txt
-DRURYPAT_alumni.txt
-EUPatronCamsExport_month_day_year
-MSSCALL
-MobiusUpload
-otcpat.txt
-SBUPATRONS
-patronLoad.marc
+----- [test.log] -----
+Processing File Pattern: [eccpat.txt][eccpat.txt]:[archway]:[East Central College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name eccpat.txt*]
+Processing File Pattern: [jcpat.txt][jcpat.txt]:[archway]:[Jefferson College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name jcpat.txt*]
+Processing File Pattern: [MACStummddyy.txt][MACStu]:[archway]:[Mineral Area College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name MACStu*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30e148)]
+Processing File Pattern: [MACStaffmmddyy.txt][MACStaff]:[archway]:[Mineral Area College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name MACStaff*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30e058)]
+Processing File Pattern: [MACAdjunctmmddyy.txt][MACAdjunct]:[archway]:[Mineral Area College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name MACAdjunct*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30e070)]
+Processing File Pattern: [SCCstudent][SCCstudent]:[archway]:[St. Charles Community College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name SCCstudent*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30ebd8)]
+Processing File Pattern: [SCCstaff][SCCstaff]:[archway]:[St. Charles Community College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name SCCstaff*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30e3e0)]
+Processing File Pattern: [SLCCStudent][SLCCStudent]:[archway]:[St. Louis Community College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name SLCCStudent*]
+Processing File Pattern: [SLCCStaff][SLCCStaff]:[archway]:[St. Louis Community College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name SLCCStaff*]
+Processing File Pattern: [TRCstuyyyymmdd][TRCstu]:[archway]:[Three Rivers College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name TRCstu*]
+File NOT FOUND! File Pattern: [HASH(0x56496c2c3a48)]
+Processing File Pattern: [TRCstaffyyyymmdd][TRCstaff]:[archway]:[Three Rivers College]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name TRCstaff*]
+File NOT FOUND! File Pattern: [HASH(0x56496c325d90)]
+Processing File Pattern: [stlcoppat.txt][stlcoppat.txt]:[archway]:[University of Health Sciences & Pharmacy]
+Looking for patron files: [find /mnt/dropbox/archway/home/archway/incoming/* -name stlcoppat.txt*]
+Processing File Pattern: [COLUMBIA_PATRONS][COLUMBIA_PATRONS]:[arthur]:[Columbia College]
+Looking for patron files: [find /mnt/dropbox/arthur/home/arthur/incoming/* -name COLUMBIA_PATRONS*]
+Processing File Pattern: [LUPAT.Dyymdd][LUPAT.D]:[arthur]:[Lincoln University]
+Looking for patron files: [find /mnt/dropbox/arthur/home/arthur/incoming/* -name LUPAT.D*]
+File NOT FOUND! File Pattern: [HASH(0x56496c3210f0)]
+Processing File Pattern: [scstudent][scstudent]:[arthur]:[Stephens College]
+Looking for patron files: [find /mnt/dropbox/arthur/home/arthur/incoming/* -name scstudent*]
+File NOT FOUND! File Pattern: [HASH(0x56496c31b6d0)]
+Processing File Pattern: [wcstudents.txt][wcstudents.txt]:[arthur]:[Westminster College]
+Looking for patron files: [find /mnt/dropbox/arthur/home/arthur/incoming/* -name wcstudents.txt*]
+Processing File Pattern: [WWUpatrons.txt][WWUpatrons.txt]:[arthur]:[William Woods University]
+Looking for patron files: [find /mnt/dropbox/arthur/home/arthur/incoming/* -name WWUpatrons.txt*]
+Processing File Pattern: [WWUbarcodesUG.txt][WWUbarcodesUG.txt]:[arthur]:[William Woods University]
+Looking for patron files: [find /mnt/dropbox/arthur/home/arthur/incoming/* -name WWUbarcodesUG.txt*]
+Processing File Pattern: [ATSU_mmddyyyy.txt][ATSU_]:[avalon]:[A.T. Still University]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name ATSU_*]
+Processing File Pattern: [CMUstuyyyymmdd.out][CMUstu]:[avalon]:[Central Methodist University]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name CMUstu*]
+Processing File Pattern: [CMUgryyyymmdd.out][CMUgr]:[avalon]:[Central Methodist University]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name CMUgr*]
+Processing File Pattern: [CMUfacyyyymmdd.out][CMUfac]:[avalon]:[Central Methodist University]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name CMUfac*]
+Processing File Pattern: [csctmmddyyyy.txt][csct]:[avalon]:[Culver-Stockton College]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name csct*]
+Processing File Pattern: [HLG-STUDENTS][HLG-STUDENTS]:[avalon]:[Hannibal-LaGrange University]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name HLG-STUDENTS*]
+Processing File Pattern: [MVC_Student_Updates_mm_dd.txt][MVC_Student_Updates_]:[avalon]:[Missouri Valley College]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name MVC_Student_Updates_*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30e4d0)]
+Processing File Pattern: [MACCPatLoadmm-dd-yy][MACCPatLoad]:[avalon]:[Moberly Area Community College]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name MACCPatLoad*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30e650)]
+Processing File Pattern: [SFCC_Student_mmddyy.txt][SFCC_Student_]:[avalon]:[State Fair Community College]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name SFCC_Student_*]
+Processing File Pattern: [SFCC_Staff_mmddyy.txt][SFCC_Staff_]:[avalon]:[State Fair Community College]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name SFCC_Staff_*]
+Processing File Pattern: [STC_yyyy-mm-dd][STC_]:[avalon]:[State Technical College]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name STC_*]
+File NOT FOUND! File Pattern: [HASH(0x56496c30e7b8)]
+Processing File Pattern: [tpbstupat][tpbstupat]:[avalon]:[Truman State University]
+Looking for patron files: [find /mnt/dropbox/avalon/home/avalon/incoming/* -name tpbstupat*]
+Processing File Pattern: [cslpatrons.txt][cslpatrons.txt]:[bridges]:[Concordia Seminary]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name cslpatrons.txt*]
+Processing File Pattern: [covstu.txt][covstu.txt]:[bridges]:[Covenant Seminary]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name covstu.txt*]
+Processing File Pattern: [covfac.txt][covfac.txt]:[bridges]:[Covenant Seminary]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name covfac.txt*]
+Processing File Pattern: [FCstuPAT.DAT][FCstuPAT.DAT]:[bridges]:[Fontbonne University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name FCstuPAT.DAT*]
+Processing File Pattern: [FCfacPAT.DAT][FCfacPAT.DAT]:[bridges]:[Fontbonne University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name FCfacPAT.DAT*]
+Processing File Pattern: [HSSUyymmdd.txt][HSSU]:[bridges]:[Harris-Stowe State University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name HSSU*]
+Processing File Pattern: [LUSTUPAT.txt][LUSTUPAT.txt]:[bridges]:[Lindenwood University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name LUSTUPAT.txt*]
+Processing File Pattern: [LUFACPAT.txt][LUFACPAT.txt]:[bridges]:[Lindenwood University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name LUFACPAT.txt*]
+Processing File Pattern: [loganstu.txt][loganstu.txt]:[bridges]:[Logan University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name loganstu.txt*]
+Processing File Pattern: [mustupat.dyymmdd.txt][mustupat.d]:[bridges]:[Maryville University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name mustupat.d*]
+File NOT FOUND! File Pattern: [HASH(0x56496c313698)]
+Processing File Pattern: [mustapat.dyymmdd.txt][mustapat.d]:[bridges]:[Maryville University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name mustapat.d*]
+File NOT FOUND! File Pattern: [HASH(0x56496c313ad0)]
+Processing File Pattern: [mufacpat.dyymmdd.txt][mufacpat.d]:[bridges]:[Maryville University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name mufacpat.d*]
+File NOT FOUND! File Pattern: [HASH(0x56496c313f08)]
+Processing File Pattern: [muadjpat.dyymmdd.txt][muadjpat.d]:[bridges]:[Maryville University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name muadjpat.d*]
+File NOT FOUND! File Pattern: [HASH(0x56496c317a18)]
+Processing File Pattern: [mobapstu.txt][mobapstu.txt]:[bridges]:[Missouri Baptist University]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name mobapstu.txt*]
+Processing File Pattern: [EWLPat.txt][EWLPat.txt]:[bridges]:[Webster University-Eden Seminary]
+Looking for patron files: [find /mnt/dropbox/bridges/home/bridges/incoming/* -name EWLPat.txt*]
+Processing File Pattern: [Avila_Upload_mm-dd-yy][Avila_Upload_]:[kc-towers]:[Avila University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name Avila_Upload_*]
+File NOT FOUND! File Pattern: [HASH(0x56496c3186c0)]
+Processing File Pattern: [bcpatrons.txt][bcpatrons.txt]:[kc-towers]:[Benedictine College]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name bcpatrons.txt*]
+Processing File Pattern: [KCAI_PATRON_LOAD_mmyyyy][KCAI_PATRON_LOAD_]:[kc-towers]:[Kansas City Art Institute]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name KCAI_PATRON_LOAD_*]
+File NOT FOUND! File Pattern: [HASH(0x56496c31b2c8)]
+Processing File Pattern: [KCKCC_LIB_STU.txt][KCKCC_LIB_STU.txt]:[kc-towers]:[Kansas City KS Community College]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name KCKCC_LIB_STU.txt*]
+Processing File Pattern: [KCKCC_LIB_EMP.txt][KCKCC_LIB_EMP.txt]:[kc-towers]:[Kansas City KS Community College]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name KCKCC_LIB_EMP.txt*]
+Processing File Pattern: [KCU-yyyy-mm-dd.txt][KCU-]:[kc-towers]:[Kansas City University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name KCU-*]
+Processing File Pattern: [mccstuMMYY.txt][mccstu]:[kc-towers]:[Metropolitan Community College]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mccstu*]
+Processing File Pattern: [mccfacMMYY.txt][mccfac]:[kc-towers]:[Metropolitan Community College]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mccfac*]
+Processing File Pattern: [mbtsstu.dyymmdd.txt][mbtsstu.d]:[kc-towers]:[Midwestern Baptist Theological Seminary]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mbtsstu.d*]
+File NOT FOUND! File Pattern: [HASH(0x56496c3262b8)]
+Processing File Pattern: [mwsuugr.txt][mwsuugr.txt]:[kc-towers]:[Missouri Western State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mwsuugr.txt*]
+Processing File Pattern: [mwsugr.txt][mwsugr.txt]:[kc-towers]:[Missouri Western State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mwsugr.txt*]
+Processing File Pattern: [mwsufac.txt][mwsufac.txt]:[kc-towers]:[Missouri Western State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mwsufac.txt*]
+Processing File Pattern: [mwsuexp.txt][mwsuexp.txt]:[kc-towers]:[Missouri Western State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mwsuexp.txt*]
+Processing File Pattern: [mwsuadj.txt][mwsuadj.txt]:[kc-towers]:[Missouri Western State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mwsuadj.txt*]
+Processing File Pattern: [mwsuinst.txt][mwsuinst.txt]:[kc-towers]:[Missouri Western State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mwsuinst.txt*]
+Processing File Pattern: [mwsuwdraw.txt][mwsuwdraw.txt]:[kc-towers]:[Missouri Western State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name mwsuwdraw.txt*]
+Processing File Pattern: [nts_patrons.txt][nts_patrons.txt]:[kc-towers]:[Nazarene Theological Seminary]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name nts_patrons.txt*]
+Processing File Pattern: [ncmcstu.txt][ncmcstu.txt]:[kc-towers]:[North Central Missouri College]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name ncmcstu.txt*]
+Processing File Pattern: [nwmsustu.txt][nwmsustu.txt]:[kc-towers]:[Northwest Missouri State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name nwmsustu.txt*]
+Processing File Pattern: [nwmsuempl.txt][nwmsuempl.txt]:[kc-towers]:[Northwest Missouri State University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name nwmsuempl.txt*]
+Processing File Pattern: [parkstufac.txt][parkstufac.txt]:[kc-towers]:[Park University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name parkstufac.txt*]
+File NOT FOUND! File Pattern: [HASH(0x56496c327b48)]
+Processing File Pattern: [RKRST_Stu_mm-dd-yyyy.txt][RKRST_Stu_]:[kc-towers]:[Rockhurst University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name RKRST_Stu_*]
+Processing File Pattern: [RKRST_Staff_mm-dd-yyyy.txt][RKRST_Staff_]:[kc-towers]:[Rockhurst University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name RKRST_Staff_*]
+Processing File Pattern: [RKRST_Faculty_mm-dd-yyyy.txt][RKRST_Faculty_]:[kc-towers]:[Rockhurst University]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name RKRST_Faculty_*]
+Processing File Pattern: [WJC_MOBIUS_STUDENTS.txt][WJC_MOBIUS_STUDENTS.txt]:[kc-towers]:[William Jewell College]
+Looking for patron files: [find /mnt/dropbox/kc-towers/home/kc-towers/incoming/* -name WJC_MOBIUS_STUDENTS.txt*]
+File NOT FOUND! File Pattern: [HASH(0x56496c327d28)]
+Processing File Pattern: [COTTyyyymmdd.txt][COTT]:[swan]:[Cottey College]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name COTT*]
+Processing File Pattern: [ccstupat.txt][ccstupat.txt]:[swan]:[Crowder College]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name ccstupat.txt*]
+Processing File Pattern: [DRURYPAT_students.txt][DRURYPAT_students.txt]:[swan]:[Drury University]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name DRURYPAT_students.txt*]
+File NOT FOUND! File Pattern: [HASH(0x56496c327e90)]
+Processing File Pattern: [DRURYPAT_employees.txt][DRURYPAT_employees.txt]:[swan]:[Drury University]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name DRURYPAT_employees.txt*]
+File NOT FOUND! File Pattern: [HASH(0x56496c327f08)]
+Processing File Pattern: [DRURYPAT_alumni.txt][DRURYPAT_alumni.txt]:[swan]:[Drury University]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name DRURYPAT_alumni.txt*]
+File NOT FOUND! File Pattern: [HASH(0x56496c327f80)]
+Processing File Pattern: [EUPatronCamsExport_month_day_year][EUPatronCamsExport_]:[swan]:[Evangel University]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name EUPatronCamsExport_*]
+Processing File Pattern: [MSSCALL][MSSCALL]:[swan]:[Missouri Southern State University]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name MSSCALL*]
+Processing File Pattern: [MobiusUploadyyyydd.txt][MobiusUpload]:[swan]:[Ozark Christian College]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name MobiusUpload*]
+File NOT FOUND! File Pattern: [HASH(0x56496c3280e8)]
+Processing File Pattern: [otcpat.txt][otcpat.txt]:[swan]:[Ozarks Technical Community College]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name otcpat.txt*]
+Processing File Pattern: [SBUPATRONS][SBUPATRONS]:[swan]:[Southwest Baptist University]
+Looking for patron files: [find /mnt/dropbox/swan/home/swan/incoming/* -name SBUPATRONS*]
+Processing File Pattern: [patronLoad.marc][patronLoad.marc]:[swbts]:[Southwestern Baptist Theological Seminary]
+Looking for patron files: [find /mnt/dropbox/swbts/home/swbts/incoming/* -name patronLoad.marc*]
+File NOT FOUND! File Pattern: [HASH(0x56496c328250)]
