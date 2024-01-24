@@ -40,7 +40,7 @@ sub test02
     my $patron;
     $patron->{username} = "scott";
 
-    my $json = $parser->jsonTemplate($patron);
+    my $json = $parser->_jsonTemplate($patron);
 
     print $json;
 
@@ -63,7 +63,7 @@ sub test_processPatronRecord
     push(@patronRecord, "bA02559733ST");
   
     print "0155m 004lmb    06-30-24\n";
-    my $patronHash = $parser->buildPatronHash(\@patronRecord);
+    my $patronHash = $parser->_parsePatronRecord(\@patronRecord);
 
     print Dumper($patronHash);
    

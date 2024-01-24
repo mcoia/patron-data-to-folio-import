@@ -2,6 +2,7 @@ package SierraFolioParser;
 
 use strict;
 use warnings FATAL => 'all';
+use Data::Dumper;
 
 =pod
 
@@ -28,7 +29,7 @@ sub parse
 {
 
     my $self = shift;
-    my $data = shift; # <== array of lines read from some file
+    my $data = shift;
 
 =pod
 
@@ -39,13 +40,12 @@ handed off to our patron parser. and returns an array of json data.
 
 =cut
 
-
     my @jsonEntries = ();
 
     my @patronRecord = ();
     my $patronRecordSize = 0;
 
-    for my $line (@{$data})
+    for my $line (@$data)
     {
 
         # start a new patron record  
@@ -53,28 +53,54 @@ handed off to our patron parser. and returns an array of json data.
         {
             $patronRecordSize = @patronRecord;
 
+            $self->{log}->addLine("parsing record: [@patronRecord]");
+
             push(@jsonEntries,
-                $self->processPatronRecord($self->buildPatronHash(\@patronRecord))
+                $self->processPatronRecord($self->_parsePatronRecord(\@patronRecord))
             ) if ($patronRecordSize > 0);
 
-            @patronRecord = (); # clear our patron record 
+
+            @patronRecord = (); # clear our patron record
         }
 
         push(@patronRecord, $line);
 
     }
 
-    # take our jsonEntries and build out a complete json array. 
-    # Basically "[@jsonEntries]"
-    return "[@jsonEntries]";
+    return \@jsonEntries;
 
 }
 
-sub initPatronHash
+=head1 processPatronRecord($patron) returns a single json record for this patron.
+
+
+=cut
+sub processPatronRecord
+{
+    my $self = shift;
+    my $patron = shift;
+
+    # returns a single json record for this patron
+
+
+    # we just pass the patron thru for now.
+    return $patron;
+
+}
+
+sub _initPatronHash
 {
     my $self = shift;
 
     my $patron;
+
+    # NON patron file specific fields
+    $patron->{'externalID'} = "";
+    $patron->{'active'} = "true";
+    $patron->{'patronGroup'} = "";
+    $patron->{'addressTypeId'} = "";
+
+    # patron file specific fields
     $patron->{'field_code'} = "";
     $patron->{'patron_type'} = "";
     $patron->{'pcode1'} = "";
@@ -98,7 +124,7 @@ sub initPatronHash
     return $patron;
 }
 
-=head1 buildPatronHash(@patronrecord)
+=head1 _parsePatronRecord(@patronrecord)
 
 The initial field: Always 24 char long
 example: 0101c-003clb  --01/31/24
@@ -129,17 +155,16 @@ x = Note
 
 
 =cut
-sub buildPatronHash
+sub _parsePatronRecord
 {
     my $self = shift;
     my $patronRecord = shift;
 
-    my $patron = $self->initPatronHash();
+    my $patron = $self->_initPatronHash();
 
     # loop thru our patron record
     for my $data (@{$patronRecord})
     {
-
 
         # zero field
         $patron->{'field_code'} = '0' if ($data =~ /^0/);
@@ -153,7 +178,7 @@ sub buildPatronHash
         $patron->{'patron_expiration_date'} = ($data =~ /^0\d{3}.{2}\d{3}.{7}(.{8}).*/gm)[0] if ($data =~ /^0/);
 
         # replace spaces with hyphens.
-        $data = $data =~ s/\s/-/gr if ($data =~ /^0/ && $self->{conf}->{replaceSpaceWithHyphen});
+        $data = $data =~ s/\s/-/gr if ($data =~ /^0/ && $self->{conf}->{patronHashReplaceSpaceWithHyphen});
 
         # variable length fields
         $patron->{'name'} = ($data =~ /^n(.*)$/gm)[0] if ($data =~ /^n/);
@@ -169,38 +194,12 @@ sub buildPatronHash
 
     }
 
+    # $self->{log}->addLine(Dumper($patron));
+
     return $patron;
 }
 
-=head1 processPatronRecord($patron) returns a single json record for this patron.
-
-
-=cut
-sub processPatronRecord
-{
-    my $self = shift;
-    my $patron = shift;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
-
-sub jsonTemplate
+sub _jsonTemplate
 {
     my $self = shift;
     my $patron = shift;
@@ -209,58 +208,31 @@ sub jsonTemplate
 
 {
   \"username\": \"$patron->{username}\",
-  \"externalSystemId\": \"111_112\",
-  \"barcode\": \"1234567\",
-  \"active\": true,
-  \"patronGroup\": \"staff\",
+  \"externalSystemId\": \"$patron->{externalID}\",
+  \"barcode\": \"$patron->{barcode}\",
+  \"active\": $patron->{active},
+  \"patronGroup\": \"$patron->{patronGroup}\",
   \"personal\": {
-    \"lastName\": \"Handey\",
-    \"firstName\": \"Jack\",
-    \"middleName\": \"Michael\",
-    \"preferredFirstName\": \"Jackie\",
-    \"phone\": \"+36 55 230 348\",
-    \"mobilePhone\": \"+36 55 379 130\",
-    \"dateOfBirth\": \"1995-10-10\",
+    \"lastName\": \"$patron->{name}\",
+    \"firstName\": \"$patron->{name}\",
+    \"phone\": \"$patron->{telephone}\",
     \"addresses\": [
       {
-        \"countryId\": \"HU\",
-        \"addressLine1\": \"Andrássy Street 1.\",
-        \"addressLine2\": \"\",
-        \"city\": \"Budapest\",
-        \"region\": \"Pest\",
-        \"postalCode\": \"1061\",
-        \"addressTypeId\": \"Home\",
+        \"countryId\": \"US\",
+        \"addressLine1\": \"$patron->{address}\",
+        \"addressTypeId\": \"$patron->{addressTypeId}\",
         \"primaryAddress\": true
       }
     ],
-    \"preferredContactTypeId\": \"mail\"
-  },
-  \"enrollmentDate\": \"2017-01-01\",
-  \"expirationDate\": \"2019-01-01\",
-  \"customFields\": {
-    \"scope\": \"Design\",
-    \"specialization\": [
-      \"Business\",
-      \"Jurisprudence\"
-    ]
-  },
-  \"requestPreference\": {
-    \"holdShelf\": true,
-    \"delivery\": true,
-    \"defaultServicePointId\": \"00000000-0000-1000-a000-000000000000\",
-    \"defaultDeliveryAddressTypeId\": \"Home\",
-    \"fulfillment\": \"Hold Shelf\"
   },
   \"departments\": [
-    \"Accounting\",
-    \"Finance\",
-    \"Chemistry\"
+    \"$patron->{department}\",
   ]
 }
 
-
-
 ";
+
+    return $jsonTemplate;
 
 }
 

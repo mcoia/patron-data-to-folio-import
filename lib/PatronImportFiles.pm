@@ -3,6 +3,8 @@ use strict;
 use warnings FATAL => 'all';
 use Data::Dumper;
 
+use Text::CSV::Simple;
+
 =head1 new(conf, log)
 
 
@@ -16,15 +18,6 @@ sub new
     };
     bless $self, $class;
     return $self;
-}
-
-sub listFiles
-{
-    my $self = shift;
-    my $path = shift;
-    my @files = `ls -d $path/*`;
-    chomp @files;
-    return \@files;
 }
 
 sub readFileToArray
@@ -56,7 +49,26 @@ sub readFileToArray
 
 }
 
-=head1 getPTYPEMappingSheet($cluster)
+sub getPatronFilePaths
+{
+    my $self = shift;
+    my @filePathsArray = ();
+
+    my $clusterFileHashArray = $self->_loadMOBIUSPatronLoadsCSV();
+    $clusterFileHashArray = $self->_buildFilePatterns($clusterFileHashArray);
+
+    for my $clusterFileHash (@$clusterFileHashArray)
+    {
+        $self->{log}->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
+
+        my $filePaths = $self->_patronFileDiscovery($clusterFileHash);
+        push(@filePathsArray, $filePaths) if($filePaths != 0);
+    }
+
+    return \@filePathsArray;
+}
+
+=head1 _getPTYPEMappingSheet($cluster)
 
 Load the mapping sheet for Ptype mapping.
 
@@ -69,18 +81,17 @@ example:
 
 
 =cut
-sub getPTYPEMappingSheet
+sub _getPTYPEMappingSheet
 {
     my $self = shift;
     my $cluster = shift;
 
     my $filePath = "$self->{conf}->{patronTypeMappingSheetPath}/$cluster.csv";
 
-    return $self->loadCSVFileAsArray($filePath);
+    return $self->_loadCSVFileAsArray($filePath);
 }
 
-# sub getPatronLoadsFilePatters
-sub buildFilePatterns
+sub _buildFilePatterns
 {
     my $self = shift;
     my $clusterFileHashArray = shift;
@@ -91,6 +102,11 @@ sub buildFilePatterns
 
         my $file = $clusterFileHash->{file};
 
+        # remove some file extensions
+        $file =~ s/\.txt*//g;
+        $file =~ s/\.marc*//g;
+
+        # Dates
         $file =~ s/dd.*//g;
         $file =~ s/mm.*//g;
         $file =~ s/yy.*//g;
@@ -112,11 +128,11 @@ sub buildFilePatterns
     return $filePatterns;
 }
 
-sub loadMOBIUSPatronLoadsCSV
+sub _loadMOBIUSPatronLoadsCSV
 {
 
     my $self = shift;
-    my $csv = $self->loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
+    my $csv = $self->_loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
     my @clusterFiles = ();
     my $cluster = '';
     my $institution = '';
@@ -152,51 +168,41 @@ sub loadMOBIUSPatronLoadsCSV
     return \@clusterFiles;
 }
 
-sub getPatronFilePaths
-{
-    my $self = shift;
-    my @filePathsArray = ();
-
-    my $clusterFileHashArray = $self->loadMOBIUSPatronLoadsCSV();
-    $clusterFileHashArray = $self->buildFilePatterns($clusterFileHashArray);
-
-    for my $clusterFileHash (@$clusterFileHashArray)
-    {
-        $self->{log}->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
-
-        my $filePaths = $self->patronFileDiscovery($clusterFileHash);
-        push(@filePathsArray, $filePaths);
-
-    }
-
-    return \@filePathsArray;
-}
-
-sub patronFileDiscovery
+sub _patronFileDiscovery
 {
     my $self = shift;
     my $clusterFileHash = shift;
 
     my @filePaths = ();
 
-    my $command = "find $self->{conf}->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -name $clusterFileHash->{pattern}*";
+    my $command = "find $self->{conf}->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -iname $clusterFileHash->{pattern}*";
 
     $self->{log}->addLine("Looking for patron files: [$command]");
-    print "Looking for patron files: [$command]";
 
     my @paths = `$command`;
-    push(@filePaths, @paths) if (@paths);
+    chomp(@paths);
+
+    if (@paths)
+    {
+        push(@filePaths, @paths);
+        for my $path (@paths)
+        {
+            $self->{log}->addLine("File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]");
+            print "File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]\n";
+        }
+    }
 
     return \@filePaths if (@filePaths);
 
-    $self->{log}->addLine("File NOT FOUND! File Pattern: [$clusterFileHash]");
+    $self->{log}->addLine("File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]");
+    print "File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]\n";
 
     # we found zero files for this pattern in all the clusters
     return 0;
 
 }
 
-sub loadCSVFileAsArray
+sub _loadCSVFileAsArray
 {
     my $self = shift;
     my $filePath = shift;
@@ -208,7 +214,7 @@ sub loadCSVFileAsArray
 
 }
 
-sub rowContainsClusterName
+sub _rowContainsClusterName
 {
     my $self = shift;
     my $row = lc shift;
@@ -221,7 +227,6 @@ sub rowContainsClusterName
     }
 
     return 0;
-
 }
 
 1;

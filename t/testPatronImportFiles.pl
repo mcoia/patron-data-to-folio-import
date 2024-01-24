@@ -14,7 +14,8 @@ our $conf;
 initConf();
 
 our $log = Loghandler->new("test.log");
-$log->truncFile("----- [test.log] -----");
+my $time = localtime;
+$log->truncFile("----- [test.log | $time] -----");
 
 sub initConf
 {
@@ -34,7 +35,7 @@ sub initConf
 
 my $files = PatronImportFiles->new($conf, $log);
 
-my $clusterFiles = $files->loadMOBIUSPatronLoadsCSV();
+my $clusterFiles = $files->_loadMOBIUSPatronLoadsCSV();
 my $filePaths = $files->getPatronFilePaths();
 
 
