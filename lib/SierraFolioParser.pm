@@ -57,7 +57,7 @@ handed off to our patron parser. and returns an array of json data.
         {
             $patronRecordSize = @patronRecord;
 
-            # $self->{log}->addLine("parsing record: [@patronRecord]");
+            $self->{log}->addLine("parsing record: [@patronRecord]");
 
             my $parsedRecord = $self->_parsePatronRecord(\@patronRecord);
             $parsedRecord->{cluster} = $cluster;
@@ -242,6 +242,10 @@ sub _jsonTemplate
 {
     my $self = shift;
     my $patron = shift;
+
+
+    print Dumper($patron);
+
 
     my $jsonTemplate = "
 {

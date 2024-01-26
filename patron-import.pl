@@ -60,16 +60,10 @@ sub main
             # Parse our data into usable json.
             my $jsonArray = $parser->parse($file, $patronFile->{cluster}, $patronFile->{institution}, $data);
 
-            # I'm not sure why I'm getting nested arrays
             for my $json ($jsonArray)
             {
-
-                for my $entry (@{$json})
-                {
-                    print "$entry\n";
-                    $log->addLine($entry);
-                }
-
+                print "$json\n";
+                $log->addLine($json);
             }
 
 
