@@ -66,40 +66,17 @@ sub new #dbname,host,login,password,port,dbtype (firebird,mysql,postgres), utf8 
 sub setupConnection
 {
     my ($self) = @_[0];
-    my $conn = $self->{conn};
+    my $connection = $self->{conn};
     my $dbname = $self->{dbname};
     my $host = $self->{host};
     my $login = $self->{login};
     my $pass = $self->{password};
     my $port = $self->{port};
     my $dbtype = $self->{dbtype};
-    if (!$dbtype || ($dbtype ne 'firebird' && $dbtype ne 'mysql')) # Default to postgres
-    {
-        $conn = DBI->connect("DBI:Pg:dbname=$dbname;host=$host;port=$port", $login, $pass, { AutoCommit => 1 }); #'RaiseError' => 1,post_connect_sql => "SET CLIENT_ENCODING TO 'UTF8'", pg_utf8_strings => 1
-    }
-    elsif ($dbtype eq 'firebird')
-    {
-        $conn = DBI->connect("DBI:Firebird:db=$dbname;host=$host/$port", $login, $pass, { AutoCommit => 1, LongReadLen => 10000000 });
-    }
-    elsif ($dbtype eq 'mysql')
-    {
-        my $support =
-            {
-                AutoCommit  => 1,
-                LongReadLen => 10000000
-            };
-        if ($self->{utf8})
-        {
-            # found that since the database is encoded with utf8mb4
-            # and we add this support, the result is that we have to (in perl) encode the results.
-            # I don't get it, but we don't need to set this flag even when the mysql database is utf8mb4
-            $support->{mysql_enable_utf8mb4} = 1;
 
-        }
-        $conn = DBI->connect("DBI:mysql:database=$dbname;host=$host;port=$port", $login, $pass, $support);
-    }
+    $connection = DBI->connect("DBI:Pg:dbname=$dbname;host=$host;port=$port", $login, $pass, { AutoCommit => 1 }); #'RaiseError' => 1,post_connect_sql => "SET CLIENT_ENCODING TO 'UTF8'", pg_utf8_strings => 1
 
-    $self->{conn} = $conn;
+    $self->{conn} = $connection;
 }
 
 sub update

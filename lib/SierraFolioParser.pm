@@ -16,6 +16,7 @@ sub new
     my $self = {
         'conf'  => shift,
         'log'   => shift,
+        'db'    => shift,
         'files' => shift,
     };
     bless $self, $class;
@@ -59,12 +60,18 @@ handed off to our patron parser. and returns an array of json data.
 
             $self->{log}->addLine("parsing record: [@patronRecord]");
 
-            my $parsedRecord = $self->_parsePatronRecord(\@patronRecord);
-            $parsedRecord->{cluster} = $cluster;
-            $parsedRecord->{institution} = $institution;
-            $parsedRecord->{file} = $file; # <== this may not be needed. It was more for debugging.
+            my $patron = $self->_parsePatronRecord(\@patronRecord);
+            $patron->{cluster} = $cluster;
+            $patron->{institution} = $institution;
+            $patron->{file} = $file; # <== this may not be needed. It was more for debugging.
+            $patron->{patronGroup} = $self->mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
+            $patron->{externalID} = $self->getExternalID($patron) if ($patronRecordSize > 0);
+            $patron->{username} = $self->getUsername($patron) if ($patronRecordSize > 0);
 
-            push(@jsonEntries, $self->processPatronRecord($parsedRecord)) if ($patronRecordSize > 0);
+            # I want to save this patron.
+            # $self->savePatronToDatabase($patron) if ($patronRecordSize > 0);
+
+            push(@jsonEntries, $self->_jsonTemplate($patron)) if ($patronRecordSize > 0);
 
             @patronRecord = (); # clear our patron record
         }
@@ -74,6 +81,13 @@ handed off to our patron parser. and returns an array of json data.
     }
 
     return \@jsonEntries;
+
+}
+
+sub savePatronToDatabase
+{
+    my $self = shift;
+    my $patron = shift;
 
 }
 
@@ -110,7 +124,7 @@ sub getExternalID
     my $epoch = time();
     my $externalID = "1234567890_$epoch";
 
-   return  $externalID;
+    return $externalID;
 
 }
 
@@ -243,9 +257,7 @@ sub _jsonTemplate
     my $self = shift;
     my $patron = shift;
 
-
     print Dumper($patron);
-
 
     my $jsonTemplate = "
 {

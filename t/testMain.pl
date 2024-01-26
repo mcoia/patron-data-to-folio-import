@@ -14,34 +14,28 @@ use PatronImportFiles;
 my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
 # my $patronFilePath = "../resources/test-files/incoming/SLCCStaff-1";
 
-my $log = Loghandler->new("test.log");
-$log->truncFile("");
 
 our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
 
-my $conf;
+my ($conf, $log, $files, $parser);
+
 initConf();
+initLog();
 
-my $files = PatronImportFiles->new($conf, $log, ".", \@clusters);
-my $parser = SierraFolioParser->new($conf, $log, $files);
+# my $files = PatronImportFiles->new($conf, $log, ".", \@clusters);
+# my $parser = SierraFolioParser->new($conf, $log, $files);
 
-# my $patron = {
-#     'cluster' => 'archway'
-# };
-# $parser->mapPatronTypeToPatronGroup($patron);
-
-readPtypeWorksheet();
 sub readPtypeWorksheet
 {
 
     my $worksheet = $files->_getPTYPEMappingSheet("scratch");
     my $patronFiles = $files->getPatronFilePaths();
 
-    for my $row (@$worksheet){
+    for my $row (@$worksheet)
+    {
 
 
     }
-
 
 }
 
@@ -99,5 +93,12 @@ sub initConf
     $conf = $utils->readConfFile($configFile);
 
 }
+
+sub initLog
+{
+    $log = Loghandler->new("test.log");
+    $log->truncFile("");
+}
+
 
 1;

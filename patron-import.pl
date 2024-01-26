@@ -10,14 +10,14 @@ use Getopt::Long;
 use Data::Dumper;
 use MOBIUS::email;
 use MOBIUS::Loghandler;
+use MOBIUS::DBhandler;
 use JSON;
 use MOBIUS::Utils;
 use PatronImportFiles;
 use SierraFolioParser;
 
 our $configFile;
-our $debug = 0;
-our $dbHandler;
+our $db;
 our $conf;
 our $log;
 
@@ -27,28 +27,27 @@ our $files;
 
 GetOptions(
     "config=s" => \$configFile,
-    "debug"    => \$debug,
 )
     or die("Error in command line arguments\nYou can specify
 --config                                      [Path to the config file]
---debug                                       [Cause more log output]
 \n");
 
 initConf();
 initLogger();
-# initDatabase();
+initDatabaseConnection();
 main();
 
 sub main
 {
-    $files = PatronImportFiles->new($conf, $log);
-    $parser = SierraFolioParser->new($conf, $log, $files);
+    my $jobID = getJobID();
+    $files = PatronImportFiles->new($conf, $log, $db);
+    $parser = SierraFolioParser->new($conf, $log, $db, $files);
 
     # Find patron files
     my $patronFiles = $files->getPatronFilePaths();
 
     # loop over our discovered files. Parse, Load, Report
-    for my $patronFile (@$patronFiles)
+    for my $patronFile (@$patronFiles) # can I do this [0] to eliminate the nested array? for my $patronFile (@$patronFiles[0])
     {
 
         for my $file (@{$patronFile->{files}})
@@ -120,15 +119,9 @@ sub initLogger
     $log->truncFile("");
 }
 
-sub initDatabase
-{
-    initDatabaseConnection();
-    buildSchema();
-}
-
 sub initDatabaseConnection
 {
-    eval {$dbHandler = DBhandler->new($conf->{"db"}, $conf->{"dbhost"}, $conf->{"dbuser"}, $conf->{"dbpass"}, $conf->{"port"} || "3306", "mysql", 1);};
+    eval {$db = DBhandler->new($conf->{db}, $conf->{dbhost}, $conf->{dbuser}, $conf->{dbpass}, $conf->{port} || 5432, "postgres", 1);};
     if ($@)
     {
         print "Could not establish a connection to the database\n";
@@ -136,13 +129,21 @@ sub initDatabaseConnection
     }
 }
 
-sub buildSchema
+sub getJobID
 {
-    # Placeholder, we may not need db connections
 
-    # my $query = "";
-    # $log->addLine($query);
-    # $dbHandler->update($query);
+    my $query = "insert into job(start_time,stop_time) values (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
+    $db->update($query);
+
+    $query = "select * from job where start_time = stop_time order by ID desc limit 1;";
+
+    my @results = @{$db->query($query)};
+    my $id = $results[0][0];
+
+    print Dumper($id);
+    print "id: " . $id . "\n";
+
+    exit;
 
 }
 

@@ -15,6 +15,7 @@ sub new
     my $self = {
         'conf' => shift,
         'log'  => shift,
+        'db'   => shift,
     };
     bless $self, $class;
     return $self;
@@ -65,8 +66,12 @@ sub getPatronFilePaths
         my $filePathsHash = {
             'cluster'     => $clusterFileHash->{cluster},
             'institution' => $clusterFileHash->{institution},
+            'pattern'     => $clusterFileHash->{pattern},
             'files'       => $filePaths,
         };
+
+        # Save $filePathsHash to database
+        $self->saveFilePath($filePathsHash);
 
         push(@filePathsHashArray, $filePathsHash) if ($filePaths != 0);
     }
@@ -190,12 +195,12 @@ sub _patronFileDiscovery
 
     if (@paths)
     {
-        push(@filePaths, @paths);
         for my $path (@paths)
         {
             $self->{log}->addLine("File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]");
             print "File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]\n";
         }
+        push(@filePaths, @paths);
     }
 
     return \@filePaths if (@filePaths);
@@ -233,6 +238,35 @@ sub _rowContainsClusterName
     }
 
     return 0;
+}
+
+sub saveFilePath
+{
+    my $self = shift;
+    my $filePathsHash = shift;
+
+    my $cluster = $filePathsHash->{cluster};
+    my $institution = $filePathsHash->{institution};
+    my $pattern = $filePathsHash->{pattern};
+    my @files = @{$filePathsHash->{files}};
+
+    for my $path (@files)
+    {
+        my $query = "
+       INSERT INTO patron_import_files(cluster, institution, pattern, filename)
+       values (
+            '$cluster',
+            '$institution',
+            '$pattern',
+            '$path'
+       );
+";
+
+        $self->{db}->update($query);
+    }
+
+    exit;
+
 }
 
 1;

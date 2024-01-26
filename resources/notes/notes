@@ -93,3 +93,28 @@ Explore	''	3.16.146.135	iii	1032	bnl	bcn2XFH.hbd!qwg5hye
 https://techdocs.iii.com/sierradna/Content/Entities/Patron.htm?Highlight=ptype%20
 
 select * from sierra_view.ptype_property
+
+
+
+
+
+#### Brooks meeting 1/26
+
+# what fields are required
+externalID + username
+typefield = "patron" for patron and "staff" for staff
+
+externalID needs to be unique per tenant
+usernames need to be unique (in theory for staff only)
+
+We need to mark each patron as staff or patron
+
+main user api
+main business user api
+
+there's 1 permission for user-import
+
+https://s3.amazonaws.com/foliodocs/api/mod-users-bl/r/mod-usersbl.html$bl_+user
+
+
+Do we load staff account then?
