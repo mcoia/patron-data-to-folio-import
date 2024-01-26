@@ -42,8 +42,7 @@ sub readFileToArray
     close $fileHandle;
 
     my $arraySize = @data;
-    $self->{log}->addLogLine("Total lines read: [$lineCount]");
-    $self->{log}->addLogLine("Total array size: [$arraySize]");
+    $self->{log}->addLogLine("Total lines read: [$lineCount] : Total array size: [$arraySize]");
 
     return \@data;
 
@@ -52,7 +51,7 @@ sub readFileToArray
 sub getPatronFilePaths
 {
     my $self = shift;
-    my @filePathsArray = ();
+    my @filePathsHashArray = ();
 
     my $clusterFileHashArray = $self->_loadMOBIUSPatronLoadsCSV();
     $clusterFileHashArray = $self->_buildFilePatterns($clusterFileHashArray);
@@ -62,10 +61,17 @@ sub getPatronFilePaths
         $self->{log}->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
 
         my $filePaths = $self->_patronFileDiscovery($clusterFileHash);
-        push(@filePathsArray, $filePaths) if($filePaths != 0);
+
+        my $filePathsHash = {
+            'cluster'     => $clusterFileHash->{cluster},
+            'institution' => $clusterFileHash->{institution},
+            'files'       => $filePaths,
+        };
+
+        push(@filePathsHashArray, $filePathsHash) if ($filePaths != 0);
     }
 
-    return \@filePathsArray;
+    return \@filePathsHashArray;
 }
 
 =head1 _getPTYPEMappingSheet($cluster)

@@ -7,10 +7,10 @@ use lib qw(lib);
 
 # Imports
 use Getopt::Long;
+use Data::Dumper;
 use MOBIUS::email;
 use MOBIUS::Loghandler;
 use JSON;
-use Data::Dumper;
 use MOBIUS::Utils;
 use PatronImportFiles;
 use SierraFolioParser;
@@ -42,23 +42,36 @@ main();
 sub main
 {
     $files = PatronImportFiles->new($conf, $log);
-    $parser = SierraFolioParser->new($conf, $log);
+    $parser = SierraFolioParser->new($conf, $log, $files);
 
     # Find patron files
     my $patronFiles = $files->getPatronFilePaths();
 
     # loop over our discovered files. Parse, Load, Report
-    for my $filesArray (@$patronFiles)
+    for my $patronFile (@$patronFiles)
     {
 
-        for my $file (@$filesArray)
+        for my $file (@{$patronFile->{files}})
         {
 
             # Read patron file into an array
             my $data = $files->readFileToArray($file);
 
             # Parse our data into usable json.
-            my $jsonArray = $parser->parse($data);
+            my $jsonArray = $parser->parse($file, $patronFile->{cluster}, $patronFile->{institution}, $data);
+
+            # I'm not sure why I'm getting nested arrays
+            for my $json ($jsonArray)
+            {
+
+                for my $entry (@{$json})
+                {
+                    print "$entry\n";
+                    $log->addLine($entry);
+                }
+
+            }
+
 
 =pod
             https://github.com/folio-org/mod-user-import
@@ -66,31 +79,20 @@ sub main
             We still need to wrap the jsonArray into an official folio compatible request.
             $jsonArray is essentially the array of "users":[] listed below.
 
-
-
-            This is the rest of our json.
+           This is the rest of our json.
 
            {
-           "users": [@$jsonArray], <-- but with commas after each {data},
-           "totalRecords": 1,
-           "deactivateMissingUsers": $conf->{deactivateMissingUsers},
-           "updateOnlyPresentFields": $conf->{updateOnlyPresentFields},
-           "sourceType": "test"
+               "users": [@$jsonArray], <-- but with commas after each {data},
+               "totalRecords": 1,
+               "deactivateMissingUsers": $conf->{deactivateMissingUsers},
+               "updateOnlyPresentFields": $conf->{updateOnlyPresentFields},
+               "sourceType": "test"
            }
-
-
-
-
 
 =cut
 
-
-
-
-
-
-
             # Build json from template for parsed patrons
+
 
             # submit to folio
 

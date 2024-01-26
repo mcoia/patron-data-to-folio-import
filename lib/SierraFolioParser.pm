@@ -14,8 +14,9 @@ sub new
 {
     my $class = shift;
     my $self = {
-        'conf' => shift,
-        'log'  => shift,
+        'conf'  => shift,
+        'log'   => shift,
+        'files' => shift,
     };
     bless $self, $class;
     return $self;
@@ -29,6 +30,9 @@ sub parse
 {
 
     my $self = shift;
+    my $file = shift;
+    my $cluster = shift;
+    my $institution = shift;
     my $data = shift;
 
 =pod
@@ -45,7 +49,7 @@ handed off to our patron parser. and returns an array of json data.
     my @patronRecord = ();
     my $patronRecordSize = 0;
 
-    for my $line (@$data)
+    for my $line (@{$data})
     {
 
         # start a new patron record  
@@ -53,12 +57,14 @@ handed off to our patron parser. and returns an array of json data.
         {
             $patronRecordSize = @patronRecord;
 
-            $self->{log}->addLine("parsing record: [@patronRecord]");
+            # $self->{log}->addLine("parsing record: [@patronRecord]");
 
-            push(@jsonEntries,
-                $self->processPatronRecord($self->_parsePatronRecord(\@patronRecord))
-            ) if ($patronRecordSize > 0);
+            my $parsedRecord = $self->_parsePatronRecord(\@patronRecord);
+            $parsedRecord->{cluster} = $cluster;
+            $parsedRecord->{institution} = $institution;
+            $parsedRecord->{file} = $file; # <== this may not be needed. It was more for debugging.
 
+            push(@jsonEntries, $self->processPatronRecord($parsedRecord)) if ($patronRecordSize > 0);
 
             @patronRecord = (); # clear our patron record
         }
@@ -80,11 +86,42 @@ sub processPatronRecord
     my $self = shift;
     my $patron = shift;
 
-    # returns a single json record for this patron
 
+    # There's a few things before we can build the json template.
+
+    # Get the Patron Group from the 3 digit code
+    $patron->{patronGroup} = $self->mapPatronTypeToPatronGroup($patron);
+    $patron->{externalID} = $self->getExternalID($patron);
+    $patron->{username} = $self->getUsername($patron);
+
+    my $json = $self->_jsonTemplate($patron);
 
     # we just pass the patron thru for now.
-    return $patron;
+    return $json;
+
+}
+
+sub getExternalID
+{
+    my $self = shift;
+    my $patron = shift;
+
+    # Until I get some more info we're counting to 10 and tacking on an epoch
+    my $epoch = time();
+    my $externalID = "1234567890_$epoch";
+
+   return  $externalID;
+
+}
+
+sub getUsername
+{
+    my $self = shift;
+    my $patron = shift;
+
+    # what field do we use for a username?
+    # return $patron->{barcode};
+    return $patron->{email_address};
 
 }
 
@@ -99,6 +136,8 @@ sub _initPatronHash
     $patron->{'active'} = "true";
     $patron->{'patronGroup'} = "";
     $patron->{'addressTypeId'} = "";
+    $patron->{'cluster'} = "";
+    $patron->{'institution'} = "";
 
     # patron file specific fields
     $patron->{'field_code'} = "";
@@ -205,7 +244,6 @@ sub _jsonTemplate
     my $patron = shift;
 
     my $jsonTemplate = "
-
 {
   \"username\": \"$patron->{username}\",
   \"externalSystemId\": \"$patron->{externalID}\",
@@ -233,6 +271,27 @@ sub _jsonTemplate
 ";
 
     return $jsonTemplate;
+
+}
+
+sub mapPatronTypeToPatronGroup
+{
+    my $self = shift;
+    my $patron = shift;
+
+    my $ptypeMappingSheet = $self->{files}->_getPTYPEMappingSheet($patron->{cluster});
+    my $pType = "NO-DATA-FOUND";
+
+    for my $row (@{$ptypeMappingSheet})
+    {
+
+        my $patron_type = $patron->{patron_type} + 0;
+
+        return $row->[3] if ($patron_type == $row->[0]);
+
+    }
+
+    return $pType;
 
 }
 
