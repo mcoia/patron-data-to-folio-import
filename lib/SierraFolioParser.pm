@@ -25,28 +25,19 @@ sub new
 
 =head1 parse()
 
-
-=cut
-sub parse
-{
-
-    my $self = shift;
-    my $file = shift;
-    my $cluster = shift;
-    my $institution = shift;
-    my $data = shift;
-
-=pod
-
 This is kind of a wrapper method. 
     
 It takes our file @data, loops thru and isolates each patron record to be 
 handed off to our patron parser. and returns an array of json data. 
 
 =cut
+sub parse
+{
 
-    my @jsonEntries = ();
+    my $self = shift;
+    my ($file, $cluster, $institution, $data) = shift;
 
+    my @patronRecords = ();
     my @patronRecord = ();
     my $patronRecordSize = 0;
 
@@ -63,15 +54,12 @@ handed off to our patron parser. and returns an array of json data.
             my $patron = $self->_parsePatronRecord(\@patronRecord);
             $patron->{cluster} = $cluster;
             $patron->{institution} = $institution;
-            $patron->{file} = $file; # <== this may not be needed. It was more for debugging.
-            $patron->{patronGroup} = $self->mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
-            $patron->{externalID} = $self->getExternalID($patron) if ($patronRecordSize > 0);
-            $patron->{username} = $self->getUsername($patron) if ($patronRecordSize > 0);
+            $patron->{file} = $file;
+            $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
+            $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0);
+            $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
 
-            # I want to save this patron.
-            # $self->savePatronToDatabase($patron) if ($patronRecordSize > 0);
-
-            push(@jsonEntries, $self->_jsonTemplate($patron)) if ($patronRecordSize > 0);
+            push(@patronRecords, $patron) if ($patronRecordSize > 0);
 
             @patronRecord = (); # clear our patron record
         }
@@ -80,55 +68,41 @@ handed off to our patron parser. and returns an array of json data.
 
     }
 
-    return \@jsonEntries;
+    return \@patronRecords;
 
 }
 
-sub savePatronToDatabase
+sub savePatronRecords
 {
     my $self = shift;
-    my $patron = shift;
+    my $patronRecords = shift;
+
+    for my $patron (@{$patronRecords})
+    {
+
+        # TODO: insert $patron into the db
+        my $query = "
+
+";
+
+        $self->{db}->update($query);
+    }
 
 }
 
-=head1 processPatronRecord($patron) returns a single json record for this patron.
-
-
-=cut
-sub processPatronRecord
-{
-    my $self = shift;
-    my $patron = shift;
-
-
-    # There's a few things before we can build the json template.
-
-    # Get the Patron Group from the 3 digit code
-    $patron->{patronGroup} = $self->mapPatronTypeToPatronGroup($patron);
-    $patron->{externalID} = $self->getExternalID($patron);
-    $patron->{username} = $self->getUsername($patron);
-
-    my $json = $self->_jsonTemplate($patron);
-
-    # we just pass the patron thru for now.
-    return $json;
-
-}
-
-sub getExternalID
+sub _getExternalID
 {
     my $self = shift;
     my $patron = shift;
 
     # Until I get some more info we're counting to 10 and tacking on an epoch
     my $epoch = time();
-    my $externalID = "1234567890_$epoch";
 
-    return $externalID;
+    return "1234567890_$epoch";
 
 }
 
-sub getUsername
+sub _getUsername
 {
     my $self = shift;
     my $patron = shift;
@@ -290,13 +264,13 @@ sub _jsonTemplate
 
 }
 
-sub mapPatronTypeToPatronGroup
+sub _mapPatronTypeToPatronGroup
 {
     my $self = shift;
     my $patron = shift;
 
-    my $ptypeMappingSheet = $self->{files}->_getPTYPEMappingSheet($patron->{cluster});
-    my $pType = "NO-DATA-FOUND";
+    my $ptypeMappingSheet = $self->{files}->getPTYPEMappingSheet($patron->{cluster});
+    my $pType = "NO-DATA-FOUND"; # Should this default to Staff or be blank?
 
     for my $row (@{$ptypeMappingSheet})
     {

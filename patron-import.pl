@@ -34,66 +34,40 @@ GetOptions(
 
 initConf();
 initLogger();
-initDatabaseConnection();
+initDatabase();
 main();
 
 sub main
 {
-    my $jobID = getJobID();
+    setJobID();
     $files = PatronImportFiles->new($conf, $log, $db);
     $parser = SierraFolioParser->new($conf, $log, $db, $files);
 
     # Find patron files
     my $patronFiles = $files->getPatronFilePaths();
 
-    # loop over our discovered files. Parse, Load, Report
-    for my $patronFile (@$patronFiles) # can I do this [0] to eliminate the nested array? for my $patronFile (@$patronFiles[0])
+    # loop over our discovered files. Parse, Load, Report <== maybe these should be functions? Report(Load(Parsed())); lol
+    for my $patronFile (@$patronFiles)
     {
 
+        # Note: $patronFile is a hash vvvvvv not an array. I keep thinking this is a nested array at first glance. It's not.
         for my $file (@{$patronFile->{files}})
         {
 
             # Read patron file into an array
             my $data = $files->readFileToArray($file);
 
-            # Parse our data into usable json.
-            my $jsonArray = $parser->parse($file, $patronFile->{cluster}, $patronFile->{institution}, $data);
-
-            for my $json ($jsonArray)
-            {
-                print "$json\n";
-                $log->addLine($json);
-            }
+            # Parse our data into patron records
+            my $patronRecords = $parser->parse($file, $patronFile->{cluster}, $patronFile->{institution}, $data);
+            $parser->savePatronRecords($patronRecords);
 
 
-=pod
-            https://github.com/folio-org/mod-user-import
-            Note: $jsonArray is just the user portion of the request. There's more to this json POST request.
-            We still need to wrap the jsonArray into an official folio compatible request.
-            $jsonArray is essentially the array of "users":[] listed below.
-
-           This is the rest of our json.
-
-           {
-               "users": [@$jsonArray], <-- but with commas after each {data},
-               "totalRecords": 1,
-               "deactivateMissingUsers": $conf->{deactivateMissingUsers},
-               "updateOnlyPresentFields": $conf->{updateOnlyPresentFields},
-               "sourceType": "test"
-           }
-
-=cut
-
-            # Build json from template for parsed patrons
-
-
-            # submit to folio
-
-            # generate any reports/emails
 
         }
 
     }
+
+    finishJob();
 
 }
 
@@ -119,6 +93,13 @@ sub initLogger
     $log->truncFile("");
 }
 
+sub initDatabase
+{
+    initDatabaseConnection();
+    dropTables(); # TODO; Remove for production.
+    initDatabaseSchema();
+}
+
 sub initDatabaseConnection
 {
     eval {$db = DBhandler->new($conf->{db}, $conf->{dbhost}, $conf->{dbuser}, $conf->{dbpass}, $conf->{port} || 5432, "postgres", 1);};
@@ -129,21 +110,99 @@ sub initDatabaseConnection
     }
 }
 
-sub getJobID
+sub dropTables
+{
+    my $query = "drop table if exists job,patron_import_files,patron;";
+    $db->update($query);
+}
+
+sub initDatabaseSchema
 {
 
+   my $query = "
+
+   drop table if exists job,patron_import_files,patron;
+
+create table job
+(
+    ID         SERIAL primary key,
+    start_time timestamp,
+    stop_time  timestamp
+);
+
+create table patron_import_files
+(
+    ID          SERIAL primary key,
+    job_id      int,
+    cluster     varchar,
+    institution varchar,
+    pattern     varchar,
+    filename    varchar
+);
+
+create table patron
+(
+    ID                     SERIAL primary key,
+    job_id                 int,
+    externalID             varchar,
+    active                 bool,
+    username               varchar,
+    patronGroup            varchar,
+    addressTypeId          int,
+    cluster                varchar,
+    institution            varchar,
+    field_code             varchar,
+    patron_type            int,
+    pcode1                 varchar,
+    pcode2                 varchar,
+    pcode3                 int,
+    home_library           varchar,
+    patron_message_code    varchar,
+    patron_block_code      varchar,
+    patron_expiration_date varchar,
+    name                   varchar,
+    address                varchar,
+    telephone              varchar,
+    address2               varchar,
+    telephone2             varchar,
+    department             varchar,
+    unique_id              varchar,
+    barcode                varchar,
+    email_address          varchar,
+    note                   varchar,
+    file                   varchar
+);
+";
+
+    $db->update($query);
+
+}
+
+sub setJobID
+{
+
+    # Insert a new job
     my $query = "insert into job(start_time,stop_time) values (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
     $db->update($query);
 
+    # Get the ID of the last job
     $query = "select * from job where start_time = stop_time order by ID desc limit 1;";
-
     my @results = @{$db->query($query)};
-    my $id = $results[0][0];
 
-    print Dumper($id);
-    print "id: " . $id . "\n";
+    # Set it in our $conf
+    $conf->{jobID} = $results[0][0];
 
-    exit;
+}
+
+sub finishJob
+{
+    my $jobID = shift;
+
+    my $query = "
+        update job
+        set stop_time=CURRENT_TIMESTAMP where id=$conf->{jobID};
+    ";
+    $db->update($query);
 
 }
 

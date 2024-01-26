@@ -73,13 +73,15 @@ sub getPatronFilePaths
         # Save $filePathsHash to database
         $self->saveFilePath($filePathsHash);
 
-        push(@filePathsHashArray, $filePathsHash) if ($filePaths != 0);
+        # push(@filePathsHashArray, $filePathsHash) if (@{$filePaths});
+        push(@filePathsHashArray, $filePathsHash) ;
+
     }
 
     return \@filePathsHashArray;
 }
 
-=head1 _getPTYPEMappingSheet($cluster)
+=head1 getPTYPEMappingSheet($cluster)
 
 Load the mapping sheet for Ptype mapping.
 
@@ -92,7 +94,7 @@ example:
 
 
 =cut
-sub _getPTYPEMappingSheet
+sub getPTYPEMappingSheet
 {
     my $self = shift;
     my $cluster = shift;
@@ -209,7 +211,9 @@ sub _patronFileDiscovery
     print "File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]\n";
 
     # we found zero files for this pattern in all the clusters
-    return 0;
+
+    return \@filePaths;
+    # return 0;
 
 }
 
@@ -245,16 +249,22 @@ sub saveFilePath
     my $self = shift;
     my $filePathsHash = shift;
 
+    my $jobID = $self->{conf}->{jobID};
     my $cluster = $filePathsHash->{cluster};
     my $institution = $filePathsHash->{institution};
     my $pattern = $filePathsHash->{pattern};
-    my @files = @{$filePathsHash->{files}};
+    my $files = $filePathsHash->{files};
+    my @files = @{$files};
 
-    for my $path (@files)
+    if (@files) # <== this is suspect
     {
-        my $query = "
-       INSERT INTO patron_import_files(cluster, institution, pattern, filename)
+        # files can't be empty
+        for my $path (@files)
+        {
+            my $query = "
+       INSERT INTO patron_import_files(job_id, cluster, institution, pattern, filename)
        values (
+            $jobID,
             '$cluster',
             '$institution',
             '$pattern',
@@ -262,10 +272,25 @@ sub saveFilePath
        );
 ";
 
-        $self->{db}->update($query);
+            $self->{db}->update($query);
+        }
+
+        return; # I return here because I freaking hate else statements
+
     }
 
-    exit;
+    # No files found
+    my $query = "
+       INSERT INTO patron_import_files(job_id, cluster, institution, pattern, filename)
+       values (
+            $jobID,
+            '$cluster',
+            '$institution',
+            '$pattern',
+            'no-data'
+       );";
+
+    $self->{db}->update($query);
 
 }
 

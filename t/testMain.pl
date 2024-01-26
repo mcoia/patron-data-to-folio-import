@@ -28,7 +28,7 @@ initLog();
 sub readPtypeWorksheet
 {
 
-    my $worksheet = $files->_getPTYPEMappingSheet("scratch");
+    my $worksheet = $files->getPTYPEMappingSheet("scratch");
     my $patronFiles = $files->getPatronFilePaths();
 
     for my $row (@$worksheet)

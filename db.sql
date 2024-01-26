@@ -1,3 +1,5 @@
+drop table if exists job,patron_import_files,patron;
+
 create table job
 (
     ID         SERIAL primary key,
@@ -53,3 +55,6 @@ insert into job(start_time,stop_time) values (CURRENT_TIMESTAMP, CURRENT_TIMESTA
 select * from job
           where start_time = stop_time
           order by ID desc limit 1 ;
+
+update job
+set stop_time=CURRENT_TIMESTAMP where id=1;
