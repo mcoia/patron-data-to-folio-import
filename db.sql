@@ -1,5 +1,3 @@
-drop table if exists job,patron_import_files,patron;
-
 create table job
 (
     ID         SERIAL primary key,
@@ -25,14 +23,13 @@ create table patron
     active                 bool,
     username               varchar,
     patronGroup            varchar,
-    addressTypeId          int,
     cluster                varchar,
     institution            varchar,
     field_code             varchar,
-    patron_type            int,
+    patron_type            varchar,
     pcode1                 varchar,
     pcode2                 varchar,
-    pcode3                 int,
+    pcode3                 varchar,
     home_library           varchar,
     patron_message_code    varchar,
     patron_block_code      varchar,
@@ -47,14 +44,13 @@ create table patron
     barcode                varchar,
     email_address          varchar,
     note                   varchar,
-    file                   varchar
+    _firstname             varchar,
+    _middlename            varchar,
+    _lastname              varchar,
+    _street                varchar,
+    _city                  varchar,
+    _state                 varchar,
+    _zip                   varchar,
+    file                   varchar,
+    timestamp              timestamp
 );
-
-insert into job(start_time,stop_time) values (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-select * from job
-          where start_time = stop_time
-          order by ID desc limit 1 ;
-
-update job
-set stop_time=CURRENT_TIMESTAMP where id=1;

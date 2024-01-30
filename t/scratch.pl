@@ -2,12 +2,9 @@
 use strict;
 use warnings FATAL => 'all';
 
+my $x = "Hello World!!!";
+my $y = $x;
+$y =~ s/Hello/Goodbye/gm;
 
-
-my @a = ();
-
-print "@a\n";
-
-
-
-my $x = 0;
+print "$x\n";
+print "$y\n";

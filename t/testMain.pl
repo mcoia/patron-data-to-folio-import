@@ -17,13 +17,13 @@ my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
 
 our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
 
-my ($conf, $log, $files, $parser);
+my ($conf, $log);
 
 initConf();
 initLog();
 
-# my $files = PatronImportFiles->new($conf, $log, ".", \@clusters);
-# my $parser = SierraFolioParser->new($conf, $log, $files);
+my $files = PatronImportFiles->new($conf, $log, ".", \@clusters);
+my $parser = SierraFolioParser->new($conf, $log, $files);
 
 sub readPtypeWorksheet
 {
@@ -100,5 +100,104 @@ sub initLog
     $log->truncFile("");
 }
 
+test_parseName();
+sub test_parseName
+{
+
+    my @a = (
+        'Adair, Darla',
+        'Johnsen, Donya R',
+        # 'Baker, Susan M',
+        # 'Curtman-Schroeder, Jane C',
+        # 'Horn, Sherry L',
+        # 'Lawrence, Robert E',
+        # 'Prince, Molly M',
+        # 'Elias, Jonathan A',
+        # 'McQueen, Tawana J',
+        # 'Noelker, Jon D',
+        # 'Mueller, Scott A',
+        # 'Grotewiel, Mark C',
+        # 'Leeker, Gina L',
+        # 'Zweifel, Kimberly A',
+        # 'Betser, Wendy J',
+        # 'Schuler, Paul D',
+        # 'Warmbrodt, Jennifer M',
+        # 'Boehner, Heather K',
+        # 'Vancil, Laura L',
+        # 'Pearson, Christie L',
+        # 'Smith, Crystal L',
+        # 'Hoke, Tara J'
+    );
+
+    for (@a)
+    {
+
+        my $patron = {
+            'name' => $_,
+        };
+
+        $patron = $parser->_parseName($patron);
+        print Dumper($patron);
+
+    }
+
+}
+
+# test_parseAddress();
+sub test_parseAddress
+{
+
+    my @address = (
+        '550 Crestfall Dr$Washington, MO  63090-7123',
+        '201 Washington Heights Dr.$Washington, MO  63090',
+        '860 Bellerive Pl$Washington, MO  63090',
+        '2 Robin Way$Sullivan, MO  63080',
+        '6569 Hwy JJ$Sullivan, MO  63080',
+        'PO Box 1729$Washington, MO  63090',
+        '651 Falcon Dr$Sullivan, MO  63080',
+        '1350 Country Air Drive$St. Clair, MO  63077',
+        '914 Glenn Ave.$Washington, MO  63090',
+        '112 Jacqueline Drive$Washington, MO  63090',
+        '1045 W 8th$Washington, MO  63090',
+        '7203 Highway BB$Union, MO  63084',
+        '35605 Maries Road 405$Belle, MO  65013',
+        '7 Madison Ct$Villa Ridge, MO  63089',
+        '231 Miller St$Sullivan, MO  63080',
+        '110 Emmons St$New Haven, MO  63068',
+        '344 Holtgrewe Farms Loop$Washington, MO  63090',
+        '5372 Hwy 100$Washington, MO  63090',
+        '915 Virginia Mines Rd$St. Clair, MO  63077',
+        '114 Chapel Ridge Dr Apt 101$Union, MO  63084',
+        '218 Wiley Lane$Union, MO  63084',
+        '524 Hughes Ford Rd$Sullivan, MO  63080',
+        '398 Excelsior Bluff Drive$New Haven, MO  63068',
+        '1345 Thomas Dr$Rolla, MO  65401',
+        '7281 Koko Beach Rd$Union, MO  63084',
+        '108 Youngridge Dr$Union, MO  63084',
+        '1000 N Christina Ave$Union, MO  63084',
+        '10 Clark Dr$Union, MO  63084',
+        '442 Pickles Ford Road$St. Clair, MO  63077',
+        '120 E Vine$Sullivan, MO  63080',
+        '11200 Greenfield Dr$Rolla, MO  65401',
+        '1554 Villa Vista Drive$Owensville, MO  65066',
+        '5801 Hwy 19$Cuba, MO  65453',
+        '2405 Sue Lynn Dr$High Ridge, MO  63049',
+        '1030 Prairie St.$Sullivan, MO  63080',
+        '13 Buckingham Drive$Washington, MO  63090',
+        '340 Saint Francis Ave$St. James, MO  65559');
+
+    for (@address)
+    {
+
+        my $patron = {
+            'address' => $_,
+        };
+
+        $patron = $parser->_parseAddress($patron);
+        print Dumper($patron);
+
+    }
+
+}
 
 1;

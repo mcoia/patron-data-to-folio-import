@@ -1,15 +1,12 @@
 package SierraFolioParser;
 
+# This doesn't work...
 use strict;
 use warnings FATAL => 'all';
+no warnings 'uninitialized';
+
 use Data::Dumper;
 
-=pod
-
-
-=head1 new(log)
-
-=cut
 sub new
 {
     my $class = shift;
@@ -23,19 +20,14 @@ sub new
     return $self;
 }
 
-=head1 parse()
-
-This is kind of a wrapper method. 
-    
-It takes our file @data, loops thru and isolates each patron record to be 
-handed off to our patron parser. and returns an array of json data. 
-
-=cut
 sub parse
 {
 
     my $self = shift;
-    my ($file, $cluster, $institution, $data) = shift;
+    my $file = shift;
+    my $cluster = shift;
+    my $institution = shift;
+    my $data = shift;
 
     my @patronRecords = ();
     my @patronRecord = ();
@@ -58,6 +50,8 @@ sub parse
             $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
             $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0);
             $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
+            $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
+            $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
 
             push(@patronRecords, $patron) if ($patronRecordSize > 0);
 
@@ -72,6 +66,50 @@ sub parse
 
 }
 
+sub _parseName
+{
+    my $self = shift;
+    my $patron = shift;
+
+    my $name = $patron->{name};
+
+    my $first = ($name =~ /^(.*),/gm)[0];
+    my $last = ($name =~ /^.*,\s(.*)/gm)[0]; # <== still has middle initial/name tacked on the end
+    my $middle = ($last =~ /^.*\s(.*)/gm)[0];
+
+    $last = ($last =~ /(.*)\s/gm)[0] if ($middle ne '');
+    $middle = '' if ($middle eq '');
+
+    $patron->{firstName} = $first;
+    $patron->{middleName} = $middle;
+    $patron->{lastName} = $last;
+
+    # Sometimes we don't get a first or last name so we just set the first and last name to name.
+    # Let them figure it out later. It's like .05%
+    $patron->{firstName} = $name if ($first eq '' && $last eq '');
+    $patron->{lastName} = $name if ($first eq '' && $last eq '');
+
+    return $patron;
+
+}
+
+sub _parseAddress
+{
+
+    my $self = shift;
+    my $patron = shift;
+
+    my $address = $patron->{address};
+
+    $patron->{street} = ($address =~ /^(.*)\$/gm)[0];
+    $patron->{city} = ($address =~ /^.*\$(.*),/gm)[0];
+    $patron->{state} = ($address =~ /,\s(\w{2})/gm)[0];
+    $patron->{zip} = ($address =~ /,\s\w{2}\s\s(.*)$/gm)[0];
+
+    return $patron;
+
+}
+
 sub savePatronRecords
 {
     my $self = shift;
@@ -80,12 +118,87 @@ sub savePatronRecords
     for my $patron (@{$patronRecords})
     {
 
-        # TODO: insert $patron into the db
         my $query = "
-
+            insert into
+            patron(
+            job_id,
+            externalID,
+            active,
+            username,
+            patronGroup,
+            cluster,
+            institution,
+            field_code,
+            patron_type,
+            pcode1,
+            pcode2,
+            pcode3,
+            home_library,
+            patron_message_code,
+            patron_block_code,
+            patron_expiration_date,
+            name,
+            address,
+            telephone,
+            address2,
+            telephone2,
+            department,
+            unique_id,
+            barcode,
+            email_address,
+            note,
+            _firstname,
+            _middlename,
+            _lastname,
+            _street,
+            _city,
+            _state,
+            _zip,
+            file,
+            timestamp)
+            values(
+            $self->{conf}->{jobID},
+            '$patron->{externalID}',
+            $patron->{active},
+            '$patron->{username}',
+            '$patron->{patronGroup}',
+            '$patron->{cluster}',
+            '$patron->{institution}',
+            '$patron->{field_code}',
+            '$patron->{patron_type}',
+            '$patron->{pcode1}',
+            '$patron->{pcode2}',
+            '$patron->{pcode3}',
+            '$patron->{home_library}',
+            '$patron->{patron_message_code}',
+            '$patron->{patron_block_code}',
+            '$patron->{patron_expiration_date}',
+            '$patron->{name}',
+            '$patron->{address}',
+            '$patron->{telephone}',
+            '$patron->{address2}',
+            '$patron->{telephone2}',
+            '$patron->{department}',
+            '$patron->{unique_id}',
+            '$patron->{barcode}',
+            '$patron->{email_address}',
+            '$patron->{note}',
+            '$patron->{firstName}',
+            '$patron->{middleName}',
+            '$patron->{lastName}',
+            '$patron->{street}' ,
+            '$patron->{city}' ,
+            '$patron->{state}' ,
+            '$patron->{zip}' ,
+            '$patron->{file}',
+            CURRENT_TIMESTAMP
+);
 ";
 
+        print "\n$query\n";
+
         $self->{db}->update($query);
+
     }
 
 }
@@ -147,6 +260,15 @@ sub _initPatronHash
     $patron->{'barcode'} = "";
     $patron->{'email_address'} = "";
     $patron->{'note'} = "";
+    $patron->{'firstName'} = "";
+    $patron->{'middleName'} = "";
+    $patron->{'lastName'} = "";
+    $patron->{'street'} = "";
+    $patron->{'city'} = "";
+    $patron->{'state'} = "";
+    $patron->{'zip'} = "";
+
+    $patron->{'file'} = "";
 
     return $patron;
 }
@@ -270,13 +392,14 @@ sub _mapPatronTypeToPatronGroup
     my $patron = shift;
 
     my $ptypeMappingSheet = $self->{files}->getPTYPEMappingSheet($patron->{cluster});
-    my $pType = "NO-DATA-FOUND"; # Should this default to Staff or be blank?
+    my $pType = "NO-DATA"; # Should this default to Staff or be blank?
 
     for my $row (@{$ptypeMappingSheet})
     {
 
-        my $patron_type = $patron->{patron_type} + 0;
+        return $pType if ($patron->{patron_type} eq ''); # TODO: What should the default return value be? 'Patron'? currently 'NO-DATA'
 
+        my $patron_type = $patron->{patron_type} + 0;
         return $row->[3] if ($patron_type == $row->[0]);
 
     }

@@ -21,7 +21,7 @@ Mapping Sheets
 Cluster Files
 https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
 
-Patron Group Mapping sheet
+Patron Type/Group Mapping sheet
 https://docs.google.com/spreadsheets/d/18Svxcc7oqanAFVve8hwt2rDuy_-9DwUfIQq_eCx2yLg/edit#gid=0
 
 Locate URLs & Authentication
@@ -93,6 +93,41 @@ Explore	''	3.16.146.135	iii	1032	bnl	bcn2XFH.hbd!qwg5hye
 https://techdocs.iii.com/sierradna/Content/Entities/Patron.htm?Highlight=ptype%20
 
 select * from sierra_view.ptype_property
+
+
+
+# Some code Blake wrote for https request
+https://github.com/openlibraryenvironment/reshare-tools/blob/main/reshare_ctl.pl
+
+sub loginOKAPI
+{
+    my $tenant = shift;
+    my $header = [
+        'X-Okapi-Tenant' => $tenant
+        ];
+    my $user = {
+        username => $env{"reshare_admin_user"},
+        password => $env{"reshare_admin_password"}
+        };
+    my $answer = runHTTPReq($header, encode_json($user), "POST", "/authn/login");
+    return $answer->header("x-okapi-token") if($answer->is_success);
+    return 0;
+}
+
+sub runHTTPReq
+{
+    my $header = shift;
+    my $payload = shift;
+    my $type = shift;
+    my $url = shift;
+    push(@{$header}, ( 'Content-Type' => 'application/json', 'Accept' => 'application/json, text/plain') );
+    my $okapi = "http://$local_ip:9130";
+    my $ua = LWP::UserAgent->new();
+    my $req = HTTP::Request->new($type, "$okapi$url", $header, $payload);
+    return $ua->request($req);
+}
+
+
 
 
 
