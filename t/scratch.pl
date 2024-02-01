@@ -2,9 +2,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-my $x = "Hello World!!!";
-my $y = $x;
-$y =~ s/Hello/Goodbye/gm;
+# my $s = "This is a test string";
+# $s =~  /^(\w*)\s/;
+# print $1;
 
-print "$x\n";
-print "$y\n";

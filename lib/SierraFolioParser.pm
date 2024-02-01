@@ -1,6 +1,5 @@
 package SierraFolioParser;
 
-# This doesn't work...
 use strict;
 use warnings FATAL => 'all';
 no warnings 'uninitialized';
@@ -47,11 +46,11 @@ sub parse
             $patron->{cluster} = $cluster;
             $patron->{institution} = $institution;
             $patron->{file} = $file;
-            $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
-            $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0);
-            $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
-            $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
-            $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
+            # $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
+            # $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0);
+            # $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
+            # $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
+            # $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
 
             push(@patronRecords, $patron) if ($patronRecordSize > 0);
 
@@ -73,21 +72,25 @@ sub _parseName
 
     my $name = $patron->{name};
 
-    my $first = ($name =~ /^(.*),/gm)[0];
-    my $last = ($name =~ /^.*,\s(.*)/gm)[0]; # <== still has middle initial/name tacked on the end
-    my $middle = ($last =~ /^.*\s(.*)/gm)[0];
+    # Altis, Daniel M.
+    my $last = ($name =~ /^(.*),/gm)[0];
+    my $first = ($name =~ /^.*,\s(.*)/gm)[0];
 
-    $last = ($last =~ /(.*)\s/gm)[0] if ($middle ne '');
-    $middle = '' if ($middle eq '');
+    my $middle = "";
+    $middle = ($first =~ /\s(.*)$/gm)[0] if ($first =~ /\s/);
+
+    $first = ($first =~ /(.*)\s/gm)[0] if ($first =~ /\s/);
 
     $patron->{firstName} = $first;
     $patron->{middleName} = $middle;
     $patron->{lastName} = $last;
 
+    # print "[$name]=[$first][$middle][$last]\n";
+
     # Sometimes we don't get a first or last name so we just set the first and last name to name.
     # Let them figure it out later. It's like .05%
-    $patron->{firstName} = $name if ($first eq '' && $last eq '');
-    $patron->{lastName} = $name if ($first eq '' && $last eq '');
+    # $patron->{firstName} = $name if ($first eq '' && $last eq '');
+    # $patron->{lastName} = $name if ($first eq '' && $last eq '');
 
     return $patron;
 
@@ -110,6 +113,186 @@ sub _parseAddress
 
 }
 
+sub stagePatronRecords
+{
+    my $self = shift;
+    my $patronFiles = shift;
+
+    # loop over our discovered files.
+    for my $patronFile (@$patronFiles)
+    {
+
+        # Note: $patronFile is a hash vvvvvv not an array. I keep thinking this is a nested array at first glance. It's not.
+        for my $file (@{$patronFile->{files}})
+        {
+
+            # Read patron file into an array
+            my $data = $self->{files}->readFileToArray($file);
+
+            # Parse our data into patron records
+            my $patronRecords = $self->parse($file, $patronFile->{cluster}, $patronFile->{institution}, $data);
+            $self->saveStagedPatronRecords($patronRecords);
+
+        }
+
+    }
+
+}
+
+sub processStagedRecords
+{
+    my $self = shift;
+
+    my $patron = $self->getStagedPatrons();
+
+    # $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
+    # $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0);
+    # $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
+    # $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
+    # $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
+
+}
+
+sub getStagedPatrons
+{
+    my $self = shift;
+
+    my $query = "select id,job_id,cluster,institution,file,field_code,patron_type,pcode1,pcode2,pcode3,home_library,patron_message_code,patron_block_code,patron_expiration_date,name,address,telephone,address2,telephone2,department,unique_id,barcode,email_address,note from public.stage_patron";
+    my $patrons = $self->{db}->query($query);
+
+    my @patronArray = ();
+
+    # I want this an array of hashes, not arrays  
+    for my $stagedPatron (@{$patrons})
+    {
+
+        my $patron = {
+            'id'                     => $stagedPatron->[0],
+            'job_id'                 => $stagedPatron->[1],
+            'cluster'                => $stagedPatron->[2],
+            'institution'            => $stagedPatron->[3],
+            'file'                   => $stagedPatron->[4],
+            'field_code'             => $stagedPatron->[5],
+            'patron_type'            => $stagedPatron->[6],
+            'pcode1'                 => $stagedPatron->[7],
+            'pcode2'                 => $stagedPatron->[8],
+            'pcode3'                 => $stagedPatron->[9],
+            'home_library'           => $stagedPatron->[10],
+            'patron_message_code'    => $stagedPatron->[11],
+            'patron_block_code'      => $stagedPatron->[12],
+            'patron_expiration_date' => $stagedPatron->[13],
+            'name'                   => $stagedPatron->[14],
+            'address'                => $stagedPatron->[15],
+            'telephone'              => $stagedPatron->[16],
+            'address2'               => $stagedPatron->[17],
+            'telephone2'             => $stagedPatron->[18],
+            'department'             => $stagedPatron->[19],
+            'unique_id'              => $stagedPatron->[20],
+            'barcode'                => $stagedPatron->[21],
+            'email_address'          => $stagedPatron->[22],
+            'note'                   => $stagedPatron->[23]
+        };
+
+        push(@patronArray, $patron);
+
+    }
+
+    return \@patronArray;
+
+}
+
+sub saveStagedPatronRecords
+{
+    my $self = shift;
+    my $patronRecords = shift;
+
+    for my $patron (@{$patronRecords})
+    {
+
+        my $query = '
+            insert into
+            stage_patron(
+            job_id,
+            cluster,
+            institution,
+            file,
+            field_code,
+            patron_type,
+            pcode1,
+            pcode2,
+            pcode3,
+            home_library,
+            patron_message_code,
+            patron_block_code,
+            patron_expiration_date,
+            name,
+            address,
+            telephone,
+            address2,
+            telephone2,
+            department,
+            unique_id,
+            barcode,
+            email_address,
+            note
+            )
+            values(
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13,
+            $14,
+            $15,
+            $16,
+            $17,
+            $18,
+            $19,
+            $20,
+            $21,
+            $22,
+            $23)
+        ';
+
+        my @data = (
+            $self->{conf}->{jobID},
+            $patron->{cluster},
+            $patron->{institution},
+            $patron->{file},
+            $patron->{field_code},
+            $patron->{patron_type},
+            $patron->{pcode1},
+            $patron->{pcode2},
+            $patron->{pcode3},
+            $patron->{home_library},
+            $patron->{patron_message_code},
+            $patron->{patron_block_code},
+            $patron->{patron_expiration_date},
+            $patron->{name},
+            $patron->{address},
+            $patron->{telephone},
+            $patron->{address2},
+            $patron->{telephone2},
+            $patron->{department},
+            $patron->{unique_id},
+            $patron->{barcode},
+            $patron->{email_address},
+            $patron->{note}
+        );
+
+        $self->{db}->updateWithParameters($query, \@data);
+
+    }
+}
+
 sub savePatronRecords
 {
     my $self = shift;
@@ -118,7 +301,7 @@ sub savePatronRecords
     for my $patron (@{$patronRecords})
     {
 
-        my $query = "
+        my $query = '
             insert into
             patron(
             job_id,
@@ -154,50 +337,82 @@ sub savePatronRecords
             _city,
             _state,
             _zip,
-            file,
-            timestamp)
+            file)
             values(
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13,
+            $14,
+            $15,
+            $16,
+            $17,
+            $18,
+            $19,
+            $20,
+            $21,
+            $22,
+            $23,
+            $24,
+            $25,
+            $26,
+            $27,
+            $28,
+            $29,
+            $30,
+            $31,
+            $32,
+            $33,
+            $34)
+';
+
+        my @data = (
             $self->{conf}->{jobID},
-            '$patron->{externalID}',
+            $patron->{externalID},
             $patron->{active},
-            '$patron->{username}',
-            '$patron->{patronGroup}',
-            '$patron->{cluster}',
-            '$patron->{institution}',
-            '$patron->{field_code}',
-            '$patron->{patron_type}',
-            '$patron->{pcode1}',
-            '$patron->{pcode2}',
-            '$patron->{pcode3}',
-            '$patron->{home_library}',
-            '$patron->{patron_message_code}',
-            '$patron->{patron_block_code}',
-            '$patron->{patron_expiration_date}',
-            '$patron->{name}',
-            '$patron->{address}',
-            '$patron->{telephone}',
-            '$patron->{address2}',
-            '$patron->{telephone2}',
-            '$patron->{department}',
-            '$patron->{unique_id}',
-            '$patron->{barcode}',
-            '$patron->{email_address}',
-            '$patron->{note}',
-            '$patron->{firstName}',
-            '$patron->{middleName}',
-            '$patron->{lastName}',
-            '$patron->{street}' ,
-            '$patron->{city}' ,
-            '$patron->{state}' ,
-            '$patron->{zip}' ,
-            '$patron->{file}',
-            CURRENT_TIMESTAMP
-);
-";
+            $patron->{username},
+            $patron->{patronGroup},
+            $patron->{cluster},
+            $patron->{institution},
+            $patron->{field_code},
+            $patron->{patron_type},
+            $patron->{pcode1},
+            $patron->{pcode2},
+            $patron->{pcode3},
+            $patron->{home_library},
+            $patron->{patron_message_code},
+            $patron->{patron_block_code},
+            $patron->{patron_expiration_date},
+            $patron->{name},
+            $patron->{address},
+            $patron->{telephone},
+            $patron->{address2},
+            $patron->{telephone2},
+            $patron->{department},
+            $patron->{unique_id},
+            $patron->{barcode},
+            $patron->{email_address},
+            $patron->{note},
+            $patron->{firstName},
+            $patron->{middleName},
+            $patron->{lastName},
+            $patron->{street},
+            $patron->{city},
+            $patron->{state},
+            $patron->{zip},
+            $patron->{file}
+        );
 
-        print "\n$query\n";
-
-        $self->{db}->update($query);
+        $self->{db}->updateWithParameters($query, \@data);
 
     }
 

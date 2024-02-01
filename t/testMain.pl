@@ -6,24 +6,23 @@ use Data::Dumper;
 
 use MOBIUS::Utils;
 use MOBIUS::Loghandler;
-
+use MOBIUS::DBhandler;
 use SierraFolioParser;
 use PatronImportFiles;
 
 # This is our test file
 my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
-# my $patronFilePath = "../resources/test-files/incoming/SLCCStaff-1";
-
 
 our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
 
-my ($conf, $log);
+my ($conf, $log, $db);
 
 initConf();
 initLog();
+initDatabaseConnection();
 
-my $files = PatronImportFiles->new($conf, $log, ".", \@clusters);
-my $parser = SierraFolioParser->new($conf, $log, $files);
+my $files = PatronImportFiles->new($conf, $log, $db, \@clusters);
+my $parser = SierraFolioParser->new($conf, $log, $db, $files);
 
 sub readPtypeWorksheet
 {
@@ -100,33 +99,22 @@ sub initLog
     $log->truncFile("");
 }
 
-test_parseName();
+sub initDatabaseConnection
+{
+    eval {$db = DBhandler->new($conf->{db}, $conf->{dbhost}, $conf->{dbuser}, $conf->{dbpass}, $conf->{port} || 5432, "postgres", 1);};
+    if ($@)
+    {
+        print "Could not establish a connection to the database\n";
+        exit 1;
+    }
+}
+
+# test_parseName();
 sub test_parseName
 {
 
     my @a = (
-        'Adair, Darla',
-        'Johnsen, Donya R',
-        # 'Baker, Susan M',
-        # 'Curtman-Schroeder, Jane C',
-        # 'Horn, Sherry L',
-        # 'Lawrence, Robert E',
-        # 'Prince, Molly M',
-        # 'Elias, Jonathan A',
-        # 'McQueen, Tawana J',
-        # 'Noelker, Jon D',
-        # 'Mueller, Scott A',
-        # 'Grotewiel, Mark C',
-        # 'Leeker, Gina L',
-        # 'Zweifel, Kimberly A',
-        # 'Betser, Wendy J',
-        # 'Schuler, Paul D',
-        # 'Warmbrodt, Jennifer M',
-        # 'Boehner, Heather K',
-        # 'Vancil, Laura L',
-        # 'Pearson, Christie L',
-        # 'Smith, Crystal L',
-        # 'Hoke, Tara J'
+        'Altis, Daniel M.',
     );
 
     for (@a)
@@ -197,6 +185,16 @@ sub test_parseAddress
         print Dumper($patron);
 
     }
+
+}
+
+test_getStagedPatrons();
+sub test_getStagedPatrons
+{
+
+    my $patrons = $parser->getStagedPatrons();
+
+    print Dumper($patrons);
 
 }
 

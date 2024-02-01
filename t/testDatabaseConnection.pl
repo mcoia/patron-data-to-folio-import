@@ -12,34 +12,6 @@ my ($conf, $dbHandler);
 initConf();
 initDatabaseConnection();
 
-# Create a table
-my $query = "DROP TABLE IF EXISTS cars";
-$dbHandler->update($query);
-
-$query = "
-CREATE TABLE cars (
-    brand VARCHAR(255),
-        model VARCHAR(255),
-            year INT
-)";
-$dbHandler->update($query);
-
-# Insert Data
-$query = "INSERT INTO cars (brand,model,year) VALUES ('Ford', 'Focus', 2007)";
-$dbHandler->update($query);
-$query = "INSERT INTO cars (brand, model, year) VALUES ('Ford', 'Mustang', 1964)";
-$dbHandler->update($query);
-
-$query = "SELECT * FROM cars";
-
-my @cars = $dbHandler->query($query);
-
-print Dumper(\@cars);
-
-$query = "DROP TABLE IF EXISTS cars";
-$dbHandler->update($query);
-
-
 sub initConf
 {
 
@@ -56,7 +28,6 @@ sub initConf
 
 }
 
-
 sub initDatabaseConnection
 {
     eval {$dbHandler = DBhandler->new($conf->{db}, $conf->{dbhost}, $conf->{dbuser}, $conf->{dbpass}, $conf->{port} || 5432, "postgres", 1);};
@@ -66,5 +37,16 @@ sub initDatabaseConnection
         exit 1;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 1;

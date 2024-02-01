@@ -36,7 +36,7 @@ sub readFileToArray
     while (my $line = <$fileHandle>)
     {
         chomp $line;
-        push(@data, $line);
+        push(@data, $line) if($line ne '');
         $lineCount++;
     }
 
@@ -74,7 +74,7 @@ sub getPatronFilePaths
         $self->saveFilePath($filePathsHash);
 
         # push(@filePathsHashArray, $filePathsHash) if (@{$filePaths});
-        push(@filePathsHashArray, $filePathsHash) ;
+        push(@filePathsHashArray, $filePathsHash);
 
     }
 
@@ -171,7 +171,8 @@ sub _loadMOBIUSPatronLoadsCSV
                     'file'        => $row->[2],
                 };
 
-                push(@clusterFiles, $files);
+                push(@clusterFiles, $files) if ($self->_containsClusterName($cluster));
+
             }
 
         }
@@ -211,9 +212,7 @@ sub _patronFileDiscovery
     print "File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]\n";
 
     # we found zero files for this pattern in all the clusters
-
     return \@filePaths;
-    # return 0;
 
 }
 
@@ -229,7 +228,7 @@ sub _loadCSVFileAsArray
 
 }
 
-sub _rowContainsClusterName
+sub _containsClusterName
 {
     my $self = shift;
     my $row = lc shift;

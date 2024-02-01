@@ -46,24 +46,10 @@ sub main
     # Find patron files
     my $patronFiles = $files->getPatronFilePaths();
 
-    # loop over our discovered files. Parse, Load, Report <== maybe these should be functions? Report(Load(Parsed())); lol
-    for my $patronFile (@$patronFiles)
-    {
+    $parser->stagePatronRecords($patronFiles);
+    $parser->processStagedRecords();
 
-        # Note: $patronFile is a hash vvvvvv not an array. I keep thinking this is a nested array at first glance. It's not.
-        for my $file (@{$patronFile->{files}})
-        {
 
-            # Read patron file into an array
-            my $data = $files->readFileToArray($file);
-
-            # Parse our data into patron records
-            my $patronRecords = $parser->parse($file, $patronFile->{cluster}, $patronFile->{institution}, $data);
-            $parser->savePatronRecords($patronRecords);
-
-        }
-
-    }
 
     finishJob();
 
@@ -110,7 +96,7 @@ sub initDatabaseConnection
 
 sub dropTables
 {
-    my $query = "drop table if exists job,patron_import_files,patron;";
+    my $query = "drop table if exists job,patron_import_files,patron,stage_patron;";
     $db->update($query);
 }
 

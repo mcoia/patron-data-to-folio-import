@@ -1,0 +1,11 @@
+convert patron file mapping sheet into a sql table
+
+blake wants these tables dynamic. I'm not sure how this is done. He gave me some code but it doesn't make sense.
+
+So functions like getStagedPatrons need to be rewritten.
+
+How do I write queries for something like this?
+
+
+processStagedRecords
+
