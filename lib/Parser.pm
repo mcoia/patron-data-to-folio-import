@@ -1,4 +1,4 @@
-package SierraFolioParser;
+package Parser;
 
 use strict;
 use warnings FATAL => 'all';
@@ -17,52 +17,6 @@ sub new
     };
     bless $self, $class;
     return $self;
-}
-
-sub parse
-{
-
-    my $self = shift;
-    my $file = shift;
-    my $cluster = shift;
-    my $institution = shift;
-    my $data = shift;
-
-    my @patronRecords = ();
-    my @patronRecord = ();
-    my $patronRecordSize = 0;
-
-    for my $line (@{$data})
-    {
-
-        # start a new patron record  
-        if ($line =~ /^0/ && length($line) == 24)
-        {
-            $patronRecordSize = @patronRecord;
-
-            $self->{log}->addLine("parsing record: [@patronRecord]");
-
-            my $patron = $self->_parsePatronRecord(\@patronRecord);
-            $patron->{cluster} = $cluster;
-            $patron->{institution} = $institution;
-            $patron->{file} = $file;
-            # $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
-            # $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0);
-            # $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
-            # $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
-            # $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
-
-            push(@patronRecords, $patron) if ($patronRecordSize > 0);
-
-            @patronRecord = (); # clear our patron record
-        }
-
-        push(@patronRecord, $line);
-
-    }
-
-    return \@patronRecords;
-
 }
 
 sub _parseName
@@ -116,7 +70,94 @@ sub _parseAddress
 sub stagePatronRecords
 {
     my $self = shift;
-    my $patronFiles = shift;
+
+    my $patronFiles = $self->{files}->getPatronFilePaths();
+
+    # loop over our discovered files.
+    for my $patronFile (@$patronFiles)
+    {
+
+        # Note: $patronFile is a hash vvvvvv not an array. I keep thinking this is a nested array at first glance. It's not.
+        for my $file (@{$patronFile->{files}})
+        {
+
+            # Read patron file into an array
+            my $data = $self->{files}->readFileToArray($file);
+
+            # Parse our data into patron records
+            # my $patronRecords = $self->parse($file, $patronFile->{cluster}, $patronFile->{institution}, $data);
+            my $patronRecords = $self->parse($patronFile->{institution}, $data);
+            $self->saveStagedPatronRecords($patronRecords);
+
+        }
+
+    }
+
+}
+
+sub parse
+{
+
+    my $self = shift;
+    my $institution = shift;
+    my $data = shift;
+
+    my @patronRecords = ();
+    my @patronRecord = ();
+    my $patronRecordSize = 0;
+
+    for my $line (@{$data})
+    {
+
+        # start a new patron record
+        if ($line =~ /^0/ && length($line) == 24)
+        {
+            $patronRecordSize = @patronRecord;
+
+            $self->{log}->addLine("parsing record: [@patronRecord]");
+
+            my $patron = $self->_parsePatronRecord(\@patronRecord);
+
+            push(@patronRecords, $patron) if ($patronRecordSize > 0);
+
+            @patronRecord = (); # clear our patron record
+        }
+
+        push(@patronRecord, $line);
+
+    }
+
+    return \@patronRecords;
+
+}
+
+sub getParserObject
+{
+    my $self = shift;
+    my $institution = shift;
+    my $patronRecord = shift;
+
+    # I don't want to edit this portion in the future.
+    # db table parser_modules
+    my $query = "select module from parser_modules where institution = '$institution';";
+
+    my $module = @{$self->{db}->query($query)}[0];
+
+    print "module: [$module]\n";
+
+
+
+
+    # We return the generic one if we don't find anything.
+    return Parsers::GenericParser::parse($patronRecord);
+
+}
+
+sub stagePatronRecords_old
+{
+    my $self = shift;
+
+    my $patronFiles = $self->{files}->getPatronFilePaths();
 
     # loop over our discovered files.
     for my $patronFile (@$patronFiles)
@@ -136,20 +177,6 @@ sub stagePatronRecords
         }
 
     }
-
-}
-
-sub processStagedRecords
-{
-    my $self = shift;
-
-    my $patron = $self->getStagedPatrons();
-
-    # $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($patron) if ($patronRecordSize > 0);
-    # $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0);
-    # $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
-    # $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
-    # $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
 
 }
 

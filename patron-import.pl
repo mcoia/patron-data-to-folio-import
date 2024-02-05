@@ -14,9 +14,12 @@ use MOBIUS::DBhandler;
 use JSON;
 use MOBIUS::Utils;
 use PatronImportFiles;
-use SierraFolioParser;
+use Parser;
 
 our $configFile;
+our $runType;
+our $help;
+
 our $db;
 our $conf;
 our $log;
@@ -27,27 +30,40 @@ our $files;
 
 GetOptions(
     "config=s" => \$configFile,
+    "run:s"    => \$runType,
+    "help:s"   => \$help,
 )
-    or die("Error in command line arguments\nYou can specify
---config                                      [Path to the config file]
-\n");
+    or die("Error in command line arguments\nPlease see --help for more information.\n");
+
+if (defined $help)
+{
+    print getHelpMessage();
+    exit;
+}
 
 initConf();
 initLogger();
 initDatabase();
-main();
+
+print "runType: [$runType]\n";
+print "help: \n" if (defined $help);
 
 sub main
 {
-    setJobID();
+    startJob();
+
+    # Create our main objects
     $files = PatronImportFiles->new($conf, $log, $db);
-    $parser = SierraFolioParser->new($conf, $log, $db, $files);
+    $parser = Parser->new($conf, $log, $db, $files);
 
-    # Find patron files
-    my $patronFiles = $files->getPatronFilePaths();
+    ########## stage | load ##########
+    # We need to split this so we can run parsers and api loads separate
+    $parser->stagePatronRecords() if($runType eq "stage");
 
-    $parser->stagePatronRecords($patronFiles);
-    $parser->processStagedRecords();
+
+
+
+
 
 
 
@@ -108,13 +124,14 @@ sub initDatabaseSchema
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
 
     my $query = "";
-    while (my $line = <$fileHandle>) {$query = $query . $line;}
+    while (my $line = <$fileHandle>)
+    {$query = $query . $line;}
     close $fileHandle;
     $db->update($query);
 
 }
 
-sub setJobID
+sub startJob
 {
 
     # Insert a new job
@@ -140,6 +157,14 @@ sub finishJob
     ";
     $db->update($query);
 
+}
+
+sub getHelpMessage
+{
+    return
+        "You can specify
+        --config                                      [Path to the config file]
+        \n";
 }
 
 exit;

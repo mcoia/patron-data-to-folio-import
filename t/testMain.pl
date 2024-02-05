@@ -22,7 +22,7 @@ initLog();
 initDatabaseConnection();
 
 my $files = PatronImportFiles->new($conf, $log, $db, \@clusters);
-my $parser = SierraFolioParser->new($conf, $log, $db, $files);
+my $parser = Parser->new($conf, $log, $db, $files);
 
 sub readPtypeWorksheet
 {
@@ -195,6 +195,19 @@ sub test_getStagedPatrons
     my $patrons = $parser->getStagedPatrons();
 
     print Dumper($patrons);
+
+}
+
+sub test_getParserObject
+{
+
+
+    my $institution = "archway";
+    my $patronRecord = "no-data";
+
+    $parser->getParserObject($institution, $patronRecord);
+
+
 
 }
 
