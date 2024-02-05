@@ -7,7 +7,7 @@ use Data::Dumper;
 use MOBIUS::Utils;
 use MOBIUS::Loghandler;
 use MOBIUS::DBhandler;
-use SierraFolioParser;
+use Parser;
 use PatronImportFiles;
 
 # This is our test file
@@ -188,7 +188,7 @@ sub test_parseAddress
 
 }
 
-test_getStagedPatrons();
+# test_getStagedPatrons();
 sub test_getStagedPatrons
 {
 
@@ -198,6 +198,7 @@ sub test_getStagedPatrons
 
 }
 
+test_getParserObject();
 sub test_getParserObject
 {
 

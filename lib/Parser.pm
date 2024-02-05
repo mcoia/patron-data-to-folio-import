@@ -149,7 +149,7 @@ sub getParserObject
 
 
     # We return the generic one if we don't find anything.
-    return Parsers::GenericParser::parse($patronRecord);
+    # return Parsers::GenericParser::parse($patronRecord);
 
 }
 

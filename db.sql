@@ -1,10 +1,10 @@
-create table if not exists file_mapping
+create table if not exists institution_map
 (
-    ID           SERIAL primary key,
-    cluster      varchar,
-    institution  varchar,
-    file         varchar,
-    file_pattern varchar
+    ID            SERIAL primary key,
+    institution   varchar,
+    folder_path   varchar,
+    file_pattern  varchar,
+    parser_module varchar
 );
 
 create table if not exists job
@@ -14,23 +14,20 @@ create table if not exists job
     stop_time  timestamp
 );
 
-create table if not exists patron_import_files
+create table if not exists file_tracker
 (
-    ID          SERIAL primary key,
-    job_id      int,
-    cluster     varchar,
-    institution varchar,
-    pattern     varchar,
-    filename    varchar
+    ID             SERIAL primary key,
+    job_id         int,
+    institution_id int,
+    filename       varchar
 );
 
 create table stage_patron
 (
     ID                     SERIAL primary key,
     job_id                 int,
-    cluster                varchar,
-    institution            varchar,
-    file                   varchar,
+    institution_id         int,
+    file_id                int,
     field_code             varchar,
     patron_type            varchar,
     pcode1                 varchar,
@@ -52,9 +49,10 @@ create table stage_patron
     note                   varchar
 );
 
-create table if not exists patron
+create table if not exists patron_final
 (
     ID SERIAL primary key
+--     todo: more code here
 );
 
 create table if not exists patron_address
@@ -72,12 +70,4 @@ create table if not exists patron_phone
     ID           SERIAL primary key,
     patron_id    int,
     phone_number varchar
-);
-
-
-create table if not exists parser_modules
-(
-    ID          SERIAL primary key,
-    institution varchar,
-    module      varchar
 );
