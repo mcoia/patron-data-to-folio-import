@@ -1,10 +1,10 @@
 create table if not exists institution_map
 (
-    ID            SERIAL primary key,
-    institution   varchar,
-    folder_path   varchar,
-    file_pattern  varchar,
-    parser_module varchar
+    ID           SERIAL primary key,
+    institution  varchar,
+    folder_path  varchar,
+    file_pattern varchar,
+    module       varchar
 );
 
 create table if not exists job
@@ -17,16 +17,16 @@ create table if not exists job
 create table if not exists file_tracker
 (
     ID             SERIAL primary key,
-    job_id         int,
-    institution_id int,
+    job_id         int references job (ID),
+    institution_id int references institution_map (ID),
     filename       varchar
 );
 
-create table stage_patron
+create table if not exists stage_patron
 (
     ID                     SERIAL primary key,
-    job_id                 int,
-    institution_id         int,
+    job_id                 int references job (ID),
+    institution_id         int references institution_map (ID),
     file_id                int,
     field_code             varchar,
     patron_type            varchar,
@@ -49,25 +49,27 @@ create table stage_patron
     note                   varchar
 );
 
-create table if not exists patron_final
-(
-    ID SERIAL primary key
---     todo: more code here
-);
+-- create table if not exists patron
+-- (
+--     ID             SERIAL primary key,
+--     job_id         int references job (ID),
+--     institution_id int references institution_map (ID)
+-- --     todo: more code here, this is the final table
+-- );
 
-create table if not exists patron_address
-(
-    ID        SERIAL primary key,
-    patron_id int,
-    street    varchar,
-    city      varchar,
-    state     varchar,
-    zip       varchar
-);
+-- create table if not exists address
+-- (
+--     ID        SERIAL primary key,
+--     patron_id int references patron (ID),
+--     street    varchar,
+--     city      varchar,
+--     state     varchar,
+--     zip       varchar
+-- );
 
-create table if not exists patron_phone
-(
-    ID           SERIAL primary key,
-    patron_id    int,
-    phone_number varchar
-);
+-- create table if not exists phone
+-- (
+--     ID           SERIAL primary key,
+--     patron_id    int references patron (ID),
+--     phone_number varchar
+-- );

@@ -1153,6 +1153,28 @@ sub rows;
 package DBI::var {
 sub FETCH;
 }
+package Data::UUID {
+sub CLONE;
+sub DESTROY;
+sub compare;
+sub create;
+sub create_b64;
+sub create_bin;
+sub create_from_name;
+sub create_from_name_b64;
+sub create_from_name_bin;
+sub create_from_name_hex;
+sub create_from_name_str;
+sub create_hex;
+sub create_str;
+sub from_b64string;
+sub from_hexstring;
+sub from_string;
+sub new;
+sub to_b64string;
+sub to_hexstring;
+sub to_string;
+}
 package DateTime {
 sub _accumulated_leap_seconds($$) ;
 sub _day_has_leap_second($$) ;
@@ -1174,6 +1196,88 @@ sub _lexalias;
 }
 package Devel::StackTrace {
 sub blessed($) ;
+}
+package Digest::MD5 {
+sub DESTROY;
+sub add;
+sub addfile;
+sub b64digest;
+sub clone;
+sub context;
+sub digest;
+sub hexdigest;
+sub md5;
+sub md5_base64;
+sub md5_hex;
+sub new;
+sub reset;
+}
+package Digest::SHA {
+sub DESTROY($) ;
+sub _addfilebin($$) ;
+sub _addfileuniv($$) ;
+sub _getstate($) ;
+sub _putstate($$) ;
+sub add($;@) ;
+sub algorithm($) ;
+sub b64digest($) ;
+sub clone($) ;
+sub digest($) ;
+sub getcwd;
+sub hashsize($) ;
+sub hexdigest($) ;
+sub hmac_sha1(;@) ;
+sub hmac_sha1_base64(;@) ;
+sub hmac_sha1_hex(;@) ;
+sub hmac_sha224(;@) ;
+sub hmac_sha224_base64(;@) ;
+sub hmac_sha224_hex(;@) ;
+sub hmac_sha256(;@) ;
+sub hmac_sha256_base64(;@) ;
+sub hmac_sha256_hex(;@) ;
+sub hmac_sha384(;@) ;
+sub hmac_sha384_base64(;@) ;
+sub hmac_sha384_hex(;@) ;
+sub hmac_sha512(;@) ;
+sub hmac_sha512224(;@) ;
+sub hmac_sha512224_base64(;@) ;
+sub hmac_sha512224_hex(;@) ;
+sub hmac_sha512256(;@) ;
+sub hmac_sha512256_base64(;@) ;
+sub hmac_sha512256_hex(;@) ;
+sub hmac_sha512_base64(;@) ;
+sub hmac_sha512_hex(;@) ;
+sub newSHA($$) ;
+sub sha1(;@) ;
+sub sha1_base64(;@) ;
+sub sha1_hex(;@) ;
+sub sha224(;@) ;
+sub sha224_base64(;@) ;
+sub sha224_hex(;@) ;
+sub sha256(;@) ;
+sub sha256_base64(;@) ;
+sub sha256_hex(;@) ;
+sub sha384(;@) ;
+sub sha384_base64(;@) ;
+sub sha384_hex(;@) ;
+sub sha512(;@) ;
+sub sha512224(;@) ;
+sub sha512224_base64(;@) ;
+sub sha512224_hex(;@) ;
+sub sha512256(;@) ;
+sub sha512256_base64(;@) ;
+sub sha512256_hex(;@) ;
+sub sha512_base64(;@) ;
+sub sha512_hex(;@) ;
+sub shainit($$) ;
+sub sharewind($) ;
+sub shawrite($$$) ;
+}
+package Digest::base {
+sub add;
+sub clone;
+sub digest;
+sub new;
 }
 package DynaLoader {
 sub CLONE;

@@ -1,6 +1,7 @@
 package PatronImportFiles;
 use strict;
 use warnings FATAL => 'all';
+# no warnings 'uninitialized';
 use Data::Dumper;
 
 use Text::CSV::Simple;
@@ -15,7 +16,7 @@ sub new
     my $self = {
         'conf' => shift,
         'log'  => shift,
-        'db'   => shift,
+        'dao'  => shift,
     };
     bless $self, $class;
     return $self;
@@ -36,7 +37,7 @@ sub readFileToArray
     while (my $line = <$fileHandle>)
     {
         chomp $line;
-        push(@data, $line) if($line ne '');
+        push(@data, $line) if ($line ne '');
         $lineCount++;
     }
 
@@ -54,10 +55,10 @@ sub getPatronFilePaths
     my $self = shift;
     my @filePathsHashArray = ();
 
-    my $clusterFileHashArray = $self->_loadMOBIUSPatronLoadsCSV();
-    $clusterFileHashArray = $self->_buildFilePatterns($clusterFileHashArray);
+    my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV();
+    $fileHashArray = $self->_buildFilePatterns($fileHashArray);
 
-    for my $clusterFileHash (@$clusterFileHashArray)
+    for my $clusterFileHash (@$fileHashArray)
     {
         $self->{log}->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
 
@@ -73,7 +74,6 @@ sub getPatronFilePaths
         # Save $filePathsHash to database
         $self->saveFilePath($filePathsHash);
 
-        # push(@filePathsHashArray, $filePathsHash) if (@{$filePaths});
         push(@filePathsHashArray, $filePathsHash);
 
     }
@@ -143,7 +143,7 @@ sub _buildFilePatterns
 
 sub _loadMOBIUSPatronLoadsCSV
 {
-
+    # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
     my $self = shift;
     my $csv = $self->_loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
     my @clusterFiles = ();
@@ -187,12 +187,25 @@ sub _patronFileDiscovery
     my $self = shift;
     my $clusterFileHash = shift;
 
+=pod
+
+What does this clusterFileHash look like?
+
+{
+          'file' => 'eccpat.txt',
+          'institution' => 'East Central College',
+          'pattern' => 'eccpat',
+          'cluster' => 'archway'
+};
+
+
+=cut
+
     my @filePaths = ();
 
+    # We use linux's find command to probe these directories for files
     my $command = "find $self->{conf}->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -iname $clusterFileHash->{pattern}*";
-
     $self->{log}->addLine("Looking for patron files: [$command]");
-
     my @paths = `$command`;
     chomp(@paths);
 
@@ -261,7 +274,7 @@ sub saveFilePath
         for my $path (@files)
         {
             my $query = "
-       INSERT INTO patron_import_files(job_id, cluster, institution, pattern, filename)
+       INSERT INTO file_tracker(job_id, institution_id, filename)
        values (
             $jobID,
             '$cluster',
@@ -280,10 +293,9 @@ sub saveFilePath
 
     # No files found
     my $query = "
-       INSERT INTO patron_import_files(job_id, cluster, institution, pattern, filename)
+       INSERT INTO file_tracker(job_id, institution_id, filename)
        values (
             $jobID,
-            '$cluster',
             '$institution',
             '$pattern',
             'no-data'

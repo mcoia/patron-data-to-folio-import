@@ -6,7 +6,8 @@ use Data::Dumper;
 
 use MOBIUS::Utils;
 use MOBIUS::Loghandler;
-use MOBIUS::DBhandler;
+# use MOBIUS::DBhandler;
+use DAO;
 use Parser;
 use PatronImportFiles;
 
@@ -15,45 +16,55 @@ my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
 
 our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
 
-my ($conf, $log, $db);
+my ($conf, $log);
 
 initConf();
 initLog();
-initDatabaseConnection();
+# initDatabaseConnection();
+# initDatabaseSchema();
 
-my $files = PatronImportFiles->new($conf, $log, $db, \@clusters);
-my $parser = Parser->new($conf, $log, $db, $files);
+my $dao = DAO->new($conf, $log);
+my $files = PatronImportFiles->new($conf, $log, $dao);
+my $parser = Parser->new($conf, $log, $dao, $files);
 
-sub readPtypeWorksheet
+# test_DAO_getDatabaseTableNames();
+sub test_DAO_getDatabaseTableNames
 {
-
-    my $worksheet = $files->getPTYPEMappingSheet("scratch");
-    my $patronFiles = $files->getPatronFilePaths();
-
-    for my $row (@$worksheet)
-    {
-
-
-    }
+    my $tableNames = $dao->_getDatabaseTableNames();
+    print "[$_]\n" for (@{$tableNames});
 
 }
 
-sub test01
+# test_DAO_getTableColumnNames();
+sub test_DAO_getTableColumnNames
 {
-    my @data = @{$files->readFileToArray($patronFilePath)};
-    my $json = $parser->parse(\@data);
-
-    print $json;
+    my $tableName = "file_tracker";
+    my $columnNames = $dao->_getTableColumns($tableName);
+    print "[$_]\n" for (@{$columnNames});
 }
 
-sub test02
+# test_DAO__insertIntoTable();
+sub test_DAO__insertIntoTable
 {
-    my $patron;
-    $patron->{username} = "scott";
+    my $tableName = "job";
+    my @data = (
+        $dao->_getCurrentTimestamp,
+        $dao->_getCurrentTimestamp
+    );
 
-    my $json = $parser->_jsonTemplate($patron);
+    # push(@data, $dao->_getCurrentTimestamp);
+    # push(@data, $dao->_getCurrentTimestamp);
 
-    print $json;
+    $dao->_insertIntoTable($tableName, \@data);
+}
+
+# test_DAO__selectAllFromTable();
+sub test_DAO__selectAllFromTable
+{
+    my $tableName = "institution_map";
+    my $data = $dao->_selectAllFromTable($tableName);
+
+    print Dumper($data);
 
 }
 
@@ -82,6 +93,18 @@ sub test_processPatronRecord
 
 }
 
+# test__getInstitutionMapFromDatabase();
+sub test__getInstitutionMapFromDatabase
+{
+    my $tableName = "institution_map";
+    print Dumper(
+        $dao->_convertQueryResultsToHash(
+            $tableName, $dao->_selectAllFromTable($tableName)
+        )
+    );
+
+}
+
 sub initConf
 {
 
@@ -89,7 +112,15 @@ sub initConf
 
     # Check our conf file
     my $configFile = "../patron-import.conf";
-    $conf = $utils->readConfFile($configFile);
+
+    $conf = eval{$utils->readConfFile($configFile);};
+
+    if($conf eq 'false'){
+        print "trying other location... we must be debugging\n";
+        $configFile = "./patron-import.conf";
+        $conf = eval{$utils->readConfFile($configFile);};
+    }
+
 
 }
 
@@ -99,14 +130,16 @@ sub initLog
     $log->truncFile("");
 }
 
-sub initDatabaseConnection
+test_getPatronFilePaths();
+sub test_getPatronFilePaths
 {
-    eval {$db = DBhandler->new($conf->{db}, $conf->{dbhost}, $conf->{dbuser}, $conf->{dbpass}, $conf->{port} || 5432, "postgres", 1);};
-    if ($@)
-    {
-        print "Could not establish a connection to the database\n";
-        exit 1;
-    }
+
+    # real    2m11.809s
+    $conf->{jobID} = 1;
+    my $filesHashArray = $files->getPatronFilePaths();
+
+    print Dumper($filesHashArray);
+
 }
 
 # test_parseName();
@@ -198,17 +231,23 @@ sub test_getStagedPatrons
 
 }
 
-test_getParserObject();
+# test_getParserObject();
 sub test_getParserObject
 {
-
 
     my $institution = "archway";
     my $patronRecord = "no-data";
 
     $parser->getParserObject($institution, $patronRecord);
 
+}
 
+# test_loadMOBIUSPatronLoadsCSV();
+sub test_loadMOBIUSPatronLoadsCSV
+{
+
+    my $csv = $files->_loadMOBIUSPatronLoadsCSV();
+    print Dumper($csv);
 
 }
 
