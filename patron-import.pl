@@ -15,18 +15,19 @@ use JSON;
 use MOBIUS::Utils;
 use PatronImportFiles;
 use Parser;
+use DAO;
 
-our $configFile;
-our $runType;
-our $help;
+my $configFile;
+my $runType;
+my $help;
 
-our $dao;
-our $conf;
-our $log;
+my $dao;
+my $conf;
+my $log;
 
-# Local imports  
-our $parser;
-our $files;
+# Local imports
+my $parser;
+my $files;
 
 GetOptions(
     "config=s" => \$configFile,
@@ -34,6 +35,10 @@ GetOptions(
     "help:s"   => \$help,
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
+
+$runType = "stage" if (!defined $runType);
+
+print "[$runType]\n";
 
 if (defined $help)
 {
@@ -43,15 +48,16 @@ if (defined $help)
 
 initConf();
 initLogger();
+main();
 
 sub main
 {
-    startJob();
-
     # Create our main objects
     $dao = DAO->new($conf, $log);
     $files = PatronImportFiles->new($conf, $log, $dao);
     $parser = Parser->new($conf, $log, $dao, $files);
+
+    startJob();
 
     ########## stage | load ##########
     # We need to split this so we can run parsers and api loads separate
@@ -86,28 +92,28 @@ sub initLogger
 sub startJob
 {
 
-    # Insert a new job
-    my $query = "insert into job(start_time,stop_time) values (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);";
-    $db->update($query);
+    my @data = (
+        $dao->_getCurrentTimestamp,
+        $dao->_getCurrentTimestamp,
+    );
 
-    # Get the ID of the last job
-    $query = "select * from job where start_time = stop_time order by ID desc limit 1;";
-    my @results = @{$db->query($query)};
+    $dao->_insertIntoTable("job", \@data);
 
-    # Set it in our $conf
-    $conf->{jobID} = $results[0][0];
+    $conf->{jobID} = $dao->getLastJobID();
 
 }
 
 sub finishJob
 {
-    my $jobID = shift;
-
+    my $jobID = $conf->{jobID};
+    my $timestamp = $dao->_getCurrentTimestamp();
     my $query = "
         update job
-        set stop_time=CURRENT_TIMESTAMP where id=$conf->{jobID};
+        set stop_time='$timestamp' where id=$jobID;
     ";
-    $db->update($query);
+
+    print $query;
+    $dao->{db}->update($query);
 
 }
 

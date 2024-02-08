@@ -314,6 +314,45 @@ package B::UNOP_AUX {
 sub aux_list;
 sub string;
 }
+package BSD::Resource {
+sub _find_prio($$) ;
+sub _find_rlimit($$) ;
+sub _g;
+sub _get_prios;
+sub _get_rlimits;
+sub _getpriority;
+sub _getrlimit;
+sub _getrusage;
+sub _setpriority;
+sub _setrlimit;
+sub constant;
+sub get_prios() ;
+sub get_rlimits() ;
+sub getpriority(;$$) ;
+sub getrlimit($) ;
+sub getrusage(;$) ;
+sub hard;
+sub idrss;
+sub inblock;
+sub isrss;
+sub ixrss;
+sub majflt;
+sub maxrss;
+sub minflt;
+sub msgrcv;
+sub msgsnd;
+sub nivcsw;
+sub nsignals;
+sub nswap;
+sub nvcsw;
+sub oublock;
+sub setpriority(;$$$) ;
+sub setrlimit($$$) ;
+sub soft;
+sub stime;
+sub times;
+sub utime;
+}
 package Carp {
 sub _maybe_isa;
 sub downgrade;
@@ -365,6 +404,108 @@ sub newxs_predicate;
 sub newxs_setter;
 sub predicate;
 sub setter;
+}
+package Compress::Raw::Bunzip2 {
+sub DESTROY;
+sub DispStream;
+sub bzinflate;
+sub compressedBytes;
+sub inflateCount;
+sub new;
+sub status;
+sub total_in_lo32;
+sub total_out_lo32;
+sub uncompressedBytes;
+}
+package Compress::Raw::Bzip2 {
+sub DESTROY;
+sub DispStream;
+sub bzclose;
+sub bzdeflate;
+sub bzflush;
+sub bzlibversion;
+sub compressedBytes;
+sub constant;
+sub new;
+sub total_in_lo32;
+sub total_out_lo32;
+sub uncompressedBytes;
+}
+package Compress::Raw::Zlib {
+sub ZLIBNG_VER_STATUS;
+sub ZLIB_VERNUM;
+sub _deflateInit;
+sub _inflateInit;
+sub _inflateScanInit;
+sub adler32;
+sub adler32_combine;
+sub constant;
+sub crc32;
+sub crc32_combine;
+sub is_zlib_native;
+sub is_zlibng;
+sub is_zlibng_compat;
+sub is_zlibng_native;
+sub zlibCompileFlags;
+sub zlib_version;
+sub zlibng_version;
+}
+package Compress::Raw::Zlib::deflateStream {
+sub DESTROY;
+sub DispStream;
+sub _deflateParams;
+sub adler32;
+sub compressedBytes;
+sub crc32;
+sub deflate;
+sub deflateReset;
+sub deflateTune;
+sub dict_adler;
+sub flush;
+sub get_Bufsize;
+sub get_Level;
+sub get_Strategy;
+sub msg;
+sub status;
+sub total_in;
+sub total_out;
+sub uncompressedBytes;
+}
+package Compress::Raw::Zlib::inflateScanStream {
+sub DESTROY;
+sub DispStream;
+sub _createDeflateStream;
+sub adler32;
+sub compressedBytes;
+sub crc32;
+sub getEndOffset;
+sub getLastBlockOffset;
+sub getLastBufferOffset;
+sub inflateCount;
+sub inflateReset;
+sub resetLastBlockByte;
+sub scan;
+sub status;
+sub uncompressedBytes;
+}
+package Compress::Raw::Zlib::inflateStream {
+sub DESTROY;
+sub DispStream;
+sub adler32;
+sub compressedBytes;
+sub crc32;
+sub dict_adler;
+sub get_Bufsize;
+sub inflate;
+sub inflateCount;
+sub inflateReset;
+sub inflateSync;
+sub msg;
+sub set_Append;
+sub status;
+sub total_in;
+sub total_out;
+sub uncompressedBytes;
 }
 package Config {
 sub AUTOLOAD;
@@ -1153,6 +1294,10 @@ sub rows;
 package DBI::var {
 sub FETCH;
 }
+package Data::Dumper {
+sub Dumpxs($;$$) ;
+sub _vstring($) ;
+}
 package Data::UUID {
 sub CLONE;
 sub DESTROY;
@@ -1468,6 +1613,22 @@ sub canonpath;
 sub catdir;
 sub catfile;
 }
+package Filter::Util::Call {
+sub filter_del() ;
+sub filter_read(;$) ;
+sub real_import($$$) ;
+sub unimport(;$@) ;
+}
+package Filter::Util::Exec {
+sub filter_add($@) ;
+}
+package Filter::decrypt {
+sub import;
+sub unimport;
+}
+package Filter::tee {
+sub import;
+}
 package Hash::StoredIterator {
 sub hash_get_iterator;
 sub hash_init_iterator;
@@ -1713,6 +1874,9 @@ sub first(&@) ;
 sub head($@) ;
 sub max(@) ;
 sub maxstr(@) ;
+sub mesh;
+sub mesh_longest;
+sub mesh_shortest;
 sub min(@) ;
 sub minstr(@) ;
 sub none(&@) ;
@@ -1736,6 +1900,9 @@ sub uniqint(@) ;
 sub uniqnum(@) ;
 sub uniqstr(@) ;
 sub unpairs(@) ;
+sub zip;
+sub zip_longest;
+sub zip_shortest;
 }
 package Locale::gettext {
 sub LC_SYNTAX;
@@ -1761,6 +1928,25 @@ sub textdomain;
 }
 package MIME::Charset {
 sub is_utf8($;$) ;
+}
+package Math::BigInt::FastCalc {
+sub __strip_zeros;
+sub _acmp;
+sub _copy;
+sub _dec;
+sub _inc;
+sub _is_even;
+sub _is_odd;
+sub _is_one;
+sub _is_ten;
+sub _is_two;
+sub _is_zero;
+sub _len;
+sub _new;
+sub _one;
+sub _ten;
+sub _two;
+sub _zero;
 }
 package POSIX {
 sub ARG_MAX() ;
@@ -2237,6 +2423,112 @@ sub tainted($) ;
 sub unweaken($) ;
 sub weaken($) ;
 }
+package Socket {
+sub AF_802() ;
+sub AF_AAL() ;
+sub AF_CCITT() ;
+sub AF_CHAOS() ;
+sub AF_CTF() ;
+sub AF_DATAKIT() ;
+sub AF_DLI() ;
+sub AF_ECMA() ;
+sub AF_GOSIP() ;
+sub AF_HYLINK() ;
+sub AF_IMPLINK() ;
+sub AF_ISO() ;
+sub AF_LAST() ;
+sub AF_LAT() ;
+sub AF_LINK() ;
+sub AF_NBS() ;
+sub AF_NIT() ;
+sub AF_NS() ;
+sub AF_OSI() ;
+sub AF_OSINET() ;
+sub AF_PUP() ;
+sub AF_USER() ;
+sub AF_WAN() ;
+sub AUTOLOAD;
+sub EAI_BADHINTS() ;
+sub EAI_PROTOCOL() ;
+sub IPV6_ADDRFROM() ;
+sub LOCAL_CONNWAIT() ;
+sub LOCAL_CREDS() ;
+sub LOCAL_OCREDS() ;
+sub LOCAL_PEEREID() ;
+sub MSG_BCAST() ;
+sub MSG_BTAG() ;
+sub MSG_CTLFLAGS() ;
+sub MSG_CTLIGNORE() ;
+sub MSG_EOF() ;
+sub MSG_ETAG() ;
+sub MSG_MAXIOVLEN() ;
+sub MSG_MCAST() ;
+sub MSG_URG() ;
+sub MSG_WIRE() ;
+sub PF_802() ;
+sub PF_AAL() ;
+sub PF_CCITT() ;
+sub PF_CHAOS() ;
+sub PF_CTF() ;
+sub PF_DATAKIT() ;
+sub PF_DLI() ;
+sub PF_ECMA() ;
+sub PF_GOSIP() ;
+sub PF_HYLINK() ;
+sub PF_IMPLINK() ;
+sub PF_ISO() ;
+sub PF_LAST() ;
+sub PF_LAT() ;
+sub PF_LINK() ;
+sub PF_NBS() ;
+sub PF_NIT() ;
+sub PF_NS() ;
+sub PF_OSI() ;
+sub PF_OSINET() ;
+sub PF_PUP() ;
+sub PF_USER() ;
+sub PF_WAN() ;
+sub SCM_CONNECT() ;
+sub SCM_CREDS() ;
+sub SO_BACKLOG() ;
+sub SO_CHAMELEON() ;
+sub SO_DGRAM_ERRIND() ;
+sub SO_DONTLINGER() ;
+sub SO_FAMILY() ;
+sub SO_PASSIFNAME() ;
+sub SO_PROTOTYPE() ;
+sub SO_STATE() ;
+sub SO_USELOOPBACK() ;
+sub SO_XOPEN() ;
+sub SO_XSE() ;
+sub TCP_CONNECTIONTIMEOUT() ;
+sub TCP_INIT_CWND() ;
+sub TCP_KEEPALIVE() ;
+sub TCP_MAXRT() ;
+sub TCP_NOOPT() ;
+sub TCP_NOPUSH() ;
+sub TCP_SACK_ENABLE() ;
+sub TCP_STDURG() ;
+sub getaddrinfo;
+sub getnameinfo;
+sub inet_aton;
+sub inet_ntoa;
+sub inet_ntop;
+sub inet_pton;
+sub pack_ip_mreq;
+sub pack_ip_mreq_source;
+sub pack_ipv6_mreq;
+sub pack_sockaddr_in6;
+sub pack_sockaddr_in;
+sub pack_sockaddr_un;
+sub sockaddr_family;
+sub unpack_ip_mreq;
+sub unpack_ip_mreq_source;
+sub unpack_ipv6_mreq;
+sub unpack_sockaddr_in6;
+sub unpack_sockaddr_in;
+sub unpack_sockaddr_un;
+}
 package Specio::Constraint::AnyCan {
 sub perlstring;
 }
@@ -2430,6 +2722,34 @@ sub VERSION;
 sub can;
 sub isa;
 }
+package Unicode::Collate {
+sub _decompHangul;
+sub _derivCE_14;
+sub _derivCE_18;
+sub _derivCE_20;
+sub _derivCE_22;
+sub _derivCE_24;
+sub _derivCE_32;
+sub _derivCE_34;
+sub _derivCE_36;
+sub _derivCE_38;
+sub _derivCE_40;
+sub _derivCE_43;
+sub _derivCE_8;
+sub _derivCE_9;
+sub _exists_simple;
+sub _fetch_rest;
+sub _fetch_simple;
+sub _getHexArray;
+sub _ignorable_simple;
+sub _isIllegal;
+sub _isUIdeo;
+sub _uideoCE_8;
+sub getHST;
+sub mk_SortKey;
+sub varCE;
+sub visualizeSortKey;
+}
 package Unicode::GCString {
 sub DESTROY($) ;
 sub _new($$;$) ;
@@ -2560,4 +2880,19 @@ sub parse;
 sub qv;
 sub stringify;
 sub vcmp;
+}
+package version::vxs {
+sub VCMP;
+sub _VERSION;
+sub boolean;
+sub declare;
+sub is_alpha;
+sub is_qv;
+sub new;
+sub noop;
+sub normal;
+sub numify;
+sub parse;
+sub qv;
+sub stringify;
 }

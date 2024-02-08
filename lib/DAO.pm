@@ -214,7 +214,7 @@ sub _insertIntoTable
     my $data = shift;
 
     # get our column names as a string of comma seperated values
-    my @columnNames = @{$self->_getTableColumns($tableName)};
+    my @columnNames = @{$self->_getTableColumnsWithoutId($tableName)};
     my $columns = "@columnNames";
     $columns =~ s/\s/,/g;
 
@@ -234,7 +234,7 @@ sub _insertIntoTable
 
 }
 
-sub _getTableColumns
+sub _getTableColumnsWithoutId
 {
     my $self = shift;
     my $tableName = shift;
@@ -245,6 +245,25 @@ sub _getTableColumns
         WHERE table_schema = 'public'
           AND table_name = '$tableName'
           AND column_name != 'id'
+        order by ordinal_position asc
+                ";
+
+    return $self->_getQueryAsSingleStringArray($query);
+}
+
+sub _getTableColumns
+{
+    my $self = shift;
+    my $tableName = shift;
+
+    # Blakes right, this should be cached.
+    # Some if statements checking for the existence of the array stored in $self
+
+    my $query = "
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = '$tableName'
         order by ordinal_position asc
                 ";
 
@@ -278,7 +297,7 @@ sub _selectAllFromTable
     my $self = shift;
     my $tableName = shift;
 
-    my $columns = $self->_getArrayAsCSVString($self->_getTableColumns($tableName));
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
 
     my $query = "select $columns from $tableName;";
     return $self->{db}->query($query);
@@ -302,7 +321,7 @@ sub _getInstitutionMapFromDatabaseAsHashArray
     my $self = shift;
 
     my $tableName = "institution_map";
-    return $self->_convertQueryResultsToHash($tableName,$self->_selectAllFromTable($tableName));
+    return $self->_convertQueryResultsToHash($tableName, $self->_selectAllFromTable($tableName));
 
 }
 
@@ -334,7 +353,7 @@ sub _convertQueryResultsToHash
 
 }
 
-sub _getArrayAsCSVString
+sub _convertArrayToCSVString
 {
     my $self = shift;
     my $data = shift;
@@ -345,5 +364,54 @@ sub _getArrayAsCSVString
 
     return $csv;
 }
+
+sub getInstitutionMapHashById
+{
+    my $self = shift;
+    my $id = shift;
+
+    my $tableName = "institution_map";
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+    my $query = "select $columns from $tableName t where t.id=$id;";
+    return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
+
+}
+
+sub getInstitutionMapHashByName
+{
+    my $self = shift;
+    my $name = shift;
+    my $tableName = "institution_map";
+
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+    my $query = "select $columns from $tableName t where t.institution='$name';";
+
+    return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
+
+}
+
+sub getLastFileTrackerEntry
+{
+    my $self = shift;
+
+    my $tableName = "file_tracker";
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+
+    my $query = "select $columns from file_tracker order by id desc limit 1";
+    my $results = $self->{db}->query($query);
+    return $results;
+
+}
+
+sub getLastJobID
+{
+    my $self = shift;
+
+    # Get the ID of the last job
+    my $query = "select id from job order by ID desc limit 1;";
+    return $self->{db}->query($query)->[0]->[0];
+
+}
+
 
 1;

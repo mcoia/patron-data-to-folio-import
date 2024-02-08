@@ -1,20 +1,126 @@
 package Parsers::GenericParser;
 use strict;
 use warnings FATAL => 'all';
+use Data::Dumper;
 
-use parent Parser;
+use parent 'Parser';
 
 sub new
 {
     my $class = shift;
-    my $self = {
-        '' => shift,
-    };
+    my $self = {};
     bless $self, $class;
     return $self;
 }
 
+
+
+=head1 _parsePatronRecord(@patronrecord)
+
+The initial field: Always 24 char long
+example: 0101c-003clb  --01/31/24
+
+Field:Char Length
+------------
+Field Code: 1
+Patron Type: 3 (000 to 255)
+PCODE1: 1
+PCODE2: 1
+PCODE3: 3 (000 to 255)
+Home Library: 5 char, padded with blanks if needed (e.g. "shb  ")
+Patron Message Code: 1
+Patron Block Code: 1
+Patron Expiration Date: 8 (mm-dd-yy)
+
+Patron Parser Info:
+n = Name
+a = Address
+t = Telephone
+h = Address2
+p = Telephone2
+d = Department
+u = Unique ID
+b = Barcode
+z = Email Address
+x = Note
+
+
+=cut
 sub parse
+{
+
+    my $self = shift;
+    my $data = shift;
+    my @patronRecords = ();
+    my @patronRecord = ();
+    my $patronRecordSize = 0;
+
+    for my $line (@{$data})
+    {
+
+        # start a new patron record
+        if ($line =~ /^0/ && length($line) == 24)
+        {
+            $patronRecordSize = @patronRecord;
+
+            # $self->{log}->addLine("parsing record: [@patronRecord]");
+
+            my $patron = $self->_parsePatronRecord(\@patronRecord);
+            $patron->{institution_id} = $self->{institution}->{id} if ($patronRecordSize > 0);
+            $patron->{file_id} = $self->{file}->{id} if ($patronRecordSize > 0);
+            $patron->{job_id} = $self->{conf}->{jobID} if ($patronRecordSize > 0);
+
+            # $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($self->{institution}->{cluster}, $patron->{patronType}) if ($patronRecordSize > 0);
+            $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0); # <== _getExternalID will NOT be in the parent class.
+            $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
+            $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
+            $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
+
+            push(@patronRecords, $patron) if ($patronRecordSize > 0);
+
+            @patronRecord = (); # clear our patron record
+        }
+
+        push(@patronRecord, $line);
+
+    }
+
+    return \@patronRecords;
+
+}
+
+=head1 _parsePatronRecord(@patronrecord)
+
+The initial field: Always 24 char long
+example: 0101c-003clb  --01/31/24
+
+Field:Char Length
+------------
+Field Code: 1
+Patron Type: 3 (000 to 255)
+PCODE1: 1
+PCODE2: 1
+PCODE3: 3 (000 to 255)
+Home Library: 5 char, padded with blanks if needed (e.g. "shb  ")
+Patron Message Code: 1
+Patron Block Code: 1
+Patron Expiration Date: 8 (mm-dd-yy)
+
+Patron Parser Info:
+n = Name
+a = Address
+t = Telephone
+h = Address2
+p = Telephone2
+d = Department
+u = Unique ID
+b = Barcode
+z = Email Address
+x = Note
+
+
+=cut
+sub _parsePatronRecord
 {
     my $self = shift;
     my $patronRecord = shift;
@@ -58,5 +164,75 @@ sub parse
     return $patron;
 }
 
+sub _parseName
+{
+    my $self = shift;
+    my $patron = shift;
+
+    my $name = $patron->{name};
+
+    # Altis, Daniel M.
+    my $last = ($name =~ /^(.*),/gm)[0];
+    my $first = ($name =~ /^.*,\s(.*)/gm)[0];
+
+    my $middle = "";
+    $middle = ($first =~ /\s(.*)$/gm)[0] if ($first =~ /\s/);
+
+    $first = ($first =~ /(.*)\s/gm)[0] if ($first =~ /\s/);
+
+    $patron->{firstName} = $first;
+    $patron->{middleName} = $middle;
+    $patron->{lastName} = $last;
+
+    # print "[$name]=[$first][$middle][$last]\n";
+
+    # Sometimes we don't get a first or last name so we just set the first and last name to name.
+    # Let them figure it out later. It's like .05%
+    # $patron->{firstName} = $name if ($first eq '' && $last eq '');
+    # $patron->{lastName} = $name if ($first eq '' && $last eq '');
+
+    return $patron;
+
+}
+
+sub _parseAddress
+{
+
+    my $self = shift;
+    my $patron = shift;
+
+    my $address = $patron->{address};
+
+    $patron->{street} = ($address =~ /^(.*)\$/gm)[0];
+    $patron->{city} = ($address =~ /^.*\$(.*),/gm)[0];
+    $patron->{state} = ($address =~ /,\s(\w{2})/gm)[0];
+    $patron->{zip} = ($address =~ /,\s\w{2}\s\s(.*)$/gm)[0];
+
+    return $patron;
+
+}
+
+sub _getExternalID
+{
+    my $self = shift;
+    my $patron = shift;
+
+    # Until I get some more info we're counting to 10 and tacking on an epoch
+    my $epoch = time();
+
+    return "1234567890_$epoch";
+
+}
+
+sub _getUsername
+{
+    my $self = shift;
+    my $patron = shift;
+
+    # what field do we use for a username?
+    # return $patron->{barcode};
+    return $patron->{email_address};
+
+}
 
 1;

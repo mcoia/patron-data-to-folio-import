@@ -1,6 +1,7 @@
 create table if not exists institution_map
 (
     ID           SERIAL primary key,
+    cluster      varchar,
     institution  varchar,
     folder_path  varchar,
     file_pattern varchar,

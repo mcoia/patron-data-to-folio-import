@@ -36,7 +36,8 @@ sub readFileToArray
     my $lineCount = 0;
     while (my $line = <$fileHandle>)
     {
-        chomp $line;
+        $line =~ s/\r//g;
+        $line =~ s/\n//g;
         push(@data, $line) if ($line ne '');
         $lineCount++;
     }
@@ -55,7 +56,7 @@ sub getPatronFilePaths
     my $self = shift;
     my @filePathsHashArray = ();
 
-    my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV();
+    my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV(); # <== todo: switch this over to the database
     $fileHashArray = $self->_buildFilePatterns($fileHashArray);
 
     for my $clusterFileHash (@$fileHashArray)
@@ -65,14 +66,29 @@ sub getPatronFilePaths
         my $filePaths = $self->_patronFileDiscovery($clusterFileHash);
 
         my $filePathsHash = {
-            'cluster'     => $clusterFileHash->{cluster},
-            'institution' => $clusterFileHash->{institution},
-            'pattern'     => $clusterFileHash->{pattern},
-            'files'       => $filePaths,
+            'cluster'      => $clusterFileHash->{cluster},
+            'institution'  => $clusterFileHash->{institution},
+            'file_pattern' => $clusterFileHash->{pattern},
+            'files'        => $filePaths,
         };
 
         # Save $filePathsHash to database
         $self->saveFilePath($filePathsHash);
+        $filePathsHash = $self->{dao}->_convertQueryResultsToHash("file_tracker", $self->{dao}->getLastFileTrackerEntry())->[0];
+
+        # I hijacked this section to build the institution_map table. This will get shoved somewhere else.
+        # This method will get replaced by a db call.
+        # my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV(); # <== todo: switch this over to the database
+        #
+        # my @a = (
+        #     "$clusterFileHash->{cluster}",
+        #     "$clusterFileHash->{institution}",
+        #     "$self->{conf}->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming",
+        #     "$clusterFileHash->{pattern}",
+        #     "GenericParser"
+        # );
+        #
+        # $self->{dao}->_insertIntoTable("institution_map", \@a);
 
         push(@filePathsHashArray, $filePathsHash);
 
@@ -101,6 +117,7 @@ sub getPTYPEMappingSheet
 
     my $filePath = "$self->{conf}->{patronTypeMappingSheetPath}/$cluster.csv";
 
+    # todo: put this in the database
     return $self->_loadCSVFileAsArray($filePath);
 }
 
@@ -258,12 +275,23 @@ sub _containsClusterName
 
 sub saveFilePath
 {
+    # this needs updated.
+
     my $self = shift;
     my $filePathsHash = shift;
 
+    # 'files' => [
+    #     '/mnt/dropbox/archway/home/archway/incoming/eccpat.txt'
+    # ],
+    #     'cluster' => 'archway',
+    #     'file_pattern' => 'eccpat',
+    #     'institution' => 'East Central College'
+
+    my $institution = $self->{dao}->getInstitutionMapHashByName($filePathsHash->{institution});
+
     my $jobID = $self->{conf}->{jobID};
     my $cluster = $filePathsHash->{cluster};
-    my $institution = $filePathsHash->{institution};
+    # my $institution = $filePathsHash->{institution};
     my $pattern = $filePathsHash->{pattern};
     my $files = $filePathsHash->{files};
     my @files = @{$files};
@@ -273,18 +301,15 @@ sub saveFilePath
         # files can't be empty
         for my $path (@files)
         {
-            my $query = "
-       INSERT INTO file_tracker(job_id, institution_id, filename)
-       values (
-            $jobID,
-            '$cluster',
-            '$institution',
-            '$pattern',
-            '$path'
-       );
-";
 
-            $self->{db}->update($query);
+            my @data = (
+                $self->{conf}->{jobID},
+                $institution->{id},
+                $path
+            );
+
+            $self->{dao}->_insertIntoTable("file_tracker", \@data);
+
         }
 
         return; # I return here because I freaking hate else statements
@@ -292,16 +317,13 @@ sub saveFilePath
     }
 
     # No files found
-    my $query = "
-       INSERT INTO file_tracker(job_id, institution_id, filename)
-       values (
-            $jobID,
-            '$institution',
-            '$pattern',
-            'no-data'
-       );";
+    my @data = (
+        $self->{conf}->{jobID},
+        $institution->{id},
+        'no-data'
+    );
 
-    $self->{db}->update($query);
+    $self->{dao}->_insertIntoTable("file_tracker", \@data);
 
 }
 

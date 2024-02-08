@@ -20,8 +20,31 @@ my ($conf, $log);
 
 initConf();
 initLog();
-# initDatabaseConnection();
-# initDatabaseSchema();
+
+sub initConf
+{
+
+    my $utils = MOBIUS::Utils->new();
+
+    # Check our conf file
+    my $configFile = "../patron-import.conf";
+
+    $conf = eval {$utils->readConfFile($configFile);};
+
+    if ($conf eq 'false')
+    {
+        print "trying other location... we must be debugging\n";
+        $configFile = "./patron-import.conf";
+        $conf = eval {$utils->readConfFile($configFile);};
+    }
+
+}
+
+sub initLog
+{
+    $log = Loghandler->new("test.log");
+    $log->truncFile("");
+}
 
 my $dao = DAO->new($conf, $log);
 my $files = PatronImportFiles->new($conf, $log, $dao);
@@ -105,32 +128,40 @@ sub test__getInstitutionMapFromDatabase
 
 }
 
-sub initConf
+# test_DAO_getInstitutionMapHashById();
+sub test_DAO_getInstitutionMapHashById
 {
-
-    my $utils = MOBIUS::Utils->new();
-
-    # Check our conf file
-    my $configFile = "../patron-import.conf";
-
-    $conf = eval{$utils->readConfFile($configFile);};
-
-    if($conf eq 'false'){
-        print "trying other location... we must be debugging\n";
-        $configFile = "./patron-import.conf";
-        $conf = eval{$utils->readConfFile($configFile);};
-    }
-
+    print Dumper(
+        $dao->getInstitutionMapHashById(10)
+    );
 
 }
 
-sub initLog
+# test_DAO_getInstitutionMapHashByName();
+sub test_DAO_getInstitutionMapHashByName
 {
-    $log = Loghandler->new("test.log");
-    $log->truncFile("");
+    my $name = "Central Methodist University";
+    print Dumper(
+        $dao->getInstitutionMapHashByName($name)
+    );
+
 }
 
-test_getPatronFilePaths();
+# test_DAO_getLastFileTrackerEntry();
+sub test_DAO_getLastFileTrackerEntry
+{
+
+    my $file = $dao->_convertQueryResultsToHash("file_tracker", $dao->getLastFileTrackerEntry())->[0];
+    print Dumper($file);
+
+    print $file->{id} . "\n";
+    print $file->{job_id} . "\n";
+    print $file->{institution_id} . "\n";
+    print $file->{filename} . "\n";
+
+}
+
+# test_getPatronFilePaths();
 sub test_getPatronFilePaths
 {
 
@@ -139,6 +170,15 @@ sub test_getPatronFilePaths
     my $filesHashArray = $files->getPatronFilePaths();
 
     print Dumper($filesHashArray);
+
+}
+
+# test_DAO_getLastJobID();
+sub test_DAO_getLastJobID
+{
+
+    my $id = $dao->getLastJobID();
+    print "id:[$id]\n";
 
 }
 
@@ -228,17 +268,6 @@ sub test_getStagedPatrons
     my $patrons = $parser->getStagedPatrons();
 
     print Dumper($patrons);
-
-}
-
-# test_getParserObject();
-sub test_getParserObject
-{
-
-    my $institution = "archway";
-    my $patronRecord = "no-data";
-
-    $parser->getParserObject($institution, $patronRecord);
 
 }
 

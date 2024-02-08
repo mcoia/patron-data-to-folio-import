@@ -58,6 +58,7 @@ use DateTime;
 #use Net::SSH::Expect;
 use Encode;
 use utf8;
+use FreezeThaw qw(freeze thaw);
 
 =head1 CONSTRUCTOR
 
@@ -67,7 +68,8 @@ Base constructor for the class. No constructor arguments.
 
 =cut
 
-sub new {
+sub new
+{
     my $class = shift;
     my $self = {};
     bless $self, $class;
@@ -98,7 +100,8 @@ Example Code:
 
 =cut
 
-sub readConfFile {
+sub readConfFile
+{
     my $self = shift;
     my $filepath = shift;
 
@@ -106,7 +109,8 @@ sub readConfFile {
     my $ret = \%ret;
 
     my $confFile = new Loghandler($filepath);
-    if (!$confFile->fileExists()) {
+    if (!$confFile->fileExists())
+    {
         print "Config File does not exist\n";
         undef $confFile;
         return false;
@@ -117,10 +121,12 @@ sub readConfFile {
 
     undef $confFile;
 
-    foreach my $line (@lines) {
+    foreach my $line (@lines)
+    {
         my $cur = $self->trim($line);
         my $len = length($cur);
-        if ($len > 0 && substr($cur, 0, 1) ne "#") {
+        if ($len > 0 && substr($cur, 0, 1) ne "#")
+        {
             my ($Name, $Value);
             my @s = split(/=/, $cur);
             $Name = shift @s;
@@ -170,14 +176,16 @@ Query File Requirements:
 
 =cut
 
-sub readQueryFile {
+sub readQueryFile
+{
     my $self = shift;
     my $filepath = shift;
     my %ret = ();
     my $ret = \%ret;
 
     my $confFile = Loghandler->new($filepath);
-    if (!$confFile->fileExists()) {
+    if (!$confFile->fileExists())
+    {
         print "Query file does not exist\n";
         undef $confFile;
         return false;
@@ -187,18 +195,21 @@ sub readQueryFile {
     undef $confFile;
 
     my $fullFile = "";
-    foreach my $line (@lines) {
+    foreach my $line (@lines)
+    {
         $line =~ s/\n/ASDF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ASDF/g; #remove newline characters
         my $cur = trim('', $line);
         my $len = length($cur);
-        if ($len > 0 && substr($cur, 0, 1) ne "#") {
+        if ($len > 0 && substr($cur, 0, 1) ne "#")
+        {
             $line =~ s/\t//g;
             $fullFile .= " $line"; #collapse all lines into one string
         }
     }
 
     my @div = split(";", $fullFile); #split the string by semi colons
-    foreach (@div) {
+    foreach (@div)
+    {
         my ($Name, $Value);
         ($Name, $Value) = split(/\~\~/, $_); #split each by the equals sign (left of equal is the name and right is the query
         $Value = trim('', $Value);
@@ -235,9 +246,12 @@ sub makeEvenWidth #line, width
     my $ret;
 
     $ret = $line;
-    if (length($line) >= $width) {$ret = substr($ret, 0, $width);}
-    else {
-        while (length($ret) < $width) {$ret = $ret . " ";}
+    if (length($line) >= $width)
+    {$ret = substr($ret, 0, $width);}
+    else
+    {
+        while (length($ret) < $width)
+        {$ret = $ret . " ";}
     }
 
     return $ret;
@@ -260,7 +274,8 @@ C<XXXXXXHello World!!!>
 
 =cut
 
-sub padLeft {
+sub padLeft
+{
 
     my $self = shift;
     my $line = shift || return;
@@ -269,11 +284,14 @@ sub padLeft {
 
     my $ret;
     $ret = $line;
-    if (length($line) >= $width) {
+    if (length($line) >= $width)
+    {
         $ret = substr($ret, 0, $width);
     }
-    else {
-        while (length($ret) < $width) {
+    else
+    {
+        while (length($ret) < $width)
+        {
             $ret = $fillChar . $ret;
         }
     }
@@ -289,7 +307,8 @@ Send an array of files to an FTP server.
 
 =cut
 
-sub sendftp {
+sub sendftp
+{
 
     my $hostname = shift || return;
     my $username = shift || return;
@@ -309,7 +328,8 @@ sub sendftp {
     $ftp->cwd($remoteDir)
         or die $log->addLogLine("Cannot change working directory ", $ftp->message);
 
-    foreach my $file (@{$files}) {
+    foreach my $file (@{$files})
+    {
         $log->addLogLine("Sending file $file");
         $ftp->put($file)
             or die $log->addLogLine("Sending file $file failed");
@@ -343,7 +363,8 @@ Output:
 
 =cut
 
-sub chooseNewFileName {
+sub chooseNewFileName
+{
     my $self = shift;
     my $path = shift;
     my $filename = shift;
@@ -353,11 +374,14 @@ sub chooseNewFileName {
     $path = $path . '/' if (substr($path, length($path) - 1, 1) ne '/');
 
     my $ret = 0;
-    if (-d $path) {
+    if (-d $path)
+    {
         my $num = "";
         $ret = $path . $filename . $num . '.' . $ext;
-        while (-e $ret) {
-            if ($num eq "") {
+        while (-e $ret)
+        {
+            if ($num eq "")
+            {
                 $num = -1;
             }
             $num = $num + 1;
@@ -386,7 +410,8 @@ Output:
   
 =cut
 
-sub trim {
+sub trim
+{
     my $self = shift;
     my $string = shift;
     $string =~ s/^\s+//;
@@ -414,7 +439,8 @@ sub findQuery #self, DBhandler(object), school(string), platform(string), addsor
     my $dbFromDate = shift;
 
     my $key = $platform . "_" . $school . "_" . $addsOrCancels;
-    if (!$queries->{$key}) {return "-1";}
+    if (!$queries->{$key})
+    {return "-1";}
 
     my $dt = DateTime->now; # Stores current date and time as datetime object
     my $ndt = DateTime->now;
@@ -471,7 +497,8 @@ C<string: ["this","that","and","the","other"]>
 
 =cut
 
-sub makeCommaFromArray {
+sub makeCommaFromArray
+{
 
     my $self = shift;
     my $array = shift;
@@ -481,7 +508,8 @@ sub makeCommaFromArray {
 
     my $ret = "";
 
-    for my $i (0 .. $#array) {
+    for my $i (0 .. $#array)
+    {
         $ret .= "\"" . $array[$i] . "\"" . $delimiter;
     }
     $ret = substr($ret, 0, length($ret) - (length($delimiter)));
@@ -508,12 +536,14 @@ Output:
 
 =cut
 
-sub makeArrayFromComma {
+sub makeArrayFromComma
+{
     my $self = shift;
 
     my $string = shift;
     my @array = split(/,/, $string);
-    for my $y (0 .. $#array) {
+    for my $y (0 .. $#array)
+    {
         @array[$y] = trim('', @array[$y]);
     }
     return \@array;
@@ -525,27 +555,33 @@ sub makeArrayFromComma {
 
 =cut
 
-sub insertDataIntoColumn {
+sub insertDataIntoColumn
+{
     my $self = shift;
     my $ret = shift;
     my $data = shift;
     my $column = shift;
 
-    if (length($ret) < ($column - 1)) {
-        while (length($ret) < ($column - 1)) {
+    if (length($ret) < ($column - 1))
+    {
+        while (length($ret) < ($column - 1))
+        {
             $ret .= " ";
         }
         $ret .= $data;
     }
-    else {
+    else
+    {
         my @ogchars = split("", $ret);
         my @insertChars = split("", $data);
-        for my $i (0 .. $#insertChars) {
+        for my $i (0 .. $#insertChars)
+        {
             $ogchars[$i + $column - 1] = $insertChars[$i];
         }
 
         $ret = "";
-        foreach (@ogchars) {$ret .= $_;}
+        foreach (@ogchars)
+        {$ret .= $_;}
 
     }
 
@@ -554,27 +590,33 @@ sub insertDataIntoColumn {
 }
 
 # TODO: take this out? It's not used anywhere and it's basically this ==> if($s1 eq $s2)
-sub compareStrings {
+sub compareStrings
+{
     my $self = shift;
     my $string1 = shift;
     my $string2 = shift;
-    if (length($string1) != length($string2)) {
+    if (length($string1) != length($string2))
+    {
         return 0;
     }
     my @chars1 = split("", $string1);
     my @chars2 = split("", $string2);
-    for my $i (0 .. $#chars1) {
+    for my $i (0 .. $#chars1)
+    {
         my $tem1 = @chars1[$i];
         my $tem2 = @chars2[$i];
         my $t1 = ord($tem1);
         my $t2 = ord($tem2);
 
-        if (0) {
-            if (ord($tem1) != ord($tem2)) {
+        if (0)
+        {
+            if (ord($tem1) != ord($tem2))
+            {
                 return 0;
             }
         }
-        if (@chars1[$i] ne @chars2[$i]) {
+        if (@chars1[$i] ne @chars2[$i])
+        {
             return 0;
         }
     }
@@ -584,7 +626,8 @@ sub compareStrings {
 }
 
 # TODO: take this out? It's not used anywhere.
-sub expectSSHConnect {
+sub expectSSHConnect
+{
     my $self = shift;
     my $login = shift;
     my $pass = shift;
@@ -606,17 +649,23 @@ sub expectSSHConnect {
     $h->timeout(30);
     my $login_output = $h->login();
 
-    if (index($login_output, "Choose one (D,C,M,B,A,Q)") > -1) {
+    if (index($login_output, "Choose one (D,C,M,B,A,Q)") > -1)
+    {
         $h->send("c");
         $i = 0;
         my $screen = $h->read_all();
-        foreach (@allPrompts) {
-            if ($i <= $#allPrompts) {
+        foreach (@allPrompts)
+        {
+            if ($i <= $#allPrompts)
+            {
                 my @thisArray = @{$_};
                 my $b = 0;
-                foreach (@thisArray) {
-                    if ($b <= $#thisArray) {
-                        if (index($screen, @thisArray[$b]) > -1) {
+                foreach (@thisArray)
+                {
+                    if ($b <= $#thisArray)
+                    {
+                        if (index($screen, @thisArray[$b]) > -1)
+                        {
                             ## CANNOT GET A CARRIAGE RETURN TO SEND TO THE SSH PROMPT
                             ## HERE IS SOME OF THE CODE I HAVE TRIED (COMMENTED OUT)
                             ## BGH
@@ -641,7 +690,8 @@ sub expectSSHConnect {
                             $b++;
 
                         }
-                        else {
+                        else
+                        {
                             #print "Didn't find \"".@thisArray[$b]."\" - Moving onto the next set of prompts\n";
                             #print "Screen is now\n$screen\n";
                             $b = $#thisArray; ## Stop looping in this sub prompt tree
@@ -655,19 +705,22 @@ sub expectSSHConnect {
         }
 
     }
-    else {
+    else
+    {
         $errorMessage = "Didn't get the expected login prompt";
     }
 
     eval {$h->close();};
-    if ($@) {
+    if ($@)
+    {
         $errorMessage = "Error closing SSH connect";
     }
     return $errorMessage;
 
 }
 
-sub expectConnect {
+sub expectConnect
+{
     my $self = shift;
     my $login = shift;
     my $pass = shift;
@@ -686,26 +739,36 @@ sub expectConnect {
     #turn off command output to the screen
     $h->log_stdout(0);
     my $acceptkey = 1;
-    unless ($h->expect($timeout, "yes/no")) {$acceptkey = 0;}
-    if ($acceptkey) {print $h "yes\r";}
-    if (!$keyfile) {
-        unless ($h->expect($timeout, "password")) {return "No Password Prompt";}
+    unless ($h->expect($timeout, "yes/no"))
+    {$acceptkey = 0;}
+    if ($acceptkey)
+    {print $h "yes\r";}
+    if (!$keyfile)
+    {
+        unless ($h->expect($timeout, "password"))
+        {return "No Password Prompt";}
     }
     print $h $pass . "\r" if !$keyfile;
-    unless ($h->expect($timeout, ":")) {} #there is a quick screen directly after logging in
+    unless ($h->expect($timeout, ":"))
+    {} #there is a quick screen directly after logging in
 
     $i = 0;
     #print Dumper(@allPrompts);
-    foreach (@allPrompts) {
-        if ($i <= $#allPrompts) {
+    foreach (@allPrompts)
+    {
+        if ($i <= $#allPrompts)
+        {
             my @thisArray = @{$_};
             my $b = 0;
-            foreach (@thisArray) {
-                if ($b < ($#thisArray - 1)) {
+            foreach (@thisArray)
+            {
+                if ($b < ($#thisArray - 1))
+                {
                     #Turn on debugging:
                     #$h->exp_internal(1);
                     my $go = 1;
-                    unless ($h->expect(@thisArray[$b], @thisArray[$b + 1])) {
+                    unless ($h->expect(@thisArray[$b], @thisArray[$b + 1]))
+                    {
                         if (@thisArray[$b + 3] == 1) #This value tells us weather it's ok or not if that prompt was not found
                         {
                             my $screen = $h->before();
@@ -713,12 +776,16 @@ sub expectConnect {
                             my @chars1 = split("", $screen);
                             my $output;
                             my $pos = 0;
-                            for my $i (0 .. $#chars1) {
-                                if ($pos < $#chars1) {
-                                    if (@chars1[$pos] eq ';') {
+                            for my $i (0 .. $#chars1)
+                            {
+                                if ($pos < $#chars1)
+                                {
+                                    if (@chars1[$pos] eq ';')
+                                    {
                                         $pos += 4;
                                     }
-                                    else {
+                                    else
+                                    {
                                         $output .= @chars1[$pos];
                                         $pos++;
                                     }
@@ -729,7 +796,8 @@ sub expectConnect {
                         $b = $#thisArray;
                         $go = 0;
                     }
-                    if ($go) {
+                    if ($go)
+                    {
                         print $h @thisArray[$b + 2];
                         my $t = @thisArray[$b + 2];
                         $t =~ s/\r//g;
@@ -748,7 +816,8 @@ sub expectConnect {
     $h->soft_close();
 
     $h->hard_close();
-    if (length($errorMessage) == 0) {
+    if (length($errorMessage) == 0)
+    {
         $errorMessage = 1;
     }
     push(@promptsResponded, $errorMessage);
@@ -756,12 +825,14 @@ sub expectConnect {
 
 }
 
-sub marcRecordSize {
+sub marcRecordSize
+{
     my $count = 0;
     my $marc = @_[1];
     my $out = "";
     eval {$out = $marc->as_usmarc();};
-    if ($@) {
+    if ($@)
+    {
         return 0;
     }
     #print "size: ".length($out)."\n";
@@ -769,18 +840,23 @@ sub marcRecordSize {
 
     ## This code below should not execute
     my @fields = $marc->fields();
-    foreach (@fields) {
+    foreach (@fields)
+    {
 
-        if ($_->is_control_field()) {
+        if ($_->is_control_field())
+        {
             my $subs = $_->data();
             #print "adding control $subs\n";
             $count += length($subs);
         }
-        else {
+        else
+        {
             my @subs = $_->subfields();
-            foreach (@subs) {
+            foreach (@subs)
+            {
                 my @t = @{$_};
-                for my $i (0 .. $#t) {
+                for my $i (0 .. $#t)
+                {
                     #print "adding ".@t[$i]."\n";
                     $count += length(@t[$i]);
                 }
@@ -792,19 +868,23 @@ sub marcRecordSize {
 
 }
 
-sub trucateMarcToFit {
+sub trucateMarcToFit
+{
     my $marc = @_[1];
     local $@;
     my $count = marcRecordSize('', $marc);
     #print "Recieved $count\n";
-    if ($count) {
+    if ($count)
+    {
         my @fields = $marc->fields();
         my %fieldsToChop = ();
-        foreach (@fields) {
+        foreach (@fields)
+        {
             my $marcField = $_;
             #print $marcField->tag()."\n";
 
-            if (($marcField->tag() > 899) && ($marcField->tag() != 907) && ($marcField->tag() != 998) && ($marcField->tag() != 901)) {
+            if (($marcField->tag() > 899) && ($marcField->tag() != 907) && ($marcField->tag() != 998) && ($marcField->tag() != 901))
+            {
                 my $id = (scalar keys %fieldsToChop) + 1;
                 #print "adding to chop list: $id\n";
                 $fieldsToChop{$id} = $marcField;
@@ -814,12 +894,16 @@ sub trucateMarcToFit {
 
         my $worked = 2;
 
-        while ($count > 99999 && ((scalar keys %deletedFields) < (scalar keys %fieldsToChop))) {
+        while ($count > 99999 && ((scalar keys %deletedFields) < (scalar keys %fieldsToChop)))
+        {
             $worked = 1;
             my $foundOne = 0;
-            while ((my $internal, my $value) = each(%fieldsToChop)) {
-                if (!$foundOne) {
-                    if (!exists($deletedFields{$internal})) {
+            while ((my $internal, my $value) = each(%fieldsToChop))
+            {
+                if (!$foundOne)
+                {
+                    if (!exists($deletedFields{$internal}))
+                    {
                         #print "$internal going onto deleted\n";
                         $deletedFields{$internal} = 1;
                         $marc->delete_field($value);
@@ -833,20 +917,23 @@ sub trucateMarcToFit {
             }
             #print "deletedFields: ".(scalar keys %deletedFields)."\nto chop: ".(scalar keys %fieldsToChop)."\n";
         }
-        if ($count > 99999) {
+        if ($count > 99999)
+        {
             $worked = 0;
         }
         #print $marc->as_formatted();
         my @ret = ($marc, $worked);
         return \@ret;
     }
-    else {
+    else
+    {
         return ($marc, 0);
     }
 
 }
 
-sub boxText {
+sub boxText
+{
     shift;
     my $text = shift;
     my $hChar = shift;
@@ -858,17 +945,20 @@ sub boxText {
 
     # Draw the first line
     my $i = 0;
-    while ($i < $totalLength) {
+    while ($i < $totalLength)
+    {
         $ret .= $hChar;
         $i++;
     }
     $ret .= "\n";
     # Pad down to the data line
     $i = 0;
-    while ($i < $heightPadding) {
+    while ($i < $heightPadding)
+    {
         $ret .= "$vChar";
         my $j = length($vChar);
-        while ($j < ($totalLength - (length($vChar)))) {
+        while ($j < ($totalLength - (length($vChar))))
+        {
             $ret .= " ";
             $j++;
         }
@@ -879,23 +969,27 @@ sub boxText {
     # data line
     $ret .= "$vChar";
     $i = -1;
-    while ($i < $padding) {
+    while ($i < $padding)
+    {
         $ret .= " ";
         $i++;
     }
     $ret .= $text;
     $i = -1;
-    while ($i < $padding) {
+    while ($i < $padding)
+    {
         $ret .= " ";
         $i++;
     }
     $ret .= "$vChar\n";
     # Pad down to the last
     $i = 0;
-    while ($i < $heightPadding) {
+    while ($i < $heightPadding)
+    {
         $ret .= "$vChar";
         my $j = length($vChar);
-        while ($j < ($totalLength - (length($vChar)))) {
+        while ($j < ($totalLength - (length($vChar))))
+        {
             $ret .= " ";
             $j++;
         }
@@ -904,7 +998,8 @@ sub boxText {
     }
     # Draw the last line
     $i = 0;
-    while ($i < $totalLength) {
+    while ($i < $totalLength)
+    {
         $ret .= $hChar;
         $i++;
     }
@@ -918,7 +1013,8 @@ Generate a random string of a specified length.
 If a length isn't specified than length is set to 8.
 
 =cut
-sub generateRandomString {
+sub generateRandomString
+{
     my $self = shift;
     my $length = @_[1] | 8;
     my $i = 0;
@@ -930,7 +1026,8 @@ sub generateRandomString {
     my @nums = (1, 2, 3, 4, 5, 6, 7, 8, 9, 0);
     my $nums = $#nums;
     my @all = ([ @letters ], [ @sym ], [ @nums ]);
-    while ($i < $length) {
+    while ($i < $length)
+    {
         #print "first rand: ".$#all."\n";
         my $r = int(rand($#all + 1));
         #print "Random array: $r\n";
@@ -945,7 +1042,24 @@ sub generateRandomString {
     return $ret;
 }
 
-sub is_integer {
+sub getHash
+{
+    my $self = shift;
+    my $data = shift;
+    return $self->calcSHA1(freeze($data));
+}
+
+sub calcSHA1
+{
+    my $self = shift;
+    my $data = shift;
+    my $sha1 = Digest::SHA1->new;
+    $sha1->add($data);
+    return $sha1->hexdigest;
+}
+
+sub is_integer
+{
     defined @_[1] && @_[1] =~ /^[+-]?\d+$/;
 }
 
