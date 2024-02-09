@@ -6,20 +6,25 @@ use Data::Dumper;
 
 use MOBIUS::Utils;
 use MOBIUS::Loghandler;
-# use MOBIUS::DBhandler;
+
 use DAO;
-use Parser;
 use PatronImportFiles;
+use Parser;
+use Parsers::GenericParser;
 
 # This is our test file
 my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
 
 our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
 
-my ($conf, $log);
+our ($conf, $log);
 
 initConf();
 initLog();
+
+our $dao = DAO->new();
+our $files = PatronImportFiles->new();
+our $parser = Parser->new();
 
 sub initConf
 {
@@ -45,10 +50,6 @@ sub initLog
     $log = Loghandler->new("test.log");
     $log->truncFile("");
 }
-
-my $dao = DAO->new($conf, $log);
-my $files = PatronImportFiles->new($conf, $log, $dao);
-my $parser = Parser->new($conf, $log, $dao, $files);
 
 # test_DAO_getDatabaseTableNames();
 sub test_DAO_getDatabaseTableNames
@@ -91,6 +92,19 @@ sub test_DAO__selectAllFromTable
 
 }
 
+# test_DAO_buildInstitutionMapTableData();
+sub test_DAO_buildInstitutionMapTableData
+{
+    $dao->buildInstitutionMapTableData();
+}
+
+# test_DAO_getInstitutionMapTableSize();
+sub test_DAO_getInstitutionMapTableSize
+{
+    my $size = $dao->getInstitutionMapTableSize();
+    print "institution_map table size:[$size]\n";
+}
+
 sub test_processPatronRecord
 {
     # my $patronRecord = shift;
@@ -113,6 +127,23 @@ sub test_processPatronRecord
     print Dumper($patronHash);
 
     print "Note: $patronHash->{note}\n";
+
+}
+
+# test_GenericParser_parse();
+sub test_GenericParser_parse
+{
+
+    my $filePath = "/mnt/dropbox/archway/home/archway/incoming/eccpat.txt";
+
+    my $patronFile = {
+        'filename' => $filePath
+    };
+
+    my $generic = Parsers::GenericParser->new();
+    my $patronRecords = $generic->parse($patronFile);
+
+    print Dumper($patronRecords);
 
 }
 

@@ -8,12 +8,12 @@ use parent 'Parser';
 sub new
 {
     my $class = shift;
-    my $self = {};
+    my $self = {
+        'conf' => $main::conf,
+    };
     bless $self, $class;
     return $self;
 }
-
-
 
 =head1 _parsePatronRecord(@patronrecord)
 
@@ -50,10 +50,14 @@ sub parse
 {
 
     my $self = shift;
-    my $data = shift;
+    my $patronFile = shift;
+
     my @patronRecords = ();
     my @patronRecord = ();
     my $patronRecordSize = 0;
+
+    # Read our patron file into an array.
+    my $data = $main::files->readFileToArray($patronFile->{filename});
 
     for my $line (@{$data})
     {
@@ -65,16 +69,16 @@ sub parse
 
             # $self->{log}->addLine("parsing record: [@patronRecord]");
 
-            my $patron = $self->_parsePatronRecord(\@patronRecord);
-            $patron->{institution_id} = $self->{institution}->{id} if ($patronRecordSize > 0);
-            $patron->{file_id} = $self->{file}->{id} if ($patronRecordSize > 0);
-            $patron->{job_id} = $self->{conf}->{jobID} if ($patronRecordSize > 0);
+            my $patron = $self->_parsePatronRecord(\@patronRecord); # shouldn't this have? if ($patronRecordSize > 0);
+            $patron->{institution_id} = $patronFile->{institution_id} if ($patronRecordSize > 0);
+            $patron->{file_id} = $patronFile->{id} if ($patronRecordSize > 0);
+            $patron->{job_id} = $patronFile->{job_id} if ($patronRecordSize > 0);
 
+            # I think this should be after this sections when we move data to the final table.
             # $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($self->{institution}->{cluster}, $patron->{patronType}) if ($patronRecordSize > 0);
-            $patron->{externalID} = $self->_getExternalID($patron) if ($patronRecordSize > 0); # <== _getExternalID will NOT be in the parent class.
-            $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
-            $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
-            $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
+            # $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
+            # $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
+            # $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
 
             push(@patronRecords, $patron) if ($patronRecordSize > 0);
 
@@ -232,6 +236,13 @@ sub _getUsername
     # what field do we use for a username?
     # return $patron->{barcode};
     return $patron->{email_address};
+
+}
+
+sub test
+{
+    my $self = shift;
+    print $self->{conf}->{logfile};
 
 }
 

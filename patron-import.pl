@@ -21,13 +21,7 @@ my $configFile;
 my $runType;
 my $help;
 
-my $dao;
-my $conf;
-my $log;
-
-# Local imports
-my $parser;
-my $files;
+our ($conf, $log, $dao, $files, $parser);
 
 GetOptions(
     "config=s" => \$configFile,
@@ -53,18 +47,18 @@ main();
 sub main
 {
     # Create our main objects
-    $dao = DAO->new($conf, $log);
-    $files = PatronImportFiles->new($conf, $log, $dao);
-    $parser = Parser->new($conf, $log, $dao, $files);
+    $dao = DAO->new();
+    $files = PatronImportFiles->new();
+    $parser = Parser->new();
+
+    $dao->checkDatabaseStatus();
 
     startJob();
-
     ########## stage | load ##########
-    # We need to split this so we can run parsers and api loads separate
     $parser->stagePatronRecords() if ($runType eq "stage");
-
+    # $http->loadPatrons() if($runType eq "load");
+    ########## stage | load ##########
     finishJob();
-
 }
 
 sub initConf
@@ -112,7 +106,7 @@ sub finishJob
         set stop_time='$timestamp' where id=$jobID;
     ";
 
-    print $query;
+    # print $query;
     $dao->{db}->update($query);
 
 }

@@ -1418,6 +1418,20 @@ sub shainit($$) ;
 sub sharewind($) ;
 sub shawrite($$$) ;
 }
+package Digest::SHA1 {
+sub DESTROY;
+sub add;
+sub addfile;
+sub b64digest;
+sub clone;
+sub digest;
+sub hexdigest;
+sub new;
+sub sha1;
+sub sha1_base64;
+sub sha1_hex;
+sub sha1_transform;
+}
 package Digest::base {
 sub add;
 sub clone;

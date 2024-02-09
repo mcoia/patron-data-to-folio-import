@@ -13,11 +13,7 @@ use Text::CSV::Simple;
 sub new
 {
     my $class = shift;
-    my $self = {
-        'conf' => shift,
-        'log'  => shift,
-        'dao'  => shift,
-    };
+    my $self = {};
     bless $self, $class;
     return $self;
 }
@@ -28,7 +24,7 @@ sub readFileToArray
     my $self = shift;
     my $filePath = shift;
 
-    $self->{log}->addLogLine("reading file: [$filePath]");
+    $main::log->addLogLine("reading file: [$filePath]");
 
     my @data = ();
 
@@ -36,8 +32,8 @@ sub readFileToArray
     my $lineCount = 0;
     while (my $line = <$fileHandle>)
     {
-        $line =~ s/\r//g;
         $line =~ s/\n//g;
+        $line =~ s/\r//g;
         push(@data, $line) if ($line ne '');
         $lineCount++;
     }
@@ -45,7 +41,7 @@ sub readFileToArray
     close $fileHandle;
 
     my $arraySize = @data;
-    $self->{log}->addLogLine("Total lines read: [$lineCount] : Total array size: [$arraySize]");
+    $main::log->addLogLine("Total lines read: [$lineCount] : Total array size: [$arraySize]");
 
     return \@data;
 
@@ -56,12 +52,12 @@ sub getPatronFilePaths
     my $self = shift;
     my @filePathsHashArray = ();
 
-    my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV(); # <== todo: switch this over to the database
+    my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV(); # <== todo: switch this over to the database. Almost ready!!!
     $fileHashArray = $self->_buildFilePatterns($fileHashArray);
 
     for my $clusterFileHash (@$fileHashArray)
     {
-        $self->{log}->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
+        $main::log->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
 
         my $filePaths = $self->_patronFileDiscovery($clusterFileHash);
 
@@ -72,23 +68,24 @@ sub getPatronFilePaths
             'files'        => $filePaths,
         };
 
-        # Save $filePathsHash to database
-        $self->saveFilePath($filePathsHash);
-        $filePathsHash = $self->{dao}->_convertQueryResultsToHash("file_tracker", $self->{dao}->getLastFileTrackerEntry())->[0];
+        # I'm saving a list of files instead of just 1. This should be in a loop of the array of files in $filePathsHash->{files}
+        # We need the database id's
 
-        # I hijacked this section to build the institution_map table. This will get shoved somewhere else.
-        # This method will get replaced by a db call.
-        # my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV(); # <== todo: switch this over to the database
-        #
-        # my @a = (
-        #     "$clusterFileHash->{cluster}",
-        #     "$clusterFileHash->{institution}",
-        #     "$self->{conf}->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming",
-        #     "$clusterFileHash->{pattern}",
-        #     "GenericParser"
-        # );
-        #
-        # $self->{dao}->_insertIntoTable("institution_map", \@a);
+        # $filePathsHash
+        # 'cluster' = {SCALAR(0x56204970dfd8)} "archway"
+        # 'file_pattern' = {SCALAR(0x562048c7e780)} "eccpat"
+        # 'files' = {REF to ARRAY(0x56204965aa50)} REF(0x56204972a300)
+        #            "/mnt/dropbox/archway/home/archway/incoming/eccpat.txt"
+        # 'institution' = {SCALAR(0x56204970dcc0)} "East Central College"
+
+        my $debugger = 1;
+
+
+
+
+
+
+
 
         push(@filePathsHashArray, $filePathsHash);
 
@@ -115,54 +112,17 @@ sub getPTYPEMappingSheet
     my $self = shift;
     my $cluster = shift;
 
-    my $filePath = "$self->{conf}->{patronTypeMappingSheetPath}/$cluster.csv";
+    my $filePath = "$main::conf->{patronTypeMappingSheetPath}/$cluster.csv";
 
     # todo: put this in the database
     return $self->_loadCSVFileAsArray($filePath);
-}
-
-sub _buildFilePatterns
-{
-    my $self = shift;
-    my $clusterFileHashArray = shift;
-    my $filePatterns;
-
-    for my $clusterFileHash (@{$clusterFileHashArray})
-    {
-
-        my $file = $clusterFileHash->{file};
-
-        # remove some file extensions
-        $file =~ s/\.txt*//g;
-        $file =~ s/\.marc*//g;
-
-        # Dates
-        $file =~ s/dd.*//g;
-        $file =~ s/mm.*//g;
-        $file =~ s/yy.*//g;
-
-        $file =~ s/DD.*//g;
-        $file =~ s/MM.*//g;
-        $file =~ s/YY.*//g;
-
-        $file =~ s/month.*//g;
-        $file =~ s/day.*//g;
-        $file =~ s/year.*//g;
-
-        $clusterFileHash->{pattern} = $file;
-
-        push(@$filePatterns, $clusterFileHash);
-
-    }
-
-    return $filePatterns;
 }
 
 sub _loadMOBIUSPatronLoadsCSV
 {
     # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
     my $self = shift;
-    my $csv = $self->_loadCSVFileAsArray($self->{conf}->{clusterFilesMappingSheetPath});
+    my $csv = $self->_loadCSVFileAsArray($main::conf->{clusterFilesMappingSheetPath});
     my @clusterFiles = ();
     my $cluster = '';
     my $institution = '';
@@ -199,6 +159,44 @@ sub _loadMOBIUSPatronLoadsCSV
     return \@clusterFiles;
 }
 
+sub _buildFilePatterns
+{
+    # Is this where this method goes?
+    my $self = shift;
+    my $clusterFileHashArray = shift;
+    my $filePatterns;
+
+    for my $clusterFileHash (@{$clusterFileHashArray})
+    {
+
+        my $file = $clusterFileHash->{file};
+
+        # remove some file extensions
+        $file =~ s/\.txt*//g;
+        $file =~ s/\.marc*//g;
+
+        # Dates
+        $file =~ s/dd.*//g;
+        $file =~ s/mm.*//g;
+        $file =~ s/yy.*//g;
+
+        $file =~ s/DD.*//g;
+        $file =~ s/MM.*//g;
+        $file =~ s/YY.*//g;
+
+        $file =~ s/month.*//g;
+        $file =~ s/day.*//g;
+        $file =~ s/year.*//g;
+
+        $clusterFileHash->{pattern} = $file;
+
+        push(@$filePatterns, $clusterFileHash);
+
+    }
+
+    return $filePatterns;
+}
+
 sub _patronFileDiscovery
 {
     my $self = shift;
@@ -221,8 +219,8 @@ What does this clusterFileHash look like?
     my @filePaths = ();
 
     # We use linux's find command to probe these directories for files
-    my $command = "find $self->{conf}->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -iname $clusterFileHash->{pattern}*";
-    $self->{log}->addLine("Looking for patron files: [$command]");
+    my $command = "find $main::conf->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -iname $clusterFileHash->{pattern}*";
+    $main::log->addLine("Looking for patron files: [$command]");
     my @paths = `$command`;
     chomp(@paths);
 
@@ -230,7 +228,7 @@ What does this clusterFileHash look like?
     {
         for my $path (@paths)
         {
-            $self->{log}->addLine("File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]");
+            $main::log->addLine("File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]");
             print "File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]\n";
         }
         push(@filePaths, @paths);
@@ -238,7 +236,7 @@ What does this clusterFileHash look like?
 
     return \@filePaths if (@filePaths);
 
-    $self->{log}->addLine("File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]");
+    $main::log->addLine("File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]");
     print "File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]\n";
 
     # we found zero files for this pattern in all the clusters
@@ -263,7 +261,7 @@ sub _containsClusterName
     my $self = shift;
     my $row = lc shift;
 
-    my @clusters = split(' ', $self->{conf}->{clusters});
+    my @clusters = split(' ', $main::conf->{clusters});
 
     for (@clusters)
     {
@@ -280,21 +278,11 @@ sub saveFilePath
     my $self = shift;
     my $filePathsHash = shift;
 
-    # 'files' => [
-    #     '/mnt/dropbox/archway/home/archway/incoming/eccpat.txt'
-    # ],
-    #     'cluster' => 'archway',
-    #     'file_pattern' => 'eccpat',
-    #     'institution' => 'East Central College'
-
-    my $institution = $self->{dao}->getInstitutionMapHashByName($filePathsHash->{institution});
-
-    my $jobID = $self->{conf}->{jobID};
-    my $cluster = $filePathsHash->{cluster};
-    # my $institution = $filePathsHash->{institution};
-    my $pattern = $filePathsHash->{pattern};
+    my $institution = $main::dao->getInstitutionMapHashByName($filePathsHash->{institution});
     my $files = $filePathsHash->{files};
     my @files = @{$files};
+
+    my @newFiles = ();
 
     if (@files) # <== this is suspect
     {
@@ -303,13 +291,14 @@ sub saveFilePath
         {
 
             my @data = (
-                $self->{conf}->{jobID},
+                $main::conf->{jobID},
                 $institution->{id},
                 $path
             );
 
-            $self->{dao}->_insertIntoTable("file_tracker", \@data);
-
+            $main::dao->_insertIntoTable("file_tracker", \@data);
+            my $file = $main::dao->getLastFileTrackerEntryByName($path);
+            # getLastFileTrackerEntry
         }
 
         return; # I return here because I freaking hate else statements
@@ -317,14 +306,30 @@ sub saveFilePath
     }
 
     # No files found
+
     my @data = (
-        $self->{conf}->{jobID},
+        $main::conf->{jobID},
         $institution->{id},
-        'no-data'
+        'file-not-found'
     );
 
-    $self->{dao}->_insertIntoTable("file_tracker", \@data);
+    $main::dao->_insertIntoTable("file_tracker", \@data);
 
+}
+
+sub _buildFolderPaths
+{
+    my $self = shift;
+    my $fileHashArray = shift;
+
+    my @newFileHashArray = ();
+    for my $file (@{$fileHashArray})
+    {
+        $file->{folder_path} = "$main::conf->{rootPath}/$file->{cluster}/home/$file->{cluster}/incoming";
+        push(@newFileHashArray, $file);
+    }
+
+    return \@newFileHashArray;
 }
 
 1;

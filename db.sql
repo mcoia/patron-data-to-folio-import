@@ -4,6 +4,7 @@ create table if not exists institution_map
     cluster      varchar,
     institution  varchar,
     folder_path  varchar,
+    file         varchar,
     file_pattern varchar,
     module       varchar
 );

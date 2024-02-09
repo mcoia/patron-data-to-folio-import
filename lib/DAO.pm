@@ -9,9 +9,7 @@ sub new
 {
     my $class = shift;
     my $self = {
-        'conf' => shift,
-        'log'  => shift,
-        'db'   => 0,
+        'db' => 0,
     };
     $self = init($self);
     bless $self, $class;
@@ -32,7 +30,7 @@ sub init
 sub initDatabaseConnection
 {
     my $self = shift;
-    eval {$self->{db} = DBhandler->new($self->{conf}->{db}, $self->{conf}->{dbhost}, $self->{conf}->{dbuser}, $self->{conf}->{dbpass}, $self->{conf}->{port} || 5432, "postgres", 1);};
+    eval {$self->{db} = DBhandler->new($main::conf->{db}, $main::conf->{dbhost}, $main::conf->{dbuser}, $main::conf->{dbpass}, $main::conf->{port} || 5432, "postgres", 1);};
     if ($@)
     {
         print "Could not establish a connection to the database\n";
@@ -46,7 +44,7 @@ sub initDatabaseSchema
 {
     my $self = shift;
 
-    my $filePath = $self->{conf}->{sqlFilePath};
+    my $filePath = $main::conf->{sqlFilePath};
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
 
@@ -55,6 +53,25 @@ sub initDatabaseSchema
     {$query = $query . $line;}
     close $fileHandle;
     $self->{db}->update($query);
+
+}
+
+sub checkDatabaseStatus
+{
+    my $self = shift;
+=head1 checkDatabaseStatus()
+
+Here is where we can populate the db with mapping tables and such that we might need.
+It started with the institution_map table but I see other csv's needing to be loaded.
+
+Note: program exists if it can't establish a database connection. We have to have a connection
+to even reach this point.
+
+=cut
+
+    # Check our institution map
+    my $tableSize = $self->getInstitutionMapTableSize();
+    $self->buildInstitutionMapTableData() if ($tableSize == 0);
 
 }
 
@@ -125,11 +142,14 @@ sub saveStagedPatronRecords
 
     for my $patron (@{$patronRecords})
     {
+
+        my $debugger;
+
+        # This is the way I order the hash. It has to match the order of the stage_patron table.
         my @data = (
-            $self->{conf}->{jobID},
-            $patron->{cluster},
-            $patron->{institution},
-            $patron->{file},
+            $patron->{job_id},
+            $patron->{institution_id},
+            $patron->{file_id},
             $patron->{field_code},
             $patron->{patron_type},
             $patron->{pcode1},
@@ -163,9 +183,10 @@ sub savePatronRecords
     for my $patron (@{$patronRecords})
     {
 
-        # This is to enforce the order. I know there's a better way.
+        # This is to enforce the order. I know there's a better way. Get the column names, loop thru the hash and generate a new array of values.
+        # Then I could put that in a function so I could save a hash too! _insertIntoTableByHash() which is a wrapper converts the hash to array then calls _insertIntoTable()
         my @data = (
-            $self->{conf}->{jobID},
+            $main::conf->{jobID},
             $patron->{externalID},
             $patron->{active},
             $patron->{username},
@@ -228,7 +249,7 @@ sub _insertIntoTable
 
     # taking advantage of perls natural templating
     my $query = "INSERT INTO $tableName($columns) VALUES($dataString);";
-    $self->{log}->addLine($query);
+    $main::log->addLine($query);
 
     eval {$self->{'db'}->updateWithParameters($query, $data);};
 
@@ -390,6 +411,21 @@ sub getInstitutionMapHashByName
 
 }
 
+sub getLastFileTrackerEntryByFilename
+{
+    my $self = shift;
+    my $fileName = shift;
+
+    my $tableName = "file_tracker";
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+
+    my $query = "select $columns from file_tracker where filename = '$fileName' order by id desc limit 1";
+    print "\n" . $query . "\n";
+    my $results = $self->{db}->query($query);
+    return $results;
+
+}
+
 sub getLastFileTrackerEntry
 {
     my $self = shift;
@@ -413,5 +449,53 @@ sub getLastJobID
 
 }
 
+sub getInstitutionMapTableSize
+{
+    my $self = shift;
+
+    my $query = "select count(id) from institution_map;";
+    return $self->{db}->query($query)->[0]->[0] + 0;
+
+}
+
+sub buildInstitutionMapTableData
+{
+    my $self = shift;
+
+
+    # id
+    # cluster
+    # institution
+    # folder_path
+    # file
+    # file_pattern
+    # module
+
+    # 'cluster' => 'archway',
+    # 'institution' => 'East Central College',
+    # 'file' => 'eccpat.txt',
+    # 'pattern' => 'eccpat'
+
+    my $institutions = $main::files->_loadMOBIUSPatronLoadsCSV();
+    $institutions = $main::files->_buildFilePatterns($institutions);
+    $institutions = $main::files->_buildFolderPaths($institutions);
+
+    for my $institution (@{$institutions})
+    {
+
+        my @data = (
+            "$institution->{cluster}",
+            "$institution->{institution}",
+            "$institution->{folder_path}",
+            "$institution->{file}",
+            "$institution->{pattern}",
+            "GenericParser"
+        );
+
+        $self->_insertIntoTable("institution_map", \@data);
+
+    }
+
+}
 
 1;
