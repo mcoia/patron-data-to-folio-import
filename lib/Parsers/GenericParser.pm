@@ -62,6 +62,26 @@ sub parse
     for my $line (@{$data})
     {
 
+=pod
+       This logic if flawed.
+       We only push the patron if we hit a new line.
+       We'll always drop the last @patronRecord of the file.
+
+       We should split the work.
+
+       parse the file array into patron arrays.
+            keep our if($line = bit. But just do the @patronRecord = ();
+            @patronRecord = () if ($line =~ /^0/ && length($line) == 24);
+            or something to that effect.
+
+       Then parse the array of patron arrays.
+
+       That should finally clean up this filthy method. I never did like this one.
+
+
+=cut
+
+
         # start a new patron record
         if ($line =~ /^0/ && length($line) == 24)
         {

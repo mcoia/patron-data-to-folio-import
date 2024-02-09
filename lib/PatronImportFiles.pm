@@ -222,8 +222,8 @@ What does this clusterFileHash look like?
 
     return \@filePaths if (@filePaths);
 
-    $main::log->addLine("File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{pattern}]");
-    print "File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{pattern}]\n";
+    # $main::log->addLine("File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{pattern}]");
+    print "File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{file_pattern}]\n";
 
     # we found zero files for this pattern in all the clusters
     return \@filePaths;
