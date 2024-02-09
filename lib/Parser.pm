@@ -34,7 +34,7 @@ sub stagePatronRecords
     for my $patronFile (@{$patronFiles})
     {
 
-        # Read patron file into an array
+        # Read patron file into an array. This needs to go into the parser
         my $data = $self->{files}->readFileToArray($patronFile->{filename});
 
         # Load our institution to get our parser type
