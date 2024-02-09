@@ -50,48 +50,33 @@ sub readFileToArray
 sub getPatronFilePaths
 {
     my $self = shift;
-    my @filePathsHashArray = ();
+    my @fileTrackerArray = ();
 
-    my $fileHashArray = $self->_loadMOBIUSPatronLoadsCSV(); # <== todo: switch this over to the database. Almost ready!!!
-    $fileHashArray = $self->_buildFilePatterns($fileHashArray);
+    my $institutions = $main::dao->getInstitutionMap();
 
-    for my $clusterFileHash (@$fileHashArray)
+    for my $institution (@{$institutions})
     {
-        $main::log->addLine("Processing File Pattern: [$clusterFileHash->{file}][$clusterFileHash->{pattern}]:[$clusterFileHash->{cluster}]:[$clusterFileHash->{institution}]");
 
-        my $filePaths = $self->_patronFileDiscovery($clusterFileHash);
+        my $filePaths = $self->_patronFileDiscovery($institution);
 
-        my $filePathsHash = {
-            'cluster'      => $clusterFileHash->{cluster},
-            'institution'  => $clusterFileHash->{institution},
-            'file_pattern' => $clusterFileHash->{pattern},
-            'files'        => $filePaths,
-        };
+        for my $filePath (@{$filePaths})
+        {
 
-        # I'm saving a list of files instead of just 1. This should be in a loop of the array of files in $filePathsHash->{files}
-        # We need the database id's
+            my @data = (
+                $main::conf->{jobID},
+                $institution->{id},
+                $filePath
+            );
 
-        # $filePathsHash
-        # 'cluster' = {SCALAR(0x56204970dfd8)} "archway"
-        # 'file_pattern' = {SCALAR(0x562048c7e780)} "eccpat"
-        # 'files' = {REF to ARRAY(0x56204965aa50)} REF(0x56204972a300)
-        #            "/mnt/dropbox/archway/home/archway/incoming/eccpat.txt"
-        # 'institution' = {SCALAR(0x56204970dcc0)} "East Central College"
+            $main::dao->_insertIntoTable("file_tracker", \@data);
+            my $file_tracker = $main::dao->_convertQueryResultsToHash("file_tracker", $main::dao->getLastFileTrackerEntryByFilename($filePath))->[0];
 
-        my $debugger = 1;
-
-
-
-
-
-
-
-
-        push(@filePathsHashArray, $filePathsHash);
+            push(@fileTrackerArray, $file_tracker);
+        }
 
     }
 
-    return \@filePathsHashArray;
+    return \@fileTrackerArray;
 }
 
 =head1 getPTYPEMappingSheet($cluster)
@@ -200,7 +185,7 @@ sub _buildFilePatterns
 sub _patronFileDiscovery
 {
     my $self = shift;
-    my $clusterFileHash = shift;
+    my $institution = shift;
 
 =pod
 
@@ -219,7 +204,8 @@ What does this clusterFileHash look like?
     my @filePaths = ();
 
     # We use linux's find command to probe these directories for files
-    my $command = "find $main::conf->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -iname $clusterFileHash->{pattern}*";
+    # my $command = "find $main::conf->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -iname $clusterFileHash->{pattern}*";
+    my $command = "find $institution->{folder_path}/* -iname $institution->{file_pattern}*";
     $main::log->addLine("Looking for patron files: [$command]");
     my @paths = `$command`;
     chomp(@paths);
@@ -228,16 +214,16 @@ What does this clusterFileHash look like?
     {
         for my $path (@paths)
         {
-            $main::log->addLine("File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]");
-            print "File Found: [$clusterFileHash->{cluster}][$clusterFileHash->{institution}]:[$path]\n";
+            $main::log->addLine("File Found: [$institution->{cluster}][$institution->{institution}]:[$path]");
+            print "File Found: [$institution->{cluster}][$institution->{institution}]:[$path]\n";
         }
         push(@filePaths, @paths);
     }
 
     return \@filePaths if (@filePaths);
 
-    $main::log->addLine("File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]");
-    print "File NOT FOUND! [$clusterFileHash->{cluster}][$clusterFileHash->{institution}][$clusterFileHash->{pattern}]\n";
+    $main::log->addLine("File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{pattern}]");
+    print "File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{pattern}]\n";
 
     # we found zero files for this pattern in all the clusters
     return \@filePaths;

@@ -213,6 +213,21 @@ sub test_DAO_getLastJobID
 
 }
 
+test_DAO_getLastFileTrackerEntryByFilename();
+sub test_DAO_getLastFileTrackerEntryByFilename
+{
+    my $file_tracker = $dao->getLastFileTrackerEntryByFilename("/mnt/dropbox/archway/home/archway/incoming/eccpat.txt");
+    print Dumper($file_tracker);
+
+    $file_tracker = $dao->_convertQueryResultsToHash("file_tracker", $file_tracker);
+
+    print Dumper($file_tracker);
+
+
+
+}
+
+
 # test_parseName();
 sub test_parseName
 {

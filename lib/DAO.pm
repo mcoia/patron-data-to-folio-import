@@ -386,6 +386,18 @@ sub _convertArrayToCSVString
     return $csv;
 }
 
+sub getInstitutionMap
+{
+    my $self = shift;
+
+    my $tableName = "institution_map";
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+    my $query = "select $columns from $tableName order by id asc;";
+
+    return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query));
+
+}
+
 sub getInstitutionMapHashById
 {
     my $self = shift;
@@ -420,9 +432,7 @@ sub getLastFileTrackerEntryByFilename
     my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
 
     my $query = "select $columns from file_tracker where filename = '$fileName' order by id desc limit 1";
-    print "\n" . $query . "\n";
-    my $results = $self->{db}->query($query);
-    return $results;
+    return $self->{db}->query($query);
 
 }
 
