@@ -90,7 +90,7 @@ create table if not exists address
 
 create table if not exists ptype_mapping
 (
-    ID             SERIAL primary key,
+    ID         SERIAL primary key,
     name       varchar,
     ptype      varchar,
     foliogroup varchar
