@@ -79,23 +79,16 @@ sub getPatronFilePaths
     return \@fileTrackerArray;
 }
 
-=head1 getPTYPEMappingSheet($cluster)
-
-Load the mapping sheet for Ptype mapping.
-
-On our zero field, 'Patron Type' we get 3 digits that determine what type of account this is.
-We'll use this csv sheet to drive this.
-
-example:
-
-
-
-
-=cut
 sub getPTYPEMappingSheet
 {
     my $self = shift;
     my $cluster = shift;
+
+
+    # todo: this is getting changed to a db call instead.
+
+
+
 
     my $filePath = "$main::conf->{patronTypeMappingSheetPath}/$cluster.csv";
 
@@ -316,6 +309,46 @@ sub _buildFolderPaths
     }
 
     return \@newFileHashArray;
+}
+
+sub getDCBPtypeMapping
+{
+    # patronTypeMappingSheetPath
+    my $self = shift;
+
+    my $mappingSheet = $self->_loadCSVFileAsArray($main::conf->{patronTypeMappingSheetPath});
+
+    print "working...\n";
+    my @pTypeMappingArray = ();
+    for my $row (@{$mappingSheet})
+    {
+
+        my $institution = $row->[0];
+        my $pType = $row->[3];
+        my $folioType = $row->[5];
+
+        # trim white spaces
+        $institution =~ s/^\s*//g;
+        $institution =~ s/\s*$//g;
+
+        $pType =~ s/^\s*//g;
+        $pType =~ s/\s*$//g;
+
+        $folioType =~ s/^\s*//g;
+        $folioType =~ s/\s*$//g;
+
+        my $record = {
+            'institution' => $institution,
+            'pType'       => $pType,
+            'folioType'   => $folioType
+        };
+
+        push(@pTypeMappingArray, $record);
+
+    }
+
+    return \@pTypeMappingArray;
+
 }
 
 1;

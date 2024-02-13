@@ -137,7 +137,10 @@ sub test_GenericParser_parse
     my $filePath = "/mnt/dropbox/archway/home/archway/incoming/eccpat.txt";
 
     my $patronFile = {
-        'filename' => $filePath
+        'filename'       => $filePath,
+        'job_id'         => 1,
+        'id'             => 1,
+        'institution_id' => => 1,
     };
 
     my $generic = Parsers::GenericParser->new();
@@ -213,7 +216,7 @@ sub test_DAO_getLastJobID
 
 }
 
-test_DAO_getLastFileTrackerEntryByFilename();
+# test_DAO_getLastFileTrackerEntryByFilename();
 sub test_DAO_getLastFileTrackerEntryByFilename
 {
     my $file_tracker = $dao->getLastFileTrackerEntryByFilename("/mnt/dropbox/archway/home/archway/incoming/eccpat.txt");
@@ -223,10 +226,23 @@ sub test_DAO_getLastFileTrackerEntryByFilename
 
     print Dumper($file_tracker);
 
+}
+
+test_Files_getDCBPtypeMapping();
+sub test_Files_getDCBPtypeMapping
+{
+    # my $ptypes = $files->getDCBPtypeMapping();
+    # $main::dao->_insertIntoTable("ptype_mapping", $ptypes);
+
+
+    my $query = "select count(id) from ptype_mapping";
+    my $answer = $main::dao->{db}->query($query)->[0]->[0] + 0;
+
+    print Dumper($answer);
+
 
 
 }
-
 
 # test_parseName();
 sub test_parseName

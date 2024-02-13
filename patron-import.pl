@@ -30,7 +30,7 @@ GetOptions(
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
-$runType = "stage" if (!defined $runType);
+$runType = "all" if (!defined $runType);
 
 print "[$runType]\n";
 
@@ -46,6 +46,7 @@ main();
 
 sub main
 {
+
     # Create our main objects
     $dao = DAO->new();
     $files = PatronImportFiles->new();
@@ -54,11 +55,13 @@ sub main
     $dao->checkDatabaseStatus();
 
     startJob();
-    ########## stage | load ##########
-    $parser->stagePatronRecords() if ($runType eq "stage");
-    # $http->loadPatrons() if($runType eq "load");
-    ########## stage | load ##########
+    ########## stage | import #########################################
+    $parser->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
+    $parser->migrate()  if ($runType eq "migrate" || $runType eq "all");
+    # $folio->importPatrons() if($runType eq "import" || $runType eq "all");
+    ########## stage | import #########################################
     finishJob();
+
 }
 
 sub initConf
@@ -121,5 +124,3 @@ sub getHelpMessage
                                                       load:  This will load patron records into folio.
         \n";
 }
-
-exit;

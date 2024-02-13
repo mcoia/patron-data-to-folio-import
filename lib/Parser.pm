@@ -30,6 +30,11 @@ sub stagePatronRecords
 
     my $patronFiles = $main::files->getPatronFilePaths();
 
+    my $totalPatronFiles = @{$patronFiles};
+    my $patronFileIndex = 0;
+    my $totalPatronRecords = 0;
+    print "Total Files Found: [$totalPatronFiles]\n";
+
     # loop over our discovered files.
     for my $patronFile (@{$patronFiles})
     {
@@ -49,13 +54,20 @@ sub stagePatronRecords
         # Parse these records
         my $patronRecords = $parser->parse($patronFile);
 
-        # print Dumper($patronRecords);
-        print "saving records...\n";
+        $patronFileIndex++;
+        my $totalFileRecords = @{$patronRecords};
+        $totalPatronRecords = $totalPatronRecords + $totalFileRecords;
+        print "[$patronFileIndex] saving records... total:$totalFileRecords [$institution->{institution}]:[$institution->{module}]:[$patronFile->{filename}]\n";
+
+        # Now save these patrons to the staging table
         $main::dao->saveStagedPatronRecords($patronRecords);
 
-        # We have some patron Records, now what?!? Should probably save them...
-
     }
+
+
+    print "done staging patrons... Total patron records:[$totalPatronRecords]\n";
+
+
 
 }
 
@@ -140,7 +152,9 @@ sub _mapPatronTypeToPatronGroup
     my $cluster = shift;
     my $patronType = shift;
 
+    # this is wrong now. We put this in the db.
     my $ptypeMappingSheet = $main::files->getPTYPEMappingSheet($cluster);
+
     my $pType = "NO-DATA"; # Should this default to Staff or be blank?
 
     for my $row (@{$ptypeMappingSheet})
@@ -154,6 +168,50 @@ sub _mapPatronTypeToPatronGroup
     }
 
     return $pType;
+
+}
+
+sub migrate
+{
+    my $self = shift;
+=pod
+
+
+Ah gezz... where do we start?
+Our staging table
+id
+job_id
+institution_id
+file_id
+field_code
+patron_type
+pcode1
+pcode2
+pcode3
+home_library
+patron_message_code
+patron_block_code
+patron_expiration_date
+name
+address
+telephone
+address2
+telephone2
+department
+unique_id
+barcode
+email_address
+note
+
+The main idea is that we take the stage_patron and move those fields into the final patron table
+
+
+select $cols from stage_patron limit 1000;
+
+
+
+=cut
+
 
 }
 

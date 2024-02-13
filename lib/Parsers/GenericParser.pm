@@ -62,54 +62,35 @@ sub parse
     for my $line (@{$data})
     {
 
-=pod
-       This logic if flawed.
-       We only push the patron if we hit a new line.
-       We'll always drop the last @patronRecord of the file.
-
-       We should split the work.
-
-       parse the file array into patron arrays.
-            keep our if($line = bit. But just do the @patronRecord = ();
-            @patronRecord = () if ($line =~ /^0/ && length($line) == 24);
-            or something to that effect.
-
-       Then parse the array of patron arrays.
-
-       That should finally clean up this filthy method. I never did like this one.
-
-
-=cut
-
-
-        # start a new patron record
         if ($line =~ /^0/ && length($line) == 24)
         {
             $patronRecordSize = @patronRecord;
-
-            # $self->{log}->addLine("parsing record: [@patronRecord]");
-
-            my $patron = $self->_parsePatronRecord(\@patronRecord); # shouldn't this have? if ($patronRecordSize > 0);
-            $patron->{institution_id} = $patronFile->{institution_id} if ($patronRecordSize > 0);
-            $patron->{file_id} = $patronFile->{id} if ($patronRecordSize > 0);
-            $patron->{job_id} = $patronFile->{job_id} if ($patronRecordSize > 0);
-
-            # I think this should be after this sections when we move data to the final table.
-            # $patron->{patronGroup} = $self->_mapPatronTypeToPatronGroup($self->{institution}->{cluster}, $patron->{patronType}) if ($patronRecordSize > 0);
-            # $patron->{username} = $self->_getUsername($patron) if ($patronRecordSize > 0);
-            # $patron = $self->_parseName($patron) if ($patronRecordSize > 0);
-            # $patron = $self->_parseAddress($patron) if ($patronRecordSize > 0);
-
-            push(@patronRecords, $patron) if ($patronRecordSize > 0);
-
-            @patronRecord = (); # clear our patron record
+            push(@patronRecords, \@patronRecord) if ($patronRecordSize > 0);
+            @patronRecord = ();
         }
 
         push(@patronRecord, $line);
 
     }
 
-    return \@patronRecords;
+    # Push our last record
+    $patronRecordSize = @patronRecord;
+    push(@patronRecords, \@patronRecord) if ($patronRecordSize > 0);
+
+    # Now we do the actual parsing of this data.
+    my @parsedPatrons = ();
+    for my $record (@patronRecords)
+    {
+
+        my $patron = $self->_parsePatronRecord($record);
+        $patron->{institution_id} = $patronFile->{institution_id};
+        $patron->{file_id} = $patronFile->{id};
+        $patron->{job_id} = $patronFile->{job_id};
+
+        push(@parsedPatrons, $patron);
+    }
+
+    return \@parsedPatrons;
 
 }
 
@@ -167,7 +148,7 @@ sub _parsePatronRecord
         $patron->{'patron_expiration_date'} = ($data =~ /^0\d{3}.{2}\d{3}.{7}(.{8}).*/gm)[0] if ($data =~ /^0/);
 
         # replace spaces with hyphens.
-        $data = $data =~ s/\s/-/gr if ($data =~ /^0/ && $self->{conf}->{patronHashReplaceSpaceWithHyphen});
+        # $data = $data =~ s/\s/-/gr if ($data =~ /^0/ && $self->{conf}->{patronHashReplaceSpaceWithHyphen});
 
         # variable length fields
         $patron->{'name'} = ($data =~ /^n(.*)$/gm)[0] if ($data =~ /^n/);

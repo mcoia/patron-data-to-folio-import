@@ -61,7 +61,7 @@ sub checkDatabaseStatus
     my $self = shift;
 =head1 checkDatabaseStatus()
 
-Here is where we can populate the db with mapping tables and such that we might need.
+This is where we populate the db with mapping tables and such that we might need.
 It started with the institution_map table but I see other csv's needing to be loaded.
 
 Note: program exists if it can't establish a database connection. We have to have a connection
@@ -70,8 +70,11 @@ to even reach this point.
 =cut
 
     # Check our institution map
-    my $tableSize = $self->getInstitutionMapTableSize();
-    $self->buildInstitutionMapTableData() if ($tableSize == 0);
+    my $institutionMapTableSize = $self->getTableSize("institution_map");
+    $self->buildInstitutionMapTableData() if ($institutionMapTableSize == 0);
+
+    my $ptypeMappingTableSize = $self->getTableSize("ptype_mapping");
+    $self->buildPTypeMappingTableData() if ($ptypeMappingTableSize == 0);
 
 }
 
@@ -142,8 +145,6 @@ sub saveStagedPatronRecords
 
     for my $patron (@{$patronRecords})
     {
-
-        my $debugger;
 
         # This is the way I order the hash. It has to match the order of the stage_patron table.
         my @data = (
@@ -392,7 +393,8 @@ sub getInstitutionMap
 
     my $tableName = "institution_map";
     my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
-    my $query = "select $columns from $tableName order by id asc;";
+    # my $query = "select $columns from $tableName order by id asc;";
+    my $query = "select $columns from $tableName order by id asc limit 2;"; # todo <== this is for debugging!!! limit 2
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query));
 
@@ -459,11 +461,12 @@ sub getLastJobID
 
 }
 
-sub getInstitutionMapTableSize
+sub getTableSize
 {
     my $self = shift;
+    my $tableName = shift;
 
-    my $query = "select count(id) from institution_map;";
+    my $query = "select count(id) from $tableName;";
     return $self->{db}->query($query)->[0]->[0] + 0;
 
 }
@@ -471,7 +474,6 @@ sub getInstitutionMapTableSize
 sub buildInstitutionMapTableData
 {
     my $self = shift;
-
 
     # id
     # cluster
@@ -505,6 +507,15 @@ sub buildInstitutionMapTableData
         $self->_insertIntoTable("institution_map", \@data);
 
     }
+
+}
+
+sub buildPTypeMappingTableData
+{
+    my $self = shift;
+    my $sqlInsert = $main::files->readFileToArray($main::conf->{patronTypeMappingSQLPath});
+
+    $self->{db}->query($_) for (@{$sqlInsert});
 
 }
 

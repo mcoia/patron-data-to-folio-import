@@ -114,4 +114,10 @@ sub hash
 # }
 
 
-print localtime;
+
+my $test = "this is a test ";
+print "[$test]\n";
+
+$test =~ s/\s//g;
+
+print "[$test]\n";

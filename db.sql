@@ -51,27 +51,47 @@ create table if not exists stage_patron
     note                   varchar
 );
 
--- create table if not exists patron
--- (
---     ID             SERIAL primary key,
---     job_id         int references job (ID),
---     institution_id int references institution_map (ID)
--- --     todo: more code here, this is the final table
--- );
+create table if not exists patron
+(
+    ID                     SERIAL primary key,
+    institution_id         int references institution_map (ID),
+    hashcode               int,
+    loadFolio              bool,
+    username               varchar,
+    externalSystemId       varchar,
+    barcode                varchar,
+    active                 bool,
+    patronGroup            varchar,
+    lastName               varchar,
+    firstName              varchar,
+    middleName             varchar,
+    preferredFirstName     varchar,
+    phone                  varchar,
+    mobilePhone            varchar,
+    dateOfBirth            varchar,
+    preferredContactTypeId varchar,
+    enrollmentDate         varchar,
+    expirationDate         varchar
+);
 
--- create table if not exists address
--- (
---     ID        SERIAL primary key,
---     patron_id int references patron (ID),
---     street    varchar,
---     city      varchar,
---     state     varchar,
---     zip       varchar
--- );
+create table if not exists address
+(
+    ID             SERIAL primary key,
+    patron_id      int references patron (ID),
+    countryId      varchar default 'US',
+    addressLine1   varchar,
+    addressLine2   varchar,
+    city           varchar,
+    region         varchar,
+    postalCode     varchar,
+    addressTypeId  varchar default 'Home',
+    primaryAddress varchar
+);
 
--- create table if not exists phone
--- (
---     ID           SERIAL primary key,
---     patron_id    int references patron (ID),
---     phone_number varchar
--- );
+create table if not exists ptype_mapping
+(
+    ID             SERIAL primary key,
+    name       varchar,
+    ptype      varchar,
+    foliogroup varchar
+);
