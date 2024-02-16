@@ -14,12 +14,7 @@ use Data::Dumper;
 sub new
 {
     my $class = shift;
-    my $self = {
-        'conf'  => shift,
-        'log'   => shift,
-        'dao'   => shift,
-        'files' => shift,
-    };
+    my $self = {};
     bless $self, $class;
     return $self;
 }
@@ -149,11 +144,11 @@ sub _jsonTemplate
 sub _mapPatronTypeToPatronGroup
 {
     my $self = shift;
-    my $cluster = shift;
+    my $institution = shift;
     my $patronType = shift;
 
     # this is wrong now. We put this in the db.
-    my $ptypeMappingSheet = $main::files->getPTYPEMappingSheet($cluster);
+    my $ptypeMappingSheet = $main::files->getPTYPEMappingSheet();
 
     my $pType = "NO-DATA"; # Should this default to Staff or be blank?
 

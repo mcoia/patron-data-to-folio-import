@@ -103,11 +103,10 @@ sub startJob
 sub finishJob
 {
     my $jobID = $conf->{jobID};
+    my $schema = $conf->{schema};
     my $timestamp = $dao->_getCurrentTimestamp();
-    my $query = "
-        update job
-        set stop_time='$timestamp' where id=$jobID;
-    ";
+    my $query = "update $schema.job
+                 set stop_time='$timestamp' where id=$jobID;";
 
     # print $query;
     $dao->{db}->update($query);

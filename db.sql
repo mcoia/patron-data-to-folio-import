@@ -1,6 +1,8 @@
-create table if not exists institution_map
+create schema if not exists patron_import;
+
+create table if not exists patron_import.institution_map
 (
-    ID           SERIAL primary key,
+    id           SERIAL primary key,
     cluster      varchar,
     institution  varchar,
     folder_path  varchar,
@@ -9,26 +11,26 @@ create table if not exists institution_map
     module       varchar
 );
 
-create table if not exists job
+create table if not exists patron_import.job
 (
-    ID         SERIAL primary key,
+    id         SERIAL primary key,
     start_time timestamp,
     stop_time  timestamp
 );
 
-create table if not exists file_tracker
+create table if not exists patron_import.file_tracker
 (
-    ID             SERIAL primary key,
-    job_id         int references job (ID),
-    institution_id int references institution_map (ID),
+    id             SERIAL primary key,
+    job_id         int references patron_import.job (id),
+    institution_id int references patron_import.institution_map (id),
     filename       varchar
 );
 
-create table if not exists stage_patron
+create table if not exists patron_import.stage_patron
 (
-    ID                     SERIAL primary key,
-    job_id                 int references job (ID),
-    institution_id         int references institution_map (ID),
+    id                     SERIAL primary key,
+    job_id                 int references patron_import.job (id),
+    institution_id         int references patron_import.institution_map (id),
     file_id                int,
     field_code             varchar,
     patron_type            varchar,
@@ -51,10 +53,10 @@ create table if not exists stage_patron
     note                   varchar
 );
 
-create table if not exists patron
+create table if not exists patron_import.patron
 (
-    ID                     SERIAL primary key,
-    institution_id         int references institution_map (ID),
+    id                     SERIAL primary key,
+    institution_id         int references patron_import.institution_map (id),
     hashcode               int,
     loadFolio              bool,
     username               varchar,
@@ -74,10 +76,10 @@ create table if not exists patron
     expirationDate         varchar
 );
 
-create table if not exists address
+create table if not exists patron_import.address
 (
-    ID             SERIAL primary key,
-    patron_id      int references patron (ID),
+    id             SERIAL primary key,
+    patron_id      int references patron_import.patron (id),
     countryId      varchar default 'US',
     addressLine1   varchar,
     addressLine2   varchar,
@@ -88,9 +90,9 @@ create table if not exists address
     primaryAddress varchar
 );
 
-create table if not exists ptype_mapping
+create table if not exists patron_import.ptype_mapping
 (
-    ID         SERIAL primary key,
+    id         SERIAL primary key,
     name       varchar,
     ptype      varchar,
     foliogroup varchar

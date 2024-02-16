@@ -79,23 +79,6 @@ sub getPatronFilePaths
     return \@fileTrackerArray;
 }
 
-sub getPTYPEMappingSheet
-{
-    my $self = shift;
-    my $cluster = shift;
-
-
-    # todo: this is getting changed to a db call instead.
-
-
-
-
-    my $filePath = "$main::conf->{patronTypeMappingSheetPath}/$cluster.csv";
-
-    # todo: put this in the database
-    return $self->_loadCSVFileAsArray($filePath);
-}
-
 sub _loadMOBIUSPatronLoadsCSV
 {
     # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
@@ -311,14 +294,13 @@ sub _buildFolderPaths
     return \@newFileHashArray;
 }
 
-sub getDCBPtypeMapping
+sub getDCBPtypeMappingFromCSV
 {
     # patronTypeMappingSheetPath
     my $self = shift;
 
     my $mappingSheet = $self->_loadCSVFileAsArray($main::conf->{patronTypeMappingSheetPath});
 
-    print "working...\n";
     my @pTypeMappingArray = ();
     for my $row (@{$mappingSheet})
     {

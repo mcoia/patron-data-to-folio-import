@@ -5,6 +5,8 @@ no warnings 'uninitialized';
 use MOBIUS::DBhandler;
 use Data::Dumper;
 
+my $schema;
+
 sub new
 {
     my $class = shift;
@@ -19,6 +21,8 @@ sub new
 sub init
 {
     my $self = shift;
+    $schema = $main::conf->{schema};
+    print "using schema: [$schema]\n";
 
     $self = initDatabaseConnection($self);
     initDatabaseSchema($self);
@@ -59,6 +63,7 @@ sub initDatabaseSchema
 sub checkDatabaseStatus
 {
     my $self = shift;
+
 =head1 checkDatabaseStatus()
 
 This is where we populate the db with mapping tables and such that we might need.
@@ -87,7 +92,7 @@ sub getStagedPatrons
     my $columns = "@tableColumns";
     $columns =~ s/\s/,/g;
 
-    my $query = "select id,$columns from public.stage_patron";
+    my $query = "select id,$columns from $schema.stage_patron";
     my $patrons = $self->{dao}->{db}->query($query);
 
     my @patronArray = ();
@@ -147,6 +152,7 @@ sub saveStagedPatronRecords
     {
 
         # This is the way I order the hash. It has to match the order of the stage_patron table.
+        # I'm going to write a function that takes the hash, the table name and orders it in the _insertIntoTable function.
         my @data = (
             $patron->{job_id},
             $patron->{institution_id},
@@ -249,7 +255,7 @@ sub _insertIntoTable
     chop($dataString);
 
     # taking advantage of perls natural templating
-    my $query = "INSERT INTO $tableName($columns) VALUES($dataString);";
+    my $query = "INSERT INTO $schema.$tableName($columns) VALUES($dataString);";
     $main::log->addLine($query);
 
     eval {$self->{'db'}->updateWithParameters($query, $data);};
@@ -264,7 +270,7 @@ sub _getTableColumnsWithoutId
     my $query = "
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_schema = 'public'
+        WHERE table_schema = '$schema'
           AND table_name = '$tableName'
           AND column_name != 'id'
         order by ordinal_position asc
@@ -284,7 +290,7 @@ sub _getTableColumns
     my $query = "
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_schema = 'public'
+        WHERE table_schema = '$schema'
           AND table_name = '$tableName'
         order by ordinal_position asc
                 ";
@@ -321,7 +327,7 @@ sub _selectAllFromTable
 
     my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
 
-    my $query = "select $columns from $tableName;";
+    my $query = "select $columns from $schema.$tableName;";
     return $self->{db}->query($query);
 
 }
@@ -393,8 +399,7 @@ sub getInstitutionMap
 
     my $tableName = "institution_map";
     my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
-    # my $query = "select $columns from $tableName order by id asc;";
-    my $query = "select $columns from $tableName order by id asc limit 2;"; # todo <== this is for debugging!!! limit 2
+    my $query = "select $columns from $schema.$tableName order by id asc limit 2;"; # todo <== this is for debugging!!! limit 2
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query));
 
@@ -407,7 +412,7 @@ sub getInstitutionMapHashById
 
     my $tableName = "institution_map";
     my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
-    my $query = "select $columns from $tableName t where t.id=$id;";
+    my $query = "select $columns from $schema.$tableName t where t.id=$id;";
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
 
 }
@@ -419,7 +424,7 @@ sub getInstitutionMapHashByName
     my $tableName = "institution_map";
 
     my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
-    my $query = "select $columns from $tableName t where t.institution='$name';";
+    my $query = "select $columns from $schema.$tableName t where t.institution='$name';";
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
 
@@ -433,7 +438,7 @@ sub getLastFileTrackerEntryByFilename
     my $tableName = "file_tracker";
     my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
 
-    my $query = "select $columns from file_tracker where filename = '$fileName' order by id desc limit 1";
+    my $query = "select $columns from $schema.$tableName where filename = '$fileName' order by id desc limit 1";
     return $self->{db}->query($query);
 
 }
@@ -441,11 +446,10 @@ sub getLastFileTrackerEntryByFilename
 sub getLastFileTrackerEntry
 {
     my $self = shift;
-
     my $tableName = "file_tracker";
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
 
-    my $query = "select $columns from file_tracker order by id desc limit 1";
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+    my $query = "select $columns from $schema.$tableName order by id desc limit 1";
     my $results = $self->{db}->query($query);
     return $results;
 
@@ -454,9 +458,10 @@ sub getLastFileTrackerEntry
 sub getLastJobID
 {
     my $self = shift;
+    my $tableName = "job";
 
     # Get the ID of the last job
-    my $query = "select id from job order by ID desc limit 1;";
+    my $query = "select id from $schema.$tableName order by id desc limit 1;";
     return $self->{db}->query($query)->[0]->[0];
 
 }
@@ -466,7 +471,7 @@ sub getTableSize
     my $self = shift;
     my $tableName = shift;
 
-    my $query = "select count(id) from $tableName;";
+    my $query = "select count(id) from $schema.$tableName;";
     return $self->{db}->query($query)->[0]->[0] + 0;
 
 }
@@ -515,7 +520,49 @@ sub buildPTypeMappingTableData
     my $self = shift;
     my $sqlInsert = $main::files->readFileToArray($main::conf->{patronTypeMappingSQLPath});
 
-    $self->{db}->query($_) for (@{$sqlInsert});
+    my $query = "";
+    for my $line (@{$sqlInsert})
+    {
+        $query .= $line . "\n";
+    }
+
+    $main::dao->{db}->query($query);
+
+}
+
+sub getPTYPEMappingSheet
+{
+    my $self = shift;
+    my $institution = shift;
+    my $ptype = shift;
+
+
+    my $tableName = "ptype_mapping";
+
+
+    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns("ptype_mapping"));
+    my $query = "";
+
+    # perl doesn't support method overloading. so I'm just going to code for it.
+    # If we don't pass in an institution we return ALL ptypes.
+    $query = "select ($columns) from $schema.$tableName where name='$institution' and ptype = '$ptype';" if ($institution ne "");
+    $query = "select ($columns) from $schema.$tableName;" if ($institution eq "");
+
+    return $self->query($query);
+
+}
+
+sub query
+{
+    my $self = shift;
+    my $query = shift;
+
+    # This is a wrapper for ->{db}->query
+    # Instead of calling dao->{db}->query()
+    # You can just call  dao->query()
+    # saving a little typing over the course of the project.
+
+    return $self->{db}->query($query);
 
 }
 
