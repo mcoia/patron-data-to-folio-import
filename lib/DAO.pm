@@ -5,13 +5,22 @@ no warnings 'uninitialized';
 use MOBIUS::DBhandler;
 use Data::Dumper;
 
+# todo: DAO todo list
+=pod
+
+[]: write test for every method in this class. This is kind of done in testDatabase.
+[]: finish writing cache methods
+
+=cut
+
 my $schema;
 
 sub new
 {
     my $class = shift;
     my $self = {
-        'db' => 0,
+        'db'    => 0,
+        'cache' => {},
     };
     $self = init($self);
     bless $self, $class;
@@ -74,6 +83,13 @@ to even reach this point.
 
 =cut
 
+    # I may just dump the key components of the db to an import file.
+    # I don't want to manually code this sql stuff. It's taking too long.
+
+    # init our cache
+    $self->_initDatabaseCache();
+
+
     # Check our institution map
     my $institutionMapTableSize = $self->getTableSize("institution_map");
     $self->buildInstitutionMapTableData() if ($institutionMapTableSize == 0);
@@ -83,63 +99,105 @@ to even reach this point.
 
 }
 
-sub getStagedPatrons
+sub _initDatabaseCache
 {
     my $self = shift;
 
-    my @tableColumns = @{_getTableColumns("stage_patron")};
-    my $totalColumns = @tableColumns;
-    my $columns = "@tableColumns";
-    $columns =~ s/\s/,/g;
+    # A kind of registry for all database cache objects
+    $self->_initDatabaseCacheTableColumns();
 
-    my $query = "select id,$columns from $schema.stage_patron";
-    my $patrons = $self->{dao}->{db}->query($query);
+    # This is some idea's for future caching
+    # $self->_initDatabaseCacheInstitution_map();
+    # $self->_initDatabaseCachePtype_mapping();
 
-    my @patronArray = ();
+}
 
-    # I want this as an array of hashes, not arrays
-    for my $stagedPatron (@{$patrons})
+sub _initDatabaseCacheTableColumns
+{
+    my $self = shift;
+    # I'm not sure how far this rabbit hole can go. I may start caching other data too.
+    # I'm putting this in $self->{cache}->{table}->{columns} = () array
+
+    my $query = "select t.table_name, c.column_name,c.ordinal_position from information_schema.tables t
+                join information_schema.columns c on(t.table_name = c.table_name)
+                where t.table_schema='patron_import'
+                group by t.table_name, c.ordinal_position, c.column_name;";
+
+    my $results = $self->query($query);
+    my $tableName = "";
+    my @columns = ();
+
+    for my $row (@{$results})
     {
 
-        my $patron = {};
-        for my $i (0 .. $totalColumns)
+        if ($tableName ne $row->[0])
         {
-            $patron->{$tableColumns[$i]} = $stagedPatron->[$i];
+
+            # Set the cache
+            if (@columns)
+            {
+                my @columnCopy = @columns;
+                $self->{'cache'}->{$tableName}->{'columns'} = \@columnCopy;
+            }
+
+            # Reset
+            $tableName = $row->[0];
+            @columns = ();
         }
 
-
-        # my $patron = {
-        #     'id'                     => $stagedPatron->[0],
-        #     'job_id'                 => $stagedPatron->[1],
-        #     'cluster'                => $stagedPatron->[2],
-        #     'institution'            => $stagedPatron->[3],
-        #     'file'                   => $stagedPatron->[4],
-        #     'field_code'             => $stagedPatron->[5],
-        #     'patron_type'            => $stagedPatron->[6],
-        #     'pcode1'                 => $stagedPatron->[7],
-        #     'pcode2'                 => $stagedPatron->[8],
-        #     'pcode3'                 => $stagedPatron->[9],
-        #     'home_library'           => $stagedPatron->[10],
-        #     'patron_message_code'    => $stagedPatron->[11],
-        #     'patron_block_code'      => $stagedPatron->[12],
-        #     'patron_expiration_date' => $stagedPatron->[13],
-        #     'name'                   => $stagedPatron->[14],
-        #     'address'                => $stagedPatron->[15],
-        #     'telephone'              => $stagedPatron->[16],
-        #     'address2'               => $stagedPatron->[17],
-        #     'telephone2'             => $stagedPatron->[18],
-        #     'department'             => $stagedPatron->[19],
-        #     'unique_id'              => $stagedPatron->[20],
-        #     'barcode'                => $stagedPatron->[21],
-        #     'email_address'          => $stagedPatron->[22],
-        #     'note'                   => $stagedPatron->[23]
-        # };
-
-        push(@patronArray, $patron);
+        push(@columns, $row->[1]);
 
     }
 
-    return \@patronArray;
+    # Set it again for the last set of columns
+    if (@columns)
+    {
+        my @columnCopy = @columns;
+        $self->{'cache'}->{$tableName}->{'columns'} = \@columnCopy;
+    }
+
+}
+
+sub resetStagePatronTable
+{
+    my $self = shift;
+
+    my $query = "\"drop table if exists patron_import.stage_patron_old;\"";
+    $self->query($query);
+
+    print "stage_patron table dropped!\n";
+
+    # We need to recreate this table!!!
+}
+
+sub getMaxStagePatronID
+{
+    my $self = shift;
+
+    my $query = "select max(id) from patron_import.stage_patron p;";
+
+    return $self->query($query)->[0]->[0] + 0;
+
+}
+
+sub getStagedPatrons
+{
+    my $self = shift;
+    my $start = shift;
+    my $stop = shift;
+
+    # select * from patron_import.stage_patron p where p.id > 1 and p.id < 1000;
+    my $tableName = "stage_patron";
+
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $query = "select $columns from $schema.stage_patron p where p.id > $start and p.id < $stop;";
+    print "query: [$query]\n";
+
+    # my $patrons = $self->query($query);
+    my $patrons = $self->_convertQueryResultsToHash($tableName, $self->query($query));
+
+    return $patrons;
 
 }
 
@@ -153,10 +211,13 @@ sub saveStagedPatronRecords
 
         # This is the way I order the hash. It has to match the order of the stage_patron table.
         # I'm going to write a function that takes the hash, the table name and orders it in the _insertIntoTable function.
+        # I hate this. Fix it.
         my @data = (
             $patron->{job_id},
             $patron->{institution_id},
             $patron->{file_id},
+            $patron->{esid},
+            $patron->{fingerprint},
             $patron->{field_code},
             $patron->{patron_type},
             $patron->{pcode1},
@@ -181,57 +242,55 @@ sub saveStagedPatronRecords
     }
 }
 
-sub savePatronRecords
+sub insertPatron
 {
     my $self = shift;
-    my $patronRecords = shift;
-    my $tableName = "stage_patron";
+    my $patron = shift;
+    my $tableName = "patron";
 
-    for my $patron (@{$patronRecords})
-    {
 
-        # This is to enforce the order. I know there's a better way. Get the column names, loop thru the hash and generate a new array of values.
-        # Then I could put that in a function so I could save a hash too! _insertIntoTableByHash() which is a wrapper converts the hash to array then calls _insertIntoTable()
-        my @data = (
-            $main::conf->{jobID},
-            $patron->{externalID},
-            $patron->{active},
-            $patron->{username},
-            $patron->{patronGroup},
-            $patron->{cluster},
-            $patron->{institution},
-            $patron->{field_code},
-            $patron->{patron_type},
-            $patron->{pcode1},
-            $patron->{pcode2},
-            $patron->{pcode3},
-            $patron->{home_library},
-            $patron->{patron_message_code},
-            $patron->{patron_block_code},
-            $patron->{patron_expiration_date},
-            $patron->{name},
-            $patron->{address},
-            $patron->{telephone},
-            $patron->{address2},
-            $patron->{telephone2},
-            $patron->{department},
-            $patron->{unique_id},
-            $patron->{barcode},
-            $patron->{email_address},
-            $patron->{note},
-            $patron->{firstName},
-            $patron->{middleName},
-            $patron->{lastName},
-            $patron->{street},
-            $patron->{city},
-            $patron->{state},
-            $patron->{zip},
-            $patron->{file}
-        );
+    my @data = (
+        $patron->{id},
+        $patron->{institution_id},
+        $patron->{esid},
+        $patron->{fingerprint},
+        $patron->{loadfolio},
+        $patron->{username},
+        $patron->{barcode},
+        $patron->{active},
+        $patron->{patrongroup},
+        $patron->{lastname},
+        $patron->{firstname},
+        $patron->{middlename},
+        $patron->{preferredfirstname},
+        $patron->{phone},
+        $patron->{mobilephone},
+        $patron->{dateofbirth},
+        $patron->{preferredcontacttypeid},
+        $patron->{enrollmentdate},
+        $patron->{expirationdate},
+    );
 
-        $self->_insertIntoTable($tableName, \@data);
+    $self->_insertIntoTable($tableName, \@data);
 
-    }
+}
+
+sub updatePatron
+{
+
+   my $query = "update patron p2
+set
+column1 = staging.column1
+....
+updated = true
+from
+staging_patron staging
+join patron p on(p.institution=staging.institution and p.externalid=staging.externalid and p.fingerprint!=staging.fingerprint)
+where
+p.id=p2.id";
+
+
+
 
 }
 
@@ -241,14 +300,14 @@ sub _insertIntoTable
     my $tableName = shift;
     my $data = shift;
 
-    # get our column names as a string of comma seperated values
-    my @columnNames = @{$self->_getTableColumnsWithoutId($tableName)};
-    my $columns = "@columnNames";
-    $columns =~ s/\s/,/g;
+    my @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
+    shift(@columns) if ($columns[0] eq 'id');
+
+    my $columns = $self->_convertArrayToCSVString(\@columns);
 
     # build our $1,$2 ect... string
     my $dataString = "";
-    my $totalColumns = @columnNames;
+    my $totalColumns = @columns;
 
     for my $index (1 .. $totalColumns)
     {$dataString = $dataString . "\$$index,";}
@@ -262,70 +321,12 @@ sub _insertIntoTable
 
 }
 
-sub _getTableColumnsWithoutId
-{
-    my $self = shift;
-    my $tableName = shift;
-
-    my $query = "
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_schema = '$schema'
-          AND table_name = '$tableName'
-          AND column_name != 'id'
-        order by ordinal_position asc
-                ";
-
-    return $self->_getQueryAsSingleStringArray($query);
-}
-
-sub _getTableColumns
-{
-    my $self = shift;
-    my $tableName = shift;
-
-    # Blakes right, this should be cached.
-    # Some if statements checking for the existence of the array stored in $self
-
-    my $query = "
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_schema = '$schema'
-          AND table_name = '$tableName'
-        order by ordinal_position asc
-                ";
-
-    return $self->_getQueryAsSingleStringArray($query);
-
-}
-
-sub _getQueryAsSingleStringArray
-{
-    my $self = shift;
-    my $query = shift;
-
-    my $results = $self->{db}->query($query);
-
-    my @names = ();
-    push(@names, $_->[0]) for (@{$results});
-
-    return \@names;
-
-}
-
-sub _getDatabaseTableNames
-{
-    my $self = shift;
-    my $query = "select table_name from information_schema.tables where table_schema = 'public'";
-    return $self->_getQueryAsSingleStringArray($query);
-}
-
 sub _selectAllFromTable
 {
     my $self = shift;
     my $tableName = shift;
 
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+    my $columns = $self->_getTableColumns($tableName);
 
     my $query = "select $columns from $schema.$tableName;";
     return $self->{db}->query($query);
@@ -359,7 +360,8 @@ sub _convertQueryResultsToHash
     my $tableName = shift;
     my $data = shift;
 
-    my @columns = @{$self->_getTableColumns($tableName)};
+    my @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
+
     my @hashArray = ();
 
     for my $row (@{$data})
@@ -398,10 +400,21 @@ sub getInstitutionMap
     my $self = shift;
 
     my $tableName = "institution_map";
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
-    my $query = "select $columns from $schema.$tableName order by id asc limit 2;"; # todo <== this is for debugging!!! limit 2
+    my $columns = $self->_getTableColumns($tableName);
+
+    # my $query = "select $columns from $schema.$tableName order by id asc;";
+    my $query = "select $columns from $schema.$tableName order by id asc limit 3;"; # todo: THIS IS DEBUG!!!
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query));
+
+}
+
+sub _getTableColumns
+{
+    my $self = shift;
+    my $tableName = shift;
+
+    return $self->_convertArrayToCSVString(\@{$self->{'cache'}->{$tableName}->{'columns'}});
 
 }
 
@@ -411,7 +424,8 @@ sub getInstitutionMapHashById
     my $id = shift;
 
     my $tableName = "institution_map";
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+    my $columns = $self->_getTableColumns($tableName);
+
     my $query = "select $columns from $schema.$tableName t where t.id=$id;";
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
 
@@ -422,8 +436,8 @@ sub getInstitutionMapHashByName
     my $self = shift;
     my $name = shift;
     my $tableName = "institution_map";
+    my $columns = $self->_getTableColumns($tableName);
 
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
     my $query = "select $columns from $schema.$tableName t where t.institution='$name';";
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
@@ -436,7 +450,7 @@ sub getLastFileTrackerEntryByFilename
     my $fileName = shift;
 
     my $tableName = "file_tracker";
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
+    my $columns = $self->_getTableColumns($tableName);
 
     my $query = "select $columns from $schema.$tableName where filename = '$fileName' order by id desc limit 1";
     return $self->{db}->query($query);
@@ -447,8 +461,8 @@ sub getLastFileTrackerEntry
 {
     my $self = shift;
     my $tableName = "file_tracker";
+    my $columns = $self->_getTableColumns($tableName);
 
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns($tableName));
     my $query = "select $columns from $schema.$tableName order by id desc limit 1";
     my $results = $self->{db}->query($query);
     return $results;
@@ -506,7 +520,8 @@ sub buildInstitutionMapTableData
             "$institution->{folder_path}",
             "$institution->{file}",
             "$institution->{pattern}",
-            "GenericParser"
+            "GenericParser",
+            ""
         );
 
         $self->_insertIntoTable("institution_map", \@data);
@@ -536,11 +551,8 @@ sub getPTYPEMappingSheet
     my $institution = shift;
     my $ptype = shift;
 
-
     my $tableName = "ptype_mapping";
-
-
-    my $columns = $self->_convertArrayToCSVString($self->_getTableColumns("ptype_mapping"));
+    my $columns = $self->_getTableColumns($tableName);
     my $query = "";
 
     # perl doesn't support method overloading. so I'm just going to code for it.
@@ -561,8 +573,37 @@ sub query
     # Instead of calling dao->{db}->query()
     # You can just call  dao->query()
     # saving a little typing over the course of the project.
-
     return $self->{db}->query($query);
+
+}
+
+sub getStagedPatronByUsername
+{
+    my $self = shift;
+    my $username = shift;
+
+    my $columns = $self->_getTableColumns("stage_patron");
+
+    # Ok, so we're going to use the unique_id as the username
+    # This comment is for grepping to find this spot in the code. You're welcome if it worked! lol
+    # [unique_id username][unique id username][external_id username][external id username]
+    my $query = "select $columns from patron_import.stage_patron p
+                 where p.unique_id = '$username'";
+
+    return $self->query($query);
+
+}
+
+sub getPatronByUsername
+{
+    my $self = shift;
+    my $username = shift;
+
+    my $columns = $self->_getTableColumns("patron");
+
+    my $query = "select $columns from patron_import.patron p where p.username = '$username'";
+
+    return $self->query($query);
 
 }
 

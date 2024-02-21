@@ -56,6 +56,7 @@ sub main
 
     startJob();
     ########## stage | import #########################################
+    # $dao->resetStagePatronTable() if ($runType eq "stage" || $runType eq "all");
     $parser->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
     $parser->migrate()  if ($runType eq "migrate" || $runType eq "all");
     # $folio->importPatrons() if($runType eq "import" || $runType eq "all");

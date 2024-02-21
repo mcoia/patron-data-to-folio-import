@@ -8,6 +8,8 @@ no warnings 'uninitialized';
 # we may have to manually import each and every nParser. I couldn't get this to auto require.
 
 use Parsers::GenericParser;
+use Parsers::ESID;
+use MOBIUS::Utils;
 
 use Data::Dumper;
 
@@ -37,11 +39,11 @@ sub stagePatronRecords
         # Load our institution to get our parser type
         my $institution = $main::dao->getInstitutionMapHashById($patronFile->{institution_id});
 
-        # Get our Parser Modules
+        # Get our Parser Module that's stored in the database column 'module' in institution_map
         my $module = "GenericParser"; # default to generic
         $module = $institution->{module} if ($institution->{module} ne '' || $institution->{module} ne undef);
 
-        # Build the parser module
+        # Build the parser module.
         my $parser;
         my $createParser = '$parser = Parsers::' . $institution->{module} . '->new();';
         eval $createParser;
@@ -49,58 +51,24 @@ sub stagePatronRecords
         # Parse these records
         my $patronRecords = $parser->parse($patronFile);
 
+        ##########################################################################################
+        # This section will eventually get moved to the extended parser code i.e. Generic parser #
+        ##########################################################################################
         $patronFileIndex++;
         my $totalFileRecords = @{$patronRecords};
-        $totalPatronRecords = $totalPatronRecords + $totalFileRecords;
+        $totalPatronRecords += $totalFileRecords;
         print "[$patronFileIndex] saving records... total:$totalFileRecords [$institution->{institution}]:[$institution->{module}]:[$patronFile->{filename}]\n";
 
         # Now save these patrons to the staging table
         $main::dao->saveStagedPatronRecords($patronRecords);
+        ##########################################################################################
+        # This section will eventually get moved to the extended parser code i.e. Generic parser #
+        ##########################################################################################
 
     }
 
+    print "Total patron records:[$totalPatronRecords] done staging patrons... \n";
 
-    print "done staging patrons... Total patron records:[$totalPatronRecords]\n";
-
-
-
-}
-
-sub _initPatronHash
-{
-    my $self = shift;
-
-    my $patron;
-
-    # patron file specific fields
-    $patron->{'field_code'} = "";
-    $patron->{'patron_type'} = "";
-    $patron->{'pcode1'} = "";
-    $patron->{'pcode2'} = "";
-    $patron->{'pcode3'} = "";
-    $patron->{'home_library'} = "";
-    $patron->{'patron_message_code'} = "";
-    $patron->{'patron_block_code'} = "";
-    $patron->{'patron_expiration_date'} = "";
-    $patron->{'name'} = "";
-    $patron->{'address'} = "";
-    $patron->{'telephone'} = "";
-    $patron->{'address2'} = "";
-    $patron->{'telephone2'} = "";
-    $patron->{'department'} = "";
-    $patron->{'unique_id'} = "";
-    $patron->{'barcode'} = "";
-    $patron->{'email_address'} = "";
-    $patron->{'note'} = "";
-    $patron->{'firstName'} = "";
-    $patron->{'middleName'} = "";
-    $patron->{'lastName'} = "";
-    $patron->{'street'} = "";
-    $patron->{'city'} = "";
-    $patron->{'state'} = "";
-    $patron->{'zip'} = "";
-
-    return $patron;
 }
 
 sub _jsonTemplate
@@ -169,44 +137,68 @@ sub _mapPatronTypeToPatronGroup
 sub migrate
 {
     my $self = shift;
-=pod
 
+    # Inserts vs Updates
+    # We'll use the username as our key. That's what needs to be 100% unique across the consortium.
+    # The esid is unique to the tenant so this is redundant to key off it as well.
 
-Ah gezz... where do we start?
-Our staging table
-id
-job_id
-institution_id
-file_id
-field_code
-patron_type
-pcode1
-pcode2
-pcode3
-home_library
-patron_message_code
-patron_block_code
-patron_expiration_date
-name
-address
-telephone
-address2
-telephone2
-department
-unique_id
-barcode
-email_address
-note
+    # query each stage_patron, look up their info in the final patron table using the username.
+    # If that username doesn't exists we're an insert.
+    # If that username exists we're an update.
 
-The main idea is that we take the stage_patron and move those fields into the final patron table
+    # we're using the unique_id as the username as SSO uses the esid for login.
+    # The users will never use the username to login anyways.
 
+    my $maxStagePatronID = $main::dao->getMaxStagePatronID();
 
-select $cols from stage_patron limit 1000;
+    my $chunkSize = $main::conf->{migrateChunkSize};
 
+    my $start = 0;
+    my $stop = $chunkSize;
 
+    my $iterationsNeeded = $maxStagePatronID / $chunkSize;
 
-=cut
+    # We chunk up this query
+    for my $index (0 .. $iterationsNeeded)
+    {
+        # get some records
+        my $chunkedStagedPatrons = $main::dao->getStagedPatrons($start, $stop);
 
+        for my $patron (@{$chunkedStagedPatrons})
+        {
+
+            # Insert or Update?
+            my $stagedPatron = $main::dao->getPatronByUsername($patron->{unique_id});
+            my $stagedPatronSize = @{$stagedPatron};
+
+            # Insert
+            $main::dao->insertPatron($patron) if ($stagedPatronSize == 0);
+
+            #Update
+            $main::dao->updatePatron($patron, $stagedPatron) if ($stagedPatronSize > 0);
+
+        }
+
+        # increment our chunk sizes. Does postgres have built in pagination?
+        # It does! This works but it could be a little cleaner. i = i + $chunkSize and then offset $i
+        # https://medium.com/@jaumepuigturon4/a-step-by-step-guide-to-implementing-pagination-in-postgresql-aeb8d12cacc#:~:text=The%20LIMIT%20and%20OFFSET%20clauses%20in%20PostgreSQL%20are%20used%20to,starting%20to%20return%20the%20records.
+        $start += $chunkSize;
+        $stop += $chunkSize;
+
+    }
+
+}
+
+sub getPatronFingerPrint
+{
+    # On the off chance this getHash() function doesn't work as expected we
+    # can just update this method to point to something else.
+
+    my $self = shift;
+    my $patron = shift;
+
+    my $utils = MOBIUS::Utils->new();
+    return $utils->getHash($patron);
 
 }
 

@@ -59,6 +59,7 @@ use DateTime;
 use Encode;
 use utf8;
 use FreezeThaw qw(freeze thaw);
+use Digest::SHA1;
 
 =head1 CONSTRUCTOR
 

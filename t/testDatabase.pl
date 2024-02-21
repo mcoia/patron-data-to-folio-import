@@ -5,12 +5,21 @@ use warnings FATAL => 'all';
 use lib qw(../lib);
 use MOBIUS::DBhandler;
 use MOBIUS::Utils;
+use DAO;
+use Parser;
+use PatronImportFiles;
+
 use Data::Dumper;
 
-my ($conf, $dbHandler);
-
+our ($conf, $log);
 initConf();
-initDatabaseConnection();
+initLog();
+
+our $dao = DAO->new();
+$dao->_initDatabaseCache();
+
+our $files = PatronImportFiles->new();
+our $parser = Parser->new();
 
 sub initConf
 {
@@ -25,16 +34,20 @@ sub initConf
 
 }
 
-sub initDatabaseConnection
+sub initLog
 {
-    eval {$dbHandler = DBhandler->new($conf->{db}, $conf->{dbhost}, $conf->{dbuser}, $conf->{dbpass}, $conf->{port} || 5432, "postgres", 1);};
-    if ($@)
-    {
-        print "Could not establish a connection to the database\n";
-        exit 1;
-    }
+    $log = Loghandler->new("test.log");
+    $log->truncFile("");
 }
 
+# test_initDatabaseCache();
+sub test_initDatabaseCache
+{
+
+    $dao->_initDatabaseCache();
+    print Dumper($dao);
+
+}
 
 # test_DAO_getDatabaseTableNames();
 sub test_DAO_getDatabaseTableNames
@@ -60,9 +73,6 @@ sub test_DAO__insertIntoTable
         $dao->_getCurrentTimestamp,
         $dao->_getCurrentTimestamp
     );
-
-    # push(@data, $dao->_getCurrentTimestamp);
-    # push(@data, $dao->_getCurrentTimestamp);
 
     $dao->_insertIntoTable($tableName, \@data);
 }
@@ -213,13 +223,107 @@ sub test_DAO_getLastFileTrackerEntryByFilename
 
 }
 
+# test_DAO_getStagedPatrons();
+sub test_DAO_getStagedPatrons
+{
+    my $patrons = $dao->getStagedPatrons(0, 100);
+    print Dumper($patrons);
+
+}
+
+# test_checkNames();
+sub test_checkNames
+{
+
+    my @institutions = (
+        'A.T. Still University',
+        'Avila University',
+        'Benedictine College',
+        'Calvary University',
+        'Central Methodist University',
+        'Columbia College',
+        'Conception Abbey and Seminary College',
+        'Concordia Seminary',
+        'Cottey College',
+        'Covenant Theological Seminary',
+        'Crowder College',
+        'Culver-Stockton College',
+        'Drury University',
+        'East Central College',
+        'Evangel University',
+        'Fontbonne University',
+        'Goldfarb School of Nursing at Barnes-Jewish College',
+        'Hannibal-LaGrange University',
+        'Harris-Stowe State University',
+        'Jefferson College',
+        'Kansas City Art Institute',
+        'Kansas City Kansas Community College',
+        'Kansas City University',
+        'Kenrick-Glennon Theological Seminary',
+        'Lincoln University',
+        'Lindenwood University',
+        'Logan University',
+        'Maryville University',
+        'Metropolitan Community College',
+        'Midwestern Baptist Theological Seminary',
+        'Mineral Area College',
+        'Missouri Baptist University',
+        'Missouri Botanical Garden',
+        'Missouri History Museum',
+        'Missouri Southern State University',
+        'Missouri State Library',
+        'Missouri Valley College',
+        'Missouri Western State University',
+        'Moberly Area Community College',
+        'Nazarene Theological Seminary',
+        'North Central Missouri College',
+        'Northwest Missouri State University',
+        'Ozark Christian College',
+        'Ozarks Technical Community College',
+        'Park University',
+        'Rockhurst University',
+        'Saint Louis Art Museum',
+        'Saint Paul School of Theology',
+        'Southwest Baptist University',
+        'Southwestern Baptist Theological Seminary',
+        'St. Charles Community College',
+        'St. Louis Community College',
+        'State Fair Community College',
+        'State Technical College of Missouri',
+        'Stephens College',
+        'Three Rivers College',
+        'Truman State University',
+        'University of Health Sciences and Pharmacy in St. Louis',
+        'Webster University',
+        'Westminster College',
+        'William Jewell College',
+        'William Woods University',
 
 
+    );
 
+    print "\n\n";
+    print "==================================================\n";
+    print "\n\n";
+    for my $institution (@institutions)
+    {
 
+        my $query = "select count(id) from patron_import.institution_map where institution = '$institution'";
 
+        my $results = $dao->query($query)->[0]->[0];
+        print "$institution\n" if ($results == 0);
 
+    }
 
+    print "\n\n";
+}
 
+test_getStagedPatronByUsername();
+sub test_getStagedPatronByUsername
+{
+
+    my $patron = $dao->getStagedPatronByUsername();
+
+}
 
 1;

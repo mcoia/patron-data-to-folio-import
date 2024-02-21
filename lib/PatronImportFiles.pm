@@ -93,27 +93,23 @@ sub _loadMOBIUSPatronLoadsCSV
     {
 
         # Skip the header row
-        if ($rowCount > 0)
+        if ($rowCount == 0)
         {
-
-            $cluster = $row->[0] if ($row->[0] ne '');
-            $institution = $row->[1] if ($row->[1] ne '');
-
-            # We have a filename in this column, it's what we're after!
-            if ($row->[2] ne '' && $row->[2] ne 'n/a' && $row->[2] ne 'Patron Files')
-            {
-
-                my $files = {
-                    'cluster'     => lc $cluster,
-                    'institution' => $institution,
-                    'file'        => $row->[2],
-                };
-
-                push(@clusterFiles, $files) if ($self->_containsClusterName($cluster));
-
-            }
-
+            $rowCount++;
+            next;
         }
+
+        $cluster = $row->[0] if ($row->[0] ne '');
+        $institution = $row->[1] if ($row->[1] ne '');
+
+        my $files = {
+            'cluster'     => lc $cluster,
+            'institution' => $institution,
+            'file'        => $row->[2],
+        };
+
+        push(@clusterFiles, $files) if ($row->[2] ne '');
+
         $rowCount++;
     }
 
@@ -163,19 +159,8 @@ sub _patronFileDiscovery
     my $self = shift;
     my $institution = shift;
 
-=pod
-
-What does this clusterFileHash look like?
-
-{
-          'file' => 'eccpat.txt',
-          'institution' => 'East Central College',
-          'pattern' => 'eccpat',
-          'cluster' => 'archway'
-};
-
-
-=cut
+    # We don't have a file pattern to even search for. Just return.
+    return if ($institution->{file_pattern} eq '' || $institution->{file_pattern} eq 'n/a');
 
     my @filePaths = ();
 

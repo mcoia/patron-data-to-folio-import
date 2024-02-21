@@ -2,17 +2,53 @@ package Parsers::GenericParser;
 use strict;
 use warnings FATAL => 'all';
 use Data::Dumper;
+use MOBIUS::Utils;
 
 use parent 'Parser';
 
 sub new
 {
     my $class = shift;
-    my $self = {
-        'conf' => $main::conf,
-    };
+    my $self = {};
     bless $self, $class;
     return $self;
+}
+
+sub _initPatronHash
+{
+    my $self = shift;
+
+    my $patron;
+
+    # patron file specific fields
+    $patron->{'field_code'} = "";
+    $patron->{'patron_type'} = "";
+    $patron->{'pcode1'} = "";
+    $patron->{'pcode2'} = "";
+    $patron->{'pcode3'} = "";
+    $patron->{'home_library'} = "";
+    $patron->{'patron_message_code'} = "";
+    $patron->{'patron_block_code'} = "";
+    $patron->{'patron_expiration_date'} = "";
+    $patron->{'name'} = "";
+    $patron->{'address'} = "";
+    $patron->{'telephone'} = "";
+    $patron->{'address2'} = "";
+    $patron->{'telephone2'} = "";
+    $patron->{'department'} = "";
+    $patron->{'unique_id'} = "";
+    $patron->{'barcode'} = "";
+    $patron->{'email_address'} = "";
+    $patron->{'note'} = "";
+    $patron->{'firstName'} = "";
+    $patron->{'middleName'} = "";
+    $patron->{'lastName'} = "";
+    $patron->{'street'} = "";
+    $patron->{'city'} = "";
+    $patron->{'state'} = "";
+    $patron->{'zip'} = "";
+
+    return $patron;
 }
 
 =head1 _parsePatronRecord(@patronrecord)
@@ -65,7 +101,8 @@ sub parse
         if ($line =~ /^0/ && length($line) == 24)
         {
             $patronRecordSize = @patronRecord;
-            push(@patronRecords, \@patronRecord) if ($patronRecordSize > 0);
+            my @patronRecordCopy = @patronRecord;
+            push(@patronRecords, \@patronRecordCopy) if ($patronRecordSize > 0);
             @patronRecord = ();
         }
 
@@ -83,6 +120,14 @@ sub parse
     {
 
         my $patron = $self->_parsePatronRecord($record);
+        $patron->{esid} = Parsers::ESID::getESID($patron, $patronFile->{institution_id});
+
+        # Note, everything in the patron hash gets 'fingerprinted'.
+        # id's are basically irrelevant after and may change on subsequent loads. So we don't want
+        # to finger print id's.
+        $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
+
+        # Now set the id's
         $patron->{institution_id} = $patronFile->{institution_id};
         $patron->{file_id} = $patronFile->{id};
         $patron->{job_id} = $patronFile->{job_id};
@@ -147,9 +192,6 @@ sub _parsePatronRecord
         $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'patron_expiration_date'} = ($data =~ /^0\d{3}.{2}\d{3}.{7}(.{8}).*/gm)[0] if ($data =~ /^0/);
 
-        # replace spaces with hyphens.
-        # $data = $data =~ s/\s/-/gr if ($data =~ /^0/ && $self->{conf}->{patronHashReplaceSpaceWithHyphen});
-
         # variable length fields
         $patron->{'name'} = ($data =~ /^n(.*)$/gm)[0] if ($data =~ /^n/);
         $patron->{'address'} = ($data =~ /^a(.*)$/gm)[0] if ($data =~ /^a/);
@@ -163,8 +205,6 @@ sub _parsePatronRecord
         $patron->{'note'} = ($data =~ /^x(.*)$/gm)[0] if ($data =~ /^x/);
 
     }
-
-    # $self->{log}->addLine(Dumper($patron));
 
     return $patron;
 }
@@ -217,18 +257,6 @@ sub _parseAddress
 
 }
 
-sub _getExternalID
-{
-    my $self = shift;
-    my $patron = shift;
-
-    # Until I get some more info we're counting to 10 and tacking on an epoch
-    my $epoch = time();
-
-    return "1234567890_$epoch";
-
-}
-
 sub _getUsername
 {
     my $self = shift;
@@ -240,11 +268,8 @@ sub _getUsername
 
 }
 
-sub test
-{
-    my $self = shift;
-    print $self->{conf}->{logfile};
 
-}
+
+
 
 1;
