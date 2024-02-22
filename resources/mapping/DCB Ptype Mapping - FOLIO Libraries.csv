@@ -1,0 +1,583 @@
+Name,Agency,Current ILS,Local Ptype Number, Local Ptype Name,FOLIO Patron Group,MOBIUS Ptype,MOBIUS Ptype Name,Books allowed,AV Allowed,Borrowing Limit,NCIP Academic/Public ,Label
+East Central College,6eacc,Sierra,1,EC Staff,ECC Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+East Central College,6eacc,Sierra,2,EC Faculty,ECC Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+East Central College,6eacc,Sierra,3,EC Student,ECC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+East Central College,6eacc,Sierra,4,EC Community,ECC Community,255,MOBIUS Restricted,No,No,0,,
+Mineral Area College,6mnac,Sierra,31,MAC Student,MAC Student,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Mineral Area College,6mnac,Sierra,32,MAC Faculty/Staff,MAC Faculty/Staff,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Mineral Area College,6mnac,Sierra,33,MAC Adjunct,MAC Adjunct,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Mineral Area College,6mnac,Sierra,34,MAC Upward Bound,MAC Upward Bound,255,MOBIUS Restricted,No,No,0,,
+Mineral Area College,6mnac,Sierra,35,MAC Talent Search,MAC Talent Search,255,MOBIUS Restricted,No,No,0,,
+Mineral Area College,6mnac,Sierra,36,MAC Community Borrowers,MAC Community Borrowers,255,MOBIUS Restricted,No,No,0,,
+Jefferson College,6jeff,Sierra,51,JC Student,JC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Jefferson College,6jeff,Sierra,52,JC Faculty/Staff,JC Faculty/Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Jefferson College,6jeff,Sierra,53,JC Adjunct,JC Adjunct,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Jefferson College,6jeff,Sierra,55,JC Community,JC Community,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Jefferson College,6jeff,Sierra,56,JC AEL,JC AEL,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Jefferson College,6jeff,Sierra,57,JC ILL,JC ILL,255,MOBIUS Restricted,No,No,0,,
+Three Rivers College,6thrc,Sierra,61,TRC Student,TRC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Three Rivers College,6thrc,Sierra,62,TRC Faculty/Staff,TRC Faculty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Three Rivers College,6thrc,Sierra,63,TRC Non-Student,TRC Non-Student,255,MOBIUS Restricted,No,No,0,,
+Three Rivers College,6thrc,Sierra,65,TRC ILL,TRC ILL,255,MOBIUS Restricted,No,No,0,,
+St Charles Community College,6sccc,Sierra,101,SCC STUDENT,SCC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+St Charles Community College,6sccc,Sierra,102,SCC Faculty/Staff,SCC Faculty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+St Charles Community College,6sccc,Sierra,103,SCC Alumni,SCC Alumni,255,MOBIUS Restricted,No,No,0,,
+St Charles Community College,6sccc,Sierra,104,SCC Community Users,SCC Community Users,255,MOBIUS Restricted,No,No,0,,
+St Charles Community College,6sccc,Sierra,105,SCC ILL,SCC ILL,255,MOBIUS Restricted,No,No,0,,
+St Charles Community College,6sccc,Sierra,106,SCC Police Academy Students,None,,,,,,,
+St Charles Community College,6sccc,Sierra,107,SCC Police Academy Faculty/Staff,None,,,,,,,
+St Charles Community College,6sccc,Sierra,108,SCC Board of Trustees,SCC Board of Trustees,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+St Charles Community College,6sccc,Sierra,109,SCC UMSL Students,None,,,,,,,
+St Charles Community College,6sccc,Sierra,110,SCC UMSL Faculty/Staff,None,,,,,,,
+St. Louis Community College,6slcc,Sierra,151,STLCC Student,STLCC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+St. Louis Community College,6slcc,Sierra,152,STLCC Alumni,STLCC Alumni,255,MOBIUS Restricted,No,No,0,,
+St. Louis Community College,6slcc,Sierra,153,STLCC Courtesy,STLCC Courtesy,255,MOBIUS Restricted,No,No,0,,
+St. Louis Community College,6slcc,Sierra,154,STLCC Staff,STLCC Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+St. Louis Community College,6slcc,Sierra,155,STLCC Emeritus,STLCC Emeritus,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+St. Louis Community College,6slcc,Sierra,156,STLCC ILL,STLCC ILL,255,MOBIUS Restricted,No,No,0,,
+St. Louis Community College,6slcc,Sierra,157,STLCC Department,STLCC Department,255,MOBIUS Restricted,No,No,0,,
+University of Health Sciences and Pharmacy,6slcp,Sierra,180,UHSP Student,UHSP Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+University of Health Sciences and Pharmacy,6slcp,Sierra,181,UHSP Faculty,UHSP Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+University of Health Sciences and Pharmacy,6slcp,Sierra,182,UHSP Staff,UHSP Staff,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+University of Health Sciences and Pharmacy,6slcp,Sierra,183,UHSP Alumni,UHSP Alumni,255,MOBIUS Restricted,No,No,0,,
+University of Health Sciences and Pharmacy,6slcp,Sierra,184,UHSP Preceptor,UHSP Preceptor,255,MOBIUS Restricted,No,No,0,,
+University of Health Sciences and Pharmacy,6slcp,Sierra,185,UHSP Interlibrary Loan,UHSP ILL,255,MOBIUS Restricted,No,No,0,,
+University of Health Sciences and Pharmacy,6slcp,Sierra,186,UHSP Other,UHSP Other,255,MOBIUS Restricted,No,No,0,,
+Lincoln University,6linc,Sierra,1,LU Undergraduate,LINC Undergraduate Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Lincoln University,6linc,Sierra,2,LU Graduate,LINC Staff/Graduates,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lincoln University,6linc,Sierra,3,LU Faculty,LINC Faculty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lincoln University,6linc,Sierra,4,LU Community,LINC Community,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lincoln University,6linc,Sierra,7,LU Interlibrary Loan,LINC ILL,255,MOBIUS Restricted,No,No,0,,
+Lincoln University,6linc,Sierra,8,LU Staff,None,,,,,,,
+Lincoln University,6linc,Sierra,10,LU Board Members/Faculty Emeritu,LINC Faculty/Board/Emeritus,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lincoln University,6linc,Sierra,11,Cluster Patron,None,,,,,,,
+Columbia College,6colc,Sierra,51,Col Evng Students,None,,,,,,,
+Columbia College,6colc,Sierra,52,Col Day Students,CCIS Students,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Columbia College,6colc,Sierra,53,Col Grad Students,None,,,,,,,
+Columbia College,6colc,Sierra,54,Col Faculty,CCIS Faculty/Staff,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Columbia College,6colc,Sierra,55,Col Staff,CCIS Board/Emeritus,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Columbia College,6colc,Sierra,56,Col ESD-Faculty,None,,,,,,,
+Columbia College,6colc,Sierra,57,Col ILL,CCIS ILL,255,MOBIUS Restricted,No,No,0,,
+Columbia College,6colc,Sierra,58,Col Courtesy,CCIS Courtesy,255,MOBIUS Restricted,No,No,0,,
+Columbia College,6colc,Sierra,59,Col ESD-MO Student,None,,,,,,,
+Columbia College,6colc,Sierra,60,Col ESD-MO Faculty,None,,,,,,,
+Columbia College,6colc,Sierra,61,Col ESD-MO Staff,None,,,,,,,
+Columbia College,6colc,Sierra,62,Col Online-MO Student,None,,,,,,,
+Columbia College,6colc,Sierra,63,Col Online-MO Faculty,None ,,,,,,,
+Columbia College,6colc,Sierra,64,Col Library Staff,None,,,,,,,
+Missouri State Library,6mosl,Sierra,80,MOSL State Employee,MOSL State Employee,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri State Library,6mosl,Sierra,81,MOSL emp restricted,MOSL Restricted State Employee,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri State Library,6mosl,Sierra,83,MOSL State Intern,MOSL State Intern,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri State Library,6mosl,Sierra,84,MOSL placeholder,MOSL Missouri Resident,255,MOBIUS Restricted,No,No,0,,
+Missouri State Library,6mosl,Sierra,85,MOSL Missouri Library,MOSL Missouri Library,255,MOBIUS Restricted,No,No,0,,
+Missouri State Library,6mosl,Sierra,86,MOSL Public Patron,MOSL Public Library Director,255,MOBIUS Restricted,No,No,0,,
+Missouri State Library,6mosl,Sierra,87,MOSL ILL (Outgoing),MOSL ILL Lending,255,MOBIUS Restricted,No,No,0,,
+Stephens College,6step,Sierra,101,SC Undergrad Student,SC STEPHENS Undergraduate Student,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Stephens College,6step,Sierra,102,SC Graduate Student,SC STEPHENS Graduate Student,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Stephens College,6step,Sierra,103,SC Fac/Staff/Ret,SC STEPHENS Faculty/Staff/Retiree,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Stephens College,6step,Sierra,108,SC Children's School,SC STEPHENS Children's School,255,MOBIUS Restricted,No,No,0,,
+Stephens College,6step,Sierra,111,SC ILL,SC STEPHENS ILL,255,MOBIUS Restricted,No,No,0,,
+Stephens College,6step,Sierra,112,SC Guests,SC STEPHENS Guest,255,MOBIUS Restricted,No,No,0,,
+Westminster College,6wmst,Sierra,151,WC Undergraduate,WC Undergraduate,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Westminster College,6wmst,Sierra,153,WC Faculty,WC Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Westminster College,6wmst,Sierra,154,WC Staff,WC Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Westminster College,6wmst,Sierra,156,WC Resident,WC Resident,255,MOBIUS Restricted,No,No,0,,
+Westminster College,6wmst,Sierra,159,WC Interlibrary Loan,WC ILL,255,MOBIUS Restricted,No,No,0,,
+William Woods University,6wmwu,Sierra,181,WW Undergrad,WWU Undergraduate,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+William Woods University,6wmwu,Sierra,182,WW Grad,WWU Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+William Woods University,6wmwu,Sierra,183,WW Faculty/Staff,WWU Faculty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+William Woods University,6wmwu,Sierra,184,WW Community Guest,WWU Community Guest,255,MOBIUS Restricted,No,No,0,,
+William Woods University,6wmwu,Sierra,185,WW ILL,WWU ILL,255,MOBIUS Restricted,No,No,0,,
+William Woods University,6wmwu,Sierra,186,WW Adjunct Faculty,WWU Adjunct Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+William Woods University,6wmwu,Sierra,187,WW Adult studies,WWU Adult Studies,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Culver-Stockton College,6culv,Sierra,1,CS Student,CSC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Culver-Stockton College,6culv,Sierra,2,CS Employee,CSC Employee,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Culver-Stockton College,6culv,Sierra,3,CS Staff,None,236,,,,,,
+Culver-Stockton College,6culv,Sierra,4,CS ILL,CSC ILL,255,MOBIUS Restricted,No,No,0,,
+Culver-Stockton College,6culv,Sierra,5,CS Community Borrower,CSC Community Borrower,255,MOBIUS Restricted,No,No,0,,
+Culver-Stockton College,6culv,Sierra,6,CS Canton R-5 Staff,None,,,,,,,
+Central Methodist University,6cmuu,Sierra,7,CS Library Staff,None,255,MOBIUS Restricted,No,No,0,,
+Central Methodist University,6cmuu,Sierra,8,CMU Extended Student,CMU Extended Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Central Methodist University,6cmuu,Sierra,10,CMU Student,CMU Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Central Methodist University,6cmuu,Sierra,11,CMU Staff,CMU Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Central Methodist University,6cmuu,Sierra,12,CMU Faculty,CMU Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Central Methodist University,6cmuu,Sierra,14,CMU Guest,CMU Guest,255,MOBIUS Restricted,No,No,0,,
+Missouri Valley College,6movc,Sierra,15,CMU Grad/Honors,CMU Grad/Honors,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Valley College,6movc,Sierra,30,MVC Student,MVC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Missouri Valley College,6movc,Sierra,31,MVC Faculty/Staff,MVC Faulty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Valley College,6movc,Sierra,32,MVC ILL,MVC ILL,255,MOBIUS Restricted,No,No,0,,
+Missouri Valley College,6movc,Sierra,33,MVC Public,MVC Public,255,MOBIUS Restricted,No,No,0,,
+Missouri Valley College,6movc,Sierra,34,MVC High School,None,,,,,,,
+State Fair Community College,6sfcc,Sierra,35,MVC GRAD,MVC Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+State Fair Community College,6sfcc,Sierra,40,SFCC Student,SFCC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+State Fair Community College,6sfcc,Sierra,41,SFCC Faculty/Staff,SFCC Faculty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+State Fair Community College,6sfcc,Sierra,42,SFCC ILL,SFCC ILL,255,MOBIUS Restricted,No,No,0,,
+State Fair Community College,6sfcc,Sierra,43,SFCC Community,SFCC Community,255,MOBIUS Restricted,No,No,0,,
+A.T. Still University,6atsu,Sierra,51,ATSU Student,ATSU Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+A.T. Still University,6atsu,Sierra,52,ATSU Faculty,ATSU Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+A.T. Still University,6atsu,Sierra,53,ATSU Staff,ATSU Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+A.T. Still University,6atsu,Sierra,54,ATSU Hospital Staff,ATSU Hospital Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+A.T. Still University,6atsu,Sierra,55,ATSU Community Borrower,ATSU Community Borrower,255,MOBIUS Restricted,No,No,0,,
+A.T. Still University,6atsu,Sierra,56,ATSU Binding,ATSU Binding,255,MOBIUS Restricted,No,No,0,,
+A.T. Still University,6atsu,Sierra,57,ATSU ILL,ATSU ILL,255,MOBIUS Restricted,No,No,0,,
+A.T. Still University,6atsu,Sierra,58,ATSU ILL Arizona,ATSU ILL Arizona,255,MOBIUS Restricted,No,No,0,,
+A.T. Still University,6atsu,Sierra,59,ATSU Library Staff,ATSU Library Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+State Technical College,6stcm,Sierra,61,STC Student,STCM Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+State Technical College,6stcm,Sierra,62,STC Staff,STCM Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+State Technical College,6stcm,Sierra,63,STC Faculty,STCM Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+State Technical College,6stcm,Sierra,64,STC Administration,STCM Administration,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+State Technical College,6stcm,Sierra,65,STC Board,STCM Board,255,MOBIUS Restricted,No,No,0,,
+State Technical College,6stcm,Sierra,66,STC Alumni,STCM Alumni,255,MOBIUS Restricted,No,No,0,,
+State Technical College,6stcm,Sierra,67,STC Community,STC Community,255,MOBIUS Restricted,No,No,0,,
+State Technical College,6stcm,Sierra,68,STC Interlibrary Loan,None,,,,,,,
+State Technical College,6stcm,Sierra,69,STC Other,None,,,,,,,
+State Technical College,6stcm,Sierra,70,STC Department Program,None,,,,,,,
+Moberly Area Community College,6macc,Sierra,71,STC Library Staff,None,,,,,,,
+Moberly Area Community College,6macc,Sierra,81,MACC Student,MACC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Moberly Area Community College,6macc,Sierra,82,MACC Faculty/Staff/Board Member,MACC Faculty/Staff/Board Member,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Moberly Area Community College,6macc,Sierra,83,MACC Community Borrower,MACC Community Borrower,255,MOBIUS Restricted,No,No,0,,
+Moberly Area Community College,6macc,Sierra,84,MACC ILL,None,,,,,,,
+Hannibal-LaGrange University,6hala,Sierra,91,HLG Student,HLGU Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Hannibal-LaGrange University,6hala,Sierra,92,HLG Faculty/Staff,HLGU Faculty/Staff,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Hannibal-LaGrange University,6hala,Sierra,93,HLG ILL,HLGU ILL,255,MOBIUS Restricted,No,No,0,,
+Hannibal-LaGrange University,6hala,Sierra,94,HLG Community Borrower,HLGU Community Borrower,255,MOBIUS Restricted,No,No,0,,
+Hannibal-LaGrange University,6hala,Sierra,95,HLG Affiliate,HLGU Affiliate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Hannibal-LaGrange University,6hala,Sierra,96,HLG Library Staff,None,,,,,,,
+Truman State University,6trum,Sierra,101,TSU Community Borrower,TRUMAN Community Borrower,255,MOBIUS Restricted,No,No,0,,
+Truman State University,6trum,Sierra,102,TSU Academy,TRUMAN Academy,255,MOBIUS Restricted,No,No,0,,
+Truman State University,6trum,Sierra,103,TSU Undergraduate,TRUMAN Undergraduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Truman State University,6trum,Sierra,104,TSU Graduate,TRUMAN Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Truman State University,6trum,Sierra,105,TSU Designated Guest,TRUMAN Designated Guest,255,MOBIUS Restricted,No,No,0,,
+Truman State University,6trum,Sierra,106,TSU Staff,TRUMAN Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Truman State University,6trum,Sierra,107,TSU Faculty,TRUMAN Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Truman State University,6trum,Sierra,108,TSU Library in House,TRUMAN Library in House,255,MOBIUS Restricted,No,No,0,,
+Truman State University,6trum,Sierra,109,TSU ILL,None,,,,,,,
+Truman State University,6trum,Sierra,110,TSU Bindery,None,,,,,,,
+Truman State University,6trum,Sierra,111,TSU Plus,None,,,,,,,
+Truman State University,6trum,Sierra,112,TSU Library Staff,None,,,,,,,
+Covenant Theological Seminary,6cvts,Sierra,0,COV Student (St. Louis),COV Student (St. Louis),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,1,COV Faculty,COV Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,2,COV Community,COV Community,255,MOBIUS Restricted,No,No,0,,
+Covenant Theological Seminary,6cvts,Sierra,3,COV Alumnus,COV Alumnus,255,MOBIUS Restricted,No,No,0,,
+Covenant Theological Seminary,6cvts,Sierra,5,COV ILL,COV ILL,255,MOBIUS Restricted,No,No,0,,
+Covenant Theological Seminary,6cvts,Sierra,6,COV Reciprocal Borrower,COV Reciprocal Borrower,255,MOBIUS Restricted,No,No,0,,
+Covenant Theological Seminary,6cvts,Sierra,7,COV Student (Nashville),COV Student (Nashville),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,8,COV Student (DMin),COV Student (DMin),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,9,COV Student (Online),COV Student (Online),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,10,COV Library Staff,COV Library Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,11,COV Staff,COV Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,12,COV Student (Phoenix),COV Student (Phoenix),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Covenant Theological Seminary,6cvts,Sierra,14,COV Minister,COV Minister,255,MOBIUS Restricted,No,No,0,,
+Covenant Theological Seminary,6cvts,Sierra,15,COV Church Member,COV Church Member,255,MOBIUS Restricted,No,No,0,,
+Covenant Theological Seminary,6cvts,Sierra,19,COV Controlled Digital Lending,COV Controlled Digital Lending,255,MOBIUS Restricted,No,No,0,,
+Fontbonne University,6font,Sierra,20,FONT Undergrad Student,FONT Undergraduate Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Fontbonne University,6font,Sierra,21,FONT Grad Student,FONT Graduate Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Fontbonne University,6font,Sierra,22,FONT Options Student,None,,,,,,,
+Fontbonne University,6font,Sierra,23,FONT Faculty,FONT Faculty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Fontbonne University,6font,Sierra,24,FONT Faculty and Staff,None,,,,,,,
+Fontbonne University,6font,Sierra,25,FONT Emeritus Faculty,FONT Emeritus Faculty,255,MOBIUS Restricted,No,No,0,,
+Fontbonne University,6font,Sierra,26,FONT Alumni,FONT Alumni,255,MOBIUS Restricted,No,No,0,,
+Fontbonne University,6font,Sierra,27,FONT CSJ,FONT CSJ,255,MOBIUS Restricted,No,No,0,,
+Fontbonne University,6font,Sierra,28,FONT Guest,FONT Courtesy,255,MOBIUS Restricted,No,No,0,,
+Fontbonne University,6font,Sierra,29,FONT Interlibrary Loan,None,,,,,,,
+Harris-Stowe State University,6hssu,Sierra,30,FONT InfoPass,FONT Info Pass,255,MOBIUS Restricted,No,No,0,,
+Harris-Stowe State University,6hssu,Sierra,40,HS Student,HSSU Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Harris-Stowe State University,6hssu,Sierra,41,HS Employee,HSSU Employee,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Harris-Stowe State University,6hssu,Sierra,42,HS Courtesy,HSSU Courtesy,255,MOBIUS Restricted,No,No,0,,
+Harris-Stowe State University,6hssu,Sierra,43,HS Talent Search,HSSU Talent Search,255,MOBIUS Restricted,No,No,0,,
+Kenrick-Glennon Seminary,6kgts,Sierra,44,HS Upward Bound,HSSU Upward Bound,255,MOBIUS Restricted,No,No,0,,
+Kenrick-Glennon Seminary,6kgts,Sierra,50,KGS Faculty/Staff,KGS Faculty/Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Kenrick-Glennon Seminary,6kgts,Sierra,51,KGS Student,KGS Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kenrick-Glennon Seminary,6kgts,Sierra,52,KGS Guest/Visitor,KGS Guest/Visitor,255,MOBIUS Restricted,No,No,0,,
+Lindenwood University,6lind,Sierra,60,LU Traditional Undergrad,LIND LU Traditional Undergraduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,62,"LU Workshop grad, off campus","LIND LU Workshop Graduate, Off-Campus",236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,64,ADP Undergrad,LIND LU ADP Undergrad,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,65,ADP Graduate,LIND ADP Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,67,LU Plaster College MBA,LIND LU Plaster College MBA,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,68,LU Masters in Fine Arts,LIND LU Masters in Fine Arts,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,69,LU Undergrad not on campus,LIND LU Undergraduate Not on Campus,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,70,LU Early College Start Student,LIND LU Early College Start Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,71,LU Specialist,LIND LU Specialist,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,72,LU Masters,LIND LU Masters,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Lindenwood University,6lind,Sierra,73,LU faculty full-time,LIND LU Faculty (Full Time),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Lindenwood University,6lind,Sierra,74,LU faculty adjunct,LIND LU Faculty Adjunct,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Lindenwood University,6lind,Sierra,75,LU staff,LIND LU Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Lindenwood University,6lind,Sierra,76,"LU special (board alumni, etc.)","LIND LU Special (Board, Alumni, etc)",255,MOBIUS Restricted,No,No,0,,
+Lindenwood University,6lind,Sierra,78,LU Interlibrary loan,LIND LU ILL,255,MOBIUS Restricted,No,No,0,,
+Lindenwood University,6lind,Sierra,80,LU Doctoral,LIND LU Doctoral,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Logan University,6logn,Sierra,90,Logan Administration,LOGAN Adminstration,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Logan University,6logn,Sierra,91,Logan Alumni,LOGAN Alumni,255,MOBIUS Restricted,No,No,0,,
+Logan University,6logn,Sierra,92,Logan ASP,None,,,,,,,
+Logan University,6logn,Sierra,93,Logan Faculty,LOGAN Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Logan University,6logn,Sierra,94,Logan Field Doctors,LOGAN Field Doctors,255,MOBIUS Restricted,No,No,0,,
+Logan University,6logn,Sierra,95,Logan Info Pass,LOGAN Info Pass,255,MOBIUS Restricted,No,No,0,,
+Logan University,6logn,Sierra,96,Logan Interlibrary Loan,LOGAN ILL,255,MOBIUS Restricted,No,No,0,,
+Logan University,6logn,Sierra,97,Logan Interrupted Student,None,,,,,,,
+Logan University,6logn,Sierra,98,Logan Special Patron,LOGAN Special Patron,255,MOBIUS Restricted,No,No,0,,
+Logan University,6logn,Sierra,99,Logan Staff,LOGAN Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Logan University,6logn,Sierra,100,Logan Student,LOGAN Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Logan University,6logn,Sierra,101,Logan Tri 10 Student,None,,,,,,,
+Maryville University,6mary,Sierra,110,Maryville Board,None,,,,,,,
+Maryville University,6mary,Sierra,111,Maryville Adjunct Faculty,MRYV Adjunct Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Maryville University,6mary,Sierra,112,Maryville Full Time Faculty,MRYV Full Time Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Maryville University,6mary,Sierra,113,Maryville Part Time Faculty,MRYV Part Time Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Maryville University,6mary,Sierra,114,Maryville Sisters Sacred Heart,None,,,,,,,
+Maryville University,6mary,Sierra,115,Maryville Staff,MRYV Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Maryville University,6mary,Sierra,116,Maryville Graduate Students,MRYV Graduate Students,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Maryville University,6mary,Sierra,117,Maryville Non-degree students,None,,,,,,,
+Maryville University,6mary,Sierra,118,Maryville ELS Students,None,,,,,,,
+Maryville University,6mary,Sierra,119,Maryville Partner Teachers,None,,,,,,,
+Maryville University,6mary,Sierra,120,Maryville Undergraduate Students,MRYV Undergraduate Students,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Maryville University,6mary,Sierra,121,Maryville Friends,MRYV Friends,255,MOBIUS Restricted,No,No,0,,
+Maryville University,6mary,Sierra,122,Maryville InfoPass,MRYV Info Pass,255,MOBIUS Restricted,No,No,0,,
+Maryville University,6mary,Sierra,123,Maryville HEC or DMA,None,,,,,,,
+Maryville University,6mary,Sierra,124,Maryville ILL,None,,,,,,,
+Maryville University,6mary,Sierra,125,Maryville Emeritus Faculty,None,,,,,,,
+Maryville University,6mary,Sierra,126,Maryville Expired,None,,,,,,,
+Maryville University,6mary,Sierra,127,Maryville Alumni,None,,,,,,,
+Maryville University,6mary,Sierra,128,MU Library Staff for My Millenni,None,,,,,,,
+Maryville University,6mary,Sierra,129,MU St. Louis Women's Chorale,MRYV St. Louis Women's Chorale,255,MOBIUS Restricted,No,No,0,,
+Missouri Baptist University,6mobu,Sierra,140,MBC Students,MBU Students,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Baptist University,6mobu,Sierra,141,MBC Faculty/Staff,MBU Faculty/Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Missouri Baptist University,6mobu,Sierra,142,MBC Friends of the Library,MBU Friends of the Library,255,MOBIUS Restricted,No,No,0,,
+Missouri Baptist University,6mobu,Sierra,143,MBC Inter-Library Loan,MBU ILL,255,MOBIUS Restricted,No,No,0,,
+Missouri Baptist University,6mobu,Sierra,144,MBC Doctoral,MBU Doctoral,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Baptist University,6mobu,Sierra,145,MBC Alumni,MBU Alumni,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,151,WEBST Students - Online Int'l,EWL-Webster Students Online International,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,152,WEBST Students - Online Domestic,EWL-Webster Students Online Domestic,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,153,WEBST Faculty - International,EWL-Webster Faculty International,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,154,WEBST Students - International,EWL-Webster Students International,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,155,WEBSTER Athens UG student,EWL-Webster Athens Undergraduate Students,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,156,WEBSTER Athens Grad student,EWL-Webster Athens Graduate Students,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,157,WEBSTER Athens fac/staff,EWL-Webster Vienna Faculty/Staff,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,158,WEBSTER Vienna Students,EWL-Webster Vienna Students,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,159,WEBSTER Vienna Faculty/Staff,EWL-Webster Athens Faculty/Staff,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,160,EDEN-WEB Staff,EWL-Eden Webster Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,161,EDEN Faculty,EWL-Eden Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,162,WEBSTER Faculty,EWL-Webster Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,163,WEBSTER Faculty at site in Mo.,EWL-Webster Faculty (MO),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,164,WEBST Faculty USA outside MO,EWL-Webster Faculty (USA),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,165,WEBST Students USA outside MO,EWL-Webster Students (USA),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,166,WEBSTER Student at site in Mo.,EWL-Webster Students (MO),238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,167,EDEN Students (Includes Dmin),EWL-Eden Students,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,168,WEBSTER Grad Students,EWL-Webster Graduate Students,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,169,WEBSTER Undergrads,EWL-Webster Undergraduate Students,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,170,WEBSTER Sites&DualAdmit Students,EWL-Webster Sites & Dual Admit Students,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Eden-Webster University,6edwe,Sierra,171,WEB ResFellows&Board of Trustees,EWL-Webster Dual Admit Fellows & Board of Trustees,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,172,EDEN Alumni,EWL-Eden Alumni,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,173,WEBSTER Alumni,EWL-Webster Alumni,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,174,EDEN-WEB Other,EWL-Eden Webster Other,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,175,EDEN-WEB Infopass,EWL-Eden Webster Infopass,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,176,EDEN-WEB ILL,EWL-Eden Webster ILL,255,MOBIUS Restricted,No,No,0,,
+Eden-Webster University,6edwe,Sierra,177,EDEN-WEB Pseudo-Patrons,EWL-Eden Webster Pseudo-Patrons,255,MOBIUS Restricted,No,No,0,,
+Concordia Seminary,6conc,Sierra,180,CSL M.Div./M.Deac./Certificate,CONC M.Div./M.Deac./Certificate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Concordia Seminary,6conc,Sierra,181,CSL MA/STM/DMin/Ph.D.,CONC MA/STM/D.Min/Ph.D,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Concordia Seminary,6conc,Sierra,182,CSL Distance Program Student,CONC Distance Program Student,255,MOBIUS Restricted,No,No,0,,
+Concordia Seminary,6conc,Sierra,183,CSL Faculty,CONC Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Concordia Seminary,6conc,Sierra,184,CSL Staff,CONC Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Concordia Seminary,6conc,Sierra,185,CSL Guest Instructor,CONC Guest Instructor,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Concordia Seminary,6conc,Sierra,186,CSL LCMS Rostered,CONC LCMS Rostered,255,MOBIUS Restricted,No,No,0,,
+Concordia Seminary,6conc,Sierra,187,CSL Inter-Library Loan,CONC ILL,255,MOBIUS Restricted,No,No,0,,
+Concordia Seminary,6conc,Sierra,188,CSL Student Spouse,CONC Student Spouse,255,MOBIUS Restricted,No,No,0,,
+Concordia Seminary,6conc,Sierra,189,CSL Emeriti,CONC Emeriti,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Concordia Seminary,6conc,Sierra,190,CSL IC Researcher,CONC IC Researcher,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Concordia Seminary,6conc,Sierra,191,CSL CHI Staff,CONC CHI Staff,255,MOBIUS Restricted,No,No,0,,
+Concordia Seminary,6conc,Sierra,192,CSL Non-Rostered Alumni,CONC Non-Rostered Alumni,255,MOBIUS Restricted,No,No,0,,
+Concordia Seminary,6conc,Sierra,194,CSL Special,CONC Special,255,MOBIUS Restricted,No,No,0,,
+Missouri Botanical Garden,6grdn,Sierra,0,MBG Institutional,MBG Institutional,255,MOBIUS Restricted,No,No,0,,
+Missouri Botanical Garden,6grdn,Sierra,1,MBG Intern,MBG Intern,255,MOBIUS Restricted,No,No,0,,
+Missouri Botanical Garden,6grdn,Sierra,2,MBG Library Staff,MBG Library Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Botanical Garden,6grdn,Sierra,3,MBG Special,MBG Special,255,MOBIUS Restricted,No,No,0,,
+Missouri Botanical Garden,6grdn,Sierra,4,MBG Staff,MBG Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Botanical Garden,6grdn,Sierra,5,MBG Student,MBG Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Botanical Garden,6grdn,Sierra,6,MBG Visitor,MBG Visitor,255,MOBIUS Restricted,No,No,0,,
+St. Louis Art Museum,6slam,Sierra,8,SLAM library staff,SLAM Library Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+St. Louis Art Museum,6slam,Sierra,9,SLAM Museum staff,SLAM Museum Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+St. Louis Art Museum,6slam,Sierra,10,SLAM ILL,SLAM ILL,255,MOBIUS Restricted,No,No,0,,
+Missouri History Museum,6mhis,Sierra,101,MHM LibStaff,MHS Library Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Missouri History Museum,6mhis,Sierra,102,MHM OtherStaff,MHS Other Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Missouri History Museum,6mhis,Sierra,106,MHM ILL,MHS ILL,255,MOBIUS Restricted,No,No,0,,
+Missouri History Museum,6mhis,Sierra,107,MHM Institutional,MHS Institutional,255,MOBIUS Restricted,No,No,0,,
+Missouri History Museum,6mhis,Sierra,110,MHM Condie,MHS Condie,255,MOBIUS Restricted,No,No,0,,
+Missouri History Museum,6mhis,Sierra,111,MHM FormerStaff,MHS Former Staff,255,MOBIUS Restricted,No,No,0,,
+Goldfarb School of Nursing,6gfrb,Sierra,150,gstu,GSN Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Goldfarb School of Nursing,6gfrb,Sierra,151,gfac,GSN Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Goldfarb School of Nursing,6gfrb,Sierra,152,gstaff,GSN Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Goldfarb School of Nursing,6gfrb,Sierra,153,galum,GSN Alumni,255,MOBIUS Restricted,No,No,0,,
+Goldfarb School of Nursing,6gfrb,Sierra,154,gguest,GSN Guest,255,MOBIUS Restricted,No,No,0,,
+Avila University,6avil,Sierra,1,AU student,AU Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,2,AU ProfUG -- Profess. Undergrad,AU Professor Undergraduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,3,AU ProfG -- Profess. Graduate,AU Professor Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,4,AU MBA -- MBA,AU MBA,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,5,AU staff,AU Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,6,AU PsycG -- Psychology Graduate,AU Psychology Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,7,AU EdG -- Education Graduate,AU Education Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,8,AU Kines G,AU Kines Graduate,255,MOBIUS Restricted,No,No,0,,
+Avila University,6avil,Sierra,9,AU VisG -- VisCom Graduate,AU VisCom Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,10,AU guest,AU Guest,255,MOBIUS Restricted,No,No,0,,
+Avila University,6avil,Sierra,11,AU UGY1 -- Undergrad Freshman,AU Undergraduate Freshman,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,12,AU UGY2 -- Undergrad Sophmore,AU Undergraduate Sophmore,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,13,AU UGY3 -- Undergrad Junior,AU Undergraduate Junior,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,14,AU UGY4 -- Undergrad Senior,AU Undergraduate Senior,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Avila University,6avil,Sierra,15,AU ILL,AU ILL,255,MOBIUS Restricted,No,No,0,,
+Missouri Western State University,6mwsu,Sierra,18,MW Dual Credit Instructor,MWSU Dual Credit Instructor,18,MW Dual Credit Instructor,30,Yes,Yes,,
+Missouri Western State University,6mwsu,Sierra,19,MW Dual Credit,MWSU Dual Credit,19,MW Dual Credit Student,20,Yes,Yes,,
+Missouri Western State University,6mwsu,Sierra,21,MW Faculty,MWSU Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Missouri Western State University,6mwsu,Sierra,22,MW Staff,MWSU Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Missouri Western State University,6mwsu,Sierra,23,MW Students,MWSU Students,23,MW Students,20,Yes,Yes,,
+Missouri Western State University,6mwsu,Sierra,24,MW Retirees,MWSU Retirees,24,MW Retirees,20,Yes,Yes,,
+Missouri Western State University,6mwsu,Sierra,26,MW Community,MWSU Community,255,MOBIUS Restricted,No,No,0,,
+Missouri Western State University,6mwsu,Sierra,30,MW ILL,MWSU ILL,255,MOBIUS Restricted,No,No,0,,
+Missouri Western State University,6mwsu,Sierra,39,MW Graduate,MWSU Graduate,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Missouri Western State University,6mwsu,Sierra,40,MW Adjunct,MWSU Adjunct,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+William Jewell College,6wmjc,Sierra,41,WJ student,WJC WJ Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+William Jewell College,6wmjc,Sierra,43,WJ faculty,WJC WJ Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+William Jewell College,6wmjc,Sierra,45,WJ staff,WJC WJ Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+William Jewell College,6wmjc,Sierra,47,WJ alumni,WJC WJ Alumni,255,MOBIUS Restricted,No,No,0,,
+William Jewell College,6wmjc,Sierra,48,WJ college west,WJC WJ College West,255,MOBIUS Restricted,No,No,0,,
+William Jewell College,6wmjc,Sierra,49,WJ placeholder,None,,,,,,,
+William Jewell College,6wmjc,Sierra,50,WJ family,WJC WJ Family,255,MOBIUS Restricted,No,No,0,,
+William Jewell College,6wmjc,Sierra,51,WJ courtesy cards,WJC WJ Community Cards,255,MOBIUS Restricted,No,No,0,,
+William Jewell College,6wmjc,Sierra,52,WJ interlibrary loan,WJC WJ ILL,255,MOBIUS Restricted,No,No,0,,
+William Jewell College,6wmjc,Sierra,54,WJ Friend,WJC WJ Friend,255,MOBIUS Restricted,No,No,0,,
+Metropolitan Community College,6mcmc,Sierra,55,MCC Student,MCC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Metropolitan Community College,6mcmc,Sierra,56,MCC Employee,MCC Employee,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Metropolitan Community College,6mcmc,Sierra,57,MCC ILL,MCC ILL,255,MOBIUS Restricted,No,No,0,,
+Metropolitan Community College,6mcmc,Sierra,58,MCC Non-MOBIUS,MCC Non-MOBIUS,255,MOBIUS Restricted,No,No,0,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,61,MBTS Faculty,MBTS Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Midwestern Baptist Theological Seminary,6mbts,Sierra,62,MBTS Adjunct faculty,MBTS Adjunct Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Midwestern Baptist Theological Seminary,6mbts,Sierra,63,MBTS Administration,MBTS Administration,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Midwestern Baptist Theological Seminary,6mbts,Sierra,64,MBTS Trustee,None,,,,,,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,65,MBTS Library,None,,,,,,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,66,MBTS Staff,None,,,,,,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,67,MBTS Student,MBTS Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Midwestern Baptist Theological Seminary,6mbts,Sierra,68,MBTS Doctoral Student,MBTS Doctoral Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Midwestern Baptist Theological Seminary,6mbts,Sierra,69,MBTS Special,MBTS Alumni,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Midwestern Baptist Theological Seminary,6mbts,Sierra,70,MBTS Family member,None,,,,,,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,71,MBTS Graduate,MBTS Masters Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Midwestern Baptist Theological Seminary,6mbts,Sierra,72,MBTS Courtesy card,None,,,,,,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,73,MBTS ILL-OCLC/KCMLIN,None,,,,,,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,74,MBTS Area minister,None,,,,,,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,75,MBTS Guest,MBTS Guest,255,MOBIUS Restricted,No,No,0,,
+Midwestern Baptist Theological Seminary,6mbts,Sierra,76,MBTS PH.D student,MBTS PH.D Student,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Midwestern Baptist Theological Seminary,6mbts,Sierra,77,MBTS CURATOR/OFFICES,None,,,,,,,
+Rockhurst University,6rock,Sierra,81,RU Student,ROCK RU Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Rockhurst University,6rock,Sierra,82,RU Faculty,ROCK RU Employee,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Rockhurst University,6rock,Sierra,83,RU Staff,None,,,,,,,
+Rockhurst University,6rock,Sierra,84,RU Friend,None,,,,,,,
+Rockhurst University,6rock,Sierra,85,RU Courtesy card,ROCK Courtesy Card,255,MOBIUS Restricted,No,No,0,,
+Rockhurst University,6rock,Sierra,86,RU ILL,ROCK RU ILL,255,MOBIUS Restricted,No,No,0,,
+Rockhurst University,6rock,Sierra,87,RU ACCP Faculty,ROCK RU ACCP Faculty,255,MOBIUS Restricted,No,No,0,,
+Rockhurst University,6rock,Sierra,88,RU Alumni,ROCK RU Alumni,255,MOBIUS Restricted,No,No,0,,
+North Central Missouri College,6ncmc,Sierra,90,NCMC Student,NCMC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+North Central Missouri College,6ncmc,Sierra,91,NCMC Graceland Student,None,,,,,,,
+North Central Missouri College,6ncmc,Sierra,92,NCMC Visiting Student,NCMC Visiting Student,255,MOBIUS Restricted,No,No,0,,
+North Central Missouri College,6ncmc,Sierra,93,NCMC Upward Bound Student,NCMC Upward Bound Student,255,MOBIUS Restricted,No,No,0,,
+North Central Missouri College,6ncmc,Sierra,94,NCMC Community,NCMC Community,255,MOBIUS Restricted,No,No,0,,
+North Central Missouri College,6ncmc,Sierra,95,NCMC Staff,NCMC Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+North Central Missouri College,6ncmc,Sierra,96,NCMC Administration,NCMC Administration,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+North Central Missouri College,6ncmc,Sierra,97,NCMC Faculty,NCMC Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+North Central Missouri College,6ncmc,Sierra,98,NCMC College Board,NCMC College Board,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+North Central Missouri College,6ncmc,Sierra,99,NCMC Emeritus,NCMC Emeritus,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+North Central Missouri College,6ncmc,Sierra,100,NCMC ILL,NCMC ILL,255,MOBIUS Restricted,No,No,0,,
+St. Paul School of Theology,6spst,Sierra,101,SPST M.Div. Student,SPST Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+St. Paul School of Theology,6spst,Sierra,102,SPST M.A.T.S. Student,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,103,SPST M.A.S.M. Student,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,104,SPST D.Min. Student,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,105,SPST Staff,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,106,SPST Faculty,SPST Faculty/Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+St. Paul School of Theology,6spst,Sierra,107,SPST Adjunct Faculty,SPST Adjunct,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+St. Paul School of Theology,6spst,Sierra,108,SPST Graduate,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,109,SPST Alumnae/i,SPST Alumni,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+St. Paul School of Theology,6spst,Sierra,110,SPST Interlibrary Loan,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,111,SPST Diaconal Student,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,112,SPST Course of Study Student,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,113,SPST Certificate Student,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,114,SPST Visitor,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,115,SPST HOLOS,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,116,SPST Placeholder,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,117,SPST M.T.S. Student,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,118,SPST Course of Study Graduate,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,119,SPST Placeholder,None,,,,,,,
+St. Paul School of Theology,6spst,Sierra,120,SPST Courtesy Card,SPST Courtesy Card,255,MOBIUS Restricted,No,No,0,,
+Conception Abbey,6cabb,Sierra,121,CA Students,CNCPT Students,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Conception Abbey,6cabb,Sierra,122,CA Monastic Faculty,CNCPT Monastic Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Conception Abbey,6cabb,Sierra,123,CA Non-Monastic Faculty,CNCPT Non-Monastic Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Conception Abbey,6cabb,Sierra,124,CA Non-Faculty Monks,CNCPT Non-Faculty Monks,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Conception Abbey,6cabb,Sierra,125,CA Staff,CNCPT Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Conception Abbey,6cabb,Sierra,126,CA Clyde Sisters,CNCPT Clyde Sisters,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Conception Abbey,6cabb,Sierra,127,CA Community,CNCPT Community,255,MOBIUS Restricted,No,No,0,,
+Conception Abbey,6cabb,Sierra,128,CA ILL,CNCPT ILL,255,MOBIUS Restricted,No,No,0,,
+Conception Abbey,6cabb,Sierra,129,CA ILL MOBIUS Non-Returnable,CNCPT ILL MOBIUS Non-Returnable,255,MOBIUS Restricted,No,No,0,,
+Conception Abbey,6cabb,Sierra,130,CA ILL Non-MOBIUS Non-returnable,CNCPT ILL Non-MOBIUS Non-Returnable,255,MOBIUS Restricted,No,No,0,,
+Kansas City Art Institute,6kcai,Sierra,131,KCAI STUDENT,KCAI STUDENT,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City Art Institute,6kcai,Sierra,132,KCAI FACULTY-PERMANENT,KCAI FACULTY FULL-TIME,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Kansas City Art Institute,6kcai,Sierra,133,KCAI STAFF,KCAI STAFF,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Kansas City Art Institute,6kcai,Sierra,134,KCAI SPECIAL,KCAI GUEST,255,MOBIUS Restricted,No,No,0,,
+Kansas City Art Institute,6kcai,Sierra,135,KCAI FACULTY-PART TIME,KCAI FACULTY-PART TIME,255,MOBIUS Restricted,No,No,0,,
+Kansas City Art Institute,6kcai,Sierra,136,KCAI CORPORATE BORROWER,KCAI VISITING ARTIST,255,MOBIUS Restricted,No,No,0,,
+Kansas City Art Institute,6kcai,Sierra,137,KCAI CPS STUDENTS,None,,,,,,,
+Kansas City Art Institute,6kcai,Sierra,138,KCAI CPS Instructors,None,,,,,,,
+Kansas City Art Institute,6kcai,Sierra,139,KCAI CERTIF PROGRAM STUDENTS,None,,,,,,,
+Kansas City Art Institute,6kcai,Sierra,140,KCAI RETIRED FACULTY,KCAI RETIRED,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City Art Institute,6kcai,Sierra,141,KCAI INTERLIBRARY LOAN,KCAI INTERLIBRARY LOAN,255,MOBIUS Restricted,No,No,0,,
+Kansas City Art Institute,6kcai,Sierra,142,KCAI Student Restricted,KCAI Student Restricted,255,MOBIUS Restricted,No,No,0,,
+Kansas City Art Institute,6kcai,Sierra,143,KCAI Do Not Use,None,,,,,,,
+Kansas City Art Institute,6kcai,Sierra,144,KCAI Library Staff,KCAI Library Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Park University,6park,Sierra,151,Park Student,PARK Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Park University,6park,Sierra,152,Park Faculty,PARK Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Park University,6park,Sierra,153,Park Staff,PARK Staff,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Park University,6park,Sierra,154,Park Community,PARK Community,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Park University,6park,Sierra,155,Park Courtesy,PARK Courtesy,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Park University,6park,Sierra,156,Park ILL,PARK ILL,255,MOBIUS Restricted,No,No,0,,
+Park University,6park,Sierra,157,Park Alumni,PARK Alumni,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Park University,6park,Sierra,158,Park Emeriti,PARK Emeriti,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Nazarene Theological Seminary,6nzts,Sierra,160,NTS Student,NTS Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Nazarene Theological Seminary,6nzts,Sierra,161,NTS Faculty,NTS Faculty,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Nazarene Theological Seminary,6nzts,Sierra,162,NTS DMin,NTS DMin,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Nazarene Theological Seminary,6nzts,Sierra,163,NTS Courtesy,NTS Courtesy,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Nazarene Theological Seminary,6nzts,Sierra,164,NTS ILL,NTS ILL,255,MOBIUS Restricted,No,No,0,,
+Nazarene Theological Seminary,6nzts,Sierra,165,NTS Community,NTS Community,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Nazarene Theological Seminary,6nzts,Sierra,166,NTS Alumni,NTS Alumni,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Nazarene Theological Seminary,6nzts,Sierra,167,NTS CPL,NTS Praxis,255,MOBIUS Restricted,No,No,0,,
+Kansas City University,6kcun,Sierra,170,KCU Students,KCU Students,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City University,6kcun,Sierra,171,KCU Faculty,KCU Faculty,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City University,6kcun,Sierra,172,KCU Staff,KCU Staff,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City University,6kcun,Sierra,173,KCU ILL,KCU ILL,255,MOBIUS Restricted,No,No,0,,
+Kansas City University,6kcun,Sierra,174,KCU Special,KCU Special,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City University,6kcun,Sierra,175,KCU Residents,KCU Residents,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City University,6kcun,Sierra,176,KCU Joplin Students,KCU Joplin Students,255,MOBIUS Restricted,No,No,0,,
+Kansas City University,6kcun,Sierra,177,KCU Joplin Faculty,KCU Joplin Faculty,255,MOBIUS Restricted,No,No,0,,
+Kansas City University,6kcun,Sierra,178,KCU Joplin Staff,KCU Joplin Staff,255,MOBIUS Restricted,No,No,0,,
+Kansas City University,6kcun,Sierra,179,KCU Joplin Residents,KCU Joplin Residents,255,MOBIUS Restricted,No,No,0,,
+Northwest Missouri State University,6nmsu,Sierra,180,NW Undergrad Student,NWMSU NW Undergraduate Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Northwest Missouri State University,6nmsu,Sierra,181,NW Graduate Student,NWMSU Graduate Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Northwest Missouri State University,6nmsu,Sierra,183,NW Exempt Staff,NWMSU NW Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Northwest Missouri State University,6nmsu,Sierra,184,NW Faculty,NWMSU Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Northwest Missouri State University,6nmsu,Sierra,185,NWO Alumni,NWMSU Alumni,255,MOBIUS Restricted,No,No,0,,
+Northwest Missouri State University,6nmsu,Sierra,186,NWO Family,NWMSU NWM Family,255,MOBIUS Restricted,No,No,0,,
+Northwest Missouri State University,6nmsu,Sierra,187,NWO Maryville Public Library,NWMSU Maryville Public Library,255,MOBIUS Restricted,No,No,0,,
+Northwest Missouri State University,6nmsu,Sierra,188,NWO Special Borrower,NWMSU Special Borrower,255,MOBIUS Restricted,No,No,0,,
+Northwest Missouri State University,6nmsu,Sierra,189,NWO ILL,NWMSU ILL,255,MOBIUS Restricted,No,No,0,,
+Northwest Missouri State University,6nmsu,Sierra,190,NWM Student,NWMSU Student,255,MOBIUS Restricted,No,No,0,,
+Northwest Missouri State University,6nmsu,Sierra,192,NWM Other,None,,,,,,,
+Northwest Missouri State University,6nmsu,Sierra,194,NW Retiree,NWMSU Retiree,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Kansas City KS Community College,6kckc,Sierra,261,KCKCC Employee,KCKCC Employee,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Kansas City KS Community College,6kckc,Sierra,262,KCKCC Student,KCKCC Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Kansas City KS Community College,6kckc,Sierra,263,KCKCC Community,KCKCC Community,255,MOBIUS Restricted,No,No,0,,
+Kansas City KS Community College,6kckc,Sierra,264,KCKCC Alumni,KCKCC Alumni,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Benedictine College,6bene,Sierra,271,BC Student,BC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Benedictine College,6bene,Sierra,272,BC Faculty,BC Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Benedictine College,6bene,Sierra,273,BC Staff,BC Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Benedictine College,6bene,Sierra,274,BC Monastic,BC Monastic,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Benedictine College,6bene,Sierra,275,BC Public,BC Public,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Benedictine College,6bene,Sierra,276,BC ILL,BC ILL,255,MOBIUS Restricted,No,No,0,,
+Calvary University,6calv,Sierra,281,Calvary Faculty/Staff,CU Faculty/Staff,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Calvary University,6calv,Sierra,282,Calvary Guest/Alumni,CU Guest/Alumni,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Calvary University,6calv,Sierra,283,Calvary Student,CU Student,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Crowder College,6crow,Sierra,1,Crowder Student,CROW Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Crowder College,6crow,Sierra,2,Crowder Faculty,CROW Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Crowder College,6crow,Sierra,3,Crowder Staff,CROW Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Crowder College,6crow,Sierra,4,Crowder Guest,CROW Guest,255,MOBIUS Restricted,No,No,0,,
+Crowder College,6crow,Sierra,5,Crowder ILL,CROW ILL,255,MOBIUS Restricted,No,No,0,,
+Crowder College,6crow,Sierra,6,Crowder Booking Test,CROW Booking Test,255,MOBIUS Restricted,No,No,0,,
+Drury University,6drur,Sierra,26,Drury Student,DU Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Drury University,6drur,Sierra,27,Drury Alumni,DU Alumni,255,MOBIUS Restricted,No,No,0,,
+Drury University,6drur,Sierra,28,Drury Faculty,DU Faculty,238,MOBIUS 30 BOOK-AV,Yes,Yes,30,Academic,Faculty
+Drury University,6drur,Sierra,29,Drury Staff,DU Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Drury University,6drur,Sierra,32,Drury Other,DU Other,255,MOBIUS Restricted,No,No,0,,
+Drury University,6drur,Sierra,33,Drury Adjunct,DU Adjunct,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Southern State University,6mssu,Sierra,51,MSSU Undergrad,MSSU Undergraduate,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Missouri Southern State University,6mssu,Sierra,52,MSSU Faculty,MSSU Faculty,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Missouri Southern State University,6mssu,Sierra,53,MSSU Staff,MSSU Staff,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Missouri Southern State University,6mssu,Sierra,54,MSSU Community,MSSU Community,255,MOBIUS Restricted,No,No,0,,
+Missouri Southern State University,6mssu,Sierra,55,MSSU ILL,MSSU ILL,255,MOBIUS Restricted,No,No,0,,
+Missouri Southern State University,6mssu,Sierra,56,MSSU VIPS,MSSU VIPS,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Southern State University,6mssu,Sierra,57,MSSU Area Student,MSSU Area Students,255,MOBIUS Restricted,No,No,0,,
+Missouri Southern State University,6mssu,Sierra,58,MSSU Area Faculty,None,,,,,,,
+Missouri Southern State University,6mssu,Sierra,59,MSSU Coop Faculty,None,,,,,,,
+Missouri Southern State University,6mssu,Sierra,60,MSSU Coop Undergrad,None,,,,,,,
+Missouri Southern State University,6mssu,Sierra,61,MSSU Coop Graduate,None,,,,,,,
+Missouri Southern State University,6mssu,Sierra,62,MSSU In House,MSSU In-House,255,MOBIUS Restricted,No,No,0,,
+Missouri Southern State University,6mssu,Sierra,63,MSSU Grad Student,MSSU Graduate Student,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Missouri Southern State University,6mssu,Sierra,64,MSSU Friend,MSSU Friend,255,MOBIUS Restricted,No,No,0,,
+Ozarks Technical Community College,6otcc,Sierra,76,OTC Student,OTC Student,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Ozarks Technical Community College,6otcc,Sierra,77,OTC Faculty,OTC Faculty-Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Ozarks Technical Community College,6otcc,Sierra,78,OTC Staff,None,,,,,,,
+Ozarks Technical Community College,6otcc,Sierra,79,OTC Community,OTC Community,255,MOBIUS Restricted,No,No,0,,
+Ozarks Technical Community College,6otcc,Sierra,80,OTC ILL,None,,,,,,,
+Ozarks Technical Community College,6otcc,Sierra,81,OTC High School,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,101,SBU Undergraduate,SBU Undergraduate,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Southwest Baptist University,6swbu,Sierra,102,SBU Graduate,SBU Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Southwest Baptist University,6swbu,Sierra,103,SBU Faculty Full Time,SBU Faculty Full Time,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Southwest Baptist University,6swbu,Sierra,104,SBU Faculty Retired,SBU Faculty Retired,255,MOBIUS Restricted,No,No,0,,
+Southwest Baptist University,6swbu,Sierra,105,SBU Faculty Adjunct,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,106,SBU Faculty Affilate,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,107,SBU Staff,SBU Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Southwest Baptist University,6swbu,Sierra,108,SBU Guest Adult,SBU Guest Adult,255,MOBIUS Restricted,No,No,0,,
+Southwest Baptist University,6swbu,Sierra,109,SBU Guest Juvenile,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,110,SBU ILL,SBU ILL,255,MOBIUS Restricted,No,No,0,,
+Southwest Baptist University,6swbu,Sierra,111,SBU Associate Student,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,112,SBU Area College Student,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,113,SBU Student-Dual Enrolled,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,114,SBU Student Correspondance,SBU Student Correspondence,255,MOBIUS Restricted,No,No,0,,
+Southwest Baptist University,6swbu,Sierra,115,SBU Graduate PT,None,,,,,,,
+Southwest Baptist University,6swbu,Sierra,116,SBU Staff Affiliate,None,,,,,,,
+Cottey College,6cott,Sierra,150,Cottey/Admin,COTT Admin,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Cottey College,6cott,Sierra,151,Cottey/Alumnae,COTT Alumnae,255,MOBIUS Restricted,No,No,0,,
+Cottey College,6cott,Sierra,152,Cottey/Emeritus Faculty,COTT Emeritus Faculty,255,MOBIUS Restricted,No,No,0,,
+Cottey College,6cott,Sierra,153,Cottey/Retired Staff,COTT Retired Staff,255,MOBIUS Restricted,No,No,0,,
+Cottey College,6cott,Sierra,154,Cottey/Faculty,COTT Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Cottey College,6cott,Sierra,155,Cottey/Family,COTT Family,255,MOBIUS Restricted,No,No,0,,
+Cottey College,6cott,Sierra,156,Cottey/1st Year,COTT 1st Year,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Cottey College,6cott,Sierra,157,Cottey/ILL,COTT ILL,255,MOBIUS Restricted,No,No,0,,
+Cottey College,6cott,Sierra,158,Cottey/PEO,COTT PEO,255,MOBIUS Restricted,No,No,0,,
+Cottey College,6cott,Sierra,159,Cottey/2nd Year,COTT 2nd Year,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Cottey College,6cott,Sierra,160,Cottey/Staff,COTT Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Cottey College,6cott,Sierra,162,Cottey/Public,COTT Public,255,MOBIUS Restricted,No,No,0,,
+Cottey College,6cott,Sierra,163,Cottey/Nevada R-V Teacher,COTT Nevada R-V Teacher,237,MOBIUS 10 BOOK-AV,Yes,Yes,10,Academic,Undergraduate
+Cottey College,6cott,Sierra,164,Cottey/3rd Year,COTT 3rd Year,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Cottey College,6cott,Sierra,165,Cottey/4th Year,COTT 4th Year,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Evangel University,6evan,Sierra,170,EU Masters Student,EU Masters Student,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Evangel University,6evan,Sierra,171,EU Faculty & Administration,EU Faculty & Administration,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Evangel University,6evan,Sierra,172,EU Staff,EU Staff,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Evangel University,6evan,Sierra,173,EU Adjunct Faculty,EU Adjunct Faculty,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Evangel University,6evan,Sierra,174,EU Alumni,EU Alumni,255,MOBIUS Restricted,No,No,0,,
+Evangel University,6evan,Sierra,175,EU Distance Masters Student,None,,,,,,,
+Evangel University,6evan,Sierra,176,EU Doctoral Student,EU Doctoral Student,235,MOBIUS 20 BOOK,Yes,No,20,Public,Senior
+Evangel University,6evan,Sierra,177,EU ILL,EU ILL,255,MOBIUS Restricted,No,No,0,,
+Evangel University,6evan,Sierra,178,EU Guest,EU Guest,255,MOBIUS Restricted,No,No,0,,
+Evangel University,6evan,Sierra,179,EU Classroom Assignment,EU Classroom Assignment,255,MOBIUS Restricted,No,No,0,,
+Evangel University,6evan,Sierra,180,EU Departmental,None,,,,,,,
+Evangel University,6evan,Sierra,181,EU Undergraduate Student,EU Undergraduate Student,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Evangel University,6evan,Sierra,182,EU Reciprocal Borrower,EU Reciprocal Borrower,255,MOBIUS Restricted,No,No,0,,
+Evangel University,6evan,Sierra,183,EU Global Faculty,EU Global Faculty,255,MOBIUS Restricted,No,No,0,,
+Evangel University,6evan,Sierra,184,EU Temp,EU Temp,255,MOBIUS Restricted,No,No,0,,
+Ozark Christian College,6ozcc,Sierra,185,OCC Student,OCC Residential,255,MOBIUS Restricted,No,No,0,,Graduate
+Ozark Christian College,6ozcc,Sierra,186,OCC Graduating Senior,None,,,,,,,
+Ozark Christian College,6ozcc,Sierra,187,OCC Faculty,OCC Faculty,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Ozark Christian College,6ozcc,Sierra,188,OCC Staff,OCC Staff,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Ozark Christian College,6ozcc,Sierra,189,OCC Affiliates,OCC Affiliates,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Ozark Christian College,6ozcc,Sierra,190,OCC Grad Student,OCC Graduate,236,MOBIUS 20 BOOK-AV,Yes,Yes,20,Academic,Graduate
+Ozark Christian College,6ozcc,Sierra,191,OCC ILL,None,,,,,,,
+Ozark Christian College,6ozcc,Sierra,192,OCC Homeschoolers,None,,,,,,,
+Ozark Christian College,6ozcc,Sierra,193,OCC Placeholder,OCC Online,255,MOBIUS Restricted,No,No,0,,
+Ozark Christian College,6ozcc,Sierra,194,OCC Placeholder,OCC Alumni,255,MOBIUS Restricted,No,No,0,,
+Southwestern Baptist Theological Seminary,6swbt,Sierra,1,SWBTS Student,SWBTS Student,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,2,SWBTS Doctoral Student,SWBTS Doctoral Student,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,3,SWBTS Ensemble Students,None,,,,,,,
+Southwestern Baptist Theological Seminary,6swbt,Sierra,4,SWBTS ATLA Reciprocal,SWBTS ATLA/ACL Reciprocal,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,5,SWBTS Texshare,SWBTS Texshare,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,6,SWBTS Guest/SWBTS Family Member,SWBTS Guest/Family Member,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,7,SWBTS Ministry by Mail,None,,,,,,,
+Southwestern Baptist Theological Seminary,6swbt,Sierra,8,SWBTS Alumni,SWBTS Alumni,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,9,SWBTSVisitingScholar-DeanApprovd,SWBTS VIP,239,MOBIUS 10 BOOK,Yes,No,10,Public,Young Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,10,SWBTS Faculty,SWBTS Faculty,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,11,SWBTS Adjunct Faculty,SWBTS Adjunct Family,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,12,SWBTS Staff,SWBTS Staff,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,13,SWBTS Faculty Family,None,,,,,,,
+Southwestern Baptist Theological Seminary,6swbt,Sierra,14,SWBTS Librarians,SWBTS Librarians,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,15,SWBTS ILL,SWBTS ILL,241,MOBIUS 30 BOOK,Yes,No,30,Public,Adult
+Southwestern Baptist Theological Seminary,6swbt,Sierra,16,SWBTS Test,None,,,,,,,
+Southwestern Baptist Theological Seminary,6swbt,Sierra,17,SWBTS test also,None,,,,,,,
+Southwestern Baptist Theological Seminary,6swbt,Sierra,18,SWBTS Retiree,SWBTS Emeritus,255,MOBIUS Restricted,No,No,0,,Graduate

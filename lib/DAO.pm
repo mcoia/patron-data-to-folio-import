@@ -4,14 +4,7 @@ use warnings FATAL => 'all';
 no warnings 'uninitialized';
 use MOBIUS::DBhandler;
 use Data::Dumper;
-
-# todo: DAO todo list
-=pod
-
-[]: write test for every method in this class. This is kind of done in testDatabase.
-[]: finish writing cache methods
-
-=cut
+use Try::Tiny;
 
 my $schema;
 
@@ -73,29 +66,15 @@ sub checkDatabaseStatus
 {
     my $self = shift;
 
-=head1 checkDatabaseStatus()
-
-This is where we populate the db with mapping tables and such that we might need.
-It started with the institution_map table but I see other csv's needing to be loaded.
-
-Note: program exists if it can't establish a database connection. We have to have a connection
-to even reach this point.
-
-=cut
-
-    # I may just dump the key components of the db to an import file.
-    # I don't want to manually code this sql stuff. It's taking too long.
-
     # init our cache
     $self->_initDatabaseCache();
 
-
     # Check our institution map
     my $institutionMapTableSize = $self->getTableSize("institution_map");
-    $self->buildInstitutionMapTableData() if ($institutionMapTableSize == 0);
+    $main::files->buildInstitutionMapTableData() if ($institutionMapTableSize == 0);
 
     my $ptypeMappingTableSize = $self->getTableSize("ptype_mapping");
-    $self->buildPTypeMappingTableData() if ($ptypeMappingTableSize == 0);
+    $main::files->buildDCBPtypeMappingFromCSV() if ($ptypeMappingTableSize == 0);
 
 }
 
@@ -238,8 +217,9 @@ sub saveStagedPatronRecords
             $patron->{email_address},
             $patron->{note}
         );
-        $self->_insertIntoTable("stage_patron", \@data);
+        $self->_insertArrayIntoTable("stage_patron", \@data);
     }
+
 }
 
 sub insertPatron
@@ -247,7 +227,6 @@ sub insertPatron
     my $self = shift;
     my $patron = shift;
     my $tableName = "patron";
-
 
     my @data = (
         $patron->{id},
@@ -271,14 +250,14 @@ sub insertPatron
         $patron->{expirationdate},
     );
 
-    $self->_insertIntoTable($tableName, \@data);
+    $self->_insertArrayIntoTable($tableName, \@data);
 
 }
 
 sub updatePatron
 {
 
-   my $query = "update patron p2
+    my $query = "update patron p2
 set
 column1 = staging.column1
 ....
@@ -290,18 +269,60 @@ where
 p.id=p2.id";
 
 
+}
 
+sub _insertHashIntoTable
+{
+    my $self = shift;
+    my $tableName = shift;
+    my $hash = shift;
+
+    # grab some sort of column order from the hash
+    my @sqlColumns = ();
+    push(@sqlColumns, $_) for (keys %{$hash});
+
+    # now order the data to the sqlColumns
+    my @data = ();
+    push(@data, $hash->{$_}) for (@sqlColumns);
+
+    my $columns = $self->_convertArrayToCSVString(\@sqlColumns);
+
+    # build our $1,$2 ect... string
+    my $dataString = "";
+    my $totalColumns = @sqlColumns;
+
+    for my $index (1 .. $totalColumns)
+    {$dataString = $dataString . "\$$index,";}
+    chop($dataString);
+
+    # taking advantage of perls natural templating
+    my $query = "INSERT INTO $schema.$tableName($columns) VALUES($dataString);";
+    $main::log->addLine($query);
+
+    # eval {$self->{'db'}->updateWithParameters($query, \@data);};
+    $self->{'db'}->updateWithParameters($query, \@data);
 
 }
 
-sub _insertIntoTable
+sub _insertArrayIntoTable
 {
     my $self = shift;
     my $tableName = shift;
     my $data = shift;
 
-    my @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
-    shift(@columns) if ($columns[0] eq 'id');
+    my @columns = ();
+
+    try
+    {
+        @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
+    }
+    catch
+    {
+        $self->_initDatabaseCacheTableColumns();
+        @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
+    };
+
+    shift(@columns) if ($columns[0] eq 'id'); # <== remove the id before insert
 
     my $columns = $self->_convertArrayToCSVString(\@columns);
 
@@ -490,120 +511,121 @@ sub getTableSize
 
 }
 
-sub buildInstitutionMapTableData
-{
-    my $self = shift;
-
-    # id
-    # cluster
-    # institution
-    # folder_path
-    # file
-    # file_pattern
-    # module
-
-    # 'cluster' => 'archway',
-    # 'institution' => 'East Central College',
-    # 'file' => 'eccpat.txt',
-    # 'pattern' => 'eccpat'
-
-    my $institutions = $main::files->_loadMOBIUSPatronLoadsCSV();
-    $institutions = $main::files->_buildFilePatterns($institutions);
-    $institutions = $main::files->_buildFolderPaths($institutions);
-
-    for my $institution (@{$institutions})
-    {
-
-        my @data = (
-            "$institution->{cluster}",
-            "$institution->{institution}",
-            "$institution->{folder_path}",
-            "$institution->{file}",
-            "$institution->{pattern}",
-            "GenericParser",
-            ""
-        );
-
-        $self->_insertIntoTable("institution_map", \@data);
-
-    }
-
-}
-
-sub buildPTypeMappingTableData
-{
-    my $self = shift;
-    my $sqlInsert = $main::files->readFileToArray($main::conf->{patronTypeMappingSQLPath});
-
-    my $query = "";
-    for my $line (@{$sqlInsert})
-    {
-        $query .= $line . "\n";
-    }
-
-    $main::dao->{db}->query($query);
-
-}
-
-sub getPTYPEMappingSheet
-{
-    my $self = shift;
-    my $institution = shift;
-    my $ptype = shift;
-
-    my $tableName = "ptype_mapping";
-    my $columns = $self->_getTableColumns($tableName);
-    my $query = "";
-
-    # perl doesn't support method overloading. so I'm just going to code for it.
-    # If we don't pass in an institution we return ALL ptypes.
-    $query = "select ($columns) from $schema.$tableName where name='$institution' and ptype = '$ptype';" if ($institution ne "");
-    $query = "select ($columns) from $schema.$tableName;" if ($institution eq "");
-
-    return $self->query($query);
-
-}
-
 sub query
 {
     my $self = shift;
     my $query = shift;
 
-    # This is a wrapper for ->{db}->query
-    # Instead of calling dao->{db}->query()
-    # You can just call  dao->query()
-    # saving a little typing over the course of the project.
     return $self->{db}->query($query);
 
 }
 
-sub getStagedPatronByUsername
+sub isTableExists
 {
     my $self = shift;
-    my $username = shift;
+    my $tableName = shift;
 
-    my $columns = $self->_getTableColumns("stage_patron");
+    my $query = "select t.table_name from information_schema.tables t
+                where t.table_schema='$schema' and t.table_name='$tableName';";
 
-    # Ok, so we're going to use the unique_id as the username
-    # This comment is for grepping to find this spot in the code. You're welcome if it worked! lol
-    # [unique_id username][unique id username][external_id username][external id username]
-    my $query = "select $columns from patron_import.stage_patron p
-                 where p.unique_id = '$username'";
+    my $size = @{$self->query($query)};
 
-    return $self->query($query);
+    return 1 if ($size > 0);
+    return 0 if ($size == 0);
 
 }
 
-sub getPatronByUsername
+sub dropTable
 {
     my $self = shift;
-    my $username = shift;
+    my $tableName = shift;
 
-    my $columns = $self->_getTableColumns("patron");
+    my $query = "drop table if exists $schema.$tableName;";
+    print "$query\n";
+    $self->query($query);
 
-    my $query = "select $columns from patron_import.patron p where p.username = '$username'";
+}
 
-    return $self->query($query);
+sub createTableFromHash
+{
+
+    my $self = shift;
+    my $tableName = shift;
+    my $hash = shift;
+
+    if ($self->isTableExists($tableName))
+    { # do something...
+    }
+
+    # build out the database columns. default to text
+    my $columns = "\nid  SERIAL primary key,\n";
+    for my $key (keys %{$hash})
+    {$columns = $columns . "$key text,\n";}
+    chop($columns); # \n
+    chop($columns); # ,
+
+    my $query = "create table if not exists $schema.$tableName ($columns);";
+
+    $self->query($query);
+
+}
+
+sub createTableFromCSVFilePath
+{
+
+    my $self = shift;
+    my $tableName = shift;
+    my $filePath = shift;
+    my $rowsToSkip = shift | 0;
+
+    my $csv = $main::files->_loadCSVFileAsArray($filePath);
+    my $totalColumns = @{$csv->[$rowsToSkip]};
+
+    # create our table
+    my $columns = "";
+    for my $index (1 .. $totalColumns)
+    {
+        $columns .= "C$index text,";
+    }
+    chop($columns); # ,
+
+    my $query = "create table if not exists $schema.$tableName ($columns);";
+    $self->query($query);
+
+    # now load the csv into this table
+    my $count = 0;
+    for my $row (@{$csv})
+    {
+
+        # skip n rows
+        if ($count < $rowsToSkip)
+        {
+            $count++;
+            next;
+        }
+
+        $self->_insertArrayIntoTable($tableName, $row);
+        $count++;
+    }
+
+    print "inserted [$count] records into $tableName\n";
+
+}
+
+sub getESIDFromMappingTable
+{
+    my $self = shift;
+    my $institution = shift;
+
+    my $tableName = "sso_esid_mapping";
+
+    my $query = "select c3 from $schema.$tableName where c1 = '$institution->{institution}'";
+
+    my $results = $self->query($query)->[0]->[0];
+
+    return "email" if ($results =~ /email/);
+    return "barcode" if ($results =~ /barcode/);
+    return "";
 
 }
 

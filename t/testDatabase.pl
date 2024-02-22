@@ -74,7 +74,7 @@ sub test_DAO__insertIntoTable
         $dao->_getCurrentTimestamp
     );
 
-    $dao->_insertIntoTable($tableName, \@data);
+    $dao->_insertArrayIntoTable($tableName, \@data);
 }
 
 # test_DAO__selectAllFromTable();
@@ -195,7 +195,7 @@ sub test_getPatronFilePaths
 {
 
     # real    2m11.809s
-    $conf->{jobID} = 1;
+    our $jobID = 1;
     my $filesHashArray = $files->getPatronFilePaths();
 
     print Dumper($filesHashArray);
@@ -318,11 +318,72 @@ sub test_checkNames
     print "\n\n";
 }
 
-test_getStagedPatronByUsername();
+# test_getStagedPatronByUsername();
 sub test_getStagedPatronByUsername
 {
 
     my $patron = $dao->getStagedPatronByUsername();
+
+}
+
+# test__insertHash();
+sub test__insertHash
+{
+
+    my $patron = {
+        'job_id'         => 27,
+        'institution_id' => 1,
+        'file_id'        => 209,
+        'esid'           => "donya.johnsen\@student.eastcentral.edu",
+        # 'fingerprint'            => "6fed6323a384ad9c550e1a2073ea01fa3ae7b5c6",
+        # 'field_code'             => "0",
+        # 'patron_type'            => "003",
+        # 'pcode1'                 => "e",
+        # 'pcode2'                 => "-",
+        # 'pcode3'                 => "001",
+        # 'home_library'           => "ecb  ",
+        # 'patron_message_code'    => "-",
+        # 'patron_block_code'      => "-",
+        # 'patron_expiration_date' => "05-08-24",
+        'name'           => "Johnsen, Donya R",
+        # 'address'                => "550 Crestfall Dr\$Washington, MO  63090-7123",
+        # 'telephone'              => "573-205-1594",
+        # 'address2'               => "",
+        # 'telephone2'             => "",
+        # 'department'             => "ecb",
+        # 'unique_id'              => "0005468EC",
+        'barcode'        => "0005468",
+        'email_address'  => "donya.johnsen\@student.eastcentral.edu",
+        # 'note'                   => ""
+    };
+
+    $dao->_insertHashIntoTable("stage_patron", $patron);
+
+}
+
+# test_createTableFromHash();
+sub test_createTableFromHash
+{
+    my $hash = {
+        'name'       => 'Scott',
+        'ptype'      => 5,
+        'foliogroup' => 'staff'
+    };
+
+    # my $tableName = "ptype_mapping";
+    my $tableName = "test";
+    $dao->createTableFromHash($tableName, $hash);
+
+}
+
+test_getInstitutionMapHashById();
+sub test_getInstitutionMapHashById
+{
+    my $institutionID = 1;
+    for(1..10){
+    my $institution = $main::dao->getInstitutionMapHashById($_);
+    print Dumper($institution);
+    }
 
 }
 

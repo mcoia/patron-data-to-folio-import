@@ -50,6 +50,7 @@ sub stagePatronRecords
 
         # Parse these records
         my $patronRecords = $parser->parse($patronFile);
+        $parser->saveStagedPatronRecords($patronRecords);
 
         ##########################################################################################
         # This section will eventually get moved to the extended parser code i.e. Generic parser #
@@ -60,7 +61,7 @@ sub stagePatronRecords
         print "[$patronFileIndex] saving records... total:$totalFileRecords [$institution->{institution}]:[$institution->{module}]:[$patronFile->{filename}]\n";
 
         # Now save these patrons to the staging table
-        $main::dao->saveStagedPatronRecords($patronRecords);
+        # $main::dao->saveStagedPatronRecords($patronRecords);
         ##########################################################################################
         # This section will eventually get moved to the extended parser code i.e. Generic parser #
         ##########################################################################################
@@ -137,6 +138,8 @@ sub _mapPatronTypeToPatronGroup
 sub migrate
 {
     my $self = shift;
+    # Note: I'm coding to get this done now. 02-22-24.
+    # I've been working on this and I still haven't sent any POST request.
 
     # Inserts vs Updates
     # We'll use the username as our key. That's what needs to be 100% unique across the consortium.

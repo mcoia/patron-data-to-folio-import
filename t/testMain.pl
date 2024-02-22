@@ -51,20 +51,6 @@ sub initLog
     $log->truncFile("");
 }
 
-# test_getPTYPEMappingSheet();
-sub test_getPTYPEMappingSheet
-{
-
-    my $institution = "Mineral Area College";
-    my $ptype = "32";
-
-    # $dao->getPTYPEMappingSheet();
-    my $results = $dao->getPTYPEMappingSheet();
-    # my $results = $dao->getPTYPEMappingSheet($institution, $ptype);
-    print Dumper($results);
-
-}
-
 # test_parseName();
 sub test_parseName
 {
@@ -161,6 +147,26 @@ sub test_loadMOBIUSPatronLoadsCSV
     my $csv = $files->_loadMOBIUSPatronLoadsCSV();
     print Dumper($csv);
 
+}
+
+test_buildInstitutionMapTableData();
+sub test_buildInstitutionMapTableData
+{
+    $files->buildInstitutionMapTableData();
+}
+
+# test_buildDCBPtypeMappingFromCSV();
+sub test_buildDCBPtypeMappingFromCSV
+{
+    $files->buildDCBPtypeMappingFromCSV();
+}
+
+# test__loadSSO_ESID_MappingCSV();
+sub test__loadSSO_ESID_MappingCSV
+{
+    $dao->_initDatabaseCache();
+    print "_loadSSO_ESID_MappingCSV\n";
+    $files->_loadSSO_ESID_MappingCSV();
 }
 
 1;

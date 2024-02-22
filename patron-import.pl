@@ -21,7 +21,7 @@ my $configFile;
 my $runType;
 my $help;
 
-our ($conf, $log, $dao, $files, $parser);
+our ($conf, $log, $dao, $files, $parser, $jobID);
 
 GetOptions(
     "config=s" => \$configFile,
@@ -90,20 +90,22 @@ sub initLogger
 sub startJob
 {
 
-    my @data = (
-        $dao->_getCurrentTimestamp,
-        $dao->_getCurrentTimestamp,
-    );
+    my $job = {
+        'start_time' => $dao->_getCurrentTimestamp,
+        'stop_time'  => $dao->_getCurrentTimestamp,
+    };
 
-    $dao->_insertIntoTable("job", \@data);
+    $dao->_insertHashIntoTable("job", $job);
 
-    $conf->{jobID} = $dao->getLastJobID();
+    $jobID = $dao->getLastJobID();
+
+    # $conf->{jobID} = $dao->getLastJobID();
 
 }
 
 sub finishJob
 {
-    my $jobID = $conf->{jobID};
+
     my $schema = $conf->{schema};
     my $timestamp = $dao->_getCurrentTimestamp();
     my $query = "update $schema.job

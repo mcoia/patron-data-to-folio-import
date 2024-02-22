@@ -26,6 +26,8 @@ sub getESID
 
     my $esid = "";
 
+    return "" if ($institution->{esid} eq '');
+
     # I'm trying to error check this. I want a try/catch
     try
     {

@@ -63,12 +63,12 @@ sub getPatronFilePaths
         {
 
             my @data = (
-                $main::conf->{jobID},
+                $main::jobID,
                 $institution->{id},
                 $filePath
             );
 
-            $main::dao->_insertIntoTable("file_tracker", \@data);
+            $main::dao->_insertArrayIntoTable("file_tracker", \@data);
             my $file_tracker = $main::dao->_convertQueryResultsToHash("file_tracker", $main::dao->getLastFileTrackerEntryByFilename($filePath))->[0];
 
             push(@fileTrackerArray, $file_tracker);
@@ -118,7 +118,7 @@ sub _loadMOBIUSPatronLoadsCSV
 
 sub _buildFilePatterns
 {
-    # Is this where this method goes?
+
     my $self = shift;
     my $clusterFileHashArray = shift;
     my $filePatterns;
@@ -238,7 +238,7 @@ sub saveFilePath
         {
 
             my @data = (
-                $main::conf->{jobID},
+                $main::jobID,
                 $institution->{id},
                 $path
             );
@@ -255,12 +255,12 @@ sub saveFilePath
     # No files found
 
     my @data = (
-        $main::conf->{jobID},
+        $main::jobID,
         $institution->{id},
         'file-not-found'
     );
 
-    $main::dao->_insertIntoTable("file_tracker", \@data);
+    $main::dao->_insertArrayIntoTable("file_tracker", \@data);
 
 }
 
@@ -279,16 +279,19 @@ sub _buildFolderPaths
     return \@newFileHashArray;
 }
 
-sub getDCBPtypeMappingFromCSV
+sub buildDCBPtypeMappingFromCSV
 {
     # patronTypeMappingSheetPath
     my $self = shift;
 
     my $mappingSheet = $self->_loadCSVFileAsArray($main::conf->{patronTypeMappingSheetPath});
 
-    my @pTypeMappingArray = ();
+    # my @pTypeMappingArray = ();
     for my $row (@{$mappingSheet})
     {
+
+        # skip the first row
+        next if ($row->[0] eq 'Name');
 
         my $institution = $row->[0];
         my $pType = $row->[3];
@@ -305,16 +308,64 @@ sub getDCBPtypeMappingFromCSV
         $folioType =~ s/\s*$//g;
 
         my $record = {
-            'institution' => $institution,
-            'pType'       => $pType,
-            'folioType'   => $folioType
+            'name'       => $institution,
+            'pType'      => $pType,
+            'foliogroup' => $folioType
         };
 
-        push(@pTypeMappingArray, $record);
+        # push(@pTypeMappingArray, $record);
+        $main::dao->_insertHashIntoTable("ptype_mapping", $record);
 
     }
 
-    return \@pTypeMappingArray;
+
+    # return \@pTypeMappingArray;
+
+}
+
+sub buildInstitutionMapTableData
+{
+    my $self = shift;
+
+    my $institutions = $self->_loadMOBIUSPatronLoadsCSV();
+    $institutions = $self->_buildFilePatterns($institutions);
+    $institutions = $self->_buildFolderPaths($institutions);
+
+    $self->_loadSSO_ESID_MappingCSV();
+
+    for my $institution (@{$institutions})
+    {
+
+        my $esid = $main::dao->getESIDFromMappingTable($institution);
+
+        my @data = (
+            "$institution->{cluster}",
+            "$institution->{institution}",
+            "$institution->{folder_path}",
+            "$institution->{file}",
+            "$institution->{pattern}",
+            "GenericParser",
+            $esid
+        );
+
+        $main::dao->_insertArrayIntoTable("institution_map", \@data);
+
+    }
+
+
+}
+
+sub _loadSSO_ESID_MappingCSV
+{
+    my $self = shift;
+
+    my $csv = $self->_loadCSVFileAsArray($main::conf->{sso_esid_mapping});
+    my $tableName = "sso_esid_mapping";
+
+    # load our sso_esid_mapping sheet.
+    # https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZaj7M/edit#gid=154768990
+    $main::dao->dropTable($tableName);
+    $main::dao->createTableFromCSVFilePath("sso_esid_mapping", $main::conf->{sso_esid_mapping}, 4);
 
 }
 

@@ -1,3 +1,7 @@
+Locate URLs for MOBIUS,,,,,,
+Preferred: searchmobius.org for OpenRS and *.searchmobius.org for each site,,,,,,
+,, ,,,,
+Site,SSO Field Mapped to Locate ESID,Patron Load Field for ESID,Instructions Sent,ESID (tag e) in Sierra Patrons,ESID (tag e) in Patron Files,Notes
 A.T. Still University,UID (OpenAthens) ,email (tag z) > tag e,yes,added,,example: hbright@atsu.edu
 Avila University,Name ID (ADFS),barcode (tag b) > tag e,yes,added,,example: e	mccalleyse
 Benedictine College,(OpenAthens),email (tag z) > tag e,yes,added,,example: guti2732@ravens.benedictine.edu
@@ -16,22 +20,22 @@ Evangel University,(OpenAthens),email (tag z) > tag e,yes,added,,example: Abad21
 Fontbonne University,(OpenAthens),email (tag z) > tag e,,,,
 Goldfarb School of Nursing at Barnes-Jewish College,UPN (OpenAthens),bjc email (tag e),yes,added,,example: ny37917@bjc.org
 Hannibal-LaGrange University,(ADFS),email (tag z) > tag e,yes,added,HLG's programmer died in 2022!,example: Ashley.Whitley.15@student.hlg.edu
-Harris-Stowe State University,barcode/PIN,barcode (tag b),,,,Map email address to ESID for future SSO needs
+Harris-Stowe State University,barcode/PIN,barcode (tag b) (use email for ESID),n/a,added,HSSU does not send regular patron files,example: cwells99@hornets.hssu.edu
 Jefferson College,Name ID (GSuite Google),unique id (tag u) without suffix > tag e,yes,,updated,example: change V00115420JC to V00115420
 Kansas City Art Institute,(OpenAthens),barcode (tag b) > tag e,yes,added,KCAI not sure how to update script!,example: 15846
-Kansas City Kansas Community College,eduPersonPrincipalName (Azure),ASK KCKCC! (UPN - looks like email address),,,,
-Kansas City University,barcode/PIN,barcode (tag b),,,,"Map email address to ESID for future SSO needs, example: S123456KCU"
+Kansas City Kansas Community College,eduPersonPrincipalName (Azure),UPN (matches email address) > tag e,,,,
+Kansas City University,barcode/PIN,barcode (tag b) (use email for ESID),yes,added,,"example barcode: S123456KCU, example ESID: S111608@kansascity.edu"
 Kenrick-Glennon Theological Seminary,OpenAthens FOLIO connector,PENDING!,,,,
-Lincoln University,(Azure),email (tag z) > tag e,yes,,,example: aarica.stevenson231@my.lincolnu.edu
+Lincoln University,employeeid (Azure),barcode (tag b) > tag e,yes,added,,example: 0235254
 Lindenwood University,(OpenAthens),email (tag z) > tag e,,,,
-Logan University,(Azure),PENDING,,,,
+Logan University,(Azure),unique id (tag u) without suffix > tag e,,,,example: 000068861L but with the L on the end
 Maryville University,user.managerId (Okta),internal note (tag x) > tag e,yes,added,"IT is now managed by a project management office, continue to map from Internal Note (x) if possible",example 7-digit ID: 1234567
-Metropolitan Community College,(Azure),unique id (tag u) without suffix (to be confirmed),,,,example: 1489337MCC without MCC
+Metropolitan Community College,(Azure),unique id (tag u) without suffix > tag e,yes,added,,example: 1489337MCC without MCC
 Midwestern Baptist Theological Seminary,"OpenAthens - UPN ""Local ID"" sent from Azure",email (tag z) > tag e,yes,added,They have been creating patrons manually for 2 years.,example: cpostlewait@mbts.edu
 Mineral Area College,(OpenAthens),,,,,
 Missouri Baptist University,(OpenAthens),email (tag z) > tag e,yes,added,,example: Joshua.Feather@mobap.edu
 Missouri Botanical Garden,(OpenAthens),email (tag z) > tag e,n/a,added,MBG does not send us patron files.,example: Jason.Bernth@mobot.org
-Missouri History Museum,barcode/PIN,barcode (tag b),,,,"Map email address to ESID for future SSO needs, barcode is phone number, example: 3141234567"
+Missouri History Museum,barcode/PIN,barcode (tag b) (use email for ESID),n/a,added,MHM does not send us patron files,"example barcode: 3141234567, example ESID: emily@mohistory.org"
 Missouri Southern State University,user.employeeid (Azure),unique id (tag u) without suffix > tag e,yes,,,example: S00001015MSSU (remove MSSU)
 Missouri State Library,barcode/PIN,barcode (tag b),,,,example: 11907000123456
 Missouri Valley College,(Google),email (tag z) > tag e,yes,added,,example: perkinss@moval.edu
@@ -53,10 +57,10 @@ St. Louis Community College,udcid (25-character GUID) (Azure),univ id (tag e),,,
 State Fair Community College,Employee ID or Local ID (OpenAthens),unique id (tag u) without suffix > tag e,yes,added,,example: 000244267SFCC (remove SFCC)
 State Technical College of Missouri,(OpenAthens),email (tag z) > tag e,yes,added,,example: Mohammed.Abuzeid@iam.statetechmo.edu
 Stephens College,user.userprincipalname (Azure),email (tag z) > tag e,yes,,,example: sheather@stephens.edu
-Three Rivers College,barcode/PIN,barcode (tag b),,,,Map email address to ESID for future SSO needs
+Three Rivers College,barcode/PIN,barcode (tag b) (use email for ESID),yes,added,,"example barcode: 0165584, example ESID: shabib5584@mymail.trcc.edu"
 Truman State University,barcode/PIN,barcode (tag b),,,,
 University of Health Sciences and Pharmacy in St. Louis,Azure?  Or barcode/PIN?,barcode (to be confirmed),,,,
 Webster University,user.employeeid (Azure),u field without EWL suffix? (to be confirmed),yes,,,
 Westminster College,userPrincipalName (OpenAthens),email (tag z) > tag e,yes,,,"COPY EMAIL into ESID in Sierra, pre-migration"
 William Jewell College,(OpenAthens),In process,,,,
-William Woods University,user.userprincipalname (Azure),email address (tag z) > tag e,,,,
+William Woods University,user.userprincipalname (Azure),email address (tag z) > tag e,yes,,,

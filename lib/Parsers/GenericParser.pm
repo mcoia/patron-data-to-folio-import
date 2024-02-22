@@ -14,43 +14,6 @@ sub new
     return $self;
 }
 
-sub _initPatronHash
-{
-    my $self = shift;
-
-    my $patron;
-
-    # patron file specific fields
-    $patron->{'field_code'} = "";
-    $patron->{'patron_type'} = "";
-    $patron->{'pcode1'} = "";
-    $patron->{'pcode2'} = "";
-    $patron->{'pcode3'} = "";
-    $patron->{'home_library'} = "";
-    $patron->{'patron_message_code'} = "";
-    $patron->{'patron_block_code'} = "";
-    $patron->{'patron_expiration_date'} = "";
-    $patron->{'name'} = "";
-    $patron->{'address'} = "";
-    $patron->{'telephone'} = "";
-    $patron->{'address2'} = "";
-    $patron->{'telephone2'} = "";
-    $patron->{'department'} = "";
-    $patron->{'unique_id'} = "";
-    $patron->{'barcode'} = "";
-    $patron->{'email_address'} = "";
-    $patron->{'note'} = "";
-    $patron->{'firstName'} = "";
-    $patron->{'middleName'} = "";
-    $patron->{'lastName'} = "";
-    $patron->{'street'} = "";
-    $patron->{'city'} = "";
-    $patron->{'state'} = "";
-    $patron->{'zip'} = "";
-
-    return $patron;
-}
-
 =head1 _parsePatronRecord(@patronrecord)
 
 The initial field: Always 24 char long
@@ -120,6 +83,7 @@ sub parse
     {
 
         my $patron = $self->_parsePatronRecord($record);
+        # $patron->{esid} = "";
         $patron->{esid} = Parsers::ESID::getESID($patron, $patronFile->{institution_id});
 
         # Note, everything in the patron hash gets 'fingerprinted'.
@@ -175,7 +139,8 @@ sub _parsePatronRecord
     my $self = shift;
     my $patronRecord = shift;
 
-    my $patron = $self->_initPatronHash();
+    # my $patron = $self->_initPatronHash();
+    my $patron = {};
 
     # loop thru our patron record
     for my $data (@{$patronRecord})
@@ -207,6 +172,19 @@ sub _parsePatronRecord
     }
 
     return $patron;
+}
+
+# Individual parsers are responsible for saving their data.
+sub saveStagedPatronRecords
+{
+    my $self = shift;
+    my $patronRecords = shift;
+
+    for my $patron (@{$patronRecords})
+    {
+        $main::dao->_insertHashIntoTable("stage_patron", $patron);
+    }
+
 }
 
 sub _parseName
@@ -267,9 +245,5 @@ sub _getUsername
     return $patron->{email_address};
 
 }
-
-
-
-
 
 1;
