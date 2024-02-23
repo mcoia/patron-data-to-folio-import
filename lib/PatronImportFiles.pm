@@ -57,7 +57,7 @@ sub getPatronFilePaths
     for my $institution (@{$institutions})
     {
 
-        my $filePaths = $self->_patronFileDiscovery($institution);
+    my $filePaths = $self->_patronFileDiscovery($institution);
 
         for my $filePath (@{$filePaths})
         {

@@ -149,13 +149,13 @@ sub test_loadMOBIUSPatronLoadsCSV
 
 }
 
-test_buildInstitutionMapTableData();
+# test_buildInstitutionMapTableData();
 sub test_buildInstitutionMapTableData
 {
     $files->buildInstitutionMapTableData();
 }
 
-# test_buildDCBPtypeMappingFromCSV();
+test_buildDCBPtypeMappingFromCSV();
 sub test_buildDCBPtypeMappingFromCSV
 {
     $files->buildDCBPtypeMappingFromCSV();

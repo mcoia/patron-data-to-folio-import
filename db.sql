@@ -61,7 +61,7 @@ create table if not exists patron_import.patron
     id                     SERIAL primary key,
     institution_id         int references patron_import.institution_map (id),
     fingerprint            text,
-    loadFolio              bool not null default true,
+    loadFolio              bool not null default false,
     username               text,
     externalSystemId       text,
     barcode                text,
@@ -100,3 +100,16 @@ create table if not exists patron_import.ptype_mapping
     ptype      text,
     foliogroup text
 );
+
+
+create function patron_import.zeroPadTrunc(pt text) returns text
+    language plpgsql
+as
+$$
+DECLARE
+    ptext text;
+BEGIN
+    ptext := regexp_replace(pt, '^0*', '', 'g');
+    RETURN BTRIM(ptext);
+END;
+$$;
