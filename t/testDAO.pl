@@ -87,12 +87,6 @@ sub test_DAO__selectAllFromTable
 
 }
 
-# test_DAO_buildInstitutionMapTableData();
-sub test_DAO_buildInstitutionMapTableData
-{
-    $dao->buildInstitutionMapTableData();
-}
-
 # test_DAO_getInstitutionMapTableSize();
 sub test_DAO_getInstitutionMapTableSize
 {
@@ -157,14 +151,6 @@ sub test__getInstitutionMapFromDatabase
 
 }
 
-# test_DAO_getInstitutionMapHashById();
-sub test_DAO_getInstitutionMapHashById
-{
-    print Dumper(
-        $dao->getInstitutionMapHashById(10)
-    );
-
-}
 
 # test_DAO_getInstitutionMapHashByName();
 sub test_DAO_getInstitutionMapHashByName
@@ -376,15 +362,28 @@ sub test_createTableFromHash
 
 }
 
-test_getInstitutionMapHashById();
-sub test_getInstitutionMapHashById
+# test_getFiles();
+sub test_getFiles
 {
-    my $institutionID = 1;
-    for(1..10){
-    my $institution = $main::dao->getInstitutionMapHashById($_);
-    print Dumper($institution);
-    }
+    my $file = $dao->getFiles();
+    print Dumper($file);
+}
 
+# test_getAllRecordsByTableName();
+sub test_getAllRecordsByTableName
+{
+    my $results = $dao->_getAllRecordsByTableName("institution");
+    print Dumper($results->[15]);
+
+}
+
+test_getInstitutionsFoldersAndFilesHash();
+sub test_getInstitutionsFoldersAndFilesHash
+{
+    print "\n\ngetInstitutionsFoldersAndFilesHash()\n";
+    print "==================================================================\n\n";
+    $dao->getInstitutionsFoldersAndFilesHash();
+    print "\n==================================================================\n\n";
 }
 
 1;

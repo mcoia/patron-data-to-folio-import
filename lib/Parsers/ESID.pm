@@ -20,13 +20,9 @@ We don't actually instantiate this class.
 sub getESID
 {
     my $patron = shift;
-    my $institutionID = shift;
-
-    my $institution = $main::dao->getInstitutionMapHashById($institutionID);
+    my $institution = shift;
 
     my $esid = "";
-
-    return "" if ($institution->{esid} eq '');
 
     # I'm trying to error check this. I want a try/catch
     try

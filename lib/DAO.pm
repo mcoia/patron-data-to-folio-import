@@ -6,7 +6,7 @@ use MOBIUS::DBhandler;
 use Data::Dumper;
 use Try::Tiny;
 
-my $schema;
+my $schema = "";
 
 sub new
 {
@@ -26,6 +26,8 @@ sub init
     $schema = $main::conf->{schema};
     print "using schema: [$schema]\n";
 
+    # Note: we can't call any $main::files yet as it's not created. *Is that how perl works? I'm pretty sure it interprets everything before execution.
+    # this is strictly for creating the schema if it doesn't exist yet.
     $self = initDatabaseConnection($self);
     initDatabaseSchema($self);
 
@@ -67,14 +69,14 @@ sub checkDatabaseStatus
     my $self = shift;
 
     # init our cache
-    $self->_initDatabaseCache();
+    $self->_cacheTableColumns();
 
     # Check our institution map
-    my $institutionMapTableSize = $self->getTableSize("institution_map");
-    $main::files->buildInstitutionMapTableData() if ($institutionMapTableSize == 0);
+    my $institutionTableSize = $self->getTableSize("institution");
+    $main::files->buildInstitutionTableData() if ($institutionTableSize == 0);
 
     my $ptypeMappingTableSize = $self->getTableSize("ptype_mapping");
-    $main::files->buildDCBPtypeMappingFromCSV() if ($ptypeMappingTableSize == 0);
+    $main::files->buildPtypeMappingFromCSV() if ($ptypeMappingTableSize == 0);
 
 }
 
@@ -83,15 +85,33 @@ sub _initDatabaseCache
     my $self = shift;
 
     # A kind of registry for all database cache objects
-    $self->_initDatabaseCacheTableColumns();
+    $self->_cacheTableColumns();
 
+    # We can't cache things that haven't been created yet!!!
     # This is some idea's for future caching
-    # $self->_initDatabaseCacheInstitution_map();
+    # $self->_initDatabaseCacheInstitutions();
     # $self->_initDatabaseCachePtype_mapping();
 
 }
 
-sub _initDatabaseCacheTableColumns
+sub query
+{
+    my $self = shift;
+    my $query = shift;
+
+    return $self->{db}->query($query);
+
+}
+
+sub update
+{
+    my $self = shift;
+    my $query = shift;
+    my $data = shift;
+    return $self->{db}->updateWithParameters($query, $data);
+}
+
+sub _cacheTableColumns
 {
     my $self = shift;
     # I'm not sure how far this rabbit hole can go. I may start caching other data too.
@@ -116,7 +136,7 @@ sub _initDatabaseCacheTableColumns
             if (@columns)
             {
                 my @columnCopy = @columns;
-                $self->{'cache'}->{$tableName}->{'columns'} = \@columnCopy;
+                $self->{'cache'}->{'columns'}->{$tableName} = \@columnCopy; # <== new
             }
 
             # Reset
@@ -132,21 +152,9 @@ sub _initDatabaseCacheTableColumns
     if (@columns)
     {
         my @columnCopy = @columns;
-        $self->{'cache'}->{$tableName}->{'columns'} = \@columnCopy;
+        $self->{'cache'}->{'columns'}->{$tableName} = \@columnCopy;
     }
 
-}
-
-sub resetStagePatronTable
-{
-    my $self = shift;
-
-    my $query = "\"drop table if exists patron_import.stage_patron_old;\"";
-    $self->query($query);
-
-    print "stage_patron table dropped!\n";
-
-    # We need to recreate this table!!!
 }
 
 sub getMaxStagePatronID
@@ -171,7 +179,6 @@ sub getStagedPatrons
     my $columns = $self->_getTableColumns($tableName);
 
     my $query = "select $columns from $schema.stage_patron p where p.id > $start and p.id < $stop;";
-    print "query: [$query]\n";
 
     # my $patrons = $self->query($query);
     my $patrons = $self->_convertQueryResultsToHash($tableName, $self->query($query));
@@ -285,7 +292,7 @@ sub _insertHashIntoTable
     my @data = ();
     push(@data, $hash->{$_}) for (@sqlColumns);
 
-    my $columns = $self->_convertArrayToCSVString(\@sqlColumns);
+    my $columns = $self->_convertColumnArrayToCSVString(\@sqlColumns);
 
     # build our $1,$2 ect... string
     my $dataString = "";
@@ -297,9 +304,8 @@ sub _insertHashIntoTable
 
     # taking advantage of perls natural templating
     my $query = "INSERT INTO $schema.$tableName($columns) VALUES($dataString);";
-    $main::log->addLine($query);
+    # $main::log->addLine($query);
 
-    # eval {$self->{'db'}->updateWithParameters($query, \@data);};
     $self->{'db'}->updateWithParameters($query, \@data);
 
 }
@@ -314,17 +320,17 @@ sub _insertArrayIntoTable
 
     try
     {
-        @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
+        @columns = @{$self->{'cache'}->{'columns'}->{$tableName}};
     }
     catch
     {
-        $self->_initDatabaseCacheTableColumns();
-        @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
+        $self->_cacheTableColumns();
+        @columns = @{$self->{'cache'}->{'columns'}->{$tableName}};
     };
 
     shift(@columns) if ($columns[0] eq 'id'); # <== remove the id before insert
 
-    my $columns = $self->_convertArrayToCSVString(\@columns);
+    my $columns = $self->_convertColumnArrayToCSVString(\@columns);
 
     # build our $1,$2 ect... string
     my $dataString = "";
@@ -336,9 +342,10 @@ sub _insertArrayIntoTable
 
     # taking advantage of perls natural templating
     my $query = "INSERT INTO $schema.$tableName($columns) VALUES($dataString);";
-    $main::log->addLine($query);
+    # $main::log->addLine($query);
 
-    eval {$self->{'db'}->updateWithParameters($query, $data);};
+    # eval {$self->{'db'}->updateWithParameters($query, $data);};
+    $self->{'db'}->updateWithParameters($query, $data);
 
 }
 
@@ -366,22 +373,18 @@ sub _getCurrentTimestamp
 
 }
 
-sub _getInstitutionMapFromDatabaseAsHashArray
-{
-    my $self = shift;
-
-    my $tableName = "institution_map";
-    return $self->_convertQueryResultsToHash($tableName, $self->_selectAllFromTable($tableName));
-
-}
-
 sub _convertQueryResultsToHash
 {
+
+    # there's a bug in this code. If you don't select ALL columns from the table you won't get the correct hash back.
+    # You have to select all columns for this to work.
+    # I'll fix this at some point.
+
     my $self = shift;
     my $tableName = shift;
     my $data = shift;
 
-    my @columns = @{$self->{'cache'}->{$tableName}->{'columns'}};
+    my @columns = @{$self->{'cache'}->{'columns'}->{$tableName}};
 
     my @hashArray = ();
 
@@ -404,7 +407,7 @@ sub _convertQueryResultsToHash
 
 }
 
-sub _convertArrayToCSVString
+sub _convertColumnArrayToCSVString
 {
     my $self = shift;
     my $data = shift;
@@ -416,15 +419,15 @@ sub _convertArrayToCSVString
     return $csv;
 }
 
-sub getInstitutionMap
+# array of hashes
+sub _getAllRecordsByTableName
 {
     my $self = shift;
 
-    my $tableName = "institution_map";
+    my $tableName = shift;
     my $columns = $self->_getTableColumns($tableName);
 
-    # my $query = "select $columns from $schema.$tableName order by id asc;";
-    my $query = "select $columns from $schema.$tableName order by id asc limit 3;"; # todo: THIS IS DEBUG!!!
+    my $query = "select $columns from $schema.$tableName t order by t.id asc;";
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query));
 
@@ -435,20 +438,14 @@ sub _getTableColumns
     my $self = shift;
     my $tableName = shift;
 
-    return $self->_convertArrayToCSVString(\@{$self->{'cache'}->{$tableName}->{'columns'}});
+    return $self->_convertColumnArrayToCSVString(\@{$self->{'cache'}->{'columns'}->{$tableName}});
 
 }
 
-sub getInstitutionMapHashById
+sub getInstitutionHashByInstitutionID
 {
     my $self = shift;
     my $id = shift;
-
-    my $tableName = "institution_map";
-    my $columns = $self->_getTableColumns($tableName);
-
-    my $query = "select $columns from $schema.$tableName t where t.id=$id;";
-    return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
 
 }
 
@@ -456,12 +453,63 @@ sub getInstitutionMapHashByName
 {
     my $self = shift;
     my $name = shift;
-    my $tableName = "institution_map";
+    my $tableName = "institution";
     my $columns = $self->_getTableColumns($tableName);
 
     my $query = "select $columns from $schema.$tableName t where t.institution='$name';";
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
+
+}
+
+sub getInstitutionsFoldersAndFilesHash
+{
+    my $self = shift;
+
+    return $self->{'cache'}->{'institutions'} if (defined($self->{'cache'}->{'institutions'}));
+
+    my @institutions = ();
+    my $columns = $self->_getTableColumns("institution");
+
+    # Note for Blake: I know this can be more efficient but it doesn't need to be.
+    # This function call takes on average of 60ms. Then it's cached for 0ms. We're splitting hairs now and I want to move on.
+    # What would we save? 40ms? Program runs every night, 365.
+    # 40ms * 365 = 14600ms every year / 1000 = 14.6 seconds we saved over the course of a year. I spent 4.5years equivalent on this comment. i.e. 60 seconds.
+    for my $i (@{$self->_convertQueryResultsToHash("institution", $self->query("select $columns from patron_import.institution i order by i.id asc"))})
+    {
+
+        # get the folders
+        for my $folder (@{$self->_convertQueryResultsToHash("folder", $self->query("select f.id,f.path from patron_import.folder f
+                                        join patron_import.institution_folder_map fm on(fm.folder_id=f.id)
+                                        where fm.institution_id = $i->{'id'}"))})
+        {
+
+            # grab the files associated with this folder & institution
+            # my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.folder_id = $folder->{'id'}"))};
+            my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $i->{'id'}"))};
+            my $institution = {
+                'id'      => $i->{'id'},
+                'enabled' => $i->{'enabled'},
+                'name'    => $i->{'name'},
+                'module'  => $i->{'module'},
+                'esid'    => $i->{'esid'},
+                'folder'  => {
+                    'id'    => $folder->{'id'},
+                    'path'  => $folder->{'path'},
+                    'files' => \@files
+                }
+
+            };
+
+            push(@institutions, $institution);
+
+        }
+
+    }
+
+    $self->{'cache'}->{'institutions'} = \@institutions;
+
+    return \@institutions;
 
 }
 
@@ -508,15 +556,6 @@ sub getTableSize
 
     my $query = "select count(id) from $schema.$tableName;";
     return $self->{db}->query($query)->[0]->[0] + 0;
-
-}
-
-sub query
-{
-    my $self = shift;
-    my $query = shift;
-
-    return $self->{db}->query($query);
 
 }
 
@@ -570,7 +609,7 @@ sub createTableFromHash
 
 }
 
-sub createTableFromCSVFilePath
+sub createTableFromCSV
 {
 
     my $self = shift;
@@ -619,13 +658,55 @@ sub getESIDFromMappingTable
 
     my $tableName = "sso_esid_mapping";
 
-    my $query = "select c3 from $schema.$tableName where c1 = '$institution->{institution}'";
+    my $query = "select c3 from $schema.$tableName where c1 = '$institution->{institutionName}'";
 
     my $results = $self->query($query)->[0]->[0];
 
     return "email" if ($results =~ /email/);
     return "barcode" if ($results =~ /barcode/);
     return "";
+
+}
+
+sub _getLastIDByTableName
+{
+    my $self = shift;
+    my $table = shift;
+
+    my $query = "select last_value from $schema." . $table . "_id_seq";
+
+    return $self->query($query)->[0]->[0];
+
+}
+
+sub getFiles
+{
+    my $self = shift;
+
+    my $tableName = "file";
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $query = "select $columns from $schema.file f order by f.id asc";
+    return $self->query($query);
+
+}
+
+# Parser: 30
+# PatronImportFiles: 323
+sub getAllInstitutionIdAndName
+{
+    my $self = shift;
+
+    # I want an array of hashes, but my convert to hash code doesn't work with joins. I'm sorry Blake. Code hard brah!
+    # I'll try and come back to this to clean it up.
+
+    # return $self->{'cache'}->{'institutions'} if (defined($self->{'cache'}->{'institutions'}));
+
+    my $query = "select i.id, i.name
+                    from patron_import.institution i
+                    order by i.id asc";
+
+    return $self->_convertQueryResultsToHash("institution", $self->query($query));
 
 }
 

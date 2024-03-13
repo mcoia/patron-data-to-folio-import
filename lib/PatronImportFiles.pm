@@ -50,33 +50,11 @@ sub readFileToArray
 sub getPatronFilePaths
 {
     my $self = shift;
-    my @fileTrackerArray = ();
 
-    my $institutions = $main::dao->getInstitutionMap();
+    # todo: write this!
+    # my $files = $main::dao->
 
-    for my $institution (@{$institutions})
-    {
 
-    my $filePaths = $self->_patronFileDiscovery($institution);
-
-        for my $filePath (@{$filePaths})
-        {
-
-            my @data = (
-                $main::jobID,
-                $institution->{id},
-                $filePath
-            );
-
-            $main::dao->_insertArrayIntoTable("file_tracker", \@data);
-            my $file_tracker = $main::dao->_convertQueryResultsToHash("file_tracker", $main::dao->getLastFileTrackerEntryByFilename($filePath))->[0];
-
-            push(@fileTrackerArray, $file_tracker);
-        }
-
-    }
-
-    return \@fileTrackerArray;
 }
 
 sub _loadMOBIUSPatronLoadsCSV
@@ -103,9 +81,9 @@ sub _loadMOBIUSPatronLoadsCSV
         $institution = $row->[1] if ($row->[1] ne '');
 
         my $files = {
-            'cluster'     => lc $cluster,
-            'institution' => $institution,
-            'file'        => $row->[2],
+            'cluster'         => lc $cluster,
+            'institutionName' => $institution,
+            'name'            => $row->[2],
         };
 
         push(@clusterFiles, $files) if ($row->[2] ne '');
@@ -126,24 +104,25 @@ sub _buildFilePatterns
     for my $clusterFileHash (@{$clusterFileHashArray})
     {
 
-        my $file = $clusterFileHash->{file};
+        my $file = $clusterFileHash->{name};
 
-        # remove some file extensions
-        $file =~ s/\.txt*//g;
-        $file =~ s/\.marc*//g;
+        my $extension = ($file =~ /\.\w*$/g)[0];
+        $extension = "" if (!defined($extension));
 
-        # Dates
-        $file =~ s/dd.*//g;
-        $file =~ s/mm.*//g;
-        $file =~ s/yy.*//g;
+        $file =~ s/dd.*/*/g;
+        $file =~ s/mm.*/*/g;
+        $file =~ s/yy.*/*/g;
 
-        $file =~ s/DD.*//g;
-        $file =~ s/MM.*//g;
-        $file =~ s/YY.*//g;
+        $file =~ s/DD.*/*/g;
+        $file =~ s/MM.*/*/g;
+        $file =~ s/YY.*/*/g;
 
-        $file =~ s/month.*//g;
-        $file =~ s/day.*//g;
-        $file =~ s/year.*//g;
+        $file =~ s/month.*/*/g;
+        $file =~ s/day.*/*/g;
+        $file =~ s/year.*/*/g;
+
+        # add the file extension back if it isn't already and we actually have one.
+        $file .= $extension if ($file !~ /$extension/ && $extension ne '');
 
         $clusterFileHash->{pattern} = $file;
 
@@ -154,40 +133,48 @@ sub _buildFilePatterns
     return $filePatterns;
 }
 
-sub _patronFileDiscovery
+sub patronFileDiscovery
 {
     my $self = shift;
     my $institution = shift;
 
-    # We don't have a file pattern to even search for. Just return.
-    return if ($institution->{file_pattern} eq '' || $institution->{file_pattern} eq 'n/a');
-
-    my @filePaths = ();
-
-    # We use linux's find command to probe these directories for files
-    # my $command = "find $main::conf->{rootPath}/$clusterFileHash->{cluster}/home/$clusterFileHash->{cluster}/incoming/* -iname $clusterFileHash->{pattern}*";
-    my $command = "find $institution->{folder_path}/* -iname $institution->{file_pattern}*";
-    $main::log->addLine("Looking for patron files: [$command]");
-    my @paths = `$command`;
-    chomp(@paths);
-
-    if (@paths)
+    for my $file (@{$institution->{'folder'}->{files}})
     {
-        for my $path (@paths)
+
+        # find: warning: ‘-iname’ matches against basenames only, but the given pattern contains a directory separator (‘/’),
+        # thus the expression will evaluate to false all the time.  Di you mean ‘-iwholename’?
+        # We get this error because some of the filenames are listed as 'n/a' so the command looks like
+        # find /mnt/dropbox/arthur/home/arthur/incoming/* -iname n/a*
+        next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '');
+
+        my $command = "find $institution->{'folder'}->{'path'}/* -iname $file->{pattern}";
+        my @paths = `$command`;
+        chomp(@paths);
+
+        if (@paths)
         {
-            $main::log->addLine("File Found: [$institution->{cluster}][$institution->{institution}]:[$path]");
-            print "File Found: [$institution->{cluster}][$institution->{institution}]:[$path]\n";
+            for my $path (@paths)
+            {
+
+                unless (-d $path) # we're getting directories matching.
+                {
+                    $main::log->addLine("File Found: [$institution->{'folder'}->{'path'}]:[$path]");
+                    print "File Found: [$institution->{name}]:[$path]\n";
+
+                    $main::dao->_insertHashIntoTable("file_tracker", {
+                        'job_id'         => $main::jobID,
+                        'institution_id' => $institution->{'id'},
+                        'path'           => $path
+                    });
+                }
+
+            }
+
         }
-        push(@filePaths, @paths);
+
+        $file->{paths} = \@paths;
+
     }
-
-    return \@filePaths if (@filePaths);
-
-    # $main::log->addLine("File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{pattern}]");
-    print "File NOT FOUND! [$institution->{cluster}][$institution->{institution}][$institution->{file_pattern}]\n";
-
-    # we found zero files for this pattern in all the clusters
-    return \@filePaths;
 
 }
 
@@ -201,21 +188,6 @@ sub _loadCSVFileAsArray
 
     return \@csvData;
 
-}
-
-sub _containsClusterName
-{
-    my $self = shift;
-    my $row = lc shift;
-
-    my @clusters = split(' ', $main::conf->{clusters});
-
-    for (@clusters)
-    {
-        return 1 if ($row eq $_);
-    }
-
-    return 0;
 }
 
 sub saveFilePath
@@ -279,14 +251,90 @@ sub _buildFolderPaths
     return \@newFileHashArray;
 }
 
-sub buildDCBPtypeMappingFromCSV
+sub buildInstitutionTableData
 {
-    # patronTypeMappingSheetPath
+    my $self = shift;
+
+    my $institutions = $self->_loadMOBIUSPatronLoadsCSV();
+    $institutions = $self->_buildFilePatterns($institutions);
+    $institutions = $self->_buildFolderPaths($institutions);
+
+    $self->_loadSSO_ESID_MappingCSV();
+    my @existingFolders = ();
+    my @existingInstitutions = ();
+    my @existingInstitutionsFolderMap = ();
+    my $folder_id = 0;
+    my $institution_id = 0;
+
+    for my $institution (@{$institutions})
+    {
+
+        my $esid = $main::dao->getESIDFromMappingTable($institution);
+
+        my $institutionToSave = {
+            'name'    => $institution->{institutionName},
+            'enabled' => 'TRUE',
+            'module'  => "GenericParser",
+            'esid'    => $esid
+        };
+
+        # we store the institution name into an array and check for it's existence on each cycle
+        unless (grep(/$institutionToSave->{name}/, @existingInstitutions))
+        {
+            $main::dao->_insertHashIntoTable("institution", $institutionToSave);
+            $institution_id = $main::dao->_getLastIDByTableName("institution"); # <== this works because we only build this 1 time
+            push(@existingInstitutions, $institutionToSave->{name});
+        }
+
+        my $folder = {
+            # 'institution_id' => $institution_id,
+            'path' => "/mnt/dropbox/$institution->{cluster}/home/$institution->{cluster}/incoming"
+        };
+
+        # crossref array to see if it's already been added.
+        unless (grep(/$folder->{path}/, @existingFolders))
+        {
+            $main::dao->_insertHashIntoTable("folder", $folder);
+            $folder_id = $main::dao->_getLastIDByTableName("folder");
+            push(@existingFolders, $folder->{path});
+        }
+
+        # our institution -> folder mapping table
+        my $institutionFolderMap = {
+            'institution_id' => $institution_id,
+            'folder_id'      => $folder_id
+        };
+
+        # no duplicated entries. Same logic as the unless statements above.
+        # unless ($self->_containsInstitutionFolderMapHash(\@existingInstitutionsFolderMap, $institutionFolderMap))
+        unless (grep {$_->{'folder_id'} == $institutionFolderMap->{'folder_id'} &&
+            $_->{'institution_id'} == $institutionFolderMap->{'institution_id'}} @existingInstitutionsFolderMap)
+        {
+            $main::dao->_insertHashIntoTable("institution_folder_map", $institutionFolderMap);
+            push(@existingInstitutionsFolderMap, $institutionFolderMap);
+        }
+
+        # files are 100% unique here.
+        my $file = {
+            'institution_id' => $institution_id,
+            # 'folder_id'      => $folder_id,
+            'name'           => $institution->{name},
+            'pattern'        => $institution->{pattern}
+        };
+
+        $main::dao->_insertHashIntoTable("file", $file);
+
+    }
+
+}
+
+sub buildPtypeMappingFromCSV
+{
     my $self = shift;
 
     my $mappingSheet = $self->_loadCSVFileAsArray($main::conf->{patronTypeMappingSheetPath});
+    my $institutions = $main::dao->getInstitutionsFoldersAndFilesHash();
 
-    # my @pTypeMappingArray = ();
     for my $row (@{$mappingSheet})
     {
 
@@ -308,64 +356,42 @@ sub buildDCBPtypeMappingFromCSV
         $folioType =~ s/\s*$//g;
 
         my $record = {
-            'name'       => $institution,
-            'pType'      => $pType,
-            'foliogroup' => $folioType
+            'institution_id' => $self->_getInstitutionIDFromArray($institutions, $institution),
+            'pType'          => $pType,
+            'foliogroup'     => $folioType
         };
 
-        # push(@pTypeMappingArray, $record);
         $main::dao->_insertHashIntoTable("ptype_mapping", $record);
 
     }
 
-
-    # return \@pTypeMappingArray;
-
 }
 
-sub buildInstitutionMapTableData
+sub _getInstitutionIDFromArray
 {
     my $self = shift;
+    my $institutions = shift;
+    my $institution = shift;
 
-    my $institutions = $self->_loadMOBIUSPatronLoadsCSV();
-    $institutions = $self->_buildFilePatterns($institutions);
-    $institutions = $self->_buildFolderPaths($institutions);
-
-    $self->_loadSSO_ESID_MappingCSV();
-
-    for my $institution (@{$institutions})
+    for my $i (@{$institutions})
     {
-
-        my $esid = $main::dao->getESIDFromMappingTable($institution);
-
-        my @data = (
-            "$institution->{cluster}",
-            "$institution->{institution}",
-            "$institution->{folder_path}",
-            "$institution->{file}",
-            "$institution->{pattern}",
-            "GenericParser",
-            $esid
-        );
-
-        $main::dao->_insertArrayIntoTable("institution_map", \@data);
-
+        return $i->{'id'} if ($institution eq $i->{'name'});
     }
 
+    # uh... why didn't we find anything?
+    return -1;
 
 }
 
 sub _loadSSO_ESID_MappingCSV
 {
     my $self = shift;
-
-    my $csv = $self->_loadCSVFileAsArray($main::conf->{sso_esid_mapping});
     my $tableName = "sso_esid_mapping";
 
     # load our sso_esid_mapping sheet.
     # https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZaj7M/edit#gid=154768990
     $main::dao->dropTable($tableName);
-    $main::dao->createTableFromCSVFilePath("sso_esid_mapping", $main::conf->{sso_esid_mapping}, 4);
+    $main::dao->createTableFromCSV("sso_esid_mapping", $main::conf->{sso_esid_mapping}, 4);
 
 }
 

@@ -43,60 +43,84 @@ b = Barcode
 z = Email Address
 x = Note
 
+e = esid / External System ID
+
+The way this works...
+We start with a list of file paths of known discovered files
+We read each file, line by line chunking each patron into an array of arrays.
+We then loop this "patron" array and parse.
 
 =cut
 sub parse
 {
 
     my $self = shift;
-    my $patronFile = shift;
+    my $institution = shift;
 
-    my @patronRecords = ();
-    my @patronRecord = ();
-    my $patronRecordSize = 0;
+    my @parsedPatrons = ();
 
-    # Read our patron file into an array.
-    my $data = $main::files->readFileToArray($patronFile->{filename});
-
-    for my $line (@{$data})
+    for my $file (@{$institution->{'folder'}->{files}})
     {
 
-        if ($line =~ /^0/ && length($line) == 24)
+        my $patronCounter = 0;
+        for my $path (@{$file->{'paths'}})
         {
+
+            my @patronRecords = ();
+            my @patronRecord = ();
+            my $patronRecordSize = 0;
+
+            # Read our patron file into an array.
+            my $data = $main::files->readFileToArray($path);
+
+            for my $line (@{$data})
+            {
+                # $line =~ s/\s*$//g; # some libraries don't respect the 24 char limit. Whitespace.
+                # if ($line =~ /^0/ && length($line) == 24)
+                if ($line =~ /^0/)
+                {
+                    $patronRecordSize = @patronRecord;
+                    my @patronRecordCopy = @patronRecord;
+                    push(@patronRecords, \@patronRecordCopy) if ($patronRecordSize > 0);
+                    @patronRecord = ();
+                }
+
+                push(@patronRecord, $line);
+
+            }
+
+            # Push our last record
             $patronRecordSize = @patronRecord;
-            my @patronRecordCopy = @patronRecord;
-            push(@patronRecords, \@patronRecordCopy) if ($patronRecordSize > 0);
-            @patronRecord = ();
+            push(@patronRecords, \@patronRecord) if ($patronRecordSize > 0);
+
+            # Now we do the actual parsing of this data.
+            for my $record (@patronRecords)
+            {
+
+                my $patron = $self->_parsePatronRecord($record);
+
+                $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
+                    if ($institution->{'esid'} ne '' && !defined($patron->{'esid'}));
+
+                # Note, everything in the patron hash gets 'fingerprinted'.
+                # id's are basically irrelevant after and may change on subsequent loads. So we don't want
+                # to finger print id's.
+                $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
+
+                # set some id's, I decided I needed these for tracking down trash
+                $patron->{institution_id} = $institution->{id};
+                $patron->{file_id} = $file->{id};
+                $patron->{job_id} = $main::jobID;
+
+                push(@parsedPatrons, $patron);
+                $patronCounter++;
+            }
+
         }
 
-        push(@patronRecord, $line);
+        print "Total Patrons in $file->{name}: [$patronCounter]\n";
+        $main::log->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
 
-    }
-
-    # Push our last record
-    $patronRecordSize = @patronRecord;
-    push(@patronRecords, \@patronRecord) if ($patronRecordSize > 0);
-
-    # Now we do the actual parsing of this data.
-    my @parsedPatrons = ();
-    for my $record (@patronRecords)
-    {
-
-        my $patron = $self->_parsePatronRecord($record);
-        # $patron->{esid} = "";
-        $patron->{esid} = Parsers::ESID::getESID($patron, $patronFile->{institution_id});
-
-        # Note, everything in the patron hash gets 'fingerprinted'.
-        # id's are basically irrelevant after and may change on subsequent loads. So we don't want
-        # to finger print id's.
-        $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
-
-        # Now set the id's
-        $patron->{institution_id} = $patronFile->{institution_id};
-        $patron->{file_id} = $patronFile->{id};
-        $patron->{job_id} = $patronFile->{job_id};
-
-        push(@parsedPatrons, $patron);
     }
 
     return \@parsedPatrons;
@@ -140,7 +164,28 @@ sub _parsePatronRecord
     my $patronRecord = shift;
 
     # my $patron = $self->_initPatronHash();
-    my $patron = {};
+    my $patron = {
+        '0'                      => "",
+        'patron_type'            => "",
+        'pcode1'                 => "",
+        'pcode2'                 => "",
+        'pcode3'                 => "",
+        'home_library'           => "",
+        'patron_message_code'    => "",
+        'patron_block_code'      => "",
+        'patron_expiration_date' => "",
+        'name'                   => "",
+        'address'                => "",
+        'telephone'              => "",
+        'address2'               => "",
+        'telephone2'             => "",
+        'department'             => "",
+        'unique_id'              => "",
+        'barcode'                => "",
+        'email_address'          => "",
+        'note'                   => "",
+        'esid'                   => "",
+    };
 
     # loop thru our patron record
     for my $data (@{$patronRecord})
@@ -155,7 +200,11 @@ sub _parsePatronRecord
         $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}\d{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'patron_expiration_date'} = ($data =~ /^0\d{3}.{2}\d{3}.{7}(.{8}).*/gm)[0] if ($data =~ /^0/);
+
+        # $patron->{'patron_expiration_date'} = ($data =~ /^0\d{3}.{2}\d{3}.{7}(.{8}).*/gm)[0] if ($data =~ /^0/);
+
+        $patron->{'patron_expiration_date'} = ($data =~ /--(.*)/gm)[0] if ($data =~ /^0/);
+
 
         # variable length fields
         $patron->{'name'} = ($data =~ /^n(.*)$/gm)[0] if ($data =~ /^n/);
@@ -168,6 +217,7 @@ sub _parsePatronRecord
         $patron->{'barcode'} = ($data =~ /^b(.*)$/gm)[0] if ($data =~ /^b/);
         $patron->{'email_address'} = ($data =~ /^z(.*)$/gm)[0] if ($data =~ /^z/);
         $patron->{'note'} = ($data =~ /^x(.*)$/gm)[0] if ($data =~ /^x/);
+        $patron->{'esid'} = ($data =~ /^e(.*)$/gm)[0] if ($data =~ /^e/);
 
     }
 
@@ -175,7 +225,7 @@ sub _parsePatronRecord
 }
 
 # Individual parsers are responsible for saving their data.
-sub saveStagedPatronRecords
+sub saveStagedPatronRecordsOLD
 {
     my $self = shift;
     my $patronRecords = shift;

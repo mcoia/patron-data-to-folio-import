@@ -149,16 +149,10 @@ sub test_loadMOBIUSPatronLoadsCSV
 
 }
 
-# test_buildInstitutionMapTableData();
-sub test_buildInstitutionMapTableData
-{
-    $files->buildInstitutionMapTableData();
-}
-
-test_buildDCBPtypeMappingFromCSV();
+# test_buildDCBPtypeMappingFromCSV();
 sub test_buildDCBPtypeMappingFromCSV
 {
-    $files->buildDCBPtypeMappingFromCSV();
+    $files->buildPtypeMappingFromCSV();
 }
 
 # test__loadSSO_ESID_MappingCSV();
@@ -167,6 +161,36 @@ sub test__loadSSO_ESID_MappingCSV
     $dao->_initDatabaseCache();
     print "_loadSSO_ESID_MappingCSV\n";
     $files->_loadSSO_ESID_MappingCSV();
+}
+
+# test_parsePatronRecord();
+sub test_parsePatronRecord
+{
+    my $institution = {
+        'name'   => 'TEST',
+        'id'     => 1,
+        'folder' => {
+            'id'    => 1,
+            'files' => [
+                {
+                    'id'             => 1,
+                    'name'           => 'ccstupat.txt',
+                    'paths'          => [
+                        '/mnt/dropbox/swan/home/swan/incoming/ccstupat.txt'
+                    ],
+                    'institution_id' => 1,
+                    'pattern'        => 'ccstupat'
+                }
+            ],
+            'path'  => '/mnt/dropbox/swan/home/swan/incoming'
+        },
+        'esid'   => '',
+        'module' => 'GenericParser'
+    };
+
+    my $genericParser = Parsers::GenericParser->new();
+    my $data = $genericParser->parse($institution);
+
 }
 
 1;
