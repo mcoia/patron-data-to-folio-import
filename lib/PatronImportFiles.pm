@@ -149,7 +149,16 @@ sub patronFileDiscovery
         # @files = @{$self->dirtrav($self, \@files, $institution->{'folder'}->{'path'})};
 
         @files = @{dirtrav($self, \@files, $institution->{'folder'}->{'path'})};
-        my @paths = grep(/$file->{pattern}/, @files);
+        my @paths = ();
+        foreach(@files)
+        {
+            my $thisFullPath = $_;
+            my @frags = split(/\//, $thisFullPath);
+            my $filename = pop @frags;
+            push (@paths, $thisFullPath) if($filename =~ /$file->{pattern}/i);
+            undef $thisFullPath;
+            undef @frags;
+        }
 
         # my $command = "find $institution->{'folder'}->{'path'}/* -iname $file->{pattern}";
         # my @paths = `$command`;
