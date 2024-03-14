@@ -104,27 +104,22 @@ sub _buildFilePatterns
     for my $clusterFileHash (@{$clusterFileHashArray})
     {
 
-        my $file = $clusterFileHash->{name};
+        my $pattern = $clusterFileHash->{name};
 
-        my $extension = ($file =~ /\.\w*$/g)[0];
-        $extension = "" if (!defined($extension));
+        # $pattern = lc $pattern;
+        # next if ($pattern eq 'n/a' || $pattern !~ 'dd' || $pattern !~ 'mm'|| $pattern !~ 'yy'); next if ($pattern eq 'n/a');
 
-        $file =~ s/dd.*/*/g;
-        $file =~ s/mm.*/*/g;
-        $file =~ s/yy.*/*/g;
+        # print "$pattern,";
+        $pattern =~ s/\-/\\-/g;
+        $pattern =~ s/\./\\./g;
+        $pattern =~ s/dd/\\d{2}/g;
+        $pattern =~ s/mm/\\d{2}/g;
+        $pattern =~ s/MM/\\d{2}/g;
+        $pattern =~ s/yyyy/\\d{4}/g;
+        $pattern =~ s/yy/\\d{2}/g;
+        $pattern =~ s/YY/\\d{2}/g;
 
-        $file =~ s/DD.*/*/g;
-        $file =~ s/MM.*/*/g;
-        $file =~ s/YY.*/*/g;
-
-        $file =~ s/month.*/*/g;
-        $file =~ s/day.*/*/g;
-        $file =~ s/year.*/*/g;
-
-        # add the file extension back if it isn't already and we actually have one.
-        $file .= $extension if ($file !~ /$extension/ && $extension ne '');
-
-        $clusterFileHash->{pattern} = $file;
+        $clusterFileHash->{pattern} = $pattern;
 
         push(@$filePatterns, $clusterFileHash);
 
@@ -142,14 +137,23 @@ sub patronFileDiscovery
     {
 
         # find: warning: ‘-iname’ matches against basenames only, but the given pattern contains a directory separator (‘/’),
-        # thus the expression will evaluate to false all the time.  Di you mean ‘-iwholename’?
+        # thus the expression will evaluate to false all the time.  Did you mean ‘-iwholename’?
         # We get this error because some of the filenames are listed as 'n/a' so the command looks like
         # find /mnt/dropbox/arthur/home/arthur/incoming/* -iname n/a*
         next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '');
 
-        my $command = "find $institution->{'folder'}->{'path'}/* -iname $file->{pattern}";
-        my @paths = `$command`;
-        chomp(@paths);
+        print "Looking for pattern: [$file->{pattern}]\n";
+
+        # @files = @{dirtrav($self, \@files, $path)};
+        my @files = ();
+        # @files = @{$self->dirtrav($self, \@files, $institution->{'folder'}->{'path'})};
+
+        @files = @{dirtrav($self, \@files, $institution->{'folder'}->{'path'})};
+        my @paths = grep(/$file->{pattern}/, @files);
+
+        # my $command = "find $institution->{'folder'}->{'path'}/* -iname $file->{pattern}";
+        # my @paths = `$command`;
+        # chomp(@paths);
 
         if (@paths)
         {
@@ -176,6 +180,33 @@ sub patronFileDiscovery
 
     }
 
+}
+
+sub dirtrav
+{
+    my $self = shift;
+    my $f = shift;
+    my $pwd = shift;
+    my @files = @{$f};
+    opendir(DIR, "$pwd") or die "Cannot open $pwd\n";
+    my @thisdir = readdir(DIR);
+    closedir(DIR);
+    foreach my $file (@thisdir)
+    {
+        if (($file ne ".") and ($file ne ".."))
+        {
+            if (-d "$pwd/$file")
+            {
+                push(@files, "$pwd/$file");
+                @files = @{dirtrav($self, \@files, "$pwd/$file")};
+            }
+            elsif (-f "$pwd/$file")
+            {
+                push(@files, "$pwd/$file");
+            }
+        }
+    }
+    return \@files;
 }
 
 sub _loadCSVFileAsArray

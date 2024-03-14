@@ -3,127 +3,60 @@ use strict;
 use warnings FATAL => 'all';
 use Data::Dumper;
 
-my @files = (
-    'eccpat.txt',
-    'jcpat.txt',
-    'MACStummddyy.txt',
-    'MACStaffmmddyy.txt',
-    'MACAdjunctmmddyy.txt',
-    'SCCstudent',
-    'SCCstaff',
-    'SLCCStudent',
-    'SLCCStaff',
-    'TRCstuyyyymmdd',
-    'TRCstaffyyyymmdd',
-    'stlcoppat.txt',
-    'COLUMBIA_PATRONS',
-    'LUPAT.Dyymdd',
-    'n/a',
-    'scstudent',
-    'wcstudents.txt',
-    'WWUpatrons.txt',
-    'WWUbarcodesUG.txt',
-    'ATSU_mmddyyyy.txt',
-    'CMUstuyyyymmdd.out',
-    'CMUgryyyymmdd.out',
-    'CMUfacyyyymmdd.out',
-    'csctmmddyyyy.txt',
-    'HLG-STUDENTS',
-    'MVC_Student_Updates_mm_dd.txt',
-    'MACCPatLoadmm-dd-yy',
-    'SFCC_Student_mmddyy.txt',
-    'SFCC_Staff_mmddyy.txt',
-    'STC_yyyy-mm-dd',
-    'tpbstupat',
-    'cslpatrons.txt',
-    'covstu.txt',
-    'covfac.txt',
-    'FCstuPAT.DAT',
-    'FCfacPAT.DAT',
-    'HSSUyymmdd.txt',
-    'n/a',
-    'LUSTUPAT.txt',
-    'LUFACPAT.txt',
-    'loganstu.txt',
-    'mustupat.dyymmdd.txt',
-    'mustapat.dyymmdd.txt',
-    'mufacpat.dyymmdd.txt',
-    'muadjpat.dyymmdd.txt',
-    'mobapstu.txt',
-    'EWLPat.txt',
-    'n/a',
-    'n/a',
-    'n/a',
-    'n/a',
-    'Avila_Upload_mm-dd-yy',
-    'bcpatrons.txt',
-    'n/a',
-    'n/a',
-    'KCAI_PATRON_LOAD_mmyyyy',
-    'KCKCC_LIB_STU.txt',
-    'KCKCC_LIB_EMP.txt',
-    'KCU-yyyy-mm-dd.txt',
-    'mccstuMMYY.txt',
-    'mccfacMMYY.txt',
-    'mbtsstu.dyymmdd.txt',
-    'mwsuugr.txt',
-    'mwsugr.txt',
-    'mwsufac.txt',
-    'mwsuexp.txt',
-    'mwsuadj.txt',
-    'mwsuinst.txt',
-    'mwsuwdraw.txt',
-    'nts_patrons.txt',
-    'ncmcstu.txt',
-    'nwmsustu.txt',
-    'nwmsuempl.txt',
-    'parkstufac.txt',
-    'RKRST_Stu_mm-dd-yyyy.txt',
-    'RKRST_Staff_mm-dd-yyyy.txt',
-    'RKRST_Faculty_mm-dd-yyyy.txt',
-    'n/a',
-    'WJC_MOBIUS_STUDENTS.txt',
-    'COTTyyyymmdd.txt',
-    'ccstupat.txt',
-    'DRURYPAT_students.txt',
-    'DRURYPAT_employees.txt',
-    'DRURYPAT_alumni.txt',
-    'EUPatronCamsExport_month_day_year',
-    'MSSCALL',
-    'MobiusUploadyyyydd.txt',
-    'otcpat.txt',
-    'SBUPATRONS',
-    'patronLoad.marc');
+# my @specialChar = ("-", ".", "+", "*", "?", "^", "\$", "(", ")", "[", "]", "{", "}", "|");
+my @specialChar = ("-", ".");
 
-for my $file (@files)
+for my $pattern (@patterns)
 {
-    next if ($file =~ 'n/a');
+    $pattern = lc $pattern;
+    # next if ($pattern eq 'n/a' || $pattern !~ 'dd' || $pattern !~ 'mm'|| $pattern !~ 'yy');
+    next if ($pattern eq 'n/a');
 
-    print "---------------------------------\n";
-    print $file . "\n";
-
-    my $extension = ($file =~ /\.\w*$/g)[0];
-    $extension = "" if (!defined($extension));
-
-    print "extension: [$extension]\n" if (defined($extension));
-
-    $file =~ s/dd.*/*/g;
-    $file =~ s/mm.*/*/g;
-    $file =~ s/yy.*/*/g;
-
-    $file =~ s/DD.*/*/g;
-    $file =~ s/MM.*/*/g;
-    $file =~ s/YY.*/*/g;
-
-    $file =~ s/month.*/*/g;
-    $file =~ s/day.*/*/g;
-    $file =~ s/year.*/*/g;
-
-    # add the file extension back if it isn't already and we have one.
-    $file .= $extension if ($file !~ /$extension/ && $extension ne '');
-
-    print $file . "\n";
+    print "$pattern,";
+    $pattern =~ s/\-/\\-/g;
+    $pattern =~ s/\./\\./g;
+    $pattern =~ s/dd/\\d{2}/g;
+    $pattern =~ s/mm/\\d{2}/g;
+    $pattern =~ s/yyyy/\\d{4}/g;
+    $pattern =~ s/yy/\\d{2}/g;
+    print "$pattern\n";
 
 }
 
-# my $command = "find $institution->{'folder'}->{'path'}/* -iname $file->{pattern}*";
+sub dirtrav
+{
+    my $self = shift;
+    my $f = shift;
+    my $pwd = shift;
+    my @files = @{$f};
+    opendir(DIR, "$pwd") or die "Cannot open $pwd\n";
+    my @thisdir = readdir(DIR);
+    closedir(DIR);
+    foreach my $file (@thisdir)
+    {
+        if (($file ne ".") and ($file ne ".."))
+        {
+            if (-d "$pwd/$file")
+            {
+                push(@files, "$pwd/$file");
+                @files = @{dirtrav($self, \@files, "$pwd/$file")};
+            }
+            elsif (-f "$pwd/$file")
+            {
+                push(@files, "$pwd/$file");
+            }
+        }
+    }
+    return \@files;
+}
+
+my $path = "/mnt/dropbox/avalon/home/avalon/incoming";
+my $self = {};
+my @files = ();
+@files = @{dirtrav($self, \@files, $path)};
+# print "$_\n" for (@files);
+
+# MACStaff\d{2}\d{2}\d{2}\.txt
+
+my @patronFiles = grep(/ATSU_\d{2}\d{2}\d{4}\.txt/, @files);
+print "$_\n" for (@patronFiles);
