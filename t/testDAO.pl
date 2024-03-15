@@ -176,17 +176,6 @@ sub test_DAO_getLastFileTrackerEntry
 
 }
 
-# test_getPatronFilePaths();
-sub test_getPatronFilePaths
-{
-
-    # real    2m11.809s
-    our $jobID = 1;
-    my $filesHashArray = $files->getPatronFilePaths();
-
-    print Dumper($filesHashArray);
-
-}
 
 # test_DAO_getLastJobID();
 sub test_DAO_getLastJobID

@@ -47,16 +47,6 @@ sub readFileToArray
 
 }
 
-sub getPatronFilePaths
-{
-    my $self = shift;
-
-    # todo: write this!
-    # my $files = $main::dao->
-
-
-}
-
 sub _loadMOBIUSPatronLoadsCSV
 {
     # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
@@ -172,6 +162,7 @@ sub patronFileDiscovery
                         'size'           => (stat($path))[7],
                         'lastModified'   => (stat($path))[9],
                     });
+
                 }
 
             }
