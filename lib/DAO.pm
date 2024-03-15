@@ -187,48 +187,6 @@ sub getStagedPatrons
 
 }
 
-sub saveStagedPatronRecords
-{
-    my $self = shift;
-    my $patronRecords = shift;
-
-    for my $patron (@{$patronRecords})
-    {
-
-        # This is the way I order the hash. It has to match the order of the stage_patron table.
-        # I'm going to write a function that takes the hash, the table name and orders it in the _insertIntoTable function.
-        # I hate this. Fix it.
-        my @data = (
-            $patron->{job_id},
-            $patron->{institution_id},
-            $patron->{file_id},
-            $patron->{esid},
-            $patron->{fingerprint},
-            $patron->{field_code},
-            $patron->{patron_type},
-            $patron->{pcode1},
-            $patron->{pcode2},
-            $patron->{pcode3},
-            $patron->{home_library},
-            $patron->{patron_message_code},
-            $patron->{patron_block_code},
-            $patron->{patron_expiration_date},
-            $patron->{name},
-            $patron->{address},
-            $patron->{telephone},
-            $patron->{address2},
-            $patron->{telephone2},
-            $patron->{department},
-            $patron->{unique_id},
-            $patron->{barcode},
-            $patron->{email_address},
-            $patron->{note}
-        );
-        $self->_insertArrayIntoTable("stage_patron", \@data);
-    }
-
-}
-
 sub insertPatron
 {
     my $self = shift;

@@ -136,33 +136,23 @@ sub patronFileDiscovery
     for my $file (@{$institution->{'folder'}->{files}})
     {
 
-        # find: warning: ‘-iname’ matches against basenames only, but the given pattern contains a directory separator (‘/’),
-        # thus the expression will evaluate to false all the time.  Did you mean ‘-iwholename’?
-        # We get this error because some of the filenames are listed as 'n/a' so the command looks like
-        # find /mnt/dropbox/arthur/home/arthur/incoming/* -iname n/a*
         next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '');
-
         print "Looking for pattern: [$file->{pattern}]\n";
+        $main::log->addLine("Looking for pattern: [$file->{pattern}]");
 
-        # @files = @{dirtrav($self, \@files, $path)};
         my @files = ();
-        # @files = @{$self->dirtrav($self, \@files, $institution->{'folder'}->{'path'})};
 
         @files = @{dirtrav($self, \@files, $institution->{'folder'}->{'path'})};
         my @paths = ();
-        foreach(@files)
+        foreach (@files)
         {
             my $thisFullPath = $_;
             my @frags = split(/\//, $thisFullPath);
             my $filename = pop @frags;
-            push (@paths, $thisFullPath) if($filename =~ /$file->{pattern}/i);
+            push(@paths, $thisFullPath) if ($filename =~ /$file->{pattern}/);
             undef $thisFullPath;
             undef @frags;
         }
-
-        # my $command = "find $institution->{'folder'}->{'path'}/* -iname $file->{pattern}";
-        # my @paths = `$command`;
-        # chomp(@paths);
 
         if (@paths)
         {
@@ -171,13 +161,16 @@ sub patronFileDiscovery
 
                 unless (-d $path) # we're getting directories matching.
                 {
-                    $main::log->addLine("File Found: [$institution->{'folder'}->{'path'}]:[$path]");
+
                     print "File Found: [$institution->{name}]:[$path]\n";
+                    $main::log->addLine("File Found: [$institution->{'folder'}->{'path'}]:[$path]");
 
                     $main::dao->_insertHashIntoTable("file_tracker", {
                         'job_id'         => $main::jobID,
                         'institution_id' => $institution->{'id'},
-                        'path'           => $path
+                        'path'           => $path,
+                        'size'           => (stat($path))[7],
+                        'lastModified'   => (stat($path))[9],
                     });
                 }
 
@@ -432,6 +425,24 @@ sub _loadSSO_ESID_MappingCSV
     # https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZaj7M/edit#gid=154768990
     $main::dao->dropTable($tableName);
     $main::dao->createTableFromCSV("sso_esid_mapping", $main::conf->{sso_esid_mapping}, 4);
+
+}
+
+sub getFileStats
+{
+    my $self = shift;
+    my $filename = shift;
+
+    my $currentTime = time();
+
+    my $hash = {};
+    $hash->{path} = $filename;
+    $hash->{lastAccess} = (stat($filename))[8];
+    $hash->{lastModified} = (stat($filename))[9];
+    $hash->{currentTime} = $currentTime;
+    $hash->{ageInMinutes} = ($currentTime - $hash->{lastModified}) / 60;
+
+    return $hash;
 
 }
 

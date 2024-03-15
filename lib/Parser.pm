@@ -73,6 +73,26 @@ sub stagePatronRecords
 
 }
 
+sub checkFileReady
+{
+    my $self = shift;
+    my $file = shift;
+    my @stat = stat $file;
+    my $baseline = $stat[7];
+    $baseline += 0;
+    my $now = -1;
+    while ($now != $baseline)
+    {
+        @stat = stat $file;
+        $now = $stat[7];
+        sleep 1;
+        @stat = stat $file;
+        $baseline = $stat[7];
+        $baseline += 0;
+        $now += 0;
+    }
+}
+
 sub saveStagedPatronRecords
 {
     # this function is a mess. I hate it. I hate it so much that I don't even want to rework it.

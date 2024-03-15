@@ -1,62 +1,19 @@
 #!/usr/bin/perl
 use strict;
 use warnings FATAL => 'all';
+use lib qw(../lib);
 use Data::Dumper;
+use MOBIUS::GoogleSheets;
 
-# my @specialChar = ("-", ".", "+", "*", "?", "^", "\$", "(", ")", "[", "]", "{", "}", "|");
-my @specialChar = ("-", ".");
+# https://docs.google.com/spreadsheets/d/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY/edit#gid=984932811
+my $google = MOBIUS::GoogleSheets->new();
 
-for my $pattern (@patterns)
-{
-    $pattern = lc $pattern;
-    # next if ($pattern eq 'n/a' || $pattern !~ 'dd' || $pattern !~ 'mm'|| $pattern !~ 'yy');
-    next if ($pattern eq 'n/a');
+# https://docs.google.com/spreadsheets/d/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY/edit#gid=984932811
+my $sheetID = 'https://doc-00-34-sheets.googleusercontent.com/export/ogbdf8erq5k56h1ppqg7q8ndhc/lvb96tkpdokiirj64asak6dcu4/1710518060000/118336470351237653303/100363003585878958849/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY?format=csv&id=1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY&gid=984932811&dat=AAt6Q5UW8tnzZGIwehu9E9O_EjcmQzqP-IeLY6OPraig8HAgBcmo4gv1cZYzTPiQaOlFZ7be_4YpEHZUbP22bT1Kp8OG1rmtsWag9FE9YMIOadT7jK0xgnQgWaW1ArgmDlNb-Z7Yq4lO5tzfQa0YH1RdeV6GUv2_3Rc7DCei5fssx6yFCHFG_xDP2V81Ya8Ud5ENVSKwEFKFjL1RX4_CSkH4GVAac4fn1nmGNCvKYFdCHu2Ym_vRRq0RvOA4-KYutFSxUIqhi0SEeovNX89yMpyeYrNbiYW-2aY62UCRXcnC2afDmKYvKC4g18IHcLNi2X813HOxDQScmAnuPdlezS1qfUW_Sv_F25V0DV2HKlUWtKtxsZO8gjKfTHP6kpfJxW9eng7JETCINofxconfSxRegBWhHpF_TODJxLYaG1G00wiHY6_dpFBTO3Y2ogQIxGYJZQKkjleaHMMvHNpXeiKUDH8QSg_cxSPuSfPVe3tkk25c5kwKX9weu1zFBC5FOFrPz9jjv_Y-JGi6gMf9kK0BNzjmsBknbAFkyf3ZbQZ_pkCD5dV-wNYQYT3947aB779H51P54ekZBOsXSe5NOV0OG0_v709vxXN4dBxwLlvEFEH254cjXLaqaYgi_Nt-IkRxaKHBgqPvnh0UAHvVmZXxdlczJUMFUyYpsJ9kevu_qGibukcNPMcCxxTsztTArNTo1dOqjU7MPAMiiWh398lg2ooX-iixU3kRPwNC7nj1dOJvL3w7UezLlgdAozWkocgNA-HELANt9nHlLdVm1W8sT5Nb1_IGKvdQXvV2QOeEEGC0-jm69tlHPwdUBviWc1Jm8X5yMy6bQjS7ezvip3mI3z0npfTcZPB8U_m1EjaG_uvDSxx7Jg54wURlNzPcvvdgaVFcazl5LVsRjepCdKq6VtjdYGcr8RDSPDomnR8x1FDcEGOBuX5sBNgnvGJII3mflX729e2Nvcwebr36ewVsCn_BwFhdCbumcTrhBHLS6hrdgyc';
+my $csv = $google->getSheet('1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY');
 
-    print "$pattern,";
-    $pattern =~ s/\-/\\-/g;
-    $pattern =~ s/\./\\./g;
-    $pattern =~ s/dd/\\d{2}/g;
-    $pattern =~ s/mm/\\d{2}/g;
-    $pattern =~ s/yyyy/\\d{4}/g;
-    $pattern =~ s/yy/\\d{2}/g;
-    print "$pattern\n";
 
-}
+print Dumper($csv);
 
-sub dirtrav
-{
-    my $self = shift;
-    my $f = shift;
-    my $pwd = shift;
-    my @files = @{$f};
-    opendir(DIR, "$pwd") or die "Cannot open $pwd\n";
-    my @thisdir = readdir(DIR);
-    closedir(DIR);
-    foreach my $file (@thisdir)
-    {
-        if (($file ne ".") and ($file ne ".."))
-        {
-            if (-d "$pwd/$file")
-            {
-                push(@files, "$pwd/$file");
-                @files = @{dirtrav($self, \@files, "$pwd/$file")};
-            }
-            elsif (-f "$pwd/$file")
-            {
-                push(@files, "$pwd/$file");
-            }
-        }
-    }
-    return \@files;
-}
 
-my $path = "/mnt/dropbox/avalon/home/avalon/incoming";
-my $self = {};
-my @files = ();
-@files = @{dirtrav($self, \@files, $path)};
-# print "$_\n" for (@files);
-
-# MACStaff\d{2}\d{2}\d{2}\.txt
-
-my @patronFiles = grep(/ATSU_\d{2}\d{2}\d{4}\.txt/, @files);
-print "$_\n" for (@patronFiles);
+# https://doc-00-34-sheets.googleusercontent.com/export/ogbdf8erq5k56h1ppqg7q8ndhc/lvb96tkpdokiirj64asak6dcu4/1710518060000/118336470351237653303/100363003585878958849/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY?format=csv&id=1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY&gid=984932811&dat=AAt6Q5UW8tnzZGIwehu9E9O_EjcmQzqP-IeLY6OPraig8HAgBcmo4gv1cZYzTPiQaOlFZ7be_4YpEHZUbP22bT1Kp8OG1rmtsWag9FE9YMIOadT7jK0xgnQgWaW1ArgmDlNb-Z7Yq4lO5tzfQa0YH1RdeV6GUv2_3Rc7DCei5fssx6yFCHFG_xDP2V81Ya8Ud5ENVSKwEFKFjL1RX4_CSkH4GVAac4fn1nmGNCvKYFdCHu2Ym_vRRq0RvOA4-KYutFSxUIqhi0SEeovNX89yMpyeYrNbiYW-2aY62UCRXcnC2afDmKYvKC4g18IHcLNi2X813HOxDQScmAnuPdlezS1qfUW_Sv_F25V0DV2HKlUWtKtxsZO8gjKfTHP6kpfJxW9eng7JETCINofxconfSxRegBWhHpF_TODJxLYaG1G00wiHY6_dpFBTO3Y2ogQIxGYJZQKkjleaHMMvHNpXeiKUDH8QSg_cxSPuSfPVe3tkk25c5kwKX9weu1zFBC5FOFrPz9jjv_Y-JGi6gMf9kK0BNzjmsBknbAFkyf3ZbQZ_pkCD5dV-wNYQYT3947aB779H51P54ekZBOsXSe5NOV0OG0_v709vxXN4dBxwLlvEFEH254cjXLaqaYgi_Nt-IkRxaKHBgqPvnh0UAHvVmZXxdlczJUMFUyYpsJ9kevu_qGibukcNPMcCxxTsztTArNTo1dOqjU7MPAMiiWh398lg2ooX-iixU3kRPwNC7nj1dOJvL3w7UezLlgdAozWkocgNA-HELANt9nHlLdVm1W8sT5Nb1_IGKvdQXvV2QOeEEGC0-jm69tlHPwdUBviWc1Jm8X5yMy6bQjS7ezvip3mI3z0npfTcZPB8U_m1EjaG_uvDSxx7Jg54wURlNzPcvvdgaVFcazl5LVsRjepCdKq6VtjdYGcr8RDSPDomnR8x1FDcEGOBuX5sBNgnvGJII3mflX729e2Nvcwebr36ewVsCn_BwFhdCbumcTrhBHLS6hrdgyc

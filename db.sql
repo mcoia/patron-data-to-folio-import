@@ -45,7 +45,9 @@ create table if not exists patron_import.file_tracker
     id             SERIAL primary key,
     job_id         int references patron_import.job (id),
     institution_id int references patron_import.institution (id),
-    path           text
+    path           text,
+    size           int,
+    lastModified   int
 );
 
 create table if not exists patron_import.stage_patron
