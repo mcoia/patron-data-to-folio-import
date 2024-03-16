@@ -33,6 +33,15 @@ sub getSheetCSVByID
 sub getSheets
 {
     my $self = shift;
+    $self->_parseURL();
+    $self->downloadZip();
+    $self->extractZipFile();
+}
+
+sub _parseURL
+{
+    my $self = shift;
+
     my $url = $self->{'url'};
 
     my $sheetID = ($url =~ /https:\/\/docs\.google\.com\/spreadsheets\/d\/(.*)\//)[0];
@@ -47,23 +56,32 @@ sub getSheets
     $self->{'sheetID'} = $sheetID;
     $self->{'gid'} = $gid;
 
-    print $self->{url} . "\n";
-    print $sheetID . "\n";
-    print $gid . "\n";
-    print $self->{zipURL} . "\n";
 
-    return $self;
 }
 
-sub _downloadZip
+sub downloadZip
 {
     my $self = shift;
-    my $time = time();
     my $url = $self->{'zipURL'};
     print "downloading zip... $url\n";
     my $fileName = $self->{sheetID};
     my @zip = `wget -q -O $fileName.zip $url`;
 
+}
+
+sub extractZipFile
+{
+    my $self = shift;
+    print "do work\n";
+
+    return $self;
+}
+
+sub setURL
+{
+    my $self = shift;
+    my $url = shift;
+    $self->{url} = $url;
     return $self;
 }
 
