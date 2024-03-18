@@ -2,18 +2,44 @@
 use strict;
 use warnings FATAL => 'all';
 use lib qw(../lib);
+use File::Find;
 use Data::Dumper;
-use MOBIUS::GoogleSheets;
-
-# https://docs.google.com/spreadsheets/d/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY/edit#gid=984932811
-my $google = MOBIUS::GoogleSheets->new();
-
-# https://docs.google.com/spreadsheets/d/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY/edit#gid=984932811
-my $sheetID = 'https://doc-00-34-sheets.googleusercontent.com/export/ogbdf8erq5k56h1ppqg7q8ndhc/lvb96tkpdokiirj64asak6dcu4/1710518060000/118336470351237653303/100363003585878958849/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY?format=csv&id=1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY&gid=984932811&dat=AAt6Q5UW8tnzZGIwehu9E9O_EjcmQzqP-IeLY6OPraig8HAgBcmo4gv1cZYzTPiQaOlFZ7be_4YpEHZUbP22bT1Kp8OG1rmtsWag9FE9YMIOadT7jK0xgnQgWaW1ArgmDlNb-Z7Yq4lO5tzfQa0YH1RdeV6GUv2_3Rc7DCei5fssx6yFCHFG_xDP2V81Ya8Ud5ENVSKwEFKFjL1RX4_CSkH4GVAac4fn1nmGNCvKYFdCHu2Ym_vRRq0RvOA4-KYutFSxUIqhi0SEeovNX89yMpyeYrNbiYW-2aY62UCRXcnC2afDmKYvKC4g18IHcLNi2X813HOxDQScmAnuPdlezS1qfUW_Sv_F25V0DV2HKlUWtKtxsZO8gjKfTHP6kpfJxW9eng7JETCINofxconfSxRegBWhHpF_TODJxLYaG1G00wiHY6_dpFBTO3Y2ogQIxGYJZQKkjleaHMMvHNpXeiKUDH8QSg_cxSPuSfPVe3tkk25c5kwKX9weu1zFBC5FOFrPz9jjv_Y-JGi6gMf9kK0BNzjmsBknbAFkyf3ZbQZ_pkCD5dV-wNYQYT3947aB779H51P54ekZBOsXSe5NOV0OG0_v709vxXN4dBxwLlvEFEH254cjXLaqaYgi_Nt-IkRxaKHBgqPvnh0UAHvVmZXxdlczJUMFUyYpsJ9kevu_qGibukcNPMcCxxTsztTArNTo1dOqjU7MPAMiiWh398lg2ooX-iixU3kRPwNC7nj1dOJvL3w7UezLlgdAozWkocgNA-HELANt9nHlLdVm1W8sT5Nb1_IGKvdQXvV2QOeEEGC0-jm69tlHPwdUBviWc1Jm8X5yMy6bQjS7ezvip3mI3z0npfTcZPB8U_m1EjaG_uvDSxx7Jg54wURlNzPcvvdgaVFcazl5LVsRjepCdKq6VtjdYGcr8RDSPDomnR8x1FDcEGOBuX5sBNgnvGJII3mflX729e2Nvcwebr36ewVsCn_BwFhdCbumcTrhBHLS6hrdgyc';
-my $csv = $google->getSheet('1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY');
 
 
-print Dumper($csv);
+# Searching for files...
+# Missouri Western State University: /mnt/dropbox/kc-towers/home/kc-towers/incoming
+# Looking for pattern: [mwsuugr\.txt]
+# File Found: [Missouri Western State University]:[/mnt/dropbox/kc-towers/home/kc-towers/incoming/mwsuugr.txt]
+# Looking for pattern: [mwsugr\.txt]
+# File Found: [Missouri Western State University]:[/mnt/dropbox/kc-towers/home/kc-towers/incoming/mwsugr.txt]
+# Looking for pattern: [mwsufac\.txt]
+# File Found: [Missouri Western State University]:[/mnt/dropbox/kc-towers/home/kc-towers/incoming/mwsufac.txt]
+# Looking for pattern: [mwsuexp\.txt]
+# File Found: [Missouri Western State University]:[/mnt/dropbox/kc-towers/home/kc-towers/incoming/mwsuexp.txt]
+# Looking for pattern: [mwsuadj\.txt]
+# File Found: [Missouri Western State University]:[/mnt/dropbox/kc-towers/home/kc-towers/incoming/mwsuadj.txt]
+# Looking for pattern: [mwsuinst\.txt]
+# File Found: [Missouri Western State University]:[/mnt/dropbox/kc-towers/home/kc-towers/incoming/mwsuinst.txt]
+# Looking for pattern: [mwsuwdraw\.txt]
+# File Found: [Missouri Western State University]:[/mnt/dropbox/kc-towers/home/kc-towers/incoming/mwsuwdraw.txt]
+# Total Patrons in mwsuugr.txt: [2927]
+# Total Patrons in mwsugr.txt: [207]
+# Total Patrons in mwsufac.txt: [817]
+# Total Patrons in mwsuexp.txt: [205]
+# Total Patrons in mwsuadj.txt: [181]
+# Total Patrons in mwsuinst.txt: [66]
+# Total Patrons in mwsuwdraw.txt: [153]
+# Total Patrons: [4556]
 
+my $dir = "/mnt/dropbox/kc-towers/home/kc-towers/incoming";
 
-# https://doc-00-34-sheets.googleusercontent.com/export/ogbdf8erq5k56h1ppqg7q8ndhc/lvb96tkpdokiirj64asak6dcu4/1710518060000/118336470351237653303/100363003585878958849/1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY?format=csv&id=1kAdsJ9Hk9iW6cW9S9uAiosutIo_eBtFE7zRQy8iczbY&gid=984932811&dat=AAt6Q5UW8tnzZGIwehu9E9O_EjcmQzqP-IeLY6OPraig8HAgBcmo4gv1cZYzTPiQaOlFZ7be_4YpEHZUbP22bT1Kp8OG1rmtsWag9FE9YMIOadT7jK0xgnQgWaW1ArgmDlNb-Z7Yq4lO5tzfQa0YH1RdeV6GUv2_3Rc7DCei5fssx6yFCHFG_xDP2V81Ya8Ud5ENVSKwEFKFjL1RX4_CSkH4GVAac4fn1nmGNCvKYFdCHu2Ym_vRRq0RvOA4-KYutFSxUIqhi0SEeovNX89yMpyeYrNbiYW-2aY62UCRXcnC2afDmKYvKC4g18IHcLNi2X813HOxDQScmAnuPdlezS1qfUW_Sv_F25V0DV2HKlUWtKtxsZO8gjKfTHP6kpfJxW9eng7JETCINofxconfSxRegBWhHpF_TODJxLYaG1G00wiHY6_dpFBTO3Y2ogQIxGYJZQKkjleaHMMvHNpXeiKUDH8QSg_cxSPuSfPVe3tkk25c5kwKX9weu1zFBC5FOFrPz9jjv_Y-JGi6gMf9kK0BNzjmsBknbAFkyf3ZbQZ_pkCD5dV-wNYQYT3947aB779H51P54ekZBOsXSe5NOV0OG0_v709vxXN4dBxwLlvEFEH254cjXLaqaYgi_Nt-IkRxaKHBgqPvnh0UAHvVmZXxdlczJUMFUyYpsJ9kevu_qGibukcNPMcCxxTsztTArNTo1dOqjU7MPAMiiWh398lg2ooX-iixU3kRPwNC7nj1dOJvL3w7UezLlgdAozWkocgNA-HELANt9nHlLdVm1W8sT5Nb1_IGKvdQXvV2QOeEEGC0-jm69tlHPwdUBviWc1Jm8X5yMy6bQjS7ezvip3mI3z0npfTcZPB8U_m1EjaG_uvDSxx7Jg54wURlNzPcvvdgaVFcazl5LVsRjepCdKq6VtjdYGcr8RDSPDomnR8x1FDcEGOBuX5sBNgnvGJII3mflX729e2Nvcwebr36ewVsCn_BwFhdCbumcTrhBHLS6hrdgyc
+my @files = ();
+find(sub {push(@files, $File::Find::name)}, $dir);
+
+my @file = grep(/mwsuugr\.txt/, @files);
+# my @file = grep {/.*mwsuugr\.txt.*/} @files;
+
+# print Dumper(\@files);
+# print "$_\n" for(@files);
+
+print "@file\n";

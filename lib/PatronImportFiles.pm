@@ -96,10 +96,6 @@ sub _buildFilePatterns
 
         my $pattern = $clusterFileHash->{name};
 
-        # $pattern = lc $pattern;
-        # next if ($pattern eq 'n/a' || $pattern !~ 'dd' || $pattern !~ 'mm'|| $pattern !~ 'yy'); next if ($pattern eq 'n/a');
-
-        # print "$pattern,";
         $pattern =~ s/\-/\\-/g;
         $pattern =~ s/\./\\./g;
         $pattern =~ s/dd/\\d{2}/g;
@@ -311,7 +307,6 @@ sub buildInstitutionTableData
         }
 
         my $folder = {
-            # 'institution_id' => $institution_id,
             'path' => "/mnt/dropbox/$institution->{cluster}/home/$institution->{cluster}/incoming"
         };
 
