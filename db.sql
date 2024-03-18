@@ -1,4 +1,4 @@
-drop schema if exists patron_import cascade;
+-- drop schema if exists patron_import cascade;
 
 create schema if not exists patron_import;
 
@@ -28,7 +28,6 @@ create table if not exists patron_import.file
 (
     id             SERIAL primary key,
     institution_id int references patron_import.institution (id),
---     folder_id      int references patron_import.folder (id),
     name           text,
     pattern        text
 );
@@ -68,7 +67,7 @@ create table if not exists patron_import.stage_patron
     patron_block_code      text,
     patron_expiration_date text,
     name                   text,
-    address                text,
+    address                text, -- todo: rename this to dollar_sign_address    text,
     telephone              text,
     address2               text,
     telephone2             text,
@@ -76,7 +75,8 @@ create table if not exists patron_import.stage_patron
     unique_id              text,
     barcode                text,
     email_address          text,
-    note                   text
+    note                   text,
+    load                   bool default false
 );
 
 create table if not exists patron_import.patron
@@ -86,7 +86,7 @@ create table if not exists patron_import.patron
     file_id                int references patron_import.file (id),
     job_id                 int references patron_import.job (id),
     fingerprint            text,
-    loadFolio              bool not null default false,
+    folioReady             bool not null default true,
     username               text,
     externalSystemId       text,
     barcode                text,
@@ -115,7 +115,7 @@ create table if not exists patron_import.address
     region         text,
     postalCode     text,
     addressTypeId  text default 'Home',
-    primaryAddress text
+    primaryAddress bool default true
 );
 
 create table if not exists patron_import.ptype_mapping
@@ -125,6 +125,72 @@ create table if not exists patron_import.ptype_mapping
     ptype          text,
     foliogroup     text
 );
+
+
+CREATE OR REPLACE FUNCTION patron_import.address_insert_trigger_function()
+    RETURNS trigger AS
+
+$$
+DECLARE
+    originalAddress text;
+    addressLine1    text;
+    addressLine2    text;
+    city            text;
+    region          text;
+    postalcode      text;
+    addresstypeid   text;
+    primaryaddress  text;
+
+BEGIN
+
+    select into originalAddress address
+    from patron_import.stage_patron sp
+    where sp.unique_id = NEW.username
+      AND sp.address IS NOT NULL
+      AND btrim(sp.address) != ''
+    limit 1;
+
+    IF NOT FOUND THEN RETURN NEW; END IF; -- short circuit when address is null or empty
+
+   -- TGOP = UPDATE   
+
+
+
+    select into addressLine2 address2
+    from patron_import.stage_patron sp
+    where sp.unique_id = NEW.username
+    limit 1;
+
+    IF originalAddress ~ '\$' THEN
+        addressLine1 := btrim(split_part(originalAddress, '$', 1));
+        originalAddress := btrim(split_part(originalAddress, '$', 2));
+    END IF;
+
+
+    city := btrim(split_part(originalAddress, ',', 1));
+    originalAddress := btrim(split_part(originalAddress, ',', 2));
+
+    region := btrim(split_part(originalAddress, ' ', 1));
+    postalcode := btrim(split_part(originalAddress, ' ', 2));
+
+
+    INSERT INTO patron_import.address (patron_id, addressline1, addressline2, city, region, postalcode)
+    VALUES (NEW.id, addressLine1, addressLine2, city, region, postalcode);
+
+
+    RETURN NEW;
+
+END;
+
+$$
+    LANGUAGE 'plpgsql';
+
+
+CREATE TRIGGER address_insert_trigger
+    AFTER INSERT
+    ON patron_import.patron
+    FOR EACH ROW
+EXECUTE PROCEDURE patron_import.address_insert_trigger_function();
 
 create or replace function patron_import.zeroPadTrunc(pt text) returns text
     language plpgsql
@@ -137,3 +203,5 @@ BEGIN
     RETURN BTRIM(ptext);
 END;
 $$;
+
+

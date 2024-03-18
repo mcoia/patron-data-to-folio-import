@@ -224,6 +224,93 @@ sub _parsePatronRecord
     return $patron;
 }
 
+
+
+sub migrate
+{
+    my $self = shift;
+
+    # Inserts vs Updates
+    # We'll use the username as our key. That's what needs to be 100% unique across the consortium.
+    # The esid is unique to the tenant so this is redundant to key off it as well.
+
+    # query each stage_patron, look up their info in the final patron table using the username.
+    # If that username doesn't exists we're an insert.
+    # If that username exists we're an update.
+
+    # we're using the unique_id as the username as SSO uses the esid for login.
+    # The users will never use the username to login anyways.
+
+    # my $stage_patrons = $main::dao->
+
+
+    my $query = "-- dedupe stage_patron
+UPDATE patron_import.stage_patron sp
+SET load = true
+FROM (SELECT MIN(id) as id
+      FROM patron_import.stage_patron
+      where not load
+      GROUP BY unique_id
+      HAVING COUNT(*) > 1) b
+WHERE sp.id = b.id
+  AND not sp.load;
+
+
+UPDATE patron_import.stage_patron sp
+SET load = true
+FROM (SELECT MIN(id) as id
+      FROM patron_import.stage_patron
+      where not load
+      GROUP BY unique_id
+      HAVING COUNT(*) = 1) b
+WHERE sp.id = b.id
+  AND not sp.load;
+
+
+insert into patron_import.patron (institution_id,
+                                  file_id,
+                                  job_id,
+                                  fingerprint,
+                                  username,
+                                  externalsystemid,
+                                  barcode,
+                                  patrongroup,
+                                  lastname,
+                                  firstname,
+                                  middlename,
+                                  phone,
+                                  mobilephone,
+                                  preferredcontacttypeid)
+    (select p.institution_id,
+            p.file_id,
+            p.job_id,
+            p.fingerprint,
+            p.unique_id,
+            p.esid,
+            p.barcode,
+            pt.foliogroup,
+            btrim(regexp_replace(p.name, ',.*', ''))                              as "lastname",
+            btrim(regexp_replace(regexp_replace(p.name, '.*, ', ''), '.*\s', '')) as "middlename",
+            btrim(regexp_replace(regexp_replace(p.name, '.*, ', ''), '\s.*', '')) as "firstname",
+            p.telephone,
+            p.telephone2,
+            'email'
+     from patron_import.stage_patron p
+              join patron_import.institution i on (p.institution_id = i.id)
+              join patron_import.ptype_mapping pt on (pt.ptype = p.patron_type and pt.institution_id = i.id)
+              left join patron_import.patron p2 on (p.unique_id = p2.username)
+     where p2.id is null
+       AND p.load
+     limit 1);
+
+
+";
+
+
+
+
+}
+
 # Individual parsers are responsible for saving their data.
 sub saveStagedPatronRecordsOLD
 {

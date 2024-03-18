@@ -1,6 +1,8 @@
 package PatronImportFiles;
 use strict;
 use warnings FATAL => 'all';
+use File::Find;
+
 # no warnings 'uninitialized';
 use Data::Dumper;
 
@@ -76,7 +78,8 @@ sub _loadMOBIUSPatronLoadsCSV
             'name'            => $row->[2],
         };
 
-        push(@clusterFiles, $files) if ($row->[2] ne '');
+        # we should skip all institutions that have a file of 'n/a' as they're not participating?
+        push(@clusterFiles, $files) if ($row->[2] ne '' && $row->[2] ne 'n/a');
 
         $rowCount++;
     }
@@ -105,6 +108,12 @@ sub _buildFilePatterns
         $pattern =~ s/yy/\\d{2}/g;
         $pattern =~ s/YY/\\d{2}/g;
 
+
+        # todo: I'm not sure if this is right.
+        # This was added to combat the KCAI file listed for kc-towers. It's to loose and we're picking up other stuff.
+        $pattern =~ s/xxx/.*/g;
+        $pattern =~ s/XXX/.*/g;
+
         $clusterFileHash->{pattern} = $pattern;
 
         push(@$filePatterns, $clusterFileHash);
@@ -119,6 +128,11 @@ sub patronFileDiscovery
     my $self = shift;
     my $institution = shift;
 
+
+    # Grab all the files in the institution folder path
+    my @files = ();
+    find(sub {push(@files, $File::Find::name)}, $institution->{'folder'}->{'path'});
+
     for my $file (@{$institution->{'folder'}->{files}})
     {
 
@@ -126,9 +140,6 @@ sub patronFileDiscovery
         print "Looking for pattern: [$file->{pattern}]\n";
         $main::log->addLine("Looking for pattern: [$file->{pattern}]");
 
-        my @files = ();
-
-        @files = @{dirtrav($self, \@files, $institution->{'folder'}->{'path'})};
         my @paths = ();
         foreach (@files)
         {
@@ -169,33 +180,6 @@ sub patronFileDiscovery
 
     }
 
-}
-
-sub dirtrav
-{
-    my $self = shift;
-    my $f = shift;
-    my $pwd = shift;
-    my @files = @{$f};
-    opendir(DIR, "$pwd") or die "Cannot open $pwd\n";
-    my @thisdir = readdir(DIR);
-    closedir(DIR);
-    foreach my $file (@thisdir)
-    {
-        if (($file ne ".") and ($file ne ".."))
-        {
-            if (-d "$pwd/$file")
-            {
-                push(@files, "$pwd/$file");
-                @files = @{dirtrav($self, \@files, "$pwd/$file")};
-            }
-            elsif (-f "$pwd/$file")
-            {
-                push(@files, "$pwd/$file");
-            }
-        }
-    }
-    return \@files;
 }
 
 sub _loadCSVFileAsArray
@@ -286,6 +270,10 @@ sub buildInstitutionTableData
     my $folder_id = 0;
     my $institution_id = 0;
 
+
+    # my @i = map { $_->{}}
+
+
     for my $institution (@{$institutions})
     {
 
@@ -336,7 +324,6 @@ sub buildInstitutionTableData
         # files are 100% unique here.
         my $file = {
             'institution_id' => $institution_id,
-            # 'folder_id'      => $folder_id,
             'name'           => $institution->{name},
             'pattern'        => $institution->{pattern}
         };
@@ -380,7 +367,10 @@ sub buildPtypeMappingFromCSV
             'foliogroup'     => $folioType
         };
 
-        $main::dao->_insertHashIntoTable("ptype_mapping", $record);
+        # We have a bunch of institutions with a file listed as 'n/a'. We don't even insert these institutions into the db
+        # When we try inserting this ptype mapping table we look for these institutions by name, but we didn't insert them
+        # so they get an institution_id = -1 which isn't going to work. So we drop them too with the if statement.
+        $main::dao->_insertHashIntoTable("ptype_mapping", $record) if ($record->{institution_id} != -1);
 
     }
 

@@ -31,7 +31,6 @@ https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZa
 # FOLIO - mod-user-import
 https://github.com/folio-org/mod-user-import
 https://bugfest-poppy-consortium.int.aws.folio.org
-
 Where to find patron data? It's a text file located
 X: drive
 \\dropbox\{library}\home\{user}\incoming\*Student|Staff*
@@ -113,3 +112,20 @@ https://s3.amazonaws.com/foliodocs/api/mod-users-bl/r/mod-usersbl.html$bl_+user
 
 
 Do we load staff account then?
+
+
+
+
+
+
+
+
+#### TODO
+file pattern for kc-towers KCAI is finding a public key?
+
+
+
+
+
+
+

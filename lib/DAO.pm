@@ -178,9 +178,12 @@ sub getStagedPatrons
 
     my $columns = $self->_getTableColumns($tableName);
 
-    my $query = "select $columns from $schema.stage_patron p where p.id > $start and p.id < $stop;";
+    # my $query = "select $columns from $schema.stage_patron p where p.id > $start and p.id < $stop;";
+    my $query = "select $columns
+                 from patron_import.stage_patron sp
+                          left join patron_import.patron p on (sp.fingerprint = p.fingerprint and sp.institution_id = p.institution_id)
+                 where p.id is null;";
 
-    # my $patrons = $self->query($query);
     my $patrons = $self->_convertQueryResultsToHash($tableName, $self->query($query));
 
     return $patrons;
