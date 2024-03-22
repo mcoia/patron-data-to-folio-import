@@ -7,7 +7,7 @@ use MOBIUS::DBhandler;
 use MOBIUS::Utils;
 use DAO;
 use Parser;
-use PatronImportFiles;
+use FileService;
 
 use Data::Dumper;
 
@@ -18,7 +18,7 @@ initLog();
 our $dao = DAO->new();
 $dao->_initDatabaseCache();
 
-our $files = PatronImportFiles->new();
+our $files = FileService->new();
 our $parser = Parser->new();
 
 sub initConf
@@ -139,5 +139,12 @@ sub test_patronFileDiscovery
     print Dumper($filesFound);
 
 }
+
+
+
+
+
+
+
 
 1;

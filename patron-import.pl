@@ -13,7 +13,7 @@ use MOBIUS::Loghandler;
 use MOBIUS::DBhandler;
 use JSON;
 use MOBIUS::Utils;
-use PatronImportFiles;
+use FileService;
 use Parser;
 use DAO;
 
@@ -49,7 +49,7 @@ sub main
 
     # Create our main objects
     $dao = DAO->new();
-    $files = PatronImportFiles->new();
+    $files = FileService->new();
     $parser = Parser->new();
 
     $dao->checkDatabaseStatus() if ($runType eq "init" || $runType eq "all");
@@ -57,7 +57,7 @@ sub main
     startJob();
     ########## stage | import #########################################
     $parser->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
-    $parser->migrate() if ($runType eq "stage" || $runType eq "all");
+    # $parser->migrate() if ($runType eq "stage" || $runType eq "all");
     # $folio->importPatrons() if($runType eq "import" || $runType eq "all");
     ########## stage | import #########################################
     finishJob();

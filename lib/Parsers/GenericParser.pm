@@ -108,6 +108,7 @@ sub parse
                 $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
 
                 # set some id's, I decided I needed these for tracking down trash
+                $patron->{load} = 'false';
                 $patron->{institution_id} = $institution->{id};
                 $patron->{file_id} = $file->{id};
                 $patron->{job_id} = $main::jobID;
@@ -163,7 +164,6 @@ sub _parsePatronRecord
     my $self = shift;
     my $patronRecord = shift;
 
-    # my $patron = $self->_initPatronHash();
     my $patron = {
         '0'                      => "",
         'patron_type'            => "",
@@ -191,20 +191,22 @@ sub _parsePatronRecord
     for my $data (@{$patronRecord})
     {
 
+        # sanitize the garbage
+        $data =~ s/^\s*//g if ($data =~ /^0/);
+        $data =~ s/\s*$//g if ($data =~ /^0/);
+        $data =~ s/\n//g if ($data =~ /^0/);
+        $data =~ s/\r//g if ($data =~ /^0/);
+
         # zero field
         $patron->{'field_code'} = '0' if ($data =~ /^0/);
-        $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] if ($data =~ /^0/);
+        $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
         $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(\d{3}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}\d{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
         $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
-
-        # $patron->{'patron_expiration_date'} = ($data =~ /^0\d{3}.{2}\d{3}.{7}(.{8}).*/gm)[0] if ($data =~ /^0/);
-
         $patron->{'patron_expiration_date'} = ($data =~ /--(.*)/gm)[0] if ($data =~ /^0/);
-
 
         # variable length fields
         $patron->{'name'} = ($data =~ /^n(.*)$/gm)[0] if ($data =~ /^n/);
@@ -224,8 +226,6 @@ sub _parsePatronRecord
     return $patron;
 }
 
-
-
 sub migrate
 {
     my $self = shift;
@@ -241,145 +241,11 @@ sub migrate
     # we're using the unique_id as the username as SSO uses the esid for login.
     # The users will never use the username to login anyways.
 
-    # my $stage_patrons = $main::dao->
-
-
-    my $query = "-- dedupe stage_patron
-UPDATE patron_import.stage_patron sp
-SET load = true
-FROM (SELECT MIN(id) as id
-      FROM patron_import.stage_patron
-      where not load
-      GROUP BY unique_id
-      HAVING COUNT(*) > 1) b
-WHERE sp.id = b.id
-  AND not sp.load;
-
-
-UPDATE patron_import.stage_patron sp
-SET load = true
-FROM (SELECT MIN(id) as id
-      FROM patron_import.stage_patron
-      where not load
-      GROUP BY unique_id
-      HAVING COUNT(*) = 1) b
-WHERE sp.id = b.id
-  AND not sp.load;
-
-
-insert into patron_import.patron (institution_id,
-                                  file_id,
-                                  job_id,
-                                  fingerprint,
-                                  username,
-                                  externalsystemid,
-                                  barcode,
-                                  patrongroup,
-                                  lastname,
-                                  firstname,
-                                  middlename,
-                                  phone,
-                                  mobilephone,
-                                  preferredcontacttypeid)
-    (select p.institution_id,
-            p.file_id,
-            p.job_id,
-            p.fingerprint,
-            p.unique_id,
-            p.esid,
-            p.barcode,
-            pt.foliogroup,
-            btrim(regexp_replace(p.name, ',.*', ''))                              as "lastname",
-            btrim(regexp_replace(regexp_replace(p.name, '.*, ', ''), '.*\s', '')) as "middlename",
-            btrim(regexp_replace(regexp_replace(p.name, '.*, ', ''), '\s.*', '')) as "firstname",
-            p.telephone,
-            p.telephone2,
-            'email'
-     from patron_import.stage_patron p
-              join patron_import.institution i on (p.institution_id = i.id)
-              join patron_import.ptype_mapping pt on (pt.ptype = p.patron_type and pt.institution_id = i.id)
-              left join patron_import.patron p2 on (p.unique_id = p2.username)
-     where p2.id is null
-       AND p.load
-     limit 1);
-
-
-";
-
-
-
-
-}
-
-# Individual parsers are responsible for saving their data.
-sub saveStagedPatronRecordsOLD
-{
-    my $self = shift;
-    my $patronRecords = shift;
-
-    for my $patron (@{$patronRecords})
-    {
-        $main::dao->_insertHashIntoTable("stage_patron", $patron);
-    }
-
-}
-
-sub _parseName
-{
-    my $self = shift;
-    my $patron = shift;
-
-    my $name = $patron->{name};
-
-    # Altis, Daniel M.
-    my $last = ($name =~ /^(.*),/gm)[0];
-    my $first = ($name =~ /^.*,\s(.*)/gm)[0];
-
-    my $middle = "";
-    $middle = ($first =~ /\s(.*)$/gm)[0] if ($first =~ /\s/);
-
-    $first = ($first =~ /(.*)\s/gm)[0] if ($first =~ /\s/);
-
-    $patron->{firstName} = $first;
-    $patron->{middleName} = $middle;
-    $patron->{lastName} = $last;
-
-    # print "[$name]=[$first][$middle][$last]\n";
-
-    # Sometimes we don't get a first or last name so we just set the first and last name to name.
-    # Let them figure it out later. It's like .05%
-    # $patron->{firstName} = $name if ($first eq '' && $last eq '');
-    # $patron->{lastName} = $name if ($first eq '' && $last eq '');
-
-    return $patron;
-
-}
-
-sub _parseAddress
-{
-
-    my $self = shift;
-    my $patron = shift;
-
-    my $address = $patron->{address};
-
-    $patron->{street} = ($address =~ /^(.*)\$/gm)[0];
-    $patron->{city} = ($address =~ /^.*\$(.*),/gm)[0];
-    $patron->{state} = ($address =~ /,\s(\w{2})/gm)[0];
-    $patron->{zip} = ($address =~ /,\s\w{2}\s\s(.*)$/gm)[0];
-
-    return $patron;
-
-}
-
-sub _getUsername
-{
-    my $self = shift;
-    my $patron = shift;
-
-    # what field do we use for a username?
-    # return $patron->{barcode};
-    return $patron->{email_address};
+    # we're not finding the filename!
+    my $query = $main::files->readFileAsString($main::conf->{sqlFilePath} . "/migrate-generic.sql");
+    $main::dao->query($query);
+    # print "$query\n";
+    print "Migrating records to final table...\n";
 
 }
 

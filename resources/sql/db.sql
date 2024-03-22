@@ -1,4 +1,4 @@
--- drop schema if exists patron_import cascade;
+drop schema if exists patron_import cascade;
 
 create schema if not exists patron_import;
 
@@ -55,6 +55,7 @@ create table if not exists patron_import.stage_patron
     job_id                 int references patron_import.job (id),
     institution_id         int references patron_import.institution (id),
     file_id                int references patron_import.file (id),
+    load                   bool not null default false,
     esid                   text,
     fingerprint            text,
     field_code             text,
@@ -75,8 +76,7 @@ create table if not exists patron_import.stage_patron
     unique_id              text,
     barcode                text,
     email_address          text,
-    note                   text,
-    load                   bool default false
+    note                   text
 );
 
 create table if not exists patron_import.patron
@@ -126,6 +126,7 @@ create table if not exists patron_import.ptype_mapping
     foliogroup     text
 );
 
+CREATE INDEX patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree ( unique_id );
 
 CREATE OR REPLACE FUNCTION patron_import.address_insert_trigger_function()
     RETURNS trigger AS
@@ -148,12 +149,13 @@ BEGIN
     where sp.unique_id = NEW.username
       AND sp.address IS NOT NULL
       AND btrim(sp.address) != ''
+      AND sp.load
     limit 1;
 
-    IF NOT FOUND THEN RETURN NEW; END IF; -- short circuit when address is null or empty
+    IF NOT FOUND THEN RETURN NEW; END IF;
+    -- short circuit when address is null or empty
 
-   -- TGOP = UPDATE   
-
+    -- TGOP = UPDATE
 
 
     select into addressLine2 address2
@@ -173,10 +175,8 @@ BEGIN
     region := btrim(split_part(originalAddress, ' ', 1));
     postalcode := btrim(split_part(originalAddress, ' ', 2));
 
-
     INSERT INTO patron_import.address (patron_id, addressline1, addressline2, city, region, postalcode)
     VALUES (NEW.id, addressLine1, addressLine2, city, region, postalcode);
-
 
     RETURN NEW;
 
@@ -184,7 +184,6 @@ END;
 
 $$
     LANGUAGE 'plpgsql';
-
 
 CREATE TRIGGER address_insert_trigger
     AFTER INSERT
@@ -203,5 +202,3 @@ BEGIN
     RETURN BTRIM(ptext);
 END;
 $$;
-
-

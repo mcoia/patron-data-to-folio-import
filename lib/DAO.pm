@@ -51,8 +51,7 @@ sub initDatabaseConnection
 sub initDatabaseSchema
 {
     my $self = shift;
-
-    my $filePath = $main::conf->{sqlFilePath};
+    my $filePath = $main::conf->{sqlFilePath} . "/db.sql";
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
 
@@ -432,10 +431,6 @@ sub getInstitutionsFoldersAndFilesHash
     my @institutions = ();
     my $columns = $self->_getTableColumns("institution");
 
-    # Note for Blake: I know this can be more efficient but it doesn't need to be.
-    # This function call takes on average of 60ms. Then it's cached for 0ms. We're splitting hairs now and I want to move on.
-    # What would we save? 40ms? Program runs every night, 365.
-    # 40ms * 365 = 14600ms every year / 1000 = 14.6 seconds we saved over the course of a year. I spent 4.5years equivalent on this comment. i.e. 60 seconds.
     for my $i (@{$self->_convertQueryResultsToHash("institution", $self->query("select $columns from patron_import.institution i order by i.id asc"))})
     {
 
@@ -653,7 +648,7 @@ sub getFiles
 }
 
 # Parser: 30
-# PatronImportFiles: 323
+# FileService: 323
 sub getAllInstitutionIdAndName
 {
     my $self = shift;
@@ -669,6 +664,14 @@ sub getAllInstitutionIdAndName
 
     return $self->_convertQueryResultsToHash("institution", $self->query($query));
 
+}
+
+sub truncateStagePatronTable
+{
+    my $self = shift;
+    $self->{db}->query("truncate $schema.stage_patron");
+
+    return $self;
 }
 
 1;

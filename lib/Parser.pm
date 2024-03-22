@@ -62,12 +62,15 @@ sub stagePatronRecords
         # Save these records to the database
         $parser->saveStagedPatronRecords($patronRecords);
 
+        # some debug metrics
         my $totalPatrons = scalar(@{$patronRecords});
-
         print "Total Patrons: [$totalPatrons]\n";
         print "================================================================================\n\n";
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
         $main::log->addLine("================================================================================\n\n");
+
+        # New plan, we migrate records here, truncating the table after each loop
+        $parser->migrate();
 
     }
 
@@ -238,8 +241,6 @@ sub _mapPatronTypeToPatronGroup
     return $pType;
 
 }
-
-
 
 sub getPatronFingerPrint
 {

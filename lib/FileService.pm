@@ -1,4 +1,5 @@
-package PatronImportFiles;
+package FileService;
+
 use strict;
 use warnings FATAL => 'all';
 use File::Find;
@@ -49,6 +50,22 @@ sub readFileToArray
 
 }
 
+sub readFileAsString
+{
+    my $self = shift;
+    my $fileName = shift;
+
+    my $query = "";
+
+    open my $fileHandle, '<', $fileName or die "Could not open file '$fileName' $!";
+    while (my $line = <$fileHandle>)
+    {$query .= $line;}
+    close $fileHandle;
+
+    return $query;
+
+}
+
 sub _loadMOBIUSPatronLoadsCSV
 {
     # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
@@ -79,7 +96,8 @@ sub _loadMOBIUSPatronLoadsCSV
         };
 
         # we should skip all institutions that have a file of 'n/a' as they're not participating?
-        push(@clusterFiles, $files) if ($row->[2] ne '' && $row->[2] ne 'n/a');
+        # push(@clusterFiles, $files) if ($row->[2] ne '' && $row->[2] ne 'n/a'); # testing ptypes. We're not matching on some of the ptype names.
+        push(@clusterFiles, $files) if ($row->[2] ne '');
 
         $rowCount++;
     }
@@ -270,10 +288,6 @@ sub buildInstitutionTableData
     my $folder_id = 0;
     my $institution_id = 0;
 
-
-    # my @i = map { $_->{}}
-
-
     for my $institution (@{$institutions})
     {
 
@@ -348,8 +362,8 @@ sub buildPtypeMappingFromCSV
         next if ($row->[0] eq 'Name');
 
         my $institution = $row->[0];
-        my $pType = $row->[3];
-        my $folioType = $row->[5];
+        my $pType = $row->[1];
+        my $folioType = $row->[2];
 
         # trim white spaces
         $institution =~ s/^\s*//g;
@@ -419,6 +433,45 @@ sub getFileStats
     $hash->{ageInMinutes} = ($currentTime - $hash->{lastModified}) / 60;
 
     return $hash;
+
+}
+
+sub checkFileForSpecialChars
+{
+
+    # uggg.... these csv's are a freakin mess.
+    my $self = shift;
+    my $fileName = shift;
+
+    print "checking file $fileName\n";
+
+    my $data = $self->readFileToArray($fileName);
+
+    # ascii char range?
+    my $allowedChars = "+-,.0123456789:;<=>?\@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]^_`abcdefghijklmnopqrstuvwxyz ";
+    my @allowedChars = split('', $allowedChars);
+
+    print "$allowedChars\n";
+
+    my $lineCount = 0;
+    for my $line (@{$data})
+    {
+
+        # print "[$lineCount]: $line\n";
+        my @lineArray = split('', $line);
+        for my $char (@lineArray)
+        {
+            my $match;
+            for (@allowedChars)
+            {$match = 1 if ($_ eq $char);}
+            print "[$lineCount]:[$char][" . ord($char) . "]\n" if (!defined $match);
+
+        }
+
+        $lineCount++;
+    }
+
+    # return 1;
 
 }
 

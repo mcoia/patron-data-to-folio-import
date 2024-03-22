@@ -1,4 +1,4 @@
-package FolioPatronImporter;
+package FolioService;
 use strict;
 use warnings FATAL => 'all';
 

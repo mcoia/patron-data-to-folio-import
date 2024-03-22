@@ -51,10 +51,9 @@ insert into patron_import.patron (institution_id,
             'email'
      from patron_import.stage_patron p
               join patron_import.institution i on (p.institution_id = i.id)
-              join patron_import.ptype_mapping pt on (pt.ptype = p.patron_type and pt.institution_id = i.id)
+              left join patron_import.ptype_mapping pt on (pt.ptype = p.patron_type and pt.institution_id = i.id)
               left join patron_import.patron p2 on (p.unique_id = p2.username)
      where p2.id is null
-       AND p.load
-     limit 1);
+       AND p.load);
 
-
+truncate patron_import.stage_patron;

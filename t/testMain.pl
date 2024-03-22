@@ -8,7 +8,7 @@ use MOBIUS::Utils;
 use MOBIUS::Loghandler;
 
 use DAO;
-use PatronImportFiles;
+use FileService;
 use Parser;
 use Parsers::GenericParser;
 
@@ -23,7 +23,7 @@ initConf();
 initLog();
 
 our $dao = DAO->new();
-our $files = PatronImportFiles->new();
+our $files = FileService->new();
 our $parser = Parser->new();
 
 sub initConf
@@ -190,6 +190,58 @@ sub test_parsePatronRecord
 
     my $genericParser = Parsers::GenericParser->new();
     my $data = $genericParser->parse($institution);
+
+}
+
+test_ptypeMappingIssue();
+sub test_ptypeMappingIssue
+{
+=pod
+
+I want to load up all the patron files that don't map to a ptype and figure out why.
+
+
+
+=cut
+
+    my $query = "drop table if exists patron_import.issue; create table if not exists patron_import.issue (zeroLine text, path text)";
+    $dao->{db}->query($query);
+    $dao->_cacheTableColumns();
+
+    # get all the paths where
+    $query = "select t.path
+from patron_import.patron p2
+         join patron_import.institution i on (i.id = p2.institution_id)
+         join patron_import.file f on (f.institution_id = i.id)
+         join patron_import.file_tracker t on (t.institution_id = i.id)
+where p2.patrongroup is NULL
+group by 1;";
+
+    my $data = $dao->{db}->query($query);
+
+    for my $path (@{$data})
+    {
+
+        print "\n\n==============================[$path->[0]==============================\n";
+
+        for my $file ($files->readFileToArray($path->[0]))
+        {
+
+
+            for my $line (@{$file})
+            {
+                # print "$line\n" if ($line =~ /^0/);
+
+                $dao->_insertHashIntoTable("issue", {
+                    'zeroLine' => $line,
+                    'path'     => $path->[0]
+                }) if ($line =~ /^0/);;
+
+            }
+
+        }
+
+    }
 
 }
 
