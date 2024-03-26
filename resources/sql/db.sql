@@ -1,5 +1,3 @@
-drop schema if exists patron_import cascade;
-
 create schema if not exists patron_import;
 
 create table if not exists patron_import.institution
@@ -76,7 +74,40 @@ create table if not exists patron_import.stage_patron
     unique_id              text,
     barcode                text,
     email_address          text,
-    note                   text
+    note                   text,
+    zeroline               text
+);
+
+
+create table if not exists patron_import.stage_patron_debug
+(
+    id                     SERIAL primary key,
+    job_id                 int references patron_import.job (id),
+    institution_id         int references patron_import.institution (id),
+    file_id                int references patron_import.file (id),
+    load                   bool not null default false,
+    esid                   text,
+    fingerprint            text,
+    field_code             text,
+    patron_type            text,
+    pcode1                 text,
+    pcode2                 text,
+    pcode3                 text,
+    home_library           text,
+    patron_message_code    text,
+    patron_block_code      text,
+    patron_expiration_date text,
+    name                   text,
+    address                text, -- todo: rename this to dollar_sign_address    text,
+    telephone              text,
+    address2               text,
+    telephone2             text,
+    department             text,
+    unique_id              text,
+    barcode                text,
+    email_address          text,
+    note                   text,
+    zeroline               text
 );
 
 create table if not exists patron_import.patron
@@ -126,9 +157,9 @@ create table if not exists patron_import.ptype_mapping
     foliogroup     text
 );
 
-CREATE INDEX patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree ( unique_id );
+CREATE INDEX patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree (unique_id);
 
-CREATE OR REPLACE FUNCTION patron_import.address_insert_trigger_function()
+CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()
     RETURNS trigger AS
 
 $$
@@ -156,40 +187,68 @@ BEGIN
     -- short circuit when address is null or empty
 
     -- TGOP = UPDATE
+    IF TG_OP = 'UPDATE' THEN
 
 
-    select into addressLine2 address2
-    from patron_import.stage_patron sp
-    where sp.unique_id = NEW.username
-    limit 1;
+        IF originalAddress ~ '\$' THEN
+            addressLine1 := btrim(split_part(originalAddress, '$', 1));
+            originalAddress := btrim(split_part(originalAddress, '$', 2));
+        END IF;
 
-    IF originalAddress ~ '\$' THEN
-        addressLine1 := btrim(split_part(originalAddress, '$', 1));
-        originalAddress := btrim(split_part(originalAddress, '$', 2));
+
+        city := btrim(split_part(originalAddress, ',', 1));
+        originalAddress := btrim(split_part(originalAddress, ',', 2));
+
+        region := btrim(split_part(originalAddress, ' ', 1));
+        postalcode := btrim(split_part(originalAddress, ' ', 2));
+
+
+--        general update statement here
+        UPDATE patron_import.address
+        SET addressLine1 = addressLine1,
+            addressLine2 = addressLine2,
+            city         = city,
+            region       = region,
+            postalcode   = postalcode;
+
+
+
+    ELSIF TG_OP = 'INSERT' THEN
+
+        select into addressLine2 address2
+        from patron_import.stage_patron sp
+        where sp.unique_id = NEW.username
+        limit 1;
+
+        IF originalAddress ~ '\$' THEN
+            addressLine1 := btrim(split_part(originalAddress, '$', 1));
+            originalAddress := btrim(split_part(originalAddress, '$', 2));
+        END IF;
+
+
+        city := btrim(split_part(originalAddress, ',', 1));
+        originalAddress := btrim(split_part(originalAddress, ',', 2));
+
+        region := btrim(split_part(originalAddress, ' ', 1));
+        postalcode := btrim(split_part(originalAddress, ' ', 2));
+
+        INSERT INTO patron_import.address (patron_id, addressline1, addressline2, city, region, postalcode)
+        VALUES (NEW.id, addressLine1, addressLine2, city, region, postalcode);
+
+        RETURN NEW;
+
     END IF;
-
-
-    city := btrim(split_part(originalAddress, ',', 1));
-    originalAddress := btrim(split_part(originalAddress, ',', 2));
-
-    region := btrim(split_part(originalAddress, ' ', 1));
-    postalcode := btrim(split_part(originalAddress, ' ', 2));
-
-    INSERT INTO patron_import.address (patron_id, addressline1, addressline2, city, region, postalcode)
-    VALUES (NEW.id, addressLine1, addressLine2, city, region, postalcode);
-
-    RETURN NEW;
 
 END;
 
 $$
     LANGUAGE 'plpgsql';
 
-CREATE TRIGGER address_insert_trigger
-    AFTER INSERT
+CREATE TRIGGER address_trigger
+    AFTER INSERT OR UPDATE
     ON patron_import.patron
     FOR EACH ROW
-EXECUTE PROCEDURE patron_import.address_insert_trigger_function();
+EXECUTE PROCEDURE patron_import.address_trigger_function();
 
 create or replace function patron_import.zeroPadTrunc(pt text) returns text
     language plpgsql

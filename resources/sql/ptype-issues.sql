@@ -9,14 +9,30 @@ from patron_import.patron p2
 where p2.patrongroup is NULL
 group by 1;
 
-
+select distinct p.institution_id
+from patron_import.patron p
+where p.patrongroup is NULL;
 
 select count(*)
 from patron_import.ptype_mapping ptype;
 
-
-
 select count(*)
 from patron_import.patron p
 where p.patrongroup is null;
+
+select pt.institution_id, pt.foliogroup from patron_import.ptype_mapping pt where pt.institution_id in(select distinct p.institution_id
+from patron_import.patron p
+where p.patrongroup is NULL)
+group by pt.institution_id, pt.foliogroup;
+
+select * from patron_import.stage_patron_debug p;
+select * from patron_import.patron p limit 100;
+
+
+
+select * from patron_import.patron p
+         join patron_import.address a on a.patron_id = p.id
+         limit 100;
+
+
 

@@ -139,6 +139,7 @@ sub saveStagedPatronRecords
         $totalRecords = @{$chunkedRecord};
         my $sqlValues = $self->_buildParameters($totalColumns, $totalRecords);
         my $query = "INSERT INTO patron_import.stage_patron ($col) values $sqlValues";
+        # my $queryDebug = "INSERT INTO patron_import.stage_patron_debug ($col) values $sqlValues"; # todo: remove this as it's for debuggin !!!
 
         # This data has to be in 1 array a mile long.
         my @combinedChunkedRecords = ();
@@ -148,6 +149,9 @@ sub saveStagedPatronRecords
         }
 
         $main::dao->{db}->updateWithParameters($query, \@combinedChunkedRecords);
+
+        # todo: debug - I may remove this. It's a nice little debug to see what's going on. This is super slow!!!
+        # $main::dao->{db}->updateWithParameters($queryDebug, \@combinedChunkedRecords);
 
     }
 
@@ -252,6 +256,19 @@ sub getPatronFingerPrint
 
     my $utils = MOBIUS::Utils->new();
     return $utils->getHash($patron);
+
+}
+
+sub notifyDuplicateUniqueID
+{
+    my $self = shift;
+    my $duplicateUniqueIDPatrons = shift;
+
+    # Not sure what we'll do if we ever hit this.
+    $main::log->addLine("\n\n################################################################################\n");
+    $main::log->addLine("duplicate unique_id found");
+    $main::log->addLine(Dumper($duplicateUniqueIDPatrons));
+    $main::log->addLine("\n################################################################################\n\n");
 
 }
 

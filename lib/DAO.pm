@@ -59,6 +59,11 @@ sub initDatabaseSchema
     while (my $line = <$fileHandle>)
     {$query = $query . $line;}
     close $fileHandle;
+
+    # drop the schema if we pass in the --drop-schema
+    $query = "drop schema if exists patron_import cascade;" . $query if (defined $main::dropSchema);
+    print "drop schema if exists patron_import cascade;" if (defined $main::dropSchema);
+
     $self->{db}->update($query);
 
 }

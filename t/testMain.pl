@@ -193,56 +193,82 @@ sub test_parsePatronRecord
 
 }
 
-test_ptypeMappingIssue();
+# test_ptypeMappingIssue();
 sub test_ptypeMappingIssue
 {
 =pod
-
 I want to load up all the patron files that don't map to a ptype and figure out why.
-
-
-
 =cut
 
-    my $query = "drop table if exists patron_import.issue; create table if not exists patron_import.issue (zeroLine text, path text)";
+    my $query = "drop table if exists patron_import.issue; create table if not exists patron_import.issue (zeroline text, path text)";
     $dao->{db}->query($query);
     $dao->_cacheTableColumns();
 
     # get all the paths where
-    $query = "select t.path
-from patron_import.patron p2
-         join patron_import.institution i on (i.id = p2.institution_id)
-         join patron_import.file f on (f.institution_id = i.id)
-         join patron_import.file_tracker t on (t.institution_id = i.id)
-where p2.patrongroup is NULL
-group by 1;";
+    $query = "select distinct ft.path
+                from patron_import.file_tracker ft
+                     join patron_import.institution i on ft.institution_id = i.id
+                     join patron_import.patron p on p.institution_id = i.id
+              where p.patrongroup is NULL;";
 
     my $data = $dao->{db}->query($query);
 
     for my $path (@{$data})
     {
 
-        print "\n\n==============================[$path->[0]==============================\n";
-
+        print "Grabbing all zero fields... $path->[0]\n";
         for my $file ($files->readFileToArray($path->[0]))
         {
-
-
             for my $line (@{$file})
             {
-                # print "$line\n" if ($line =~ /^0/);
-
                 $dao->_insertHashIntoTable("issue", {
-                    'zeroLine' => $line,
+                    'zeroline' => $line,
                     'path'     => $path->[0]
                 }) if ($line =~ /^0/);;
 
             }
-
         }
 
     }
 
 }
 
+test_zeroLineParse();
+sub test_zeroLineParse
+{
+
+
+
+    print "looking up zero fields\n";
+    my $results = $dao->{db}->query($query);
+
+    for (@{$results})
+    {
+        my $data = $_->[0];
+
+        $data =~ s/^\s*//g if ($data =~ /^0/);
+        $data =~ s/\s*$//g if ($data =~ /^0/);
+        $data =~ s/\n//g if ($data =~ /^0/);
+        $data =~ s/\r//g if ($data =~ /^0/);
+
+        my $patron;
+        # zero field
+        $patron->{'field_code'} = '0' if ($data =~ /^0/);
+        $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
+        $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        $patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        $patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(\d{3}).*/gm)[0] if ($data =~ /^0/);
+        $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}\d{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
+        $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        $patron->{'patron_expiration_date'} = ($data =~ /--(.*)/gm)[0] if ($data =~ /^0/);
+
+        print Dumper($patron);
+
+        print "\nPress Enter...\n";
+        <STDIN>;
+
+    }
+}
+# I need to check the patron group being parsed against what we have in the database;
 1;

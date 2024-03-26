@@ -3,6 +3,7 @@ use strict;
 use warnings FATAL => 'all';
 use Data::Dumper;
 use MOBIUS::Utils;
+use JSON;
 
 use parent 'Parser';
 
@@ -165,7 +166,7 @@ sub _parsePatronRecord
     my $patronRecord = shift;
 
     my $patron = {
-        '0'                      => "",
+        'zeroline'               => "",
         'patron_type'            => "",
         'pcode1'                 => "",
         'pcode2'                 => "",
@@ -190,6 +191,8 @@ sub _parsePatronRecord
     # loop thru our patron record
     for my $data (@{$patronRecord})
     {
+
+        $patron->{'zeroline'} = "$data" if ($data =~ /^0/);
 
         # sanitize the garbage
         $data =~ s/^\s*//g if ($data =~ /^0/);
@@ -229,6 +232,7 @@ sub _parsePatronRecord
 sub migrate
 {
     my $self = shift;
+    print "Migrating records to final table...\n";
 
     # Inserts vs Updates
     # We'll use the username as our key. That's what needs to be 100% unique across the consortium.
@@ -244,8 +248,23 @@ sub migrate
     # we're not finding the filename!
     my $query = $main::files->readFileAsString($main::conf->{sqlFilePath} . "/migrate-generic.sql");
     $main::dao->query($query);
-    # print "$query\n";
-    print "Migrating records to final table...\n";
+
+
+    # check for duplicate unique id's
+    $query = "select p.id, sp.*
+        from patron_import.stage_patron sp
+    left join patron_import.patron p on (sp.unique_id = p.username)
+    where sp.institution_id != p.institution_id;";
+
+    my @duplicateUniqueIDPatrons = @{$main::dao->query($query)};
+    my $duplicateSize = scalar(@duplicateUniqueIDPatrons);
+
+    $self->notifyDuplicateUniqueID(\@duplicateUniqueIDPatrons) if ($duplicateSize > 0);
+
+    # truncate the stage patron table truncate the stage patron table truncate the stage patron table
+    $query = "truncate $main::conf->{schema}.stage_patron;";
+    $main::dao->query($query);
+    # truncate the stage patron table truncate the stage patron table truncate the stage patron table
 
 }
 

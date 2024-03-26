@@ -20,25 +20,20 @@ use DAO;
 my $configFile;
 my $runType;
 my $help;
+our $dropSchema;
 
 our ($conf, $log, $dao, $files, $parser, $jobID);
 
 GetOptions(
-    "config=s" => \$configFile,
-    "run:s"    => \$runType,
-    "help:s"   => \$help,
+    "config=s"      => \$configFile,
+    "run:s"         => \$runType,
+    "help:s"        => \$help,
+    "drop_schema:s" => \$dropSchema,
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
 $runType = "all" if (!defined $runType);
-
-print "[$runType]\n";
-
-if (defined $help)
-{
-    print getHelpMessage();
-    exit;
-}
+getHelpMessage() if (defined $help);
 
 initConf();
 initLogger();
@@ -82,8 +77,19 @@ sub initConf
 
 sub initLogger
 {
-    $log = Loghandler->new($conf->{logfile});
+
+    my $time = localtime();
+    my $epoch = time();
+    $time =~ s/\d\d:\d\d:\d\d\s//g;
+    $time =~ s/\s/_/g;
+
+    my $logFileName = $conf->{logfile};
+    $logFileName = lc $conf->{logfile} =~ s/\{time\}/_$time/gr if ($conf->{logfile} =~ /\{time\}/);
+    $logFileName = lc $conf->{logfile} =~ s/\{epoch\}/_$epoch/gr if ($conf->{logfile} =~ /\{epoch\}/);
+
+    $log = Loghandler->new($logFileName);
     $log->truncFile("");
+
 }
 
 sub startJob
@@ -117,11 +123,13 @@ sub finishJob
 
 sub getHelpMessage
 {
-    return
+
+    print
         "You can specify
         --config                                      [Path to the config file]
         --run                                         [stage | load]
                                                       stage: This will stage patron records
                                                       load:  This will load patron records into folio.
         \n";
+    exit;
 }
