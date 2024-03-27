@@ -52,7 +52,6 @@ sub main
     startJob();
     ########## stage | import #########################################
     $parser->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
-    # $parser->migrate() if ($runType eq "stage" || $runType eq "all");
     # $folio->importPatrons() if($runType eq "import" || $runType eq "all");
     ########## stage | import #########################################
     finishJob();
