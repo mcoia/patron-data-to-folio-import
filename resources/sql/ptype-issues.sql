@@ -25,7 +25,6 @@ from patron_import.patron p
 where p.patrongroup is NULL)
 group by pt.institution_id, pt.foliogroup;
 
-select * from patron_import.stage_patron_debug p;
 select * from patron_import.patron p limit 100;
 
 

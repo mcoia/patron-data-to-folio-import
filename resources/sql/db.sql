@@ -133,13 +133,11 @@ CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()
 $$
 DECLARE
     originalAddress text;
-    addressLine1    text;
-    addressLine2    text;
-    city            text;
-    region          text;
-    postalcode      text;
-    addresstypeid   text;
-    primaryaddress  text;
+    _addressLine1   text;
+    _addressLine2   text;
+    _city           text;
+    _region         text;
+    _postalcode     text;
 
 BEGIN
 
@@ -154,41 +152,38 @@ BEGIN
     IF NOT FOUND THEN RETURN NEW; END IF;
     -- short circuit when address is null or empty
 
-    select into addressLine2 address2
+    select into _addressLine2 address2
     from patron_import.stage_patron sp
     where sp.unique_id = NEW.username
     limit 1;
 
     IF originalAddress ~ '\$' THEN
-        addressLine1 := btrim(split_part(originalAddress, '$', 1));
+        _addressLine1 := btrim(split_part(originalAddress, '$', 1));
         originalAddress := btrim(split_part(originalAddress, '$', 2));
     END IF;
 
-
-    city := btrim(split_part(originalAddress, ',', 1));
+    _city := btrim(split_part(originalAddress, ',', 1));
     originalAddress := btrim(split_part(originalAddress, ',', 2));
 
-    region := btrim(split_part(originalAddress, ' ', 1));
-    postalcode := btrim(split_part(originalAddress, ' ', 2));
+    _region := btrim(split_part(originalAddress, ' ', 1));
+    _postalcode := btrim(split_part(originalAddress, ' ', 2));
 
     -- TGOP = UPDATE
     IF TG_OP = 'UPDATE' THEN
 
         -- general update statement here
         update patron_import.address
-        SET
-            addressLine1 = addressLine1,
-            addressLine2 = addressline2,
-            city = city,
-            region = region,
-            postalcode = postalcode
-        WHERE
-            patron_id=NEW.id;
+        SET addressLine1 = _addressLine1,
+            addressLine2 = _addressline2,
+            city         = _city,
+            region       = _region,
+            postalcode   = _postalcode
+        WHERE patron_id = NEW.id;
 
     ELSIF TG_OP = 'INSERT' THEN
 
         INSERT INTO patron_import.address (patron_id, addressline1, addressline2, city, region, postalcode)
-        VALUES (NEW.id, addressLine1, addressLine2, city, region, postalcode);
+        VALUES (NEW.id, _addressLine1, _addressLine2, _city, _region, _postalcode);
     END IF;
 
     RETURN NEW;
@@ -215,3 +210,14 @@ BEGIN
     RETURN BTRIM(ptext);
 END;
 $$;
+
+
+-- debug tables
+create table if not exists patron_import.zero
+(
+    id   SERIAL primary key,
+    path text,
+    raw  text,
+    data text,
+    uid  text
+);

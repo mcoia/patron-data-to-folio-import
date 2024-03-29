@@ -366,7 +366,7 @@ sub test_getAllRecordsByTableName
 
 }
 
-test_getInstitutionsFoldersAndFilesHash();
+# test_getInstitutionsFoldersAndFilesHash();
 sub test_getInstitutionsFoldersAndFilesHash
 {
     print "\n\ngetInstitutionsFoldersAndFilesHash()\n";
@@ -374,5 +374,11 @@ sub test_getInstitutionsFoldersAndFilesHash
     $dao->getInstitutionsFoldersAndFilesHash();
     print "\n==================================================================\n\n";
 }
+
+
+# sub test_
+
+
+
 
 1;

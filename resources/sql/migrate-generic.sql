@@ -35,26 +35,26 @@ insert into patron_import.patron (institution_id,
                                   phone,
                                   mobilephone,
                                   preferredcontacttypeid)
-    (select p.institution_id,
-            p.file_id,
-            p.job_id,
-            p.fingerprint,
-            p.unique_id,
-            p.esid,
-            p.barcode,
+    (select sp.institution_id,
+            sp.file_id,
+            sp.job_id,
+            sp.fingerprint,
+            sp.unique_id,
+            sp.esid,
+            sp.barcode,
             pt.foliogroup,
-            btrim(regexp_replace(p.name, ',.*', ''))                              as "lastname",
-            btrim(regexp_replace(regexp_replace(p.name, '.*, ', ''), '.*\s', '')) as "middlename",
-            btrim(regexp_replace(regexp_replace(p.name, '.*, ', ''), '\s.*', '')) as "firstname",
-            p.telephone,
-            p.telephone2,
+            btrim(regexp_replace(sp.name, ',.*', ''))                              as "lastname",
+            btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')) as "middlename",
+            btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')) as "firstname",
+            sp.telephone,
+            sp.telephone2,
             'email'
-     from patron_import.stage_patron p
-              join patron_import.institution i on (p.institution_id = i.id)
-              left join patron_import.ptype_mapping pt on (pt.ptype = p.patron_type and pt.institution_id = i.id)
-              left join patron_import.patron p2 on (p.unique_id = p2.username)
+     from patron_import.stage_patron sp
+              join patron_import.institution i on (sp.institution_id = i.id)
+              left join patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
+              left join patron_import.patron p2 on (sp.unique_id = p2.username)
      where p2.id is null
-       AND p.load);
+       AND sp.load);
 
 
 

@@ -6,6 +6,11 @@ use MOBIUS::DBhandler;
 use Data::Dumper;
 use Try::Tiny;
 
+# https://metacpan.org/pod/DBD::Pg#fetchrow_hashref
+# https://metacpan.org/dist/ResourcePool/view/lib/ResourcePool.pm
+# https://metacpan.org/dist/ResourcePool/view/lib/ResourcePool/BigPicture.pod
+
+
 my $schema = "";
 
 sub new

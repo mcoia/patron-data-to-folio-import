@@ -73,6 +73,7 @@ sub parse
 
             # Read our patron file into an array.
             my $data = $main::files->readFileToArray($path);
+            $self->{debug}->{path} = $path;
 
             for my $line (@{$data})
             {
@@ -157,7 +158,7 @@ u = Unique ID
 b = Barcode
 z = Email Address
 x = Note
-
+e = External System ID === NEW
 
 =cut
 sub _parsePatronRecord
@@ -166,7 +167,6 @@ sub _parsePatronRecord
     my $patronRecord = shift;
 
     my $patron = {
-        'zeroline'               => "",
         'patron_type'            => "",
         'pcode1'                 => "",
         'pcode2'                 => "",
@@ -192,7 +192,7 @@ sub _parsePatronRecord
     for my $data (@{$patronRecord})
     {
 
-        $patron->{'zeroline'} = "$data" if ($data =~ /^0/);
+        $self->{debug}->{raw} = $data if ($data =~ /^0/); # ----- DEBUG <-- delete when done
 
         # sanitize the garbage
         $data =~ s/^\s*//g if ($data =~ /^0/);
@@ -200,31 +200,141 @@ sub _parsePatronRecord
         $data =~ s/\n//g if ($data =~ /^0/);
         $data =~ s/\r//g if ($data =~ /^0/);
 
+        $self->{debug}->{data} = $data if ($data =~ /^0/); # ----- DEBUG <-- delete when done
+
         # zero field
         $patron->{'field_code'} = '0' if ($data =~ /^0/);
-        $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
-        $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(\d{3}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}\d{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'patron_expiration_date'} = ($data =~ /--(.*)/gm)[0] if ($data =~ /^0/);
 
-        # variable length fields
+        # Each library defines a specific set of values for locally needed patron types. This value determines the borrowers’
+        # privileges, renewals, loan periods, notices, and fine amounts if any.
+        $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
+
+        # pcode1 (1 character)
+        # This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
+        # determine the codes used. If no code is assigned, the field should contain a hyphen (“-“).
+        $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
+
+        # PCODE2 (1 character)
+        # This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
+        # determine the codes used. If no code is assigned, the field should contain a hyphen (“-“)
+        $patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);
+
+        # PCODE3 (000 to 255)
+        # This three-digit numeric code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
+        # determine the codes used. (If your cluster does not have a PCODE3 value for N/A, enter “ “ three blanks if
+        # PCODE3 is not defined on your system.)
+        $patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(.{3}).*/gm)[0] if ($data =~ /^0/);
+
+        # Home Library (5 characters)
+        # This field uses a location code defined in the location tables. For all MOBIUS libraries this code should be one of
+        # the three-character bibliographic locations entered in lower case letters and padded with two blanks. For example:
+        # “wdb “
+        $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}.{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
+
+        # Patron Message Code (1 character)
+        # A value in this field triggers the display of the associated message each time a user selects and displays the patron
+        # record. Libraries in a system (cluster) determine the codes used and the messages associated with them. (Hyphen
+        # unless defined)
+        $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}.{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
+
+        # Patron Block Code (1 character)
+        # This code allows libraries to manually block a patron from checking-out or renewing items even if the patron has not
+        # exceeded any of the library-specified thresholds on the system. It allows blocks from elsewhere on campus to be
+        # reflected in the library system. The institution can set a code in the file of patron records to be loaded to either
+        # create a new record on the system already blocked to update an existing borrower to block. Libraries in a system
+        # (cluster) determine the codes used and the meaning associated with each. Codes must be entered in a system table.
+        # (Hyphen unless defined)
+        $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}.{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
+
+        # Patron Expiration Date (8 characters, mm-dd-yy)
+        # Patron records loaded into the system overlay on a key-match (see UNIQUEID). The incoming record expiration
+        # date replaces the one in the database record. Libraries determine the expiration date needed to prevent loan periods
+        # longer than the expiration date in the patron’s record.
+        $patron->{'patron_expiration_date'} = ($data =~ /--(\d+.*$)/gm)[0] if ($data =~ /^0/);
+
+        # Variable Length Fields
+
+
+        # Name
+        # The name is entered as indexed: last name, first middle. It will display online and print on notices as entered. If you
+        # want mixed case or if you want all capitals for mailing, enter the name in that format.
         $patron->{'name'} = ($data =~ /^n(.*)$/gm)[0] if ($data =~ /^n/);
+
+        # Address
+        # This is the primary or local address field. Enter a dollar sign (“$”) to indicate a line break as shown in the example
+        # record. Notice production does not upcase name and address information. If your library will be sending notices
+        # through the mail, you may want to enter all this information in capital letters
         $patron->{'address'} = ($data =~ /^a(.*)$/gm)[0] if ($data =~ /^a/);
-        $patron->{'telephone'} = ($data =~ /^t(.*)$/gm)[0] if ($data =~ /^t/);
+
+        # Address2
+        # This is a secondary or permanent address. For students this may be the home address.
         $patron->{'address2'} = ($data =~ /^h(.*)$/gm)[0] if ($data =~ /^h/);
+
+        # Telephone
+        # This is the primary or local telephone number. There is no automatic formatting of this data. If you want “( )”
+        # around the area code and “-“ after the exchange, those characters need to be in the record.
+        $patron->{'telephone'} = ($data =~ /^t(.*)$/gm)[0] if ($data =~ /^t/);
+
+        # Telephone2
+        # Secondary telephone number.
         $patron->{'telephone2'} = ($data =~ /^p(.*)$/gm)[0] if ($data =~ /^p/);
+
+        # Department
+        # MOBIUS systems use this field to provide a library return address for INN-Reach (Direct Patron) Request notices.
+        # This is a local adaptation and is not documented in the User Manual. Enter the same three-character bibliographic
+        # location code used in the Home Library fixed field in lower case letters. Do not follow it with blank spaces.
         $patron->{'department'} = ($data =~ /^d(.*)$/gm)[0] if ($data =~ /^d/);
+
+        # Unique ID
+        # This is an extremely important field for patron records in a MOBIUS system. Whether a record is loaded or keyed
+        # in at a circulation desk, it should have a properly constructed Unique ID. The patron keys this number to see
+        # information about his account and to place requests, and the patron load program uses this field as the key for
+        # updating existing patron records in the database.
+        # The MOBIUS implementation of Unique ID is a combination of a patron identification number and an alpha suffix
+        # identifying the institution. The identification number can be any number unique within your institution and easily
+        # known by the patron, for example, a student number. The alpha suffix follows the number in all capital letters with
+        # no spaces.
+        # Example:
+        # Using Sequential Campus Number
+        # 12345678CC (Columbia College)
         $patron->{'unique_id'} = ($data =~ /^u(.*)$/gm)[0] if ($data =~ /^u/);
+
+        # Barcode
+        # The patron barcode field is an indexed variable length field. It is usually the quickest and most precise patron search
+        # at the circulation desk. Circulation staff does not have to use the patron barcode to check out a book to a patron. If
+        # your institution uses a campus identification card, you can load the number encoded on the card into this field. If
+        # your institution uses a separate barcode (i.e., issued by the library, not the campus), the barcodes must be added
+        # manually. This can be done when keying a new record or later if patron records are loaded from a registration database.
         $patron->{'barcode'} = ($data =~ /^b(.*)$/gm)[0] if ($data =~ /^b/);
+
+
+        # Email Address
+        # Enter a complete email address if you want a patron to receive all borrower notices via email.
         $patron->{'email_address'} = ($data =~ /^z(.*)$/gm)[0] if ($data =~ /^z/);
+
+        # Note
+        # This is free text note field. A Patron record can contain multiple note fields. The patron note fields only display to
+        # staff, not to patrons in the VIEW your circulation record function.
         $patron->{'note'} = ($data =~ /^x(.*)$/gm)[0] if ($data =~ /^x/);
+
+
+        # External System ID === NEW
+        # This is a new field introduced after this project has started. No official description.
         $patron->{'esid'} = ($data =~ /^e(.*)$/gm)[0] if ($data =~ /^e/);
 
     }
+
+    # print "$patron->{'esid'}\n";
+    ########## Debug
+    my $zeroLine = {
+        'path' => $self->{debug}->{path},
+        'raw'  => $self->{debug}->{raw},
+        'data' => $self->{debug}->{data},
+        'uid'  => $patron->{'unique_id'}
+    };
+
+    $main::dao->_insertHashIntoTable("zero", $zeroLine);
+    ########## Debug
 
     return $patron;
 }
