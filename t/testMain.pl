@@ -233,42 +233,19 @@ I want to load up all the patron files that don't map to a ptype and figure out 
 
 }
 
-test_zeroLineParse();
-sub test_zeroLineParse
+extract_patron_files();
+sub extract_patron_files
 {
 
-
-
-    print "looking up zero fields\n";
-    my $results = $dao->{db}->query($query);
-
-    for (@{$results})
+    my $query = "select ft.path from patron_import.file_tracker ft;";
+    for my $row (@{$dao->query($query)})
     {
-        my $data = $_->[0];
-
-        $data =~ s/^\s*//g if ($data =~ /^0/);
-        $data =~ s/\s*$//g if ($data =~ /^0/);
-        $data =~ s/\n//g if ($data =~ /^0/);
-        $data =~ s/\r//g if ($data =~ /^0/);
-
-        my $patron;
-        # zero field
-        $patron->{'field_code'} = '0' if ($data =~ /^0/);
-        $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
-        $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(\d{3}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}\d{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}\d{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
-        $patron->{'patron_expiration_date'} = ($data =~ /--(.*)/gm)[0] if ($data =~ /^0/);
-
-        print Dumper($patron);
-
-        print "\nPress Enter...\n";
-        <STDIN>;
-
+        my $path = $row->[0];
+        print "adding $path\n";
+        my $command = `zip -r patron-import.zip $path`
+            if ($path !~ "KCAI");
     }
+
 }
-# I need to check the patron group being parsed against what we have in the database;
+
 1;
