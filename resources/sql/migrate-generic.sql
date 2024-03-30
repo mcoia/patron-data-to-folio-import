@@ -34,7 +34,8 @@ insert into patron_import.patron (institution_id,
                                   middlename,
                                   phone,
                                   mobilephone,
-                                  preferredcontacttypeid)
+                                  preferredcontacttypeid,
+                                  expirationdate)
     (select sp.institution_id,
             sp.file_id,
             sp.job_id,
@@ -48,14 +49,14 @@ insert into patron_import.patron (institution_id,
             btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')) as "firstname",
             sp.telephone,
             sp.telephone2,
-            'email'
+            'email',
+            sp.patron_expiration_date
      from patron_import.stage_patron sp
               join patron_import.institution i on (sp.institution_id = i.id)
               left join patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
               left join patron_import.patron p2 on (sp.unique_id = p2.username)
      where p2.id is null
        AND sp.load);
-
 
 
 update patron_import.patron fp
@@ -73,7 +74,8 @@ set file_id                = sp.file_id,
     mobilephone            = sp.telephone2,
     preferredcontacttypeid = 'email'
 FROM patron_import.stage_patron sp
-         join patron_import.institution i on (sp.institution_id = i.id)
+         join patron_import.institution i
+              on (sp.institution_id = i.id)
          left join patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
 where sp.fingerprint != fp.fingerprint
   AND sp.unique_id = fp.username

@@ -31,7 +31,6 @@ package DBhandler;
 use strict;
 
 use DBD::Pg;
-use DBD::mysql;
 use MOBIUS::Loghandler;
 use Encode;
 use utf8;

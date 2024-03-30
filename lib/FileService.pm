@@ -3,6 +3,7 @@ package FileService;
 use strict;
 use warnings FATAL => 'all';
 use File::Find;
+use Try::Tiny;
 
 # no warnings 'uninitialized';
 use Data::Dumper;
@@ -149,7 +150,14 @@ sub patronFileDiscovery
 
     # Grab all the files in the institution folder path
     my @files = ();
-    find(sub {push(@files, $File::Find::name)}, $institution->{'folder'}->{'path'});
+
+    try
+    {find(sub {push(@files, $File::Find::name)}, $institution->{'folder'}->{'path'});}
+    catch
+    {
+        print "Could not find this folder path! $institution->{'folder'}->{'path'}\n";
+        $main::log->addLine("Could not find this folder path! $institution->{'folder'}->{'path'}");
+    };
 
     for my $file (@{$institution->{'folder'}->{files}})
     {
