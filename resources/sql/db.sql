@@ -210,14 +210,3 @@ BEGIN
     RETURN BTRIM(ptext);
 END;
 $$;
-
-
--- debug tables
-create table if not exists patron_import.zero
-(
-    id   SERIAL primary key,
-    path text,
-    raw  text,
-    data text,
-    uid  text
-);

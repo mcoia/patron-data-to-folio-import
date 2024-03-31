@@ -116,7 +116,10 @@ sub parse
                 $patron->{file_id} = $file->{id};
                 $patron->{job_id} = $main::jobID;
 
-                push(@parsedPatrons, $patron);
+                # We need to check this list four double entries.
+                # Some patron files have double entries.
+                push(@parsedPatrons, $patron)
+                    unless (grep /$patron->{unique_id}/, map {$_->{unique_id}} @parsedPatrons);
                 $patronCounter++;
             }
 
@@ -356,18 +359,6 @@ sub _parsePatronRecord
         $patron->{'esid'} = ($data =~ /^e(.*)$/gm)[0] if ($data =~ /^e/);
 
     }
-
-    # print "$patron->{'esid'}\n";
-    ########## Debug
-    my $zeroLine = {
-        'path' => $self->{debug}->{path},
-        'raw'  => $self->{debug}->{raw},
-        'data' => $self->{debug}->{data},
-        'uid'  => $patron->{'unique_id'}
-    };
-
-    $main::dao->_insertHashIntoTable("zero", $zeroLine);
-    ########## Debug
 
     return $patron;
 }

@@ -74,8 +74,7 @@ set file_id                = sp.file_id,
     mobilephone            = sp.telephone2,
     preferredcontacttypeid = 'email'
 FROM patron_import.stage_patron sp
-         join patron_import.institution i
-              on (sp.institution_id = i.id)
+         join patron_import.institution i on (sp.institution_id = i.id)
          left join patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
 where sp.fingerprint != fp.fingerprint
   AND sp.unique_id = fp.username
