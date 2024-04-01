@@ -141,21 +141,21 @@ DECLARE
 
 BEGIN
 
-    select into originalAddress address
-    from patron_import.stage_patron sp
-    where sp.unique_id = NEW.username
+    SELECT INTO originalAddress address
+    FROM patron_import.stage_patron sp
+    WHERE sp.unique_id = NEW.username
       AND sp.address IS NOT NULL
       AND btrim(sp.address) != ''
       AND sp.load
-    limit 1;
+    LIMIT 1;
 
     IF NOT FOUND THEN RETURN NEW; END IF;
     -- short circuit when address is null or empty
 
-    select into _addressLine2 address2
-    from patron_import.stage_patron sp
-    where sp.unique_id = NEW.username
-    limit 1;
+    SELECT INTO _addressLine2 address2
+    FROM patron_import.stage_patron sp
+    WHERE sp.unique_id = NEW.username
+    LIMIT 1;
 
     IF originalAddress ~ '\$' THEN
         _addressLine1 := btrim(split_part(originalAddress, '$', 1));
@@ -172,7 +172,7 @@ BEGIN
     IF TG_OP = 'UPDATE' THEN
 
         -- general update statement here
-        update patron_import.address
+        UPDATE patron_import.address
         SET addressLine1 = _addressLine1,
             addressLine2 = _addressline2,
             city         = _city,
@@ -199,8 +199,8 @@ CREATE TRIGGER address_trigger
     FOR EACH ROW
 EXECUTE PROCEDURE patron_import.address_trigger_function();
 
-create or replace function patron_import.zeroPadTrunc(pt text) returns text
-    language plpgsql
+CREATE OR REPLACE FUNCTION patron_import.zeroPadTrunc(pt text) returns text
+    LANGUAGE plpgsql
 as
 $$
 DECLARE

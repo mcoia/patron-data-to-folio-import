@@ -27,11 +27,6 @@ group by pt.institution_id, pt.foliogroup;
 
 select * from patron_import.patron p limit 100;
 
-
-
 select * from patron_import.patron p
          join patron_import.address a on a.patron_id = p.id
          limit 100;
-
-
-
