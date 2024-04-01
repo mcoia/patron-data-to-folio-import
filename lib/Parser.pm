@@ -60,7 +60,7 @@ sub stagePatronRecords
         my $patronRecords = $parser->parse($institution);
 
         # Save these records to the database
-        $parser->saveStagedPatronRecords($patronRecords);
+        # $parser->saveStagedPatronRecords($patronRecords); # TODO: DEBUG! commented out for testing.
 
         # some debug metrics
         my $totalPatrons = scalar(@{$patronRecords});
@@ -70,7 +70,7 @@ sub stagePatronRecords
         $main::log->addLine("================================================================================\n\n");
 
         # New plan, we migrate records here, truncating the table after each loop
-        $parser->migrate();
+        # $parser->migrate(); # TODO: DEBUG! commented out for testing.
 
     }
 
@@ -139,19 +139,13 @@ sub saveStagedPatronRecords
         $totalRecords = @{$chunkedRecord};
         my $sqlValues = $self->_buildParameters($totalColumns, $totalRecords);
         my $query = "INSERT INTO patron_import.stage_patron ($col) values $sqlValues";
-        # my $queryDebug = "INSERT INTO patron_import.stage_patron_debug ($col) values $sqlValues"; # todo: remove this as it's for debuggin !!!
 
         # This data has to be in 1 array a mile long.
         my @combinedChunkedRecords = ();
         for my $recordItem (@{$chunkedRecord})
-        {
-            push(@combinedChunkedRecords, $_) for (@{$recordItem});
-        }
+        {push(@combinedChunkedRecords, $_) for (@{$recordItem});}
 
         $main::dao->{db}->updateWithParameters($query, \@combinedChunkedRecords);
-
-        # todo: debug - I may remove this. It's a nice little debug to see what's going on. This is super slow!!!
-        # $main::dao->{db}->updateWithParameters($queryDebug, \@combinedChunkedRecords);
 
     }
 

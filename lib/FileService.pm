@@ -182,19 +182,33 @@ sub patronFileDiscovery
             for my $path (@paths)
             {
 
-                unless (-d $path) # we're getting directories matching.
+                unless (-d $path) # we're getting directories matching. *I don't like this.
+                # todo: shouldn't this be if(-f $path)
                 {
 
                     print "File Found: [$institution->{name}]:[$path]\n";
                     $main::log->addLine("File Found: [$institution->{'folder'}->{'path'}]:[$path]");
 
-                    $main::dao->_insertHashIntoTable("file_tracker", {
+                    my $pathHash = {
                         'job_id'         => $main::jobID,
                         'institution_id' => $institution->{'id'},
                         'path'           => $path,
                         'size'           => (stat($path))[7],
                         'lastModified'   => (stat($path))[9],
-                    });
+                    };
+
+
+                    # we're going to skip files older than 3 months.
+                    my $threeMonthsTime = 60 * 60 * 24 * 30 * 3;
+
+                    if (time > $pathHash->{lastModified} + $threeMonthsTime)
+                    {
+                        print "File is older than 3 months. Skipping.\n";
+                        $main::log->addLine("File is older than 3 months. Skipping.");
+                        my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/);
+                        next;
+                    }
+                    $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
 
                 }
 

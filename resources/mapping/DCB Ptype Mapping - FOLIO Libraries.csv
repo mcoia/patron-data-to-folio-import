@@ -63,7 +63,7 @@ Columbia College,59,None
 Columbia College,60,None
 Columbia College,61,None
 Columbia College,62,None
-Columbia College,63,None
+Columbia College,63,None 
 Columbia College,64,None
 Missouri State Library,80,MOSL State Employee
 Missouri State Library,81,MOSL Restricted State Employee
@@ -102,7 +102,7 @@ Central Methodist University,10,CMU Student
 Central Methodist University,11,CMU Staff
 Central Methodist University,12,CMU Faculty
 Central Methodist University,14,CMU Guest
-Missouri Valley College,15,CMU Grad/Honors
+Central Methodist University,15,CMU Grad/Honors
 Missouri Valley College,30,MVC Student
 Missouri Valley College,31,MVC Faulty/Staff
 Missouri Valley College,32,MVC ILL
@@ -452,6 +452,7 @@ Kansas City University,178,KCU Joplin Staff
 Kansas City University,179,KCU Joplin Residents
 Northwest Missouri State University,180,NWMSU NW Undergraduate Student
 Northwest Missouri State University,181,NWMSU Graduate Student
+Northwest Missouri State University,182,NWMSU NW Staff
 Northwest Missouri State University,183,NWMSU NW Staff
 Northwest Missouri State University,184,NWMSU Faculty
 Northwest Missouri State University,185,NWMSU Alumni

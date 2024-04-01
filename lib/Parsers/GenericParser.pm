@@ -204,8 +204,6 @@ sub _parsePatronRecord
         $data =~ s/\n//g if ($data =~ /^0/);
         $data =~ s/\r//g if ($data =~ /^0/);
 
-        $self->{debug}->{data} = $data if ($data =~ /^0/); # ----- DEBUG <-- delete when done
-
         # zero field
         $patron->{'field_code'} = '0' if ($data =~ /^0/);
 
@@ -214,8 +212,7 @@ sub _parsePatronRecord
         try
         {$patron->{'patron_type'} = substr($data, 1, 3) + 0 if ($data =~ /^0/);}
         catch
-        {};
-        # $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
+        {$patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);};
 
         # pcode1 (1 character)
         # This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
@@ -223,9 +220,7 @@ sub _parsePatronRecord
         try
         {$patron->{'pcode1'} = substr($data, 4, 1) if ($data =~ /^0/);}
         catch
-        {};
-
-        # $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        {$patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);};
 
         # PCODE2 (1 character)
         # This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
@@ -233,8 +228,7 @@ sub _parsePatronRecord
         try
         {$patron->{'pcode2'} = substr($data, 5, 1) if ($data =~ /^0/);}
         catch
-        {};
-        # $patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        {$patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);};
 
         # PCODE3 (000 to 255)
         # This three-digit numeric code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
@@ -243,8 +237,7 @@ sub _parsePatronRecord
         try
         {$patron->{'pcode3'} = substr($data, 6, 3) if ($data =~ /^0/);}
         catch
-        {};
-        # $patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(.{3}).*/gm)[0] if ($data =~ /^0/);
+        {$patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(.{3}).*/gm)[0] if ($data =~ /^0/);};
 
         # Home Library (5 characters)
         # This field uses a location code defined in the location tables. For all MOBIUS libraries this code should be one of
@@ -253,8 +246,7 @@ sub _parsePatronRecord
         try
         {$patron->{'home_library'} = substr($data, 9, 5) if ($data =~ /^0/);}
         catch
-        {};
-        # $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}.{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
+        {$patron->{'home_library'} = ($data =~ /^0\d{3}.{2}.{3}(.{5}).*/gm)[0] if ($data =~ /^0/);};
 
         # Patron Message Code (1 character)
         # A value in this field triggers the display of the associated message each time a user selects and displays the patron
@@ -263,8 +255,7 @@ sub _parsePatronRecord
         try
         {$patron->{'patron_message_code'} = substr($data, 14, 1) if ($data =~ /^0/);}
         catch
-        {};
-        # $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}.{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        {$patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}.{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);};
 
         # Patron Block Code (1 character)
         # This code allows libraries to manually block a patron from checking-out or renewing items even if the patron has not
@@ -276,8 +267,7 @@ sub _parsePatronRecord
         try
         {$patron->{'patron_block_code'} = substr($data, 15, 1) if ($data =~ /^0/);}
         catch
-        {};
-        # $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}.{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
+        {$patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}.{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);};
 
         # Patron Expiration Date (8 characters, mm-dd-yy)
         # Patron records loaded into the system overlay on a key-match (see UNIQUEID). The incoming record expiration
@@ -286,10 +276,9 @@ sub _parsePatronRecord
         try
         {$patron->{'patron_expiration_date'} = substr($data, 16, 8) if ($data =~ /^0/);}
         catch
-        {};
-        # $patron->{'patron_expiration_date'} = ($data =~ /--(\d+.*$)/gm)[0] if ($data =~ /^0/);
+        {$patron->{'patron_expiration_date'} = ($data =~ /--(\d+.*$)/gm)[0] if ($data =~ /^0/);};
 
-        # Variable Length Fields
+        # ========== Variable Length Fields
 
         # Name
         # The name is entered as indexed: last name, first middle. It will display online and print on notices as entered. If you
