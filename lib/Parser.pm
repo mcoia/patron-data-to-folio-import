@@ -60,7 +60,7 @@ sub stagePatronRecords
         my $patronRecords = $parser->parse($institution);
 
         # Save these records to the database
-        # $parser->saveStagedPatronRecords($patronRecords); # TODO: DEBUG! commented out for testing.
+        $parser->saveStagedPatronRecords($patronRecords);
 
         # some debug metrics
         my $totalPatrons = scalar(@{$patronRecords});
@@ -70,7 +70,7 @@ sub stagePatronRecords
         $main::log->addLine("================================================================================\n\n");
 
         # New plan, we migrate records here, truncating the table after each loop
-        # $parser->migrate(); # TODO: DEBUG! commented out for testing.
+        $parser->migrate();
 
     }
 

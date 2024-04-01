@@ -205,7 +205,11 @@ sub patronFileDiscovery
                     {
                         print "File is older than 3 months. Skipping.\n";
                         $main::log->addLine("File is older than 3 months. Skipping.");
-                        my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/);
+
+                        # todo: I'm giving this some more thought
+                        # my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/);
+                        # unlink $path;
+
                         next;
                     }
                     $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
