@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use lib qw(lib);
 
-
 # Imports
 use Getopt::Long;
 use Data::Dumper;

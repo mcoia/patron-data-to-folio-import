@@ -199,9 +199,9 @@ sub patronFileDiscovery
 
 
                     # we're going to skip files older than 3 months.
-                    my $threeMonthsTime = 60 * 60 * 24 * 30 * 3;
+                    my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
 
-                    if (time > $pathHash->{lastModified} + $threeMonthsTime)
+                    if (time > $pathHash->{lastModified} + $maxPatronFileAge)
                     {
                         print "File is older than 3 months. Skipping.\n";
                         $main::log->addLine("File is older than 3 months. Skipping.");

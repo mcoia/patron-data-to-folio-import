@@ -7,12 +7,9 @@ GIST: They need to load user/patrons into folio. Adrienne is currently doing it 
 Get some data from text file or csv, parse it into json, send a post request.
 There's an authentication portion to this whole thing.
 
-################################################################################
-                        !!! This is a requirement !!!
-                WE DON'T HAVE AN EXTERNAL ID FOR THE PATRON LOADS.
-################################################################################
 folio mod-user-import GITHUB:
 https://github.com/folio-org/mod-user-import
+https://folio-org.atlassian.net/wiki/spaces/FOLIJET/pages/1396980/Refresh+Token+Rotation+RTR
 
 Brooks: name of dev guy for folio
 
@@ -62,6 +59,11 @@ https://repository.folio.org/#browse/browse:maven-folio
 
 # Some code Blake wrote for https request
 https://github.com/openlibraryenvironment/reshare-tools/blob/main/reshare_ctl.pl
+
+# Here's a bunch of links I found that might be useful
+https://dev.folio.org/reference/
+https://dev.folio.org/reference/api/
+https://dev.folio.org/reference/api/endpoints/
 
 sub loginOKAPI
 {
@@ -115,13 +117,17 @@ Do we load staff account then?
 
 
 
-
-
-
-
-
-#### TODO
-file pattern for kc-towers KCAI is finding a public key?
+# From Adrienne: Slack
+Dear @channel
+Q bugfest environment is up and running.
+Please start testing on Questelia bugfest testing - https://foliotest.testrail.io/index.php?/runs/view/2405&group_by=tests:id&group_order=asc
+=============================================================================
+ECS (ecs_admin\admin)
+https://bugfest-quesnelia-consortium.int.aws.folio.org/
+!!!Note!!!
+Please keep in mind that admin user (folio|folio) should not be used for testing activities
+It will be automatically logged out every 60 minutes
+Create/use your own users for testing activities
 
 
 
