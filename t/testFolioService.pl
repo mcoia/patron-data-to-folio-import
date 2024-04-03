@@ -9,13 +9,15 @@ use FolioService;
 # export folio_password='some-password-here'
 # sudo apt install liblwp-protocol-https-perl
 
+# my $url = "https://bugfest-poppy-consortium.int.aws.folio.org";
+# /authn/login-with-expiry
+my $url = "https://okapi-bugfest-quesnelia-consortium.int.aws.folio.org";
 my $username = $ENV{folio_username};
 my $password = $ENV{folio_password};
+my $tenant = "cs00000int";
 
-my $url = "https://bugfest-poppy-consortium.int.aws.folio.org";
-# my $url = "https://bugfest-quesnelia-consortium.int.aws.folio.org";
+my $folio = FolioService->new($username, $password, $tenant, $url);
 
-my $folio = FolioService->new($username, $password, $url);
-my $response = $folio->loginOKAPI();
+$folio->login();
 
-print Dumper($response);
+print Dumper($folio);

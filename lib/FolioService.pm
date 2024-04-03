@@ -1,7 +1,6 @@
 package FolioService;
-# use strict;
-# use warnings FATAL => 'all';
-# sudo apt install liblwp-protocol-https-perl
+use strict;
+use warnings FATAL => 'all';
 
 use Getopt::Long;
 use Cwd;
@@ -14,6 +13,37 @@ use LWP;
 use JSON;
 use URI::Escape;
 use Data::UUID;
+use HTTP::CookieJar::LWP ();
+
+=pod
+
+# getting https going is a pain so this apt install gets it all in 1 shot
+# sudo apt install liblwp-protocol-https-perl
+
+
+agent                   "libwww-perl/#.###"
+conn_cache              undef
+cookie_jar              undef
+cookie_jar_class        HTTP::Cookies
+default_headers         HTTP::Headers->new
+from                    undef
+local_address           undef
+max_redirect            7
+max_size                undef
+no_proxy                []
+parse_head              1
+protocols_allowed       undef
+protocols_forbidden     undef
+proxy                   {}
+requests_redirectable   ['GET', 'HEAD']
+send_te                 1
+show_progress           undef
+ssl_opts                { verify_hostname => 1 }
+timeout                 180
+
+=cut
+
+
 
 sub new
 {
@@ -21,100 +51,65 @@ sub new
     my $self = {
         'username' => shift,
         'password' => shift,
-        'okapiURL' => shift,
+        'tenant'   => shift,
+        'baseURL'  => shift,
+        'cookies'  => 0,
     };
     bless $self, $class;
     return $self;
 }
 
-sub loginOKAPI
+sub login
 {
     my $self = shift;
 
-    my $tenant = shift;
     my $header = [
-        'X-Okapi-Tenant' => $tenant
+        'x-okapi-tenant' => "$self->{tenant}",
+        'content-type'   => 'application/json'
     ];
 
-    my $user = encode_json({
-        username => $self->{username},
-        password => $self->{password}
-    });
+    my $user = encode_json({ username => $self->{username}, password => $self->{password} });
 
-    # my $answer = $self->HTTPRequest($header, encode_json($user), "POST", "/authn/login-with-expiry");
-    my $answer = $self->HTTPRequest($header, $user, "POST", "/login");
-    return $answer->header("x-okapi-token") if ($answer->is_success);
-    return 0;
+    my $response = $self->HTTPRequest("POST", "/authn/login-with-expiry", $header, $user);
+
+    # set our FART tokens. Folio-Access-Refresh-Tokens
+    $self->{'tokens'}->{'AT'} = ($response->{'_headers'}->{'set-cookie'}->[0] =~ /=(.*?);\s/g)[0];
+    $self->{'tokens'}->{'RT'} = ($response->{'_headers'}->{'set-cookie'}->[1] =~ /=(.*?);\s/g)[0];
+
+    return $self;
 }
 
-sub standardAuthHeader
+=pod
+
+The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
+client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is
+converted into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the
+expiration of the original AT.
+
+=cut
+sub refreshTokens
 {
-    my $self = shift;
 
-    my $authtoken = shift;
-    my $tenant = shift;
-
-    my $header = [
-        'X-Okapi-Tenant' => $tenant,
-        'X-Okapi-Token'  => $authtoken
-    ];
-    return $header;
 }
 
 sub HTTPRequest
 {
     my $self = shift;
 
-    my $header = shift;
-    my $payload = shift;
     my $type = shift;
     my $url = shift;
+    my $header = shift;
+    my $payload = shift;
 
-    push(@{$header}, ('Content-Type' => 'application/json', 'Accept' => 'application/json, text/plain'));
-    my $request = HTTP::Request->new($type, "$self->{okapiURL}$url", $header, $payload);
-    my $userAgent = LWP::UserAgent->new();
+    my $request = HTTP::Request->new($type, "$self->{baseURL}$url", $header, $payload);
+
+    my $jar = HTTP::CookieJar::LWP->new();
+    my $userAgent = LWP::UserAgent->new(
+        'cookie_jar' => $jar
+    );
+
     return $userAgent->request($request);
+
 }
-
-
-# sub sendConsortiumSetup
-# {
-#
-#     my $authtoken = shift;
-#     my $tenant = shift;
-#     my $header = standardAuthHeader($authtoken, $tenant);
-#
-#     my $cardinalURL = "http://$local_ip/cardinal.json";
-#     $cardinalURL = uri_escape($cardinalURL);
-#     my $url = "/directory/api/addFriend?friendUrl=$cardinalURL";
-#     my $answer = runHTTPReq($header,'', "GET", $url);
-#     print Dumper($answer);
-# }
-
-
-=pod
-
-    #!/usr/bin/env perl
-
-    use strict;
-    use warnings;
-
-    use HTTP::Request ();
-    use JSON::MaybeXS qw(encode_json);
-
-    my $url = 'https://www.example.com/api/user/123';
-    my $header = ['Content-Type' => 'application/json; charset=UTF-8'];
-    my $data = {foo => 'bar', baz => 'quux'};
-    my $encoded_data = encode_json($data);
-
-    my $r = HTTP::Request->new('POST', $url, $header, $encoded_data);
-    # at this point, we could send it via LWP::UserAgent
-    my $ua = LWP::UserAgent->new();
-    my $res = $ua->request($r);
-
-
-=cut
-
-
 
 1;
