@@ -7,7 +7,7 @@ use FolioService;
 
 # Note: use single ticks to use special chars in password variable.
 # export folio_password='some-password-here'
-
+# sudo apt install liblwp-protocol-https-perl
 
 my $username = $ENV{folio_username};
 my $password = $ENV{folio_password};

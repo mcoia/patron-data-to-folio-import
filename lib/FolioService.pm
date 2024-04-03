@@ -1,6 +1,7 @@
 package FolioService;
 # use strict;
 # use warnings FATAL => 'all';
+# sudo apt install liblwp-protocol-https-perl
 
 use Getopt::Long;
 use Cwd;
@@ -68,9 +69,10 @@ sub HTTPRequest
     my $payload = shift;
     my $type = shift;
     my $url = shift;
+
     push(@{$header}, ('Content-Type' => 'application/json', 'Accept' => 'application/json, text/plain'));
-    my $userAgent = LWP::UserAgent->new();
     my $request = HTTP::Request->new($type, "$self->{okapiURL}$url", $header, $payload);
+    my $userAgent = LWP::UserAgent->new();
     return $userAgent->request($request);
 }
 
@@ -88,6 +90,31 @@ sub HTTPRequest
 #     my $answer = runHTTPReq($header,'', "GET", $url);
 #     print Dumper($answer);
 # }
+
+
+=pod
+
+    #!/usr/bin/env perl
+
+    use strict;
+    use warnings;
+
+    use HTTP::Request ();
+    use JSON::MaybeXS qw(encode_json);
+
+    my $url = 'https://www.example.com/api/user/123';
+    my $header = ['Content-Type' => 'application/json; charset=UTF-8'];
+    my $data = {foo => 'bar', baz => 'quux'};
+    my $encoded_data = encode_json($data);
+
+    my $r = HTTP::Request->new('POST', $url, $header, $encoded_data);
+    # at this point, we could send it via LWP::UserAgent
+    my $ua = LWP::UserAgent->new();
+    my $res = $ua->request($r);
+
+
+=cut
+
 
 
 1;
