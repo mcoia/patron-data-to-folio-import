@@ -72,6 +72,7 @@ sub login
 
     my $response = $self->HTTPRequest("POST", "/authn/login-with-expiry", $header, $user);
 
+
     # set our FART tokens. Folio-Access-Refresh-Tokens
     $self->{'tokens'}->{'AT'} = ($response->{'_headers'}->{'set-cookie'}->[0] =~ /=(.*?);\s/g)[0];
     $self->{'tokens'}->{'RT'} = ($response->{'_headers'}->{'set-cookie'}->[1] =~ /=(.*?);\s/g)[0];
@@ -85,6 +86,11 @@ The default expiration of an AT is 10 minutes. If client code needs to use this 
 client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is
 converted into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the
 expiration of the original AT.
+
+found this in the folio docs
+The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
+ client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is converted
+ into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the expiration of the original AT.
 
 =cut
 sub refreshTokens
@@ -109,6 +115,40 @@ sub HTTPRequest
     );
 
     return $userAgent->request($request);
+
+}
+
+sub patronTemplate
+{
+
+    my $self = shift;
+    my $patron = shift;
+    my $address = s
+
+    my $template = <<"json";
+
+    {
+      "username": "$patron->{username}",
+      "externalSystemId": "$patron->{externalsystemid}",
+      "barcode": "$patron->{barcode}",
+      "active": true,
+      "patronGroup": "$patron->{patrongroup}",
+      "personal": {
+        "lastName": "$patron->{lastname}",
+        "firstName": "$patron->{firstname}",
+        "middleName": "$patron->{middlename}",
+        "preferredFirstName": "$patron->{preferredfirstname}",
+        "phone": "$patron->{phone}",
+        "mobilePhone": "$patron->{mobilephone}",
+        "dateOfBirth": "$patron->{dateofbirth}",
+        "addresses": $address,
+        "preferredContactTypeId": "mail"
+      },
+      "enrollmentDate": "$patron->{enrollmentdate}",
+      "expirationDate": "$patron->{expirationdate}",
+    }
+
+json
 
 }
 
