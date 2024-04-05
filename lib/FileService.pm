@@ -97,7 +97,6 @@ sub _loadMOBIUSPatronLoadsCSV
         };
 
         # we should skip all institutions that have a file of 'n/a' as they're not participating?
-        # push(@clusterFiles, $files) if ($row->[2] ne '' && $row->[2] ne 'n/a'); # testing ptypes. We're not matching on some of the ptype names.
         push(@clusterFiles, $files) if ($row->[2] ne '');
 
         $rowCount++;
@@ -151,6 +150,7 @@ sub patronFileDiscovery
     # Grab all the files in the institution folder path
     my @files = ();
 
+    # This is our File::Find module. This thing is super fast!
     try
     {find(sub {push(@files, $File::Find::name)}, $institution->{'folder'}->{'path'});}
     catch
@@ -182,8 +182,7 @@ sub patronFileDiscovery
             for my $path (@paths)
             {
 
-                unless (-d $path) # we're getting directories matching. *I don't like this.
-                # todo: shouldn't this be if(-f $path)
+                unless (-d $path) # we're getting directories matching. *I don't like this. todo: shouldn't this be if(-f $path)
                 {
 
                     print "File Found: [$institution->{name}]:[$path]\n";
@@ -207,8 +206,11 @@ sub patronFileDiscovery
                         $main::log->addLine("File is older than 3 months. Skipping.");
 
                         # todo: I'm giving this some more thought
-                        # my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/);
-                        # unlink $path;
+                        # my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/); # There was something about this KCAI file that was locking up the zip call.
+                        # I was getting some other wackiness with that file in other areas of the program too.
+
+                        # unlink $path; # <=== so scary! I don't like it.
+                        # what I would rather do is have a cleanUP() function
 
                         next;
                     }
@@ -353,7 +355,6 @@ sub buildInstitutionTableData
         };
 
         # no duplicated entries. Same logic as the unless statements above.
-        # unless ($self->_containsInstitutionFolderMapHash(\@existingInstitutionsFolderMap, $institutionFolderMap))
         unless (grep {$_->{'folder_id'} == $institutionFolderMap->{'folder_id'} &&
             $_->{'institution_id'} == $institutionFolderMap->{'institution_id'}} @existingInstitutionsFolderMap)
         {

@@ -48,15 +48,19 @@ timeout                 180
 sub new
 {
     my $class = shift;
-    my $self = {
-        'username' => shift,
-        'password' => shift,
-        'tenant'   => shift,
-        'baseURL'  => shift,
-        'cookies'  => 0,
-    };
+    my $self = shift;
     bless $self, $class;
     return $self;
+}
+
+sub importPatrons
+{
+    my $self = shift;
+
+    print "importing patrons.";
+
+    return $self;
+
 }
 
 sub login
@@ -70,7 +74,8 @@ sub login
 
     my $user = encode_json({ username => $self->{username}, password => $self->{password} });
 
-    my $response = $self->HTTPRequest("POST", "/authn/login-with-expiry", $header, $user);
+    # my $response = $self->HTTPRequest("POST", "/authn/login-with-expiry", $header, $user);
+    my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $user);
 
 
     # set our FART tokens. Folio-Access-Refresh-Tokens
@@ -93,10 +98,6 @@ The default expiration of an AT is 10 minutes. If client code needs to use this 
  into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the expiration of the original AT.
 
 =cut
-sub refreshTokens
-{
-
-}
 
 sub HTTPRequest
 {
@@ -120,35 +121,44 @@ sub HTTPRequest
 
 sub patronTemplate
 {
-
     my $self = shift;
     my $patron = shift;
-    my $address = s
 
-    my $template = <<"json";
+    my $template = "
+                        {
+                          'username': '$patron->{username}',
+                          'externalSystemId': '$patron->{ex}',
+                          'barcode': '$patron->{barcode}',
+                          'active': true,
+                          'patronGroup': '$patron->{patrongroup }',
+                          'personal': {
+                            'lastName': '$patron->{lastname}',
+                            'firstName': '$patron->{firstname}',
+                            'middleName': '$patron->{middlename}',
+                            'preferredFirstName': '$patron->{preferredname}',
+                            'phone': '$patron->{phone}',
+                            'mobilePhone': '$patron->{mobilephone}',
+                            'dateOfBirth': '$patron->{dateofbirth}',
+                            'addresses': [
+                              {
+                                'countryId': 'HU',
+                                'addressLine1': 'Andrássy Street 1.',
+                                'addressLine2': '',
+                                'city': 'Budapest',
+                                'region': 'Pest',
+                                'postalCode': '1061',
+                                'addressTypeId': 'Home',
+                                'primaryAddress': true
+                              }
+                            ],
+                            'preferredContactTypeId': 'mail'
+                          },
+                          'enrollmentDate': '$patron->{enrollmentdate}',
+                          'expirationDate': '$patron->{expirationdate}',
+                        }
+";
 
-    {
-      "username": "$patron->{username}",
-      "externalSystemId": "$patron->{externalsystemid}",
-      "barcode": "$patron->{barcode}",
-      "active": true,
-      "patronGroup": "$patron->{patrongroup}",
-      "personal": {
-        "lastName": "$patron->{lastname}",
-        "firstName": "$patron->{firstname}",
-        "middleName": "$patron->{middlename}",
-        "preferredFirstName": "$patron->{preferredfirstname}",
-        "phone": "$patron->{phone}",
-        "mobilePhone": "$patron->{mobilephone}",
-        "dateOfBirth": "$patron->{dateofbirth}",
-        "addresses": $address,
-        "preferredContactTypeId": "mail"
-      },
-      "enrollmentDate": "$patron->{enrollmentdate}",
-      "expirationDate": "$patron->{expirationdate}",
-    }
-
-json
+    return $template;
 
 }
 

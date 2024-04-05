@@ -29,10 +29,7 @@ sub init
 {
     my $self = shift;
     $schema = $main::conf->{schema};
-    print "using schema: [$schema]\n";
 
-    # Note: we can't call any $main::files yet as it's not created. *Is that how perl works? I'm pretty sure it interprets everything before execution.
-    # this is strictly for creating the schema if it doesn't exist yet.
     $self = initDatabaseConnection($self);
     initDatabaseSchema($self);
 

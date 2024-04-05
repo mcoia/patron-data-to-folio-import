@@ -74,6 +74,7 @@ sub stagePatronRecords
 
     }
 
+    return $self;
 }
 
 sub checkFileReady

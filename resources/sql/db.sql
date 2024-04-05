@@ -33,6 +33,7 @@ create table if not exists patron_import.file
 create table if not exists patron_import.job
 (
     id         SERIAL primary key,
+    job_type   text,
     start_time timestamp,
     stop_time  timestamp
 );

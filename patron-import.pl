@@ -21,7 +21,7 @@ my $runType;
 my $help;
 our $dropSchema;
 
-our ($conf, $log, $dao, $files, $parser, $jobID);
+our ($conf, $log, $dao, $files, $parser, $folio, $jobID);
 
 GetOptions(
     "config=s"      => \$configFile,
@@ -44,15 +44,21 @@ sub main
     # Create our main objects
     $dao = DAO->new();
     $files = FileService->new();
-    $parser = Parser->new();
 
-    $dao->checkDatabaseStatus() if ($runType eq "init" || $runType eq "all");
+    $dao->checkDatabaseStatus();
 
     startJob();
-    ########## stage | import #########################################
-    $parser->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
-    # $folio->importPatrons() if($runType eq "import" || $runType eq "all");
-    ########## stage | import #########################################
+
+    $parser = Parser->new()->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
+
+    $folio = FolioService->new({
+        'username' => $ENV{folio_username},
+        'password' => $ENV{folio_password},
+        'tenant'   => $conf->{tenant},
+        'baseURL'  => $conf->{baseURL},
+        'cookies'  => 0
+    })->importPatrons() if ($runType eq "import" || $runType eq "all");
+
     finishJob();
 
 }
@@ -94,6 +100,7 @@ sub startJob
 {
 
     my $job = {
+        'job_type'   => $runType,
         'start_time' => $dao->_getCurrentTimestamp,
         'stop_time'  => $dao->_getCurrentTimestamp,
     };
@@ -108,6 +115,8 @@ sub startJob
 
 sub finishJob
 {
+
+    my $job_type = shift;
 
     my $schema = $conf->{schema};
     my $timestamp = $dao->_getCurrentTimestamp();
