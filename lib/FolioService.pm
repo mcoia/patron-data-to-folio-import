@@ -54,16 +54,16 @@ sub new
 sub importPatrons
 {
     my $self = shift;
-    my $chunkSize = $main::conf->{patronImportChunkSize};
 
     print "importing patrons.";
     while ($main::dao->getPatronImportPendingSize() > 0)
     {
 
         # grab some patrons
-        my $patrons = $main::dao->getPatronImportChunk($chunkSize);
+        my $patrons = $main::dao->getPatronImportChunk();
 
         # build the json template
+
 
 
 

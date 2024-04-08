@@ -691,7 +691,19 @@ sub getPatronImportPendingSize
 sub getPatronImportChunk
 {
     my $self = shift;
-    my $chunkSize = shift;
+
+    my $chunkSize = $main::conf->{patronImportChunkSize};
+
+
+
+
+
+
+
+
+
+
+
 
 }
 

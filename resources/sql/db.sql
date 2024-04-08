@@ -87,6 +87,8 @@ create table if not exists patron_import.patron
     job_id                 int references patron_import.job (id),
     fingerprint            text,
     folioReady             bool not null default true,
+    folioError             bool not null default false,
+    folioLoaded            bool not null default false,
     username               text,
     externalSystemId       text,
     barcode                text,
