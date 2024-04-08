@@ -43,8 +43,6 @@ timeout                 180
 
 =cut
 
-
-
 sub new
 {
     my $class = shift;
@@ -56,8 +54,22 @@ sub new
 sub importPatrons
 {
     my $self = shift;
+    my $chunkSize = $main::conf->{patronImportChunkSize};
 
     print "importing patrons.";
+    while ($main::dao->getPatronImportPendingSize() > 0)
+    {
+
+        # grab some patrons
+        my $patrons = $main::dao->getPatronImportChunk($chunkSize);
+
+        # build the json template
+
+
+
+
+
+    }
 
     return $self;
 
@@ -74,9 +86,7 @@ sub login
 
     my $user = encode_json({ username => $self->{username}, password => $self->{password} });
 
-    # my $response = $self->HTTPRequest("POST", "/authn/login-with-expiry", $header, $user);
     my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $user);
-
 
     # set our FART tokens. Folio-Access-Refresh-Tokens
     $self->{'tokens'}->{'AT'} = ($response->{'_headers'}->{'set-cookie'}->[0] =~ /=(.*?);\s/g)[0];
@@ -108,7 +118,7 @@ sub HTTPRequest
     my $header = shift;
     my $payload = shift;
 
-    my $request = HTTP::Request->new($type, "$self->{baseURL}$url", $header, $payload);
+    my $request = HTTP::Request->new($type, "$main::conf->{baseURL}$url", $header, $payload);
 
     my $jar = HTTP::CookieJar::LWP->new();
     my $userAgent = LWP::UserAgent->new(

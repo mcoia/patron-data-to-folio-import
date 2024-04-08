@@ -3,14 +3,6 @@ use strict;
 use warnings FATAL => 'all';
 use Try::Tiny;
 
-# sub new
-# {
-#     my $class = shift;
-#     my $self = {};
-#     bless $self, $class;
-#     return $self;
-# }
-
 =pod
 
 We don't actually instantiate this class.
@@ -36,6 +28,12 @@ sub getESID
 
     return $esid;
 
+}
+
+sub unique_id
+{
+    my $patron = shift;
+    return $patron->{unique_id};
 }
 
 sub email

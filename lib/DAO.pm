@@ -10,7 +10,6 @@ use Try::Tiny;
 # https://metacpan.org/dist/ResourcePool/view/lib/ResourcePool.pm
 # https://metacpan.org/dist/ResourcePool/view/lib/ResourcePool/BigPicture.pod
 
-
 my $schema = "";
 
 sub new
@@ -679,6 +678,21 @@ sub truncateStagePatronTable
     $self->{db}->query("truncate $schema.stage_patron");
 
     return $self;
+}
+
+# get the total number of patrons left to load
+sub getPatronImportPendingSize
+{
+    my $self = shift;
+
+    return $self->query("select count(p.id) from patron_import.patron p where p.folioready;")->[0]->[0];
+}
+
+sub getPatronImportChunk
+{
+    my $self = shift;
+    my $chunkSize = shift;
+
 }
 
 1;

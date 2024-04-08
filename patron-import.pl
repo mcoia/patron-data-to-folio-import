@@ -19,9 +19,8 @@ use DAO;
 my $configFile;
 my $runType;
 my $help;
-our $dropSchema;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $jobID);
+our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $dropSchema);
 
 GetOptions(
     "config=s"      => \$configFile,
@@ -41,6 +40,7 @@ main();
 sub main
 {
 
+
     # Create our main objects
     $dao = DAO->new();
     $files = FileService->new();
@@ -52,12 +52,10 @@ sub main
     $parser = Parser->new()->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
 
     $folio = FolioService->new({
-        'username' => $ENV{folio_username},
-        'password' => $ENV{folio_password},
-        'tenant'   => $conf->{tenant},
-        'baseURL'  => $conf->{baseURL},
-        'cookies'  => 0
-    })->importPatrons() if ($runType eq "import" || $runType eq "all");
+        'username'          => $ENV{folio_username},
+        'password'          => $ENV{folio_password},
+        'cookies'           => 0,
+    })->login()->importPatrons() if ($runType eq "import" || $runType eq "all");
 
     finishJob();
 
@@ -136,7 +134,7 @@ sub getHelpMessage
         --config                                      [Path to the config file]
         --run                                         [stage | load]
                                                       stage: This will stage patron records
-                                                      load:  This will load patron records into folio.
+                                                      import:  This will load import records into folio.
         \n";
     exit;
 }

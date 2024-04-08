@@ -102,6 +102,7 @@ sub parse
 
                 my $patron = $self->_parsePatronRecord($record);
 
+                # Set the External System ID
                 $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
                     if ($institution->{'esid'} ne '' && !defined($patron->{'esid'}));
 
@@ -371,7 +372,6 @@ sub migrate
     # we're not finding the filename!
     my $query = $main::files->readFileAsString($main::conf->{sqlFilePath} . "/migrate-generic.sql");
     $main::dao->query($query);
-
 
     # check for duplicate unique id's
     $query = "select p.id, sp.*

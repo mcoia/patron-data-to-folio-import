@@ -251,31 +251,7 @@ sub extract_patron_files
 testTings();
 sub testTings
 {
-
-    my $query = "select ft.path from patron_import.file_tracker ft";
-    my $paths = $dao->query($query);
-
-    for (@{$paths})
-    {
-        my $filePath = $_->[0];
-        my $lastModified = (stat($filePath))[9];
-
-
-        # we're going to skip files older than 3 months.
-        my $maxPatronFileAge = 60 * 60 * 24;
-
-        my $time = time;
-        my $diff = $time - $lastModified;
-        # print "$time-$lastModified=$diff maxAge=$maxPatronFileAge : $filePath\n";
-        print "$filePath\n";
-
-        # if (time > $lastModified + $maxPatronFileAge)
-        # {
-        #     print "File is older than 3 months. Skipping.\n";
-        # }
-
-    }
-
+    print "getPatronImportPendingSize: [" . $dao->getPatronImportPendingSize() . "]\n";
 }
 
 1;
