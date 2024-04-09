@@ -685,25 +685,22 @@ sub getPatronImportPendingSize
 {
     my $self = shift;
 
-    return $self->query("select count(p.id) from patron_import.patron p where p.folioready;")->[0]->[0];
+    return $self->query("select count(p.id) from patron_import.patron p where p.ready;")->[0]->[0];
 }
 
-sub getPatronImportChunk
+sub getPatrons2Import
 {
     my $self = shift;
 
     my $chunkSize = $main::conf->{patronImportChunkSize};
 
+    my $tableName = "patron";
+    my $columns = $self->_getTableColumns($tableName);
 
+    my $query = "select $columns from $schema.$tableName p where p.ready and not p.error
+                    limit $chunkSize";
 
-
-
-
-
-
-
-
-
+    return $self->_convertQueryResultsToHash("patron", $self->query($query));
 
 }
 

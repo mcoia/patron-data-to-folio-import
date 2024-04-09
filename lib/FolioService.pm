@@ -55,19 +55,23 @@ sub importPatrons
 {
     my $self = shift;
 
-    print "importing patrons.";
+    print "importing patrons into folio";
     while ($main::dao->getPatronImportPendingSize() > 0)
     {
 
         # grab some patrons
-        my $patrons = $main::dao->getPatronImportChunk();
+        my $patrons = $main::dao->getPatrons2Import();
 
         # build the json template
+        my @patronJson = ();
+        push(@patronJson, $self->buildPatronTemplate($_)) for (@{$patrons});
 
+        for (@patronJson)
+        {print "$_\n";}
+        exit;
 
-
-
-
+        # ship it!
+        # my $response = $self->importIntoFolio(\@patronJson);
 
     }
 
@@ -80,13 +84,21 @@ sub login
     my $self = shift;
 
     my $header = [
-        'x-okapi-tenant' => "$self->{tenant}",
+        'x-okapi-tenant' => "$main::conf->{tenant}",
         'content-type'   => 'application/json'
     ];
 
     my $user = encode_json({ username => $self->{username}, password => $self->{password} });
 
     my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $user);
+
+    # Check our login for cookies, if we didn't get any we failed and need to exit
+    if (!defined($response->{'_headers'}->{'set-cookie'}->[0]))
+    {
+        $main::log->addLine("Log in failed! Please set your username:password in the environment variables folio_username and folio_password");
+        print "Log in failed! Please set your username:password in the environment variables folio_username and folio_password\n";
+        exit;
+    }
 
     # set our FART tokens. Folio-Access-Refresh-Tokens
     $self->{'tokens'}->{'AT'} = ($response->{'_headers'}->{'set-cookie'}->[0] =~ /=(.*?);\s/g)[0];
@@ -129,11 +141,12 @@ sub HTTPRequest
 
 }
 
-sub patronTemplate
+sub buildPatronTemplate
 {
     my $self = shift;
     my $patron = shift;
 
+    my $debug = 1;
     my $template = "
                         {
                           'username': '$patron->{username}',
@@ -165,8 +178,7 @@ sub patronTemplate
                           },
                           'enrollmentDate': '$patron->{enrollmentdate}',
                           'expirationDate': '$patron->{expirationdate}',
-                        }
-";
+                        },";
 
     return $template;
 

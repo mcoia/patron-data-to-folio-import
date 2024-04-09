@@ -251,7 +251,7 @@ sub extract_patron_files
 testTings();
 sub testTings
 {
-    print "getPatronImportPendingSize: [" . $dao->getPatronImportPendingSize() . "]\n";
+   print "getPatronImportPendingSize: [" . $dao->getPatronImportPendingSize() . "]\n";
 }
 
 1;

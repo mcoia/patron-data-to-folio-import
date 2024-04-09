@@ -13,6 +13,7 @@ use MOBIUS::DBhandler;
 use JSON;
 use MOBIUS::Utils;
 use FileService;
+use FolioService;
 use Parser;
 use DAO;
 
@@ -40,7 +41,6 @@ main();
 sub main
 {
 
-
     # Create our main objects
     $dao = DAO->new();
     $files = FileService->new();
@@ -52,9 +52,9 @@ sub main
     $parser = Parser->new()->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
 
     $folio = FolioService->new({
-        'username'          => $ENV{folio_username},
-        'password'          => $ENV{folio_password},
-        'cookies'           => 0,
+        'username' => $ENV{folio_username},
+        'password' => $ENV{folio_password},
+        'cookies'  => 0,
     })->login()->importPatrons() if ($runType eq "import" || $runType eq "all");
 
     finishJob();

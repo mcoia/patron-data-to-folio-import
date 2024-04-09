@@ -86,9 +86,9 @@ create table if not exists patron_import.patron
     file_id                int references patron_import.file (id),
     job_id                 int references patron_import.job (id),
     fingerprint            text,
-    folioReady             bool not null default true,
-    folioError             bool not null default false,
-    folioLoaded            bool not null default false,
+    ready                  bool not null default true,
+    error                  bool not null default false,
+    errorMessage           text,
     username               text,
     externalSystemId       text,
     barcode                text,
@@ -104,6 +104,7 @@ create table if not exists patron_import.patron
     preferredContactTypeId text,
     enrollmentDate         text,
     expirationDate         text
+
 );
 
 create table if not exists patron_import.address
@@ -128,7 +129,7 @@ create table if not exists patron_import.ptype_mapping
     foliogroup     text
 );
 
-CREATE INDEX patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree (unique_id);
+CREATE INDEX IF NOT EXISTS patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree (unique_id);
 
 CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()
     RETURNS trigger AS
