@@ -65,6 +65,7 @@ sub stagePatronRecords
         # some debug metrics
         my $totalPatrons = scalar(@{$patronRecords});
         print "Total Patrons: [$totalPatrons]\n";
+        print "Migrating records to final table...\n";
         print "================================================================================\n\n";
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
         $main::log->addLine("================================================================================\n\n");

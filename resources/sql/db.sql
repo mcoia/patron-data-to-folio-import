@@ -5,6 +5,7 @@ create table if not exists patron_import.institution
     id      SERIAL primary key,
     enabled bool default true,
     name    text,
+    tenant  text,
     module  text,
     esid    text
 );
@@ -75,8 +76,7 @@ create table if not exists patron_import.stage_patron
     unique_id              text,
     barcode                text,
     email_address          text,
-    note                   text,
-    zeroline               text
+    note                   text
 );
 
 create table if not exists patron_import.patron
@@ -88,23 +88,22 @@ create table if not exists patron_import.patron
     fingerprint            text,
     ready                  bool not null default true,
     error                  bool not null default false,
-    errorMessage           text,
+    errormessage           text,
     username               text,
-    externalSystemId       text,
+    externalsystemid       text,
     barcode                text,
     active                 bool not null default true,
-    patronGroup            text,
-    lastName               text,
-    firstName              text,
-    middleName             text,
-    preferredFirstName     text,
+    patrongroup            text,
+    lastname               text,
+    firstname              text,
+    middlename             text,
+    preferredfirstname     text,
     phone                  text,
-    mobilePhone            text,
-    dateOfBirth            text,
-    preferredContactTypeId text,
-    enrollmentDate         text,
-    expirationDate         text
-
+    mobilephone            text,
+    dateofbirth            text,
+    preferredcontacttypeid text,
+    enrollmentdate         text,
+    expirationdate         text
 );
 
 create table if not exists patron_import.address
@@ -181,12 +180,12 @@ BEGIN
             addressLine2 = _addressline2,
             city         = _city,
             region       = _region,
-            postalcode   = _postalcode
+            postalCode   = _postalcode
         WHERE patron_id = NEW.id;
 
     ELSIF TG_OP = 'INSERT' THEN
 
-        INSERT INTO patron_import.address (patron_id, addressline1, addressline2, city, region, postalcode)
+        INSERT INTO patron_import.address (patron_id, addressLine1, addressLine2, city, region, postalCode)
         VALUES (NEW.id, _addressLine1, _addressLine2, _city, _region, _postalcode);
     END IF;
 

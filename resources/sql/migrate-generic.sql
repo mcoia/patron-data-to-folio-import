@@ -7,8 +7,11 @@ FROM (SELECT MIN(id) as id
       GROUP BY unique_id
       HAVING COUNT(*) > 1) b
 WHERE sp.id = b.id
+  AND btrim(sp.unique_id) != ''
+  AND btrim(sp.esid) != ''
+  AND sp.unique_id is not null
+  AND sp.esid is not null
   AND not sp.load;
-
 
 UPDATE patron_import.stage_patron sp
 SET load = true
@@ -18,8 +21,11 @@ FROM (SELECT MIN(id) as id
       GROUP BY unique_id
       HAVING COUNT(*) = 1) b
 WHERE sp.id = b.id
+  AND btrim(sp.unique_id) != ''
+  AND btrim(sp.esid) != ''
+  AND sp.unique_id is not null
+  AND sp.esid is not null
   AND not sp.load;
-
 
 insert into patron_import.patron (institution_id,
                                   file_id,
@@ -30,8 +36,8 @@ insert into patron_import.patron (institution_id,
                                   barcode,
                                   patrongroup,
                                   lastname,
-                                  firstname,
                                   middlename,
+                                  firstname,
                                   phone,
                                   mobilephone,
                                   preferredcontacttypeid,
@@ -50,7 +56,9 @@ insert into patron_import.patron (institution_id,
             sp.telephone,
             sp.telephone2,
             'email',
-            sp.patron_expiration_date
+            (case
+                 when sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' then sp.patron_expiration_date::DATE::TEXT
+                 else NULL END)
      from patron_import.stage_patron sp
               join patron_import.institution i on (sp.institution_id = i.id)
               left join patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
@@ -59,7 +67,7 @@ insert into patron_import.patron (institution_id,
        AND sp.load);
 
 
-update patron_import.patron fp
+update patron_import.patron p
 set file_id                = sp.file_id,
     job_id                 = sp.job_id,
     fingerprint            = sp.fingerprint,
@@ -72,20 +80,35 @@ set file_id                = sp.file_id,
     firstname              = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')),
     phone                  = sp.telephone,
     mobilephone            = sp.telephone2,
-    preferredcontacttypeid = 'email'
+    preferredcontacttypeid = 'email',
+    expirationdate         = (case
+                                  when sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
+                                      then sp.patron_expiration_date::DATE::TEXT
+                                  else NULL END)
 FROM patron_import.stage_patron sp
          join patron_import.institution i on (sp.institution_id = i.id)
          left join patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
-where sp.fingerprint != fp.fingerprint
-  AND sp.unique_id = fp.username
+where sp.fingerprint != p.fingerprint
+  AND sp.unique_id = p.username
   AND sp.load;
 
+-- convert our '' to NULLs
+-- external system id
+update patron_import.patron
+set externalsystemid=NULL
+where externalsystemid = '';
 
--- look for duplicate unique_id
-select *
-from patron_import.stage_patron sp
-         left join patron_import.patron p on (sp.unique_id = p.username)
-where sp.institution_id != p.institution_id;
+-- username
+update patron_import.patron
+set username=NULL
+where username = '';
+
+-- we don't load patrons without an external system id or username.
+update patron_import.patron
+set ready = false
+where externalsystemid is NULL
+   or username is NULL;
 
 
--- truncate patron_import.stage_patron;
+
+truncate patron_import.stage_patron;

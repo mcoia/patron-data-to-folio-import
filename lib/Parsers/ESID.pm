@@ -48,4 +48,13 @@ sub barcode
     return $patron->{barcode};
 }
 
+# this one looks pretty sketchy
+sub note
+{
+    my $patron = shift;
+    return $patron->{note};
+}
+
+
+
 1;

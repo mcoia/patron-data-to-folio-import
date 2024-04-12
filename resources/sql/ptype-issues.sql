@@ -2,13 +2,13 @@
 -- 736
 select count(p.*)
 from patron_import.patron p
-where p.patrongroup is NULL;
+where p.patronGroup is NULL;
 
 -- which institutions are these?
 select distinct i.id, i.name
 from patron_import.patron p
          join patron_import.institution i on i.id = p.institution_id
-where p.patrongroup is NULL;
+where p.patronGroup is NULL;
 -- +--+-----------------------------------+
 -- |id|name                               |
 -- +--+-----------------------------------+
@@ -22,14 +22,14 @@ where p.patrongroup is NULL;
 select count(*), i.name
 from patron_import.patron p
          join patron_import.institution i on i.id = p.institution_id
-where p.patrongroup is NULL
+where p.patronGroup is NULL
 group by i.name;
 
 -- show me all the patrons from a specific institution
 select *
 from patron_import.patron p
          join patron_import.institution i on i.id = p.institution_id
-where p.patrongroup is NULL
+where p.patronGroup is NULL
   and i.id = 15;
 -- 299
 
@@ -39,7 +39,7 @@ set enabled = false
 where id not in (select distinct i.id
                  from patron_import.patron p
                           join patron_import.institution i on i.id = p.institution_id
-                 where p.patrongroup is NULL);
+                 where p.patronGroup is NULL);
 
 --- #################### SCRATCH BELOW ####################
 -- select count(*), i.name, ft.path
@@ -47,14 +47,14 @@ select count(*), ft.path
 from patron_import.patron p
          join patron_import.institution i on i.id = p.institution_id
          join patron_import.file_tracker ft on ft.institution_id = i.id
-where p.patrongroup is NULL
+where p.patronGroup is NULL
 group by i.name, ft.path;
 
 select distinct ft.path
 from patron_import.patron p
          join patron_import.institution i on i.id=p.institution_id
          join patron_import.file_tracker ft on ft.institution_id=i.id
-where p.patrongroup is NULL
+where p.patronGroup is NULL
   and p.institution_id=15;
 
 

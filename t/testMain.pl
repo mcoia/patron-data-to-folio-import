@@ -12,11 +12,6 @@ use FileService;
 use Parser;
 use Parsers::GenericParser;
 
-# This is our test file
-my $patronFilePath = "../resources/test-files/incoming/SLCCStaff";
-
-our @clusters = qw(archway arthur avalon bridges explore kc-towers palmer swan swbts);
-
 our ($conf, $log);
 
 initConf();
@@ -248,10 +243,34 @@ sub extract_patron_files
 
 }
 
-testTings();
+# testTings();
 sub testTings
 {
    print "getPatronImportPendingSize: [" . $dao->getPatronImportPendingSize() . "]\n";
 }
+
+# test_1RecordLoad();
+sub test_1RecordLoad
+{
+
+    my $debug = 1;
+    # $folio->login();
+
+    # my $patrons = $dao->getPatrons2Import();
+    my $patrons = $dao->getFiles();
+
+    print Dumper($patrons);
+
+}
+
+test_query();
+sub test_query
+{
+
+    my $query = "select * from patron_import.address a limit 10";
+    print Dumper($dao->query($query));
+
+}
+
 
 1;

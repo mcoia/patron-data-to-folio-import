@@ -55,23 +55,25 @@ sub importPatrons
 {
     my $self = shift;
 
-    print "importing patrons into folio";
     while ($main::dao->getPatronImportPendingSize() > 0)
     {
 
         # grab some patrons
-        my $patrons = $main::dao->getPatrons2Import();
+        my $patrons = $main::dao->getPatronBatch2Import();
+
+        my $totalRecords = scalar(@{$patrons});
 
         # build the json template
-        my @patronJson = ();
-        push(@patronJson, $self->buildPatronTemplate($_)) for (@{$patrons});
+        my $json = $self->buildPatronJSON($patrons);
 
-        for (@patronJson)
-        {print "$_\n";}
-        exit;
+        $json = $self->buildFinalJSON($json, $totalRecords);
+
+        $main::log->addLine($json);
 
         # ship it!
-        # my $response = $self->importIntoFolio(\@patronJson);
+        my $response = $self->importIntoFolio($json);
+        print Dumper($response);
+        exit;
 
     }
 
@@ -82,9 +84,14 @@ sub importPatrons
 sub login
 {
     my $self = shift;
+    my $tenant = shift;
+
+
+    # store our tenant for future use.
+    $self->{tenant} = $tenant;
 
     my $header = [
-        'x-okapi-tenant' => "$main::conf->{tenant}",
+        'x-okapi-tenant' => "$tenant",
         'content-type'   => 'application/json'
     ];
 
@@ -92,11 +99,17 @@ sub login
 
     my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $user);
 
+
+    # print Dumper($response);
+    # mobius_atsu_patronload
+
     # Check our login for cookies, if we didn't get any we failed and need to exit
     if (!defined($response->{'_headers'}->{'set-cookie'}->[0]))
     {
         $main::log->addLine("Log in failed! Please set your username:password in the environment variables folio_username and folio_password");
-        print "Log in failed! Please set your username:password in the environment variables folio_username and folio_password\n";
+        print "\n\n=====================================================================================================\n";
+        print "                                 !!! Log in failed !!! \nPlease set your username:password with the environment variables folio_username and folio_password";
+        print "\n=====================================================================================================\n\n";
         exit;
     }
 
@@ -137,50 +150,178 @@ sub HTTPRequest
         'cookie_jar' => $jar
     );
 
-    return $userAgent->request($request);
+    print Dumper($request);
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+
+    my $response = $userAgent->request($request);
+
+    print Dumper($response);
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+    print "\n\n\n\n";
+
+    return $response;
 
 }
 
-sub buildPatronTemplate
+sub buildPatronJSON
 {
     my $self = shift;
-    my $patron = shift;
+    my $patrons = shift;
 
-    my $debug = 1;
-    my $template = "
-                        {
-                          'username': '$patron->{username}',
-                          'externalSystemId': '$patron->{ex}',
-                          'barcode': '$patron->{barcode}',
-                          'active': true,
-                          'patronGroup': '$patron->{patrongroup }',
-                          'personal': {
-                            'lastName': '$patron->{lastname}',
-                            'firstName': '$patron->{firstname}',
-                            'middleName': '$patron->{middlename}',
-                            'preferredFirstName': '$patron->{preferredname}',
-                            'phone': '$patron->{phone}',
-                            'mobilePhone': '$patron->{mobilephone}',
-                            'dateOfBirth': '$patron->{dateofbirth}',
-                            'addresses': [
-                              {
-                                'countryId': 'HU',
-                                'addressLine1': 'Andrássy Street 1.',
-                                'addressLine2': '',
-                                'city': 'Budapest',
-                                'region': 'Pest',
-                                'postalCode': '1061',
-                                'addressTypeId': 'Home',
-                                'primaryAddress': true
-                              }
-                            ],
-                            'preferredContactTypeId': 'mail'
-                          },
-                          'enrollmentDate': '$patron->{enrollmentdate}',
-                          'expirationDate': '$patron->{expirationdate}',
-                        },";
+    my $json = "";
+    for my $patron (@{$patrons})
+    {
 
-    return $template;
+        # remove unwanted columns
+        delete($patron->{id});
+        delete($patron->{institution_id});
+        delete($patron->{file_id});
+        delete($patron->{job_id});
+        delete($patron->{fingerprint});
+        delete($patron->{ready});
+        delete($patron->{error});
+        delete($patron->{errormessage});
+
+        my $addressIndex = 0;
+        for ($patron->{address})
+        {
+            delete($patron->{address}->[$addressIndex]->{id});
+            delete($patron->{address}->[$addressIndex]->{patron_id});
+            $addressIndex++;
+        }
+
+        # # Use of uninitialized value in concatenation (.) or string at ...
+        # # fix these pesky undef values.
+        keys %$patron;
+        while (my ($k, $v) = each %$patron)
+        {$patron->{$k} = "" if (!defined($v));}
+
+        # my $address = "";
+        my $address = $self->buildAddressJSON($patron->{address});
+
+
+        # '_content' => 'Cannot deserialize value of type `java.util.Date` from String "07-25-24":
+        # not a valid representation (error: Failed to parse Date value \'07-25-24\': Cannot parse date "07-25-24":
+        # not compatible with any of standard forms ("yyyy-MM-dd\'T\'HH:mm:ss.SSSX", "yyyy-MM-dd\'T\'HH:mm:ss.SSS", "EEE,
+        # dd MMM yyyy HH:mm:ss zzz", "yyyy-MM-dd"))
+
+        my $template = "
+            {
+              \"username\": \"$patron->{username}\",
+              \"externalSystemId\": \"$patron->{externalsystemid}\",
+              \"barcode\": \"$patron->{barcode}\",
+              \"active\": true,
+              \"patronGroup\": \"$patron->{patrongroup}\",
+              \"personal\": {
+                \"lastName\": \"$patron->{lastname}\",
+                \"firstName\": \"$patron->{firstname}\",
+                \"middleName\": \"$patron->{middlename}\",
+                \"preferredFirstName\": \"$patron->{preferredfirstname}\",
+                \"phone\": \"$patron->{phone}\",
+                \"mobilePhone\": \"$patron->{mobilephone}\",
+                \"dateOfBirth\": \"$patron->{dateofbirth}\",
+                \"addresses\": $address,
+                \"preferredContactTypeId\": \"$patron->{preferredcontacttypeid}\"
+              },
+              \"enrollmentDate\": \"$patron->{enrollmentdate}\",
+              \"expirationDate\": \"$patron->{expirationdate}\"
+            },";
+
+        $json .= $template;
+
+    }
+
+    # remove the last ,
+    chop($json);
+
+    return $json;
+
+}
+
+sub buildAddressJSON
+{
+    my $self = shift;
+    my $addresses = shift;
+
+    # {
+    #     "countryId": "HU",
+    #     "addressLine1": "Andrássy Street 1.",
+    #     "addressLine2": "",
+    #     "city": "Budapest",
+    #     "region": "Pest",
+    #     "postalCode": "1061",
+    #     "addressTypeId": "Home",
+    #     "primaryAddress": true
+    # }
+
+    my @addressArray = ();
+    for my $address (@{$addresses})
+    {
+
+        keys %$address;
+        while (my ($k, $v) = each %$address)
+        {$address->{$k} = "" if (!defined($v));}
+
+        my $jsonAddress = {
+            "countryId"      => $address->{countryid},
+            "addressLine1"   => $address->{addressline1},
+            "addressLine2"   => $address->{addressline2},
+            "city"           => $address->{city},
+            "region"         => $address->{region},
+            "postalCode"     => $address->{postalcode},
+            "addressTypeId"  => $address->{addresstypeid},
+            "primaryAddress" => $address->{primaryAddress} = 1 ? 'true' : 'false'
+        };
+        push(@addressArray, $jsonAddress);
+    }
+
+    return encode_json(\@addressArray);
+
+}
+
+sub buildFinalJSON
+{
+    my $self = shift;
+    my $json = shift;
+    my $totalRecords = shift;
+    my $sourceType = shift || "";
+
+    my $finalJSON = "
+        {
+          \"users\": [$json],
+          \"totalRecords\": $totalRecords,
+          \"deactivateMissingUsers\": $main::conf->{deactivateMissingUsers},
+          \"updateOnlyPresentFields\": $main::conf->{updateOnlyPresentFields},
+          \"sourceType\": \"$sourceType\"
+        }";
+    return $finalJSON;
+
+}
+
+sub importIntoFolio
+{
+    my $self = shift;
+    my $tenant = shift;
+    my $json = shift;
+
+    my $url = "/user-import";
+
+    my $header = [
+        'x-okapi-tenant' => "$tenant",
+        'Content-Type'   => 'application/json',
+        'x-okapi-token'  => $self->{'tokens'}->{'AT'}
+    ];
+
+    my $response = $self->HTTPRequest("POST", $url, $header, $json);
+
+    return $response;
 
 }
 

@@ -2,3 +2,4 @@
 _Deparsed_XSubs.pm
 *.log
 folio-login.conf
+resources/mapping/tenant*

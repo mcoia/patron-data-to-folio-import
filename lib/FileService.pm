@@ -92,8 +92,8 @@ sub _loadMOBIUSPatronLoadsCSV
 
         my $files = {
             'cluster'         => lc $cluster,
-            'institutionName' => $institution,
-            'name'            => $row->[2],
+            'name' => $institution,
+            'fileName'            => $row->[2],
         };
 
         # we should skip all institutions that have a file of 'n/a' as they're not participating?
@@ -109,13 +109,13 @@ sub _buildFilePatterns
 {
 
     my $self = shift;
-    my $clusterFileHashArray = shift;
+    my $institutions = shift;
     my $filePatterns;
 
-    for my $clusterFileHash (@{$clusterFileHashArray})
+    for my $institution (@{$institutions})
     {
 
-        my $pattern = $clusterFileHash->{name};
+        my $pattern = $institution->{fileName};
 
         $pattern =~ s/\-/\\-/g;
         $pattern =~ s/\./\\./g;
@@ -132,9 +132,9 @@ sub _buildFilePatterns
         $pattern =~ s/xxx/.*/g;
         $pattern =~ s/XXX/.*/g;
 
-        $clusterFileHash->{pattern} = $pattern;
+        $institution->{pattern} = $pattern;
 
-        push(@$filePatterns, $clusterFileHash);
+        push(@$filePatterns, $institution);
 
     }
 
@@ -308,8 +308,11 @@ sub buildInstitutionTableData
     my $institutions = $self->_loadMOBIUSPatronLoadsCSV();
     $institutions = $self->_buildFilePatterns($institutions);
     $institutions = $self->_buildFolderPaths($institutions);
+    $institutions = $self->_addTenants($institutions);
 
+    # load the esid csv
     $self->_loadSSO_ESID_MappingCSV();
+
     my @existingFolders = ();
     my @existingInstitutions = ();
     my @existingInstitutionsFolderMap = ();
@@ -322,10 +325,11 @@ sub buildInstitutionTableData
         my $esid = $main::dao->getESIDFromMappingTable($institution);
 
         my $institutionToSave = {
-            'name'    => $institution->{institutionName},
+            'name'    => $institution->{name},
             'enabled' => 'TRUE',
             'module'  => "GenericParser",
-            'esid'    => $esid
+            'esid'    => $esid,
+            'tenant'  => $institution->{tenant}
         };
 
         # we store the institution name into an array and check for it's existence on each cycle
@@ -365,7 +369,7 @@ sub buildInstitutionTableData
         # files are 100% unique here.
         my $file = {
             'institution_id' => $institution_id,
-            'name'           => $institution->{name},
+            'name'           => $institution->{fileName},
             'pattern'        => $institution->{pattern}
         };
 
@@ -499,6 +503,35 @@ sub checkFileForSpecialChars
     }
 
     # return 1;
+
+}
+
+sub _addTenants
+{
+    my $self = shift;
+    my $institutions = shift;
+
+    $main::dao->createTableFromCSV("tenant_mapping", $main::conf->{projectPath} . "/resources/mapping/tenant_mapping.csv");
+    my $tenants = $main::dao->query("select c1,c2 from patron_import.tenant_mapping");
+
+    for my $institution (@{$institutions})
+    {
+
+        for my $tenant (@{$tenants})
+        {
+
+            if ($tenant->[0] eq $institution->{name})
+            {
+                $institution->{tenant} = $tenant->[1];
+                next;
+            }
+
+        }
+
+
+    }
+
+    return $institutions;
 
 }
 

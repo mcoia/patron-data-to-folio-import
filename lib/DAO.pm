@@ -160,6 +160,8 @@ sub _cacheTableColumns
         $self->{'cache'}->{'columns'}->{$tableName} = \@columnCopy;
     }
 
+    return $self;
+
 }
 
 sub getMaxStagePatronID
@@ -343,7 +345,7 @@ sub _convertQueryResultsToHash
 {
 
     # there's a bug in this code. If you don't select ALL columns from the table you won't get the correct hash back.
-    # You have to select all columns for this to work.
+    # You have to select all columns for this to work. DBI::pg has a function for this!!!
     # I'll fix this at some point.
 
     my $self = shift;
@@ -620,12 +622,14 @@ sub getESIDFromMappingTable
 
     my $tableName = "sso_esid_mapping";
 
-    my $query = "select c3 from $schema.$tableName where c1 = '$institution->{institutionName}'";
+    my $query = "select t.c3 from $schema.$tableName t where t.c1 = '$institution->{name}'";
 
     my $results = $self->query($query)->[0]->[0];
 
     return "email" if ($results =~ /email/);
     return "barcode" if ($results =~ /barcode/);
+    return "unique_id" if ($results =~ /unique/);
+    return "note" if ($results =~ /note/);
     return "";
 
 }
@@ -688,7 +692,7 @@ sub getPatronImportPendingSize
     return $self->query("select count(p.id) from patron_import.patron p where p.ready;")->[0]->[0];
 }
 
-sub getPatrons2Import
+sub getPatronBatch2Import
 {
     my $self = shift;
 
@@ -700,8 +704,38 @@ sub getPatrons2Import
     my $query = "select $columns from $schema.$tableName p where p.ready and not p.error
                     limit $chunkSize";
 
-    return $self->_convertQueryResultsToHash("patron", $self->query($query));
+    my $patrons = $self->_convertQueryResultsToHash("patron", $self->query($query));
+
+    # we now need the addresses. Ideally this would be 1 query. this convertQueryResults is busted on joins.
+    # DBI::pg has this tho! Live and learn. I would have totally used that to begin with.
+    $tableName = "address";
+    $columns = $self->_getTableColumns("address");
+
+    # add our address to the patron hash
+    for my $patron (@{$patrons})
+    {
+
+        $query = "select $columns from $schema.$tableName a where a.id=$patron->{id}";
+        my $address = $self->_convertQueryResultsToHash($tableName, $self->query($query));
+
+        $patron->{address} = $address;
+
+        # remove unwanted columns.
+        delete($patron->{id});
+        delete($patron->{institution_id});
+        delete($patron->{file_id});
+        delete($patron->{job_id});
+        delete($patron->{fingerprint});
+        delete($patron->{ready});
+        delete($patron->{error});
+        delete($patron->{errormessage});
+
+    }
+
+
+    return $patrons;
 
 }
+
 
 1;

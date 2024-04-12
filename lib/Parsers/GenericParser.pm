@@ -356,7 +356,6 @@ sub _parsePatronRecord
 sub migrate
 {
     my $self = shift;
-    print "Migrating records to final table...\n";
 
     # Inserts vs Updates
     # We'll use the username as our key. That's what needs to be 100% unique across the consortium.
@@ -383,11 +382,6 @@ sub migrate
     my $duplicateSize = scalar(@duplicateUniqueIDPatrons);
 
     $self->notifyDuplicateUniqueID(\@duplicateUniqueIDPatrons) if ($duplicateSize > 0);
-
-    # truncate the stage patron table truncate the stage patron table truncate the stage patron table
-    $query = "truncate $main::conf->{schema}.stage_patron;";
-    $main::dao->query($query);
-    # truncate the stage patron table truncate the stage patron table truncate the stage patron table
 
 }
 

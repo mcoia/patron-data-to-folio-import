@@ -27,7 +27,7 @@ sub initConf
     my $utils = MOBIUS::Utils->new();
 
     # Check our conf file
-    my $configFile = "/home/owner/repo/mobius/folio/patron-import/patron-import.conf";
+    my $configFile = "/home/owner/repo/mobius/folio/patron-data-to-folio-import/patron-import.conf";
     $conf = $utils->readConfFile($configFile);
 
     exit if ($conf eq "false");
@@ -375,10 +375,13 @@ sub test_getInstitutionsFoldersAndFilesHash
     print "\n==================================================================\n\n";
 }
 
+test_tenantCSV();
+sub test_tenantCSV
+{
 
-# sub test_
+    my $file = $conf->{projectPath} . "/resources/mapping/tenant_mapping.csv";
+    $dao->createTableFromCSV("tenant_mapping", $file);
 
-
-
+}
 
 1;

@@ -19,16 +19,16 @@ Three Rivers College,61,TRC Student
 Three Rivers College,62,TRC Faculty/Staff
 Three Rivers College,63,TRC Non-Student
 Three Rivers College,65,TRC ILL
-St Charles Community College,101,SCC Student
-St Charles Community College,102,SCC Faculty/Staff
-St Charles Community College,103,SCC Alumni
-St Charles Community College,104,SCC Community Users
-St Charles Community College,105,SCC ILL
-St Charles Community College,106,None
-St Charles Community College,107,None
-St Charles Community College,108,SCC Board of Trustees
-St Charles Community College,109,None
-St Charles Community College,110,None
+St. Charles Community College,101,SCC Student
+St. Charles Community College,102,SCC Faculty/Staff
+St. Charles Community College,103,SCC Alumni
+St. Charles Community College,104,SCC Community Users
+St. Charles Community College,105,SCC ILL
+St. Charles Community College,106,None
+St. Charles Community College,107,None
+St. Charles Community College,108,None
+St. Charles Community College,109,None
+St. Charles Community College,110,None
 St. Louis Community College,151,STLCC Student
 St. Louis Community College,152,STLCC Alumni
 St. Louis Community College,153,STLCC Courtesy
@@ -63,7 +63,7 @@ Columbia College,59,None
 Columbia College,60,None
 Columbia College,61,None
 Columbia College,62,None
-Columbia College,63,None 
+Columbia College,63,None
 Columbia College,64,None
 Missouri State Library,80,MOSL State Employee
 Missouri State Library,81,MOSL Restricted State Employee
@@ -108,7 +108,7 @@ Missouri Valley College,31,MVC Faulty/Staff
 Missouri Valley College,32,MVC ILL
 Missouri Valley College,33,MVC Public
 Missouri Valley College,34,None
-State Fair Community College,35,MVC Graduate
+Missouri Valley College,35,MVC Graduate
 State Fair Community College,40,SFCC Student
 State Fair Community College,41,SFCC Faculty/Staff
 State Fair Community College,42,SFCC ILL
@@ -122,16 +122,16 @@ A.T. Still University,56,ATSU Binding
 A.T. Still University,57,ATSU ILL
 A.T. Still University,58,ATSU ILL Arizona
 A.T. Still University,59,ATSU Library Staff
-State Technical College,61,STCM Student
-State Technical College,62,STCM Staff
-State Technical College,63,STCM Faculty
-State Technical College,64,STCM Administration
-State Technical College,65,STCM Board
-State Technical College,66,STCM Alumni
-State Technical College,67,STC Community
-State Technical College,68,None
-State Technical College,69,None
-State Technical College,70,None
+State Technical College of Missouri,61,STCM Student
+State Technical College of Missouri,62,STCM Staff
+State Technical College of Missouri,63,STCM Faculty
+State Technical College of Missouri,64,STCM Administration
+State Technical College of Missouri,65,STCM Board
+State Technical College of Missouri,66,STCM Alumni
+State Technical College of Missouri,67,STC Community
+State Technical College of Missouri,68,None
+State Technical College of Missouri,69,None
+State Technical College of Missouri,70,None
 Moberly Area Community College,71,None
 Moberly Area Community College,81,MACC Student
 Moberly Area Community College,82,MACC Faculty/Staff/Board Member
@@ -243,47 +243,47 @@ Missouri Baptist University,142,MBU Friends of the Library
 Missouri Baptist University,143,MBU ILL
 Missouri Baptist University,144,MBU Doctoral
 Missouri Baptist University,145,MBU Alumni
-Eden-Webster University,151,EWL-Webster Students Online International
-Eden-Webster University,152,EWL-Webster Students Online Domestic
-Eden-Webster University,153,EWL-Webster Faculty International
-Eden-Webster University,154,EWL-Webster Students International
-Eden-Webster University,155,EWL-Webster Athens Undergraduate Students
-Eden-Webster University,156,EWL-Webster Athens Graduate Students
-Eden-Webster University,157,EWL-Webster Vienna Faculty/Staff
-Eden-Webster University,158,EWL-Webster Vienna Students
-Eden-Webster University,159,EWL-Webster Athens Faculty/Staff
-Eden-Webster University,160,EWL-Eden Webster Staff
-Eden-Webster University,161,EWL-Eden Faculty
-Eden-Webster University,162,EWL-Webster Faculty
-Eden-Webster University,163,EWL-Webster Faculty (MO)
-Eden-Webster University,164,EWL-Webster Faculty (USA)
-Eden-Webster University,165,EWL-Webster Students (USA)
-Eden-Webster University,166,EWL-Webster Students (MO)
-Eden-Webster University,167,EWL-Eden Students
-Eden-Webster University,168,EWL-Webster Graduate Students
-Eden-Webster University,169,EWL-Webster Undergraduate Students
-Eden-Webster University,170,EWL-Webster Sites & Dual Admit Students
-Eden-Webster University,171,EWL-Webster Dual Admit Fellows & Board of Trustees
-Eden-Webster University,172,EWL-Eden Alumni
-Eden-Webster University,173,EWL-Webster Alumni
-Eden-Webster University,174,EWL-Eden Webster Other
-Eden-Webster University,175,EWL-Eden Webster Infopass
-Eden-Webster University,176,EWL-Eden Webster ILL
-Eden-Webster University,177,EWL-Eden Webster Pseudo-Patrons
-Concordia Seminary,180,CONC M.Div./M.Deac./Certificate
-Concordia Seminary,181,CONC MA/STM/D.Min/Ph.D
-Concordia Seminary,182,CONC Distance Program Student
-Concordia Seminary,183,CONC Faculty
-Concordia Seminary,184,CONC Staff
-Concordia Seminary,185,CONC Guest Instructor
-Concordia Seminary,186,CONC LCMS Rostered
-Concordia Seminary,187,CONC ILL
-Concordia Seminary,188,CONC Student Spouse
-Concordia Seminary,189,CONC Emeriti
-Concordia Seminary,190,CONC IC Researcher
-Concordia Seminary,191,CONC CHI Staff
-Concordia Seminary,192,CONC Non-Rostered Alumni
-Concordia Seminary,194,CONC Special
+Webster University/Eden Seminary,151,EWL-Webster Students Online International
+Webster University/Eden Seminary,152,EWL-Webster Students Online Domestic
+Webster University/Eden Seminary,153,EWL-Webster Faculty International
+Webster University/Eden Seminary,154,EWL-Webster Students International
+Webster University/Eden Seminary,155,EWL-Webster Athens Undergraduate Students
+Webster University/Eden Seminary,156,EWL-Webster Athens Graduate Students
+Webster University/Eden Seminary,157,EWL-Webster Vienna Faculty/Staff
+Webster University/Eden Seminary,158,EWL-Webster Vienna Students
+Webster University/Eden Seminary,159,EWL-Webster Athens Faculty/Staff
+Webster University/Eden Seminary,160,EWL-Eden Webster Staff
+Webster University/Eden Seminary,161,EWL-Eden Faculty
+Webster University/Eden Seminary,162,EWL-Webster Faculty
+Webster University/Eden Seminary,163,EWL-Webster Faculty (MO)
+Webster University/Eden Seminary,164,EWL-Webster Faculty (USA)
+Webster University/Eden Seminary,165,EWL-Webster Students (USA)
+Webster University/Eden Seminary,166,EWL-Webster Students (MO)
+Webster University/Eden Seminary,167,EWL-Eden Students
+Webster University/Eden Seminary,168,EWL-Webster Graduate Students
+Webster University/Eden Seminary,169,EWL-Webster Undergraduate Students
+Webster University/Eden Seminary,170,EWL-Webster Sites & Dual Admit Students
+Webster University/Eden Seminary,171,EWL-Webster Dual Admit Fellows & Board of Trustees
+Webster University/Eden Seminary,172,EWL-Eden Alumni
+Webster University/Eden Seminary,173,EWL-Webster Alumni
+Webster University/Eden Seminary,174,EWL-Eden Webster Other
+Webster University/Eden Seminary,175,EWL-Eden Webster Infopass
+Webster University/Eden Seminary,176,EWL-Eden Webster ILL
+Webster University/Eden Seminary,177,EWL-Eden Webster Pseudo-Patrons
+Concordia,180,CONC M.Div./M.Deac./Certificate
+Concordia,181,CONC MA/STM/D.Min/Ph.D
+Concordia,182,CONC Distance Program Student
+Concordia,183,CONC Faculty
+Concordia,184,CONC Staff
+Concordia,185,CONC Guest Instructor
+Concordia,186,CONC LCMS Rostered
+Concordia,187,CONC ILL
+Concordia,188,CONC Student Spouse
+Concordia,189,CONC Emeriti
+Concordia,190,CONC IC Researcher
+Concordia,191,CONC CHI Staff
+Concordia,192,CONC Non-Rostered Alumni
+Concordia,194,CONC Special
 Missouri Botanical Garden,0,MBG Institutional
 Missouri Botanical Garden,1,MBG Intern
 Missouri Botanical Garden,2,MBG Library Staff
@@ -291,15 +291,15 @@ Missouri Botanical Garden,3,MBG Special
 Missouri Botanical Garden,4,MBG Staff
 Missouri Botanical Garden,5,MBG Student
 Missouri Botanical Garden,6,MBG Visitor
-St. Louis Art Museum,8,SLAM Library Staff
-St. Louis Art Museum,9,SLAM Museum Staff
-St. Louis Art Museum,10,SLAM ILL
-Missouri History Museum,101,MHS Library Staff
-Missouri History Museum,102,MHS Other Staff
-Missouri History Museum,106,MHS ILL
-Missouri History Museum,107,MHS Institutional
-Missouri History Museum,110,MHS Condie
-Missouri History Museum,111,MHS Former Staff
+Saint Louis Art Museum,8,SLAM Library Staff
+Saint Louis Art Museum,9,SLAM Museum Staff
+Saint Louis Art Museum,10,SLAM ILL
+Missouri Historical Society,101,MHS Library Staff
+Missouri Historical Society,102,MHS Other Staff
+Missouri Historical Society,106,MHS ILL
+Missouri Historical Society,107,MHS Institutional
+Missouri Historical Society,110,MHS Condie
+Missouri Historical Society,111,MHS Former Staff
 Goldfarb School of Nursing,150,GSN Student
 Goldfarb School of Nursing,151,GSN Faculty
 Goldfarb School of Nursing,152,GSN Staff
@@ -380,26 +380,26 @@ North Central Missouri College,97,NCMC Faculty
 North Central Missouri College,98,NCMC College Board
 North Central Missouri College,99,NCMC Emeritus
 North Central Missouri College,100,NCMC ILL
-St. Paul School of Theology,101,SPST Student
-St. Paul School of Theology,102,None
-St. Paul School of Theology,103,None
-St. Paul School of Theology,104,None
-St. Paul School of Theology,105,None
-St. Paul School of Theology,106,SPST Faculty/Staff
-St. Paul School of Theology,107,SPST Adjunct
-St. Paul School of Theology,108,None
-St. Paul School of Theology,109,SPST Alumni
-St. Paul School of Theology,110,None
-St. Paul School of Theology,111,None
-St. Paul School of Theology,112,None
-St. Paul School of Theology,113,None
-St. Paul School of Theology,114,None
-St. Paul School of Theology,115,None
-St. Paul School of Theology,116,None
-St. Paul School of Theology,117,None
-St. Paul School of Theology,118,None
-St. Paul School of Theology,119,None
-St. Paul School of Theology,120,SPST Courtesy Card
+Saint Paul School of Theology,101,SPST Student
+Saint Paul School of Theology,102,None
+Saint Paul School of Theology,103,None
+Saint Paul School of Theology,104,None
+Saint Paul School of Theology,105,None
+Saint Paul School of Theology,106,SPST Faculty/Staff
+Saint Paul School of Theology,107,SPST Adjunct
+Saint Paul School of Theology,108,None
+Saint Paul School of Theology,109,SPST Alumni
+Saint Paul School of Theology,110,None
+Saint Paul School of Theology,111,None
+Saint Paul School of Theology,112,None
+Saint Paul School of Theology,113,None
+Saint Paul School of Theology,114,None
+Saint Paul School of Theology,115,None
+Saint Paul School of Theology,116,None
+Saint Paul School of Theology,117,None
+Saint Paul School of Theology,118,None
+Saint Paul School of Theology,119,None
+Saint Paul School of Theology,120,SPST Courtesy Card
 Conception Abbey,121,CNCPT Students
 Conception Abbey,122,CNCPT Monastic Faculty
 Conception Abbey,123,CNCPT Non-Monastic Faculty
@@ -463,10 +463,10 @@ Northwest Missouri State University,189,NWMSU ILL
 Northwest Missouri State University,190,NWMSU Student
 Northwest Missouri State University,192,None
 Northwest Missouri State University,194,NWMSU Retiree
-Kansas City KS Community College,261,KCKCC Employee
-Kansas City KS Community College,262,KCKCC Student
-Kansas City KS Community College,263,KCKCC Community
-Kansas City KS Community College,264,KCKCC Alumni
+Kansas City Kansas Community College,261,KCKCC Employee
+Kansas City Kansas Community College,262,KCKCC Student
+Kansas City Kansas Community College,263,KCKCC Community
+Kansas City Kansas Community College,264,KCKCC Alumni
 Benedictine College,271,BC Student
 Benedictine College,272,BC Faculty
 Benedictine College,273,BC Staff
