@@ -15,20 +15,15 @@ Jefferson College,53,JC Adjunct
 Jefferson College,55,JC Community
 Jefferson College,56,JC AEL
 Jefferson College,57,JC ILL
+Jefferson College,,JC Guest
 Three Rivers College,61,TRC Student
 Three Rivers College,62,TRC Faculty/Staff
 Three Rivers College,63,TRC Non-Student
 Three Rivers College,65,TRC ILL
 St. Charles Community College,101,SCC Student
 St. Charles Community College,102,SCC Faculty/Staff
-St. Charles Community College,103,SCC Alumni
 St. Charles Community College,104,SCC Community Users
 St. Charles Community College,105,SCC ILL
-St. Charles Community College,106,None
-St. Charles Community College,107,None
-St. Charles Community College,108,None
-St. Charles Community College,109,None
-St. Charles Community College,110,None
 St. Louis Community College,151,STLCC Student
 St. Louis Community College,152,STLCC Alumni
 St. Louis Community College,153,STLCC Courtesy
@@ -48,30 +43,19 @@ Lincoln University,2,LINC Staff/Graduates
 Lincoln University,3,LINC Faculty/Staff
 Lincoln University,4,LINC Community
 Lincoln University,7,LINC ILL
-Lincoln University,8,None
 Lincoln University,10,LINC Faculty/Board/Emeritus
-Lincoln University,11,None
-Columbia College,51,None
 Columbia College,52,CCIS Students
-Columbia College,53,None
 Columbia College,54,CCIS Faculty/Staff
 Columbia College,55,CCIS Board/Emeritus
-Columbia College,56,None
 Columbia College,57,CCIS ILL
 Columbia College,58,CCIS Courtesy
-Columbia College,59,None
-Columbia College,60,None
-Columbia College,61,None
-Columbia College,62,None
-Columbia College,63,None
-Columbia College,64,None
 Missouri State Library,80,MOSL State Employee
 Missouri State Library,81,MOSL Restricted State Employee
 Missouri State Library,83,MOSL State Intern
 Missouri State Library,84,MOSL Missouri Resident
-Missouri State Library,85,None
 Missouri State Library,86,MOSL Public Library Director
 Missouri State Library,87,MOSL ILL Lending
+Missouri State Library,,MOSL internal use only
 Stephens College,101,SC STEPHENS Undergraduate Student
 Stephens College,102,SC STEPHENS Graduate Student
 Stephens College,103,SC STEPHENS Faculty/Staff/Retiree
@@ -92,11 +76,8 @@ William Woods University,186,WWU Adjunct Faculty
 William Woods University,187,WWU Adult Studies
 Culver-Stockton College,1,CSC Student
 Culver-Stockton College,2,CSC Employee
-Culver-Stockton College,3,None
 Culver-Stockton College,4,CSC ILL
 Culver-Stockton College,5,CSC Community Borrower
-Culver-Stockton College,6,None
-Central Methodist University,7,None
 Central Methodist University,8,CMU Extended Student
 Central Methodist University,10,CMU Student
 Central Methodist University,11,CMU Staff
@@ -107,7 +88,6 @@ Missouri Valley College,30,MVC Student
 Missouri Valley College,31,MVC Faulty/Staff
 Missouri Valley College,32,MVC ILL
 Missouri Valley College,33,MVC Public
-Missouri Valley College,34,None
 Missouri Valley College,35,MVC Graduate
 State Fair Community College,40,SFCC Student
 State Fair Community College,41,SFCC Faculty/Staff
@@ -129,20 +109,14 @@ State Technical College of Missouri,64,STCM Administration
 State Technical College of Missouri,65,STCM Board
 State Technical College of Missouri,66,STCM Alumni
 State Technical College of Missouri,67,STC Community
-State Technical College of Missouri,68,None
-State Technical College of Missouri,69,None
-State Technical College of Missouri,70,None
-Moberly Area Community College,71,None
 Moberly Area Community College,81,MACC Student
 Moberly Area Community College,82,MACC Faculty/Staff/Board Member
 Moberly Area Community College,83,MACC Community Borrower
-Moberly Area Community College,84,None
 Hannibal-LaGrange University,91,HLGU Student
 Hannibal-LaGrange University,92,HLGU Faculty/Staff
 Hannibal-LaGrange University,93,HLGU ILL
 Hannibal-LaGrange University,94,HLGU Community Borrower
 Hannibal-LaGrange University,95,HLGU Affiliate
-Hannibal-LaGrange University,96,None
 Truman State University,101,TRUMAN Community Borrower
 Truman State University,102,TRUMAN Academy
 Truman State University,103,TRUMAN Undergraduate
@@ -151,10 +125,6 @@ Truman State University,105,TRUMAN Designated Guest
 Truman State University,106,TRUMAN Staff
 Truman State University,107,TRUMAN Faculty
 Truman State University,108,TRUMAN Library in House
-Truman State University,109,None
-Truman State University,110,None
-Truman State University,111,None
-Truman State University,112,None
 Covenant Theological Seminary,0,COV Student (St. Louis)
 Covenant Theological Seminary,1,COV Faculty
 Covenant Theological Seminary,2,COV Community
@@ -172,20 +142,17 @@ Covenant Theological Seminary,15,COV Church Member
 Covenant Theological Seminary,19,COV Controlled Digital Lending
 Fontbonne University,20,FONT Undergraduate Student
 Fontbonne University,21,FONT Graduate Student
-Fontbonne University,22,None
 Fontbonne University,23,FONT Faculty/Staff
-Fontbonne University,24,None
 Fontbonne University,25,FONT Emeritus Faculty
 Fontbonne University,26,FONT Alumni
 Fontbonne University,27,FONT CSJ
 Fontbonne University,28,FONT Courtesy
-Fontbonne University,29,None
-Harris-Stowe State University,30,FONT Info Pass
+Fontbonne University,30,FONT Info Pass
 Harris-Stowe State University,40,HSSU Student
 Harris-Stowe State University,41,HSSU Employee
 Harris-Stowe State University,42,HSSU Courtesy
 Harris-Stowe State University,43,HSSU Talent Search
-Kenrick-Glennon Seminary,44,HSSU Upward Bound
+Harris-Stowe State University,44,HSSU Upward Bound
 Kenrick-Glennon Seminary,50,KGS Faculty/Staff
 Kenrick-Glennon Seminary,51,KGS Student
 Kenrick-Glennon Seminary,52,KGS Guest/Visitor
@@ -207,35 +174,21 @@ Lindenwood University,78,LIND LU ILL
 Lindenwood University,80,LIND LU Doctoral
 Logan University,90,LOGAN Adminstration
 Logan University,91,LOGAN Alumni
-Logan University,92,None
 Logan University,93,LOGAN Faculty
 Logan University,94,LOGAN Field Doctors
 Logan University,95,LOGAN Info Pass
 Logan University,96,LOGAN ILL
-Logan University,97,None
 Logan University,98,LOGAN Special Patron
 Logan University,99,LOGAN Staff
 Logan University,100,LOGAN Student
-Logan University,101,None
-Maryville University,110,None
 Maryville University,111,MRYV Adjunct Faculty
 Maryville University,112,MRYV Full Time Faculty
 Maryville University,113,MRYV Part Time Faculty
-Maryville University,114,None
 Maryville University,115,MRYV Staff
 Maryville University,116,MRYV Graduate Students
-Maryville University,117,None
-Maryville University,118,None
-Maryville University,119,None
 Maryville University,120,MRYV Undergraduate Students
 Maryville University,121,MRYV Friends
 Maryville University,122,MRYV Info Pass
-Maryville University,123,None
-Maryville University,124,None
-Maryville University,125,None
-Maryville University,126,None
-Maryville University,127,None
-Maryville University,128,None
 Maryville University,129,MRYV St. Louis Women's Chorale
 Missouri Baptist University,140,MBU Students
 Missouri Baptist University,141,MBU Faculty/Staff
@@ -300,6 +253,7 @@ Missouri Historical Society,106,MHS ILL
 Missouri Historical Society,107,MHS Institutional
 Missouri Historical Society,110,MHS Condie
 Missouri Historical Society,111,MHS Former Staff
+Missouri Historical Society,,MHS Inhouse
 Goldfarb School of Nursing,150,GSN Student
 Goldfarb School of Nursing,151,GSN Faculty
 Goldfarb School of Nursing,152,GSN Staff
@@ -320,22 +274,24 @@ Avila University,12,AU Undergraduate Sophmore
 Avila University,13,AU Undergraduate Junior
 Avila University,14,AU Undergraduate Senior
 Avila University,15,AU ILL
-Missouri Western State University,18,MWSU Dual Credit Instructor
+Avila University,,AU Business Graduate
+Avila University,,AU SIPGS Graduate
+Avila University,,AU SIPGS Undergraduate
 Missouri Western State University,19,MWSU Dual Credit
 Missouri Western State University,21,MWSU Faculty
 Missouri Western State University,22,MWSU Staff
-Missouri Western State University,23,MWSU Students
-Missouri Western State University,24,MWSU Retirees
 Missouri Western State University,26,MWSU Community
 Missouri Western State University,30,MWSU ILL
 Missouri Western State University,39,MWSU Graduate
 Missouri Western State University,40,MWSU Adjunct
+Missouri Western State University,,MWSU Dual Credit Instructor
+Missouri Western State University,,MWSU Retirees
+Missouri Western State University,,MWSU Students
 William Jewell College,41,WJC WJ Student
 William Jewell College,43,WJC WJ Faculty
 William Jewell College,45,WJC WJ Staff
 William Jewell College,47,WJC WJ Alumni
 William Jewell College,48,WJC WJ College West
-William Jewell College,49,None
 William Jewell College,50,WJC WJ Family
 William Jewell College,51,WJC WJ Community Cards
 William Jewell College,52,WJC WJ ILL
@@ -347,30 +303,19 @@ Metropolitan Community College,58,MCC Non-MOBIUS
 Midwestern Baptist Theological Seminary,61,MBTS Faculty
 Midwestern Baptist Theological Seminary,62,MBTS Adjunct Faculty
 Midwestern Baptist Theological Seminary,63,MBTS Administration
-Midwestern Baptist Theological Seminary,64,None
-Midwestern Baptist Theological Seminary,65,None
-Midwestern Baptist Theological Seminary,66,None
 Midwestern Baptist Theological Seminary,67,MBTS Student
 Midwestern Baptist Theological Seminary,68,MBTS Doctoral Student
 Midwestern Baptist Theological Seminary,69,MBTS Alumni
-Midwestern Baptist Theological Seminary,70,None
 Midwestern Baptist Theological Seminary,71,MBTS Masters Student
-Midwestern Baptist Theological Seminary,72,None
-Midwestern Baptist Theological Seminary,73,None
-Midwestern Baptist Theological Seminary,74,None
 Midwestern Baptist Theological Seminary,75,MBTS Guest
 Midwestern Baptist Theological Seminary,76,MBTS PH.D Student
-Midwestern Baptist Theological Seminary,77,None
 Rockhurst University,81,ROCK RU Student
 Rockhurst University,82,ROCK RU Employee
-Rockhurst University,83,None
-Rockhurst University,84,None
-Rockhurst University,85,ROCK Courtesy Card
+Rockhurst University,85,ROCK RU Guest
 Rockhurst University,86,ROCK RU ILL
 Rockhurst University,87,ROCK RU ACCP Faculty
 Rockhurst University,88,ROCK RU Alumni
 North Central Missouri College,90,NCMC Student
-North Central Missouri College,91,None
 North Central Missouri College,92,NCMC Visiting Student
 North Central Missouri College,93,NCMC Upward Bound Student
 North Central Missouri College,94,NCMC Community
@@ -381,24 +326,9 @@ North Central Missouri College,98,NCMC College Board
 North Central Missouri College,99,NCMC Emeritus
 North Central Missouri College,100,NCMC ILL
 Saint Paul School of Theology,101,SPST Student
-Saint Paul School of Theology,102,None
-Saint Paul School of Theology,103,None
-Saint Paul School of Theology,104,None
-Saint Paul School of Theology,105,None
 Saint Paul School of Theology,106,SPST Faculty/Staff
 Saint Paul School of Theology,107,SPST Adjunct
-Saint Paul School of Theology,108,None
 Saint Paul School of Theology,109,SPST Alumni
-Saint Paul School of Theology,110,None
-Saint Paul School of Theology,111,None
-Saint Paul School of Theology,112,None
-Saint Paul School of Theology,113,None
-Saint Paul School of Theology,114,None
-Saint Paul School of Theology,115,None
-Saint Paul School of Theology,116,None
-Saint Paul School of Theology,117,None
-Saint Paul School of Theology,118,None
-Saint Paul School of Theology,119,None
 Saint Paul School of Theology,120,SPST Courtesy Card
 Conception Abbey,121,CNCPT Students
 Conception Abbey,122,CNCPT Monastic Faculty
@@ -406,23 +336,19 @@ Conception Abbey,123,CNCPT Non-Monastic Faculty
 Conception Abbey,124,CNCPT Non-Faculty Monks
 Conception Abbey,125,CNCPT Staff
 Conception Abbey,126,CNCPT Clyde Sisters
-Conception Abbey,127,CNCPT Community
-Conception Abbey,128,CNCPT ILL
-Conception Abbey,129,CNCPT ILL MOBIUS Non-Returnable
-Conception Abbey,130,CNCPT ILL Non-MOBIUS Non-Returnable
+Conception Abbey,,CNCPT Community
+Conception Abbey,,CNCPT ILL
+Conception Abbey,,CNCPT ILL MOBIUS Non-Returnable
+Conception Abbey,,CNCPT ILL Non-MOBIUS Non-Returnable
 Kansas City Art Institute,131,KCAI STUDENT
 Kansas City Art Institute,132,KCAI FACULTY FULL-TIME
 Kansas City Art Institute,133,KCAI STAFF
 Kansas City Art Institute,134,KCAI GUEST
 Kansas City Art Institute,135,KCAI FACULTY-PART TIME
 Kansas City Art Institute,136,KCAI VISITING ARTIST
-Kansas City Art Institute,137,None
-Kansas City Art Institute,138,None
-Kansas City Art Institute,139,None
 Kansas City Art Institute,140,KCAI RETIRED
 Kansas City Art Institute,141,KCAI INTERLIBRARY LOAN
 Kansas City Art Institute,142,KCAI Student Restricted
-Kansas City Art Institute,143,None
 Kansas City Art Institute,144,KCAI Library Staff
 Park University,151,PARK Student
 Park University,152,PARK Faculty
@@ -453,15 +379,14 @@ Kansas City University,179,KCU Joplin Residents
 Northwest Missouri State University,180,NWMSU NW Undergraduate Student
 Northwest Missouri State University,181,NWMSU Graduate Student
 Northwest Missouri State University,182,NWMSU NW Staff
-Northwest Missouri State University,183,NWMSU NW Staff
+Northwest Missouri State University,183,NWMSU NWM Family
 Northwest Missouri State University,184,NWMSU Faculty
 Northwest Missouri State University,185,NWMSU Alumni
-Northwest Missouri State University,186,NWMSU NWM Family
+Northwest Missouri State University,186,NWMSU Family
 Northwest Missouri State University,187,NWMSU Maryville Public Library
 Northwest Missouri State University,188,NWMSU Special Borrower
 Northwest Missouri State University,189,NWMSU ILL
 Northwest Missouri State University,190,NWMSU Student
-Northwest Missouri State University,192,None
 Northwest Missouri State University,194,NWMSU Retiree
 Kansas City Kansas Community College,261,KCKCC Employee
 Kansas City Kansas Community College,262,KCKCC Student
@@ -495,35 +420,20 @@ Missouri Southern State University,54,MSSU Community
 Missouri Southern State University,55,MSSU ILL
 Missouri Southern State University,56,MSSU VIPS
 Missouri Southern State University,57,MSSU Area Students
-Missouri Southern State University,58,None
-Missouri Southern State University,59,None
-Missouri Southern State University,60,None
-Missouri Southern State University,61,None
 Missouri Southern State University,62,MSSU In-House
 Missouri Southern State University,63,MSSU Graduate Student
 Missouri Southern State University,64,MSSU Friend
 Ozarks Technical Community College,76,OTC Student
 Ozarks Technical Community College,77,OTC Faculty-Staff
-Ozarks Technical Community College,78,None
 Ozarks Technical Community College,79,OTC Community
-Ozarks Technical Community College,80,None
-Ozarks Technical Community College,81,None
 Southwest Baptist University,101,SBU Undergraduate
 Southwest Baptist University,102,SBU Graduate
 Southwest Baptist University,103,SBU Faculty Full Time
 Southwest Baptist University,104,SBU Faculty Retired
-Southwest Baptist University,105,None
-Southwest Baptist University,106,None
 Southwest Baptist University,107,SBU Staff
 Southwest Baptist University,108,SBU Guest Adult
-Southwest Baptist University,109,None
 Southwest Baptist University,110,SBU ILL
-Southwest Baptist University,111,None
-Southwest Baptist University,112,None
-Southwest Baptist University,113,None
 Southwest Baptist University,114,SBU Student Correspondence
-Southwest Baptist University,115,None
-Southwest Baptist University,116,None
 Cottey College,150,COTT Admin
 Cottey College,151,COTT Alumnae
 Cottey College,152,COTT Emeritus Faculty
@@ -544,41 +454,32 @@ Evangel University,171,EU Faculty & Administration
 Evangel University,172,EU Staff
 Evangel University,173,EU Adjunct Faculty
 Evangel University,174,EU Alumni
-Evangel University,175,None
 Evangel University,176,EU Doctoral Student
 Evangel University,177,EU ILL
 Evangel University,178,EU Guest
 Evangel University,179,EU Classroom Assignment
-Evangel University,180,None
 Evangel University,181,EU Undergraduate Student
 Evangel University,182,EU Reciprocal Borrower
 Evangel University,183,EU Global Faculty
 Evangel University,184,EU Temp
 Ozark Christian College,185,OCC Residential
-Ozark Christian College,186,None
 Ozark Christian College,187,OCC Faculty
 Ozark Christian College,188,OCC Staff
 Ozark Christian College,189,OCC Affiliates
 Ozark Christian College,190,OCC Graduate
-Ozark Christian College,191,None
-Ozark Christian College,192,None
 Ozark Christian College,193,OCC Online
 Ozark Christian College,194,OCC Alumni
+Ozark Christian College,,OCC Student
 Southwestern Baptist Theological Seminary,1,SWBTS Student
 Southwestern Baptist Theological Seminary,2,SWBTS Doctoral Student
-Southwestern Baptist Theological Seminary,3,None
 Southwestern Baptist Theological Seminary,4,SWBTS ATLA/ACL Reciprocal
 Southwestern Baptist Theological Seminary,5,SWBTS Texshare
 Southwestern Baptist Theological Seminary,6,SWBTS Guest/Family Member
-Southwestern Baptist Theological Seminary,7,None
 Southwestern Baptist Theological Seminary,8,SWBTS Alumni
 Southwestern Baptist Theological Seminary,9,SWBTS VIP
 Southwestern Baptist Theological Seminary,10,SWBTS Faculty
 Southwestern Baptist Theological Seminary,11,SWBTS Adjunct Family
 Southwestern Baptist Theological Seminary,12,SWBTS Staff
-Southwestern Baptist Theological Seminary,13,None
 Southwestern Baptist Theological Seminary,14,SWBTS Librarians
 Southwestern Baptist Theological Seminary,15,SWBTS ILL
-Southwestern Baptist Theological Seminary,16,None
-Southwestern Baptist Theological Seminary,17,None
 Southwestern Baptist Theological Seminary,18,SWBTS Emeritus

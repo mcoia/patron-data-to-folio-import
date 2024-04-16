@@ -128,6 +128,34 @@ create table if not exists patron_import.ptype_mapping
     foliogroup     text
 );
 
+create table if not exists patron_import.login
+(
+    id             SERIAL primary key,
+    institution_id int references patron_import.institution (id),
+    username       text,
+    password       text
+);
+
+create table if not exists patron_import.import_response
+(
+    id      SERIAL primary key,
+    job_id  int,
+    message text,
+    created int,
+    updated int,
+    failed  int,
+    total   int
+);
+
+create table if not exists patron_import.import_failed_users
+(
+    id                 SERIAL primary key,
+    import_response_id int references patron_import.import_response (id),
+    externalSystemId   text,
+    username           text,
+    errorMessage       text
+);
+
 CREATE INDEX IF NOT EXISTS patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree (unique_id);
 
 CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()

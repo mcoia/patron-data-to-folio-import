@@ -2,3 +2,4 @@
 _Deparsed_XSubs.pm
 *.log
 resources/notes/*
+resources/sql/folio-logins.sql

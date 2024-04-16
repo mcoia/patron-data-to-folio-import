@@ -375,7 +375,7 @@ sub test_getInstitutionsFoldersAndFilesHash
     print "\n==================================================================\n\n";
 }
 
-test_tenantCSV();
+# test_tenantCSV();
 sub test_tenantCSV
 {
 
@@ -383,5 +383,19 @@ sub test_tenantCSV
     $dao->createTableFromCSV("tenant_mapping", $file);
 
 }
+
+
+sub test_getFOLIOLoginCredentials
+{
+
+    my $institutionID = 1;
+    $dao->getFOLIOLoginCredentials($institutionID);
+
+
+
+
+
+}
+
 
 1;

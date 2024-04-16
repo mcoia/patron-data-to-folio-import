@@ -18,20 +18,20 @@ use Parser;
 use DAO;
 
 my $configFile;
-my $runType;
 my $help;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $dropSchema);
+our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $dropSchema, $import, $stage);
 
 GetOptions(
     "config=s"      => \$configFile,
-    "run:s"         => \$runType,
     "help:s"        => \$help,
     "drop_schema:s" => \$dropSchema,
+    "import:s"      => \$import,
+    "stage:s"       => \$stage
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
-$runType = "all" if (!defined $runType);
+checkOptions();
 getHelpMessage() if (defined $help);
 
 initConf();
@@ -44,18 +44,18 @@ sub main
     # Create our main objects
     $dao = DAO->new();
     $files = FileService->new();
-
     $dao->checkDatabaseStatus();
 
     startJob();
 
-    $parser = Parser->new()->stagePatronRecords() if ($runType eq "stage" || $runType eq "all");
+    $parser = Parser->new()->stagePatronRecords() if ($stage);
 
     $folio = FolioService->new({
         'username' => $ENV{folio_username},
         'password' => $ENV{folio_password},
         'cookies'  => 0,
-    })->login()->importPatrons() if ($runType eq "import" || $runType eq "all");
+    # })->login($conf->{primaryTenant})->importPatrons() if ($import);
+    })->importPatrons() if ($import);
 
     finishJob();
 
@@ -98,16 +98,13 @@ sub startJob
 {
 
     my $job = {
-        'job_type'   => $runType,
+        'job_type'   => "$stage$import",
         'start_time' => $dao->_getCurrentTimestamp,
         'stop_time'  => $dao->_getCurrentTimestamp,
     };
 
     $dao->_insertHashIntoTable("job", $job);
-
     $jobID = $dao->getLastJobID();
-
-    # $conf->{jobID} = $dao->getLastJobID();
 
 }
 
@@ -137,4 +134,19 @@ sub getHelpMessage
                                                       import:  This will load import records into folio.
         \n";
     exit;
+}
+
+sub checkOptions
+{
+
+    $stage = (defined($stage) ? 1 : 0);
+    $import = (defined($import) ? 1 : 0);
+
+    # if no args are passed in, then we do everything.
+    if (!$stage && !$import)
+    {
+        $stage = 1;
+        $import = 1;
+    }
+
 }

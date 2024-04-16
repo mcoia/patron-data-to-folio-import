@@ -109,6 +109,4 @@ set ready = false
 where externalsystemid is NULL
    or username is NULL;
 
-
-
 truncate patron_import.stage_patron;

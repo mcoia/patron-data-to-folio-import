@@ -55,24 +55,51 @@ sub importPatrons
 {
     my $self = shift;
 
-    while ($main::dao->getPatronImportPendingSize() > 0)
+    my $institutionIDArray = $self->getFolioImportInstitutionIDs();
+
+    # while ($main::dao->getPatronImportPendingSize() > 0)
+    for my $institutionID (@{$institutionIDArray})
     {
 
         # grab some patrons
-        my $patrons = $main::dao->getPatronBatch2Import();
+        my $patrons = $main::dao->getPatronBatch2Import($institutionID);
+
+        print Dumper($patrons);
+        exit;
 
         my $totalRecords = scalar(@{$patrons});
 
         # build the json template
         my $json = $self->buildPatronJSON($patrons);
-
         $json = $self->buildFinalJSON($json, $totalRecords);
 
-        $main::log->addLine($json);
+        print $json . "\n";
+
 
         # ship it!
-        my $response = $self->importIntoFolio($json);
-        print Dumper($response);
+        # my $response = $self->importIntoFolio($json);
+
+        #     {
+        #         "message" : "Users were imported successfully.",
+        #         "createdRecords" : 1,
+        #         "updatedRecords" : 1,
+        #         "failedRecords" : 1,
+        #         "failedUsers" : [ {
+        #         "username" : "jsmith_002",
+        #         "externalSystemId" : "002-ATSU",
+        #         "errorMessage" : "Failed to create new user with externalSystemId: 002-ATSU"
+        #     } ],
+        #     "totalRecords" : 3
+        # }'
+
+        # my $jsonResponse = decode_json($response->{_content});
+
+        # for my $fail (@{$jsonResponse->{failedUsers}})
+        # {
+        #     print Dumper($fail);
+        # }
+        #
+        # print Dumper($response);
         exit;
 
     }
@@ -81,11 +108,24 @@ sub importPatrons
 
 }
 
+=pod
+
+The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
+client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is
+converted into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the
+expiration of the original AT.
+
+found this in the folio docs
+The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
+ client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is converted
+ into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the expiration of the original AT.
+
+=cut
+
 sub login
 {
     my $self = shift;
     my $tenant = shift;
-
 
     # store our tenant for future use.
     $self->{tenant} = $tenant;
@@ -97,11 +137,8 @@ sub login
 
     my $user = encode_json({ username => $self->{username}, password => $self->{password} });
 
+    $self->{cookies} = HTTP::CookieJar::LWP->new();
     my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $user);
-
-
-    # print Dumper($response);
-    # mobius_atsu_patronload
 
     # Check our login for cookies, if we didn't get any we failed and need to exit
     if (!defined($response->{'_headers'}->{'set-cookie'}->[0]))
@@ -120,20 +157,6 @@ sub login
     return $self;
 }
 
-=pod
-
-The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
-client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is
-converted into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the
-expiration of the original AT.
-
-found this in the folio docs
-The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
- client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is converted
- into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the expiration of the original AT.
-
-=cut
-
 sub HTTPRequest
 {
     my $self = shift;
@@ -145,26 +168,11 @@ sub HTTPRequest
 
     my $request = HTTP::Request->new($type, "$main::conf->{baseURL}$url", $header, $payload);
 
-    my $jar = HTTP::CookieJar::LWP->new();
     my $userAgent = LWP::UserAgent->new(
-        'cookie_jar' => $jar
+        'cookie_jar' => $self->{cookies}
     );
 
-    print Dumper($request);
-    print "\n\n\n\n";
-    print "\n\n\n\n";
-    print "\n\n\n\n";
-    print "\n\n\n\n";
-
     my $response = $userAgent->request($request);
-
-    print Dumper($response);
-    print "\n\n\n\n";
-    print "\n\n\n\n";
-    print "\n\n\n\n";
-    print "\n\n\n\n";
-    print "\n\n\n\n";
-    print "\n\n\n\n";
 
     return $response;
 
@@ -206,34 +214,29 @@ sub buildPatronJSON
         # my $address = "";
         my $address = $self->buildAddressJSON($patron->{address});
 
-
-        # '_content' => 'Cannot deserialize value of type `java.util.Date` from String "07-25-24":
-        # not a valid representation (error: Failed to parse Date value \'07-25-24\': Cannot parse date "07-25-24":
-        # not compatible with any of standard forms ("yyyy-MM-dd\'T\'HH:mm:ss.SSSX", "yyyy-MM-dd\'T\'HH:mm:ss.SSS", "EEE,
-        # dd MMM yyyy HH:mm:ss zzz", "yyyy-MM-dd"))
-
-        my $template = "
+        #todo: I don't like this... fix it!
+        my $template = <<json;
             {
-              \"username\": \"$patron->{username}\",
-              \"externalSystemId\": \"$patron->{externalsystemid}\",
-              \"barcode\": \"$patron->{barcode}\",
-              \"active\": true,
-              \"patronGroup\": \"$patron->{patrongroup}\",
-              \"personal\": {
-                \"lastName\": \"$patron->{lastname}\",
-                \"firstName\": \"$patron->{firstname}\",
-                \"middleName\": \"$patron->{middlename}\",
-                \"preferredFirstName\": \"$patron->{preferredfirstname}\",
-                \"phone\": \"$patron->{phone}\",
-                \"mobilePhone\": \"$patron->{mobilephone}\",
-                \"dateOfBirth\": \"$patron->{dateofbirth}\",
-                \"addresses\": $address,
-                \"preferredContactTypeId\": \"$patron->{preferredcontacttypeid}\"
+              "username": "$patron->{username}",
+              "externalSystemId": "$patron->{externalsystemid}",
+              "barcode": "$patron->{barcode}",
+              "active": true,
+              "patronGroup": "$patron->{patrongroup}",
+              "personal": {
+                "lastName": "$patron->{lastname}",
+                "firstName": "$patron->{firstname}",
+                "middleName": "$patron->{middlename}",
+                "preferredFirstName": "$patron->{preferredfirstname}",
+                "phone": "$patron->{phone}",
+                "mobilePhone": "$patron->{mobilephone}",
+                "dateOfBirth": "$patron->{dateofbirth}",
+                "addresses": $address,
+                "preferredContactTypeId": "$patron->{preferredcontacttypeid}"
               },
-              \"enrollmentDate\": \"$patron->{enrollmentdate}\",
-              \"expirationDate\": \"$patron->{expirationdate}\"
-            },";
-
+              "enrollmentDate": "$patron->{enrollmentdate}",
+              "expirationDate": "$patron->{expirationdate}"
+            },;
+json
         $json .= $template;
 
     }
@@ -322,6 +325,19 @@ sub importIntoFolio
     my $response = $self->HTTPRequest("POST", $url, $header, $json);
 
     return $response;
+
+}
+
+sub getFolioImportInstitutionIDs
+{
+    my $self = shift;
+
+    # todo: actually write something here.
+    # query = "select ...."
+
+    my @ids = (4 .. 6);
+
+    return \@ids;
 
 }
 

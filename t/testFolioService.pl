@@ -58,27 +58,50 @@ test_1RecordLoad();
 sub test_1RecordLoad
 {
 
-    my $json = <<'json';
-
-{
-  "users": [
-    {
-      "username": "jhandey001",
-      "externalSystemId": "jhandey_externalId",
-      "patronGroup": "ATSU Student"
-    }
-  ],
-  "totalRecords": 1,
-  "deactivateMissingUsers": false,
-  "updateOnlyPresentFields": true
-}
-
-json
+    my $json = $files->readFileAsString("../resources/json/patron.json");
 
     my $tenant = "cs00000001_0053";
 
     # my $response = $folio->login($main::conf->{primaryTenant})->importIntoFolio($tenant, $json);
-    my $response = $folio->login($tenant)->importIntoFolio($tenant, $json);
+    my $response = $folio->login($main::conf->{primaryTenant})->importIntoFolio($tenant, $json);
+
     print Dumper($response);
+    print "\n" for(0..10);
+
+    my $jsonResponse = decode_json($response->{_content});
+    for my $fail (@{$jsonResponse->{failedUsers}})
+    {
+        print Dumper($fail);
+    }
+
+}
+
+# test_otherEndPoints();
+sub test_otherEndPoints
+{
+
+    # example: http://localhost:<port>/configurations/entries?query=scope.institution_id=aaa%20sortBy%20enabled
+
+    # /consortia
+    # /consortia/<consortia-uuid>/tenants
+    my $tenant = "cs00000001_0053";
+
+    # $folio->login($main::conf->{primaryTenant});
+    $folio->login($tenant);
+
+
+    # (username=="ab*" or personal.firstName=="ab*" or personal.lastName=="ab*") and active=="true" sortby personal.lastName personal.firstName barcode
+    # active=true sortBy username
+
+    my $endpoint = "users?query=username=mobius*";
+    # my $endpoint = "accounts?query=username=mobius*";
+
+    my $response = $folio->HTTPRequest("GET", "/" . $endpoint);
+
+    my $json = $response->{_content};
+
+    # print Dumper($response);
+    # print "\n" for(0..10);
+    print $response->{_content} . "\n";
 
 }

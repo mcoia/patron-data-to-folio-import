@@ -91,9 +91,9 @@ sub _loadMOBIUSPatronLoadsCSV
         $institution = $row->[1] if ($row->[1] ne '');
 
         my $files = {
-            'cluster'         => lc $cluster,
-            'name' => $institution,
-            'fileName'            => $row->[2],
+            'cluster'  => lc $cluster, # <== This is needed to build out the file paths.
+            'name'     => $institution,
+            'fileName' => $row->[2],
         };
 
         # we should skip all institutions that have a file of 'n/a' as they're not participating?
@@ -331,6 +331,8 @@ sub buildInstitutionTableData
             'esid'    => $esid,
             'tenant'  => $institution->{tenant}
         };
+
+        # I'm not happy with how I wrote this. It works, but it's just not that clean.
 
         # we store the institution name into an array and check for it's existence on each cycle
         unless (grep(/$institutionToSave->{name}/, @existingInstitutions))

@@ -76,13 +76,21 @@ sub checkDatabaseStatus
     # init our cache
     $self->_cacheTableColumns();
 
-    # Check our institution map
     my $institutionTableSize = $self->getTableSize("institution");
-    $main::files->buildInstitutionTableData() if ($institutionTableSize == 0);
+    if ($main::runType eq 'drop_schema' || $institutionTableSize == 0)
+    {
 
-    my $ptypeMappingTableSize = $self->getTableSize("ptype_mapping");
-    $main::files->buildPtypeMappingFromCSV() if ($ptypeMappingTableSize == 0);
+        # Insert the MOBIUS Primary tenant
+        $self->query("INSERT INTO patron_import.institution (enabled, name, tenant, module, esid)
+        VALUES (false, 'MOBIUS Office', 'cs00000001', '', '')");
 
+        # Check our institution map
+        $main::files->buildInstitutionTableData();
+
+        my $ptypeMappingTableSize = $self->getTableSize("ptype_mapping");
+        $main::files->buildPtypeMappingFromCSV();
+
+    }
 }
 
 sub _initDatabaseCache
@@ -689,25 +697,30 @@ sub getPatronImportPendingSize
 {
     my $self = shift;
 
-    return $self->query("select count(p.id) from patron_import.patron p where p.ready;")->[0]->[0];
+    return $self->query("select count(p.id) from patron_import.patron p where p.ready and not p.error;")->[0]->[0];
+
 }
 
 sub getPatronBatch2Import
 {
     my $self = shift;
+    my $institutionID = shift;
 
     my $chunkSize = $main::conf->{patronImportChunkSize};
 
     my $tableName = "patron";
     my $columns = $self->_getTableColumns($tableName);
 
-    my $query = "select $columns from $schema.$tableName p where p.ready and not p.error
-                    limit $chunkSize";
+    my $query = "select $columns from $schema.$tableName p where
+                     p.ready and
+                     not p.error and
+                     p.institution_id=$institutionID
+                     limit $chunkSize";
 
     my $patrons = $self->_convertQueryResultsToHash("patron", $self->query($query));
 
     # we now need the addresses. Ideally this would be 1 query. this convertQueryResults is busted on joins.
-    # DBI::pg has this tho! Live and learn. I would have totally used that to begin with.
+    # DBI::pg has this tho! *i think. Live and learn. I would have totally used that to begin with. todo: <= do that!
     $tableName = "address";
     $columns = $self->_getTableColumns("address");
 
@@ -732,10 +745,15 @@ sub getPatronBatch2Import
 
     }
 
-
     return $patrons;
 
 }
 
+sub getFOLIOLoginCredentials
+{
+    my $self = shift;
+
+
+}
 
 1;
