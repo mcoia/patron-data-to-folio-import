@@ -55,72 +55,84 @@ sub importPatrons
 {
     my $self = shift;
 
-    my $institutionIDArray = $self->getFolioImportInstitutionIDs();
+    my $institutions = $main::dao->getInstitutionsHashByEnabled();
 
-    # while ($main::dao->getPatronImportPendingSize() > 0)
-    for my $institutionID (@{$institutionIDArray})
+    for my $institution (@{$institutions})
     {
+        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0)
+        {
 
-        # grab some patrons
-        my $patrons = $main::dao->getPatronBatch2Import($institutionID);
+            # grab some patrons
+            my $patrons = $main::dao->getPatronBatch2Import($institution->{id});
 
-        print Dumper($patrons);
-        exit;
+            my $totalRecords = scalar(@{$patrons});
 
-        my $totalRecords = scalar(@{$patrons});
+            my $json = "";
+            for my $patron (@{$patrons})
+            {$json .= $self->buildPatronJSON($patron);}
+            chop($json);
+            chop($json);
 
-        # build the json template
-        my $json = $self->buildPatronJSON($patrons);
-        $json = $self->buildFinalJSON($json, $totalRecords);
+            $json = $self->buildFinalJSON($json, $totalRecords);
 
-        print $json . "\n";
+            # We need the tenant for this institution!
+            my $tenant = $institution->{tenant};
 
+            # ship it!
+            my $response = $self->importIntoFolio($tenant, $json);
+            print Dumper($response);
 
-        # ship it!
-        # my $response = $self->importIntoFolio($json);
+            # example json response
+            # "message" : "Users were imported successfully.",
+            # "createdRecords" : 3,
+            # "updatedRecords" : 0,
+            # "failedRecords" : 0,
+            # "failedUsers" : [],
+            # "totalRecords" : 3
 
-        #     {
-        #         "message" : "Users were imported successfully.",
-        #         "createdRecords" : 1,
-        #         "updatedRecords" : 1,
-        #         "failedRecords" : 1,
-        #         "failedUsers" : [ {
-        #         "username" : "jsmith_002",
-        #         "externalSystemId" : "002-ATSU",
-        #         "errorMessage" : "Failed to create new user with externalSystemId: 002-ATSU"
-        #     } ],
-        #     "totalRecords" : 3
-        # }'
+            my $responseHash = decode_json($response->{_content});
+            $main::dao->_insertHashIntoTable("import_response", {
+                'institution_id' => $institution->{id},
+                'job_id'         => $main::jobID,
+                'message'        => $responseHash->{message},
+                'created'        => $responseHash->{createdRecords},
+                'updated'        => $responseHash->{updatedRecords},
+                'failed'         => $responseHash->{failedRecords},
+                'total'          => $responseHash->{totalRecords},
+            });
 
-        # my $jsonResponse = decode_json($response->{_content});
+            my $import_response_id = $main::dao->getLastImportResponseID();
 
-        # for my $fail (@{$jsonResponse->{failedUsers}})
-        # {
-        #     print Dumper($fail);
-        # }
-        #
-        # print Dumper($response);
-        exit;
+            for my $failedUser (@{$responseHash->{failedUsers}})
+            {
 
+                # example failed user response
+                # "username" : "V00261368JC",
+                # "externalSystemId" : "V00261368",
+                # "errorMessage" : "Patron group does not exist in the system: [JC StudentXXX]"
+
+                $main::dao->_insertHashIntoTable("import_failed_users", {
+                    'import_response_id' => $import_response_id,
+                    'externalSystemId'   => $failedUser->{externalSystemId},
+                    'username'           => $failedUser->{username},
+                    'errorMessage'       => $failedUser->{errorMessage},
+                });
+
+            }
+
+            # Save the failed json object for inspection.
+            $main::dao->_insertHashIntoTable("import_failed_users_json", {
+                'import_response_id' => $import_response_id,
+                'json'               => $json,
+            }) if ($responseHash->{failedRecords} > 0);
+
+            $main::dao->disablePatrons($patrons);
+
+        }
     }
-
     return $self;
 
 }
-
-=pod
-
-The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
-client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is
-converted into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the
-expiration of the original AT.
-
-found this in the folio docs
-The default expiration of an AT is 10 minutes. If client code needs to use this token after this 10 minute period is up,
- client code should request a new AT by logging in again. Note that once the AT reaches the FOLIO system the AT is converted
- into a non-expiring token. So a long-running operation that takes more than 10 minutes won't be subject to the expiration of the original AT.
-
-=cut
 
 sub login
 {
@@ -181,47 +193,28 @@ sub HTTPRequest
 sub buildPatronJSON
 {
     my $self = shift;
-    my $patrons = shift;
+    my $patron = shift;
 
     my $json = "";
-    for my $patron (@{$patrons})
-    {
 
-        # remove unwanted columns
-        delete($patron->{id});
-        delete($patron->{institution_id});
-        delete($patron->{file_id});
-        delete($patron->{job_id});
-        delete($patron->{fingerprint});
-        delete($patron->{ready});
-        delete($patron->{error});
-        delete($patron->{errormessage});
+    # # Use of uninitialized value in concatenation (.) or string at ...
+    # # fix these pesky undef values.
+    keys %$patron;
+    while (my ($k, $v) = each %$patron)
+    {$patron->{$k} = "" if (!defined($v));}
 
-        my $addressIndex = 0;
-        for ($patron->{address})
-        {
-            delete($patron->{address}->[$addressIndex]->{id});
-            delete($patron->{address}->[$addressIndex]->{patron_id});
-            $addressIndex++;
-        }
+    # my $address = "";
+    my $address = $self->buildAddressJSON($patron->{address});
 
-        # # Use of uninitialized value in concatenation (.) or string at ...
-        # # fix these pesky undef values.
-        keys %$patron;
-        while (my ($k, $v) = each %$patron)
-        {$patron->{$k} = "" if (!defined($v));}
-
-        # my $address = "";
-        my $address = $self->buildAddressJSON($patron->{address});
-
-        #todo: I don't like this... fix it!
-        my $template = <<json;
+    #todo: I don't like this... fix it!
+    my $template = <<json;
             {
               "username": "$patron->{username}",
               "externalSystemId": "$patron->{externalsystemid}",
               "barcode": "$patron->{barcode}",
               "active": true,
               "patronGroup": "$patron->{patrongroup}",
+              "type": "patron",
               "personal": {
                 "lastName": "$patron->{lastname}",
                 "firstName": "$patron->{firstname}",
@@ -235,14 +228,9 @@ sub buildPatronJSON
               },
               "enrollmentDate": "$patron->{enrollmentdate}",
               "expirationDate": "$patron->{expirationdate}"
-            },;
+            },
 json
-        $json .= $template;
-
-    }
-
-    # remove the last ,
-    chop($json);
+    $json .= $template;
 
     return $json;
 
@@ -296,14 +284,16 @@ sub buildFinalJSON
     my $totalRecords = shift;
     my $sourceType = shift || "";
 
-    my $finalJSON = "
+    my $finalJSON = <<json;
         {
-          \"users\": [$json],
-          \"totalRecords\": $totalRecords,
-          \"deactivateMissingUsers\": $main::conf->{deactivateMissingUsers},
-          \"updateOnlyPresentFields\": $main::conf->{updateOnlyPresentFields},
-          \"sourceType\": \"$sourceType\"
-        }";
+          "users": [$json],
+          "totalRecords": $totalRecords,
+          "deactivateMissingUsers": $main::conf->{deactivateMissingUsers},
+          "updateOnlyPresentFields": $main::conf->{updateOnlyPresentFields},
+          "sourceType": "$sourceType"
+        }
+json
+
     return $finalJSON;
 
 }
@@ -325,19 +315,6 @@ sub importIntoFolio
     my $response = $self->HTTPRequest("POST", $url, $header, $json);
 
     return $response;
-
-}
-
-sub getFolioImportInstitutionIDs
-{
-    my $self = shift;
-
-    # todo: actually write something here.
-    # query = "select ...."
-
-    my @ids = (4 .. 6);
-
-    return \@ids;
 
 }
 

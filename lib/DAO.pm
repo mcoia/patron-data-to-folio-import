@@ -172,16 +172,6 @@ sub _cacheTableColumns
 
 }
 
-sub getMaxStagePatronID
-{
-    my $self = shift;
-
-    my $query = "select max(id) from patron_import.stage_patron p;";
-
-    return $self->query($query)->[0]->[0] + 0;
-
-}
-
 sub getStagedPatrons
 {
     my $self = shift;
@@ -202,55 +192,6 @@ sub getStagedPatrons
     my $patrons = $self->_convertQueryResultsToHash($tableName, $self->query($query));
 
     return $patrons;
-
-}
-
-sub insertPatron
-{
-    my $self = shift;
-    my $patron = shift;
-    my $tableName = "patron";
-
-    my @data = (
-        $patron->{id},
-        $patron->{institution_id},
-        $patron->{esid},
-        $patron->{fingerprint},
-        $patron->{loadfolio},
-        $patron->{username},
-        $patron->{barcode},
-        $patron->{active},
-        $patron->{patrongroup},
-        $patron->{lastname},
-        $patron->{firstname},
-        $patron->{middlename},
-        $patron->{preferredfirstname},
-        $patron->{phone},
-        $patron->{mobilephone},
-        $patron->{dateofbirth},
-        $patron->{preferredcontacttypeid},
-        $patron->{enrollmentdate},
-        $patron->{expirationdate},
-    );
-
-    $self->_insertArrayIntoTable($tableName, \@data);
-
-}
-
-sub updatePatron
-{
-
-    my $query = "update patron p2
-set
-column1 = staging.column1
-....
-updated = true
-from
-staging_patron staging
-join patron p on(p.institution=staging.institution and p.externalid=staging.externalid and p.fingerprint!=staging.fingerprint)
-where
-p.id=p2.id";
-
 
 }
 
@@ -418,13 +359,6 @@ sub _getTableColumns
 
 }
 
-sub getInstitutionHashByInstitutionID
-{
-    my $self = shift;
-    my $id = shift;
-
-}
-
 sub getInstitutionMapHashByName
 {
     my $self = shift;
@@ -447,33 +381,32 @@ sub getInstitutionsFoldersAndFilesHash
     my @institutions = ();
     my $columns = $self->_getTableColumns("institution");
 
-    for my $i (@{$self->_convertQueryResultsToHash("institution", $self->query("select $columns from patron_import.institution i order by i.id asc"))})
+    for my $institution (@{$self->_convertQueryResultsToHash("institution", $self->query("select $columns from patron_import.institution i order by i.id asc"))})
     {
 
         # get the folders
         for my $folder (@{$self->_convertQueryResultsToHash("folder", $self->query("select f.id,f.path from patron_import.folder f
                                         join patron_import.institution_folder_map fm on(fm.folder_id=f.id)
-                                        where fm.institution_id = $i->{'id'}"))})
+                                        where fm.institution_id = $institution->{'id'}"))})
         {
 
             # grab the files associated with this folder & institution
-            # my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.folder_id = $folder->{'id'}"))};
-            my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $i->{'id'}"))};
-            my $institution = {
-                'id'      => $i->{'id'},
-                'enabled' => $i->{'enabled'},
-                'name'    => $i->{'name'},
-                'module'  => $i->{'module'},
-                'esid'    => $i->{'esid'},
+            my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $institution->{'id'}"))};
+            my $institutionHash = {
+                'id'      => $institution->{'id'},
+                'enabled' => $institution->{'enabled'},
+                'name'    => $institution->{'name'},
+                'tenant'  => $institution->{tenant},
+                'module'  => $institution->{'module'},
+                'esid'    => $institution->{'esid'},
                 'folder'  => {
                     'id'    => $folder->{'id'},
                     'path'  => $folder->{'path'},
                     'files' => \@files
                 }
-
             };
 
-            push(@institutions, $institution);
+            push(@institutions, $institutionHash);
 
         }
 
@@ -481,7 +414,7 @@ sub getInstitutionsFoldersAndFilesHash
 
     $self->{'cache'}->{'institutions'} = \@institutions;
 
-    return \@institutions;
+    return $self->{'cache'}->{'institutions'};
 
 }
 
@@ -557,6 +490,7 @@ sub dropTable
 
 }
 
+# todo: test this! createTableFromHash()
 sub createTableFromHash
 {
 
@@ -564,21 +498,21 @@ sub createTableFromHash
     my $tableName = shift;
     my $hash = shift;
 
-    if ($self->isTableExists($tableName))
-    { # do something...
-    }
+    return $self if ($self->isTableExists($tableName));
 
     # build out the database columns. default to text
     my $columns = "\nid  SERIAL primary key,\n";
     for my $key (keys %{$hash})
-    {$columns = $columns . "$key text,\n";}
-    chop($columns); # \n
-    chop($columns); # ,
+    # {$columns = $columns . "$key text,\n";}
+    {$columns = $columns . "'$key' text,\n";} # I'm pretty sure $key needs to be '$key'
+    chop($columns);                           # \n
+    chop($columns);                           # ,
 
     my $query = "create table if not exists $schema.$tableName ($columns);";
 
     $self->query($query);
 
+    return $self;
 }
 
 sub createTableFromCSV
@@ -665,39 +599,13 @@ sub getFiles
 
 }
 
-# Parser: 30
-# FileService: 323
-sub getAllInstitutionIdAndName
-{
-    my $self = shift;
-
-    # I want an array of hashes, but my convert to hash code doesn't work with joins. I'm sorry Blake. Code hard brah!
-    # I'll try and come back to this to clean it up.
-
-    # return $self->{'cache'}->{'institutions'} if (defined($self->{'cache'}->{'institutions'}));
-
-    my $query = "select i.id, i.name
-                    from patron_import.institution i
-                    order by i.id asc";
-
-    return $self->_convertQueryResultsToHash("institution", $self->query($query));
-
-}
-
-sub truncateStagePatronTable
-{
-    my $self = shift;
-    $self->{db}->query("truncate $schema.stage_patron");
-
-    return $self;
-}
-
 # get the total number of patrons left to load
 sub getPatronImportPendingSize
 {
     my $self = shift;
+    my $institution_id = shift;
 
-    return $self->query("select count(p.id) from patron_import.patron p where p.ready and not p.error;")->[0]->[0];
+    return $self->query("select count(p.id) from patron_import.patron p where p.institution_id=$institution_id and p.ready and not p.error;")->[0]->[0];
 
 }
 
@@ -733,6 +641,10 @@ sub getPatronBatch2Import
 
         $patron->{address} = $address;
 
+        # Can I not do this? I should be grabbing the specified columns.
+        # This _convertQueryResultsToHash is the freaking problem here. It want's all the column names.
+        # I really need to fix that. DBD::pg
+
         # remove unwanted columns.
         delete($patron->{id});
         delete($patron->{institution_id});
@@ -742,6 +654,16 @@ sub getPatronBatch2Import
         delete($patron->{ready});
         delete($patron->{error});
         delete($patron->{errormessage});
+
+        # remove unwanted address fields
+
+        my $addressIndex = 0;
+        for ($patron->{address})
+        {
+            delete($patron->{address}->[$addressIndex]->{id});
+            delete($patron->{address}->[$addressIndex]->{patron_id});
+            $addressIndex++;
+        }
 
     }
 
@@ -753,6 +675,65 @@ sub getFOLIOLoginCredentials
 {
     my $self = shift;
 
+
+}
+
+sub getInstitutionsHashByEnabled
+{
+    my $self = shift;
+    my $tableName = "institution";
+
+    my $columns = $self->_getTableColumns($tableName);
+
+    return
+        $self->_convertQueryResultsToHash(
+            $tableName, $self->query("select $columns from $schema.$tableName t where t.enabled")
+        );
+
+}
+
+sub enablePatrons
+{
+    my $self = shift;
+    my $patrons = shift;
+    $self->setPatronsReadyStatus("true", $patrons);
+
+    return $self;
+}
+
+sub disablePatrons
+{
+    my $self = shift;
+    my $patrons = shift;
+    $self->setPatronsReadyStatus("false", $patrons);
+
+    return $self;
+}
+
+sub setPatronsReadyStatus
+{
+    my $self = shift;
+    my $status = shift;
+    my $patrons = shift;
+
+    my @externalSystemIDs = map {$_->{externalsystemid}} @{$patrons};
+    for my $esid (@externalSystemIDs)
+    {$esid = "'$esid',";}
+
+    my $externalSystemIDs = "@externalSystemIDs";
+    $externalSystemIDs =~ s/,$//g;
+    $externalSystemIDs =~ s/\s//g;
+
+    my $query = "update patron_import.patron set ready=$status where externalsystemid in($externalSystemIDs)";
+    $self->{db}->update($query);
+
+}
+
+sub getLastImportResponseID
+{
+    my $self = shift;
+
+    return $self->query("select id from patron_import.import_response r order by r.id desc;")->[0]->[0];
 
 }
 

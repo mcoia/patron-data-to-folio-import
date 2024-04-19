@@ -87,8 +87,7 @@ create table if not exists patron_import.patron
     job_id                 int references patron_import.job (id),
     fingerprint            text,
     ready                  bool not null default true,
-    error                  bool not null default false,
-    errormessage           text,
+    -- json specific below
     username               text,
     externalsystemid       text,
     barcode                text,
@@ -138,13 +137,14 @@ create table if not exists patron_import.login
 
 create table if not exists patron_import.import_response
 (
-    id      SERIAL primary key,
-    job_id  int,
-    message text,
-    created int,
-    updated int,
-    failed  int,
-    total   int
+    id             SERIAL primary key,
+    institution_id int references patron_import.institution (id),
+    job_id         int references patron_import.job (id),
+    message        text,
+    created        int,
+    updated        int,
+    failed         int,
+    total          int
 );
 
 create table if not exists patron_import.import_failed_users
@@ -156,7 +156,19 @@ create table if not exists patron_import.import_failed_users
     errorMessage       text
 );
 
+create table if not exists patron_import.import_failed_users_json
+(
+    id                 SERIAL primary key,
+    import_response_id int references patron_import.import_response (id),
+    json               jsonb
+);
+
+
+CREATE INDEX IF NOT EXISTS patron_import_institution_id_idx ON patron_import.institution USING btree (id);
 CREATE INDEX IF NOT EXISTS patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree (unique_id);
+CREATE INDEX IF NOT EXISTS patron_import_patron_fingerprint_idx ON patron_import.patron USING btree (fingerprint);
+CREATE INDEX IF NOT EXISTS patron_import_patron_external_system_id_idx ON patron_import.patron USING btree (externalsystemid);
+CREATE INDEX IF NOT EXISTS patron_import_patron_username_idx ON patron_import.patron USING btree (username);
 
 CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()
     RETURNS trigger AS
@@ -241,3 +253,5 @@ BEGIN
     RETURN BTRIM(ptext);
 END;
 $$;
+
+

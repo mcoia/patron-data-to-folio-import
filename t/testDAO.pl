@@ -384,18 +384,49 @@ sub test_tenantCSV
 
 }
 
-
 sub test_getFOLIOLoginCredentials
 {
 
     my $institutionID = 1;
     $dao->getFOLIOLoginCredentials($institutionID);
 
+}
 
+# test_getInstitutionsHashByEnabled();
+sub test_getInstitutionsHashByEnabled
+{
 
-
+    print Dumper(
+        $dao->getInstitutionsHashByEnabled()
+    );
 
 }
 
+test_grepsAndPatrons();
+sub test_grepsAndPatrons
+{
+    ## Mock up. we need patrons
+    my $tableName = "patron";
+    my $columns = $main::dao->_getTableColumns($tableName);
+    my $patrons = $main::dao->_convertQueryResultsToHash($tableName, $main::dao->query("select $columns from patron_import.patron limit 10"));
+    ## Mock up. we need patrons
+
+    my @externalSystemIDs = map {$_->{externalsystemid}} @{$patrons};
+    for my $esid (@externalSystemIDs)
+    {$esid = "'$esid',";}
+
+    my $externalSystemIDs = "@externalSystemIDs";
+    $externalSystemIDs =~ s/,$//g;
+    $externalSystemIDs =~ s/\s//g;
+
+    print "$externalSystemIDs\n";
+
+    my $query = "select $columns from patron_import.patron p where p.externalsystemid in($externalSystemIDs)";
+
+    print Dumper(
+        $main::dao->query($query)
+    );
+
+}
 
 1;

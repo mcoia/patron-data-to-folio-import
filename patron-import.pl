@@ -51,11 +51,10 @@ sub main
     $parser = Parser->new()->stagePatronRecords() if ($stage);
 
     $folio = FolioService->new({
-        'username' => $ENV{folio_username},
-        'password' => $ENV{folio_password},
+        'username' => $ENV{folio_username}, # <== I need to change this to per/tenant.
+        'password' => $ENV{folio_password}, # <== I need to change this to per/tenant.
         'cookies'  => 0,
-    # })->login($conf->{primaryTenant})->importPatrons() if ($import);
-    })->importPatrons() if ($import);
+    })->login($conf->{primaryTenant})->importPatrons() if ($import);
 
     finishJob();
 

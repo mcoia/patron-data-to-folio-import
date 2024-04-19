@@ -58,21 +58,14 @@ test_1RecordLoad();
 sub test_1RecordLoad
 {
 
-    my $json = $files->readFileAsString("../resources/json/patron.json");
+    my $tenant = $main::conf->{primaryTenant};
 
-    my $tenant = "cs00000001_0053";
+    my $json = $files->readFileAsString("../output.json");
+    my $response = $folio->login($main::conf->{primaryTenant});
 
-    # my $response = $folio->login($main::conf->{primaryTenant})->importIntoFolio($tenant, $json);
-    my $response = $folio->login($main::conf->{primaryTenant})->importIntoFolio($tenant, $json);
+    $response = $folio->importIntoFolio($tenant, $json);
 
     print Dumper($response);
-    print "\n" for(0..10);
-
-    my $jsonResponse = decode_json($response->{_content});
-    for my $fail (@{$jsonResponse->{failedUsers}})
-    {
-        print Dumper($fail);
-    }
 
 }
 
