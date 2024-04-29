@@ -163,7 +163,6 @@ create table if not exists patron_import.import_failed_users_json
     json               jsonb
 );
 
-
 CREATE INDEX IF NOT EXISTS patron_import_institution_id_idx ON patron_import.institution USING btree (id);
 CREATE INDEX IF NOT EXISTS patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree (unique_id);
 CREATE INDEX IF NOT EXISTS patron_import_patron_fingerprint_idx ON patron_import.patron USING btree (fingerprint);

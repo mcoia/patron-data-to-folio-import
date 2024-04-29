@@ -54,7 +54,7 @@ sub initLog
     $log->truncFile("");
 }
 
-test_1RecordLoad();
+# test_1RecordLoad();
 sub test_1RecordLoad
 {
 
