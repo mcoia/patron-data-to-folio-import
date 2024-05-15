@@ -402,7 +402,7 @@ sub test_getInstitutionsHashByEnabled
 
 }
 
-test_grepsAndPatrons();
+# test_grepsAndPatrons();
 sub test_grepsAndPatrons
 {
     ## Mock up. we need patrons
@@ -428,5 +428,12 @@ sub test_grepsAndPatrons
     );
 
 }
+
+# test_populateFolioLoginTable();
+sub test_populateFolioLoginTable
+{
+    $dao->populateFolioLoginTable();
+}
+
 
 1;

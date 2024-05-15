@@ -36,8 +36,18 @@ sub readFileToArray
     my $lineCount = 0;
     while (my $line = <$fileHandle>)
     {
+
+        # Maybe we should invert this logic?
+        # Instead of specifying what chars we don't want, maybe we specify chars we do want and remove the rest?
+
+        # MS Word "Smart Quote" character
+        $line =~ s/\x{201C}/"/g;
+        $line =~ s/\\//g;
         $line =~ s/\n//g;
         $line =~ s/\r//g;
+        $line =~ s/\"//g;
+        $line =~ s/[\x00-\x1F\x7F-\x9F]//g;
+
         push(@data, $line) if ($line ne '');
         $lineCount++;
     }
@@ -71,7 +81,7 @@ sub _loadMOBIUSPatronLoadsCSV
 {
     # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
     my $self = shift;
-    my $csv = $self->_loadCSVFileAsArray($main::conf->{clusterFilesMappingSheetPath});
+    my $csv = $self->_loadCSVFileAsArray($main::conf->{projectPath} . "/" . $main::conf->{clusterFilesMappingSheetPath});
     my @clusterFiles = ();
     my $cluster = '';
     my $institution = '';
@@ -182,7 +192,8 @@ sub patronFileDiscovery
             for my $path (@paths)
             {
 
-                unless (-d $path) # we're getting directories matching. *I don't like this. todo: shouldn't this be if(-f $path)
+                # unless (-d $path) # we're getting directories matching. *I don't like this. todo: shouldn't this be if(-f $path)
+                if (-f $path)
                 {
 
                     print "File Found: [$institution->{name}]:[$path]\n";
@@ -200,20 +211,28 @@ sub patronFileDiscovery
                     # we're going to skip files older than 3 months.
                     my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
 
+                    # if $path contains the word test skip
+                    if (lc $path =~ /test/)
+                    {
+                        print "File contains the word test. Skipping.\n";
+                        $main::log->addLine("File contains the word test. Skipping.");
+                        next;
+                    }
+
+                    # check our file dates for old files.
                     if (time > $pathHash->{lastModified} + $maxPatronFileAge)
                     {
                         print "File is older than 3 months. Skipping.\n";
                         $main::log->addLine("File is older than 3 months. Skipping.");
-
-                        # todo: I'm giving this some more thought
-                        # my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/); # There was something about this KCAI file that was locking up the zip call.
-                        # I was getting some other wackiness with that file in other areas of the program too.
-
-                        # unlink $path; # <=== so scary! I don't like it.
-                        # what I would rather do is have a cleanUP() function
-
                         next;
                     }
+
+                    # todo: I'm giving this some more thought
+                    # my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/); # There was something about this KCAI file that was locking up the zip call.
+                    # I was getting some other wackiness with that file in other areas of the program too.
+                    # unlink $path; # <=== so scary! I don't like it.
+                    # what I would rather do is have a cleanUP() function
+
                     $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
 
                 }
@@ -294,7 +313,7 @@ sub _buildFolderPaths
     my @newFileHashArray = ();
     for my $file (@{$fileHashArray})
     {
-        $file->{folder_path} = "$main::conf->{rootPath}/$file->{cluster}/home/$file->{cluster}/incoming";
+        $file->{folder_path} = "$main::conf->{dropBoxPath}/$file->{cluster}/home/$file->{cluster}/incoming";
         push(@newFileHashArray, $file);
     }
 
@@ -385,7 +404,7 @@ sub buildPtypeMappingFromCSV
 {
     my $self = shift;
 
-    my $mappingSheet = $self->_loadCSVFileAsArray($main::conf->{patronTypeMappingSheetPath});
+    my $mappingSheet = $self->_loadCSVFileAsArray($main::conf->{projectPath} . "/" . $main::conf->{patronTypeMappingSheetPath});
     my $institutions = $main::dao->getInstitutionsFoldersAndFilesHash();
 
     for my $row (@{$mappingSheet})
@@ -445,9 +464,19 @@ sub _loadSSO_ESID_MappingCSV
     my $tableName = "sso_esid_mapping";
 
     # load our sso_esid_mapping sheet.
-    # https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZaj7M/edit#gid=154768990
-    $main::dao->dropTable($tableName);
-    $main::dao->createTableFromCSV("sso_esid_mapping", $main::conf->{sso_esid_mapping}, 4);
+    $main::dao->createTableFromCSV("sso_esid_mapping", $main::conf->{projectPath} . "/" . $main::conf->{sso_esid_mapping});
+
+    # I don't want to touch the csv and I don't want to keep updating it as I test. So I'll just sql it.
+    my $updates = "
+    update patron_import.sso_esid_mapping set c1='Conception Abbey and Seminary' where c1='Conception Abbey and Seminary College';
+    update patron_import.sso_esid_mapping set c1='Concordia' where c1='Concordia Seminary';
+    update patron_import.sso_esid_mapping set c1='Goldfarb School of Nursing' where c1='Goldfarb School of Nursing at Barnes-Jewish College';
+    update patron_import.sso_esid_mapping set c1='Kenrick-Glennon Seminary' where c1='Kenrick-Glennon Theological Seminary';
+    update patron_import.sso_esid_mapping set c1='Missouri Historical Society' where c1='Missouri History Museum';
+    update patron_import.sso_esid_mapping set c1='University of Health Sciences and Pharmacy' where c1='University of Health Sciences and Pharmacy in St. Louis';
+    update patron_import.sso_esid_mapping set c1='Webster University/Eden Seminary' where c1='Webster University';";
+
+    $main::dao->query($updates);
 
 }
 

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+        html, body {
+            font-family: sans-serif;
+            font-size: large;
+            color: #666666;
+            margin: 10px;
+        }
+
+        hr {
+            margin-top: 4px;
+            border: 0;
+            border-top: 2px solid #666666;
+            opacity: .5;
+        }
+
+        h2 {
+            margin-bottom: 0px;
+            padding-bottom: 0px;
+            color: #666666;
+            text-align: left;
+        }
+
+        h2 span {
+        }
+
+        h2 img {
+            max-width: 200px;
+        }
+
+        h3 {
+            margin-top: 25px;
+            margin-bottom: 5px;
+        }
+
+        h3 span {
+            float: right;
+        }
+
+        .bold {
+            font-weight: bold;
+            color: #002856;
+        }
+
+        #metrics {
+            font-family: monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 1px solid #ddd;
+
+            color: #002856;
+        }
+
+        table thead {
+            background-color: #f9f9f9;
+            border: 1px solid #0099a8;
+
+            font-size: larger;
+            font-family: sans-serif;
+        }
+
+        table th, table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #0099a8 !important;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        table tr td {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .spacer {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        #message h3 {
+            text-align: center;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+<div id="header">
+    <h2>
+        <img src="https://mobiusconsortium.org/sites/default/files/site/MOBIUS-LINKING-HEADER-LOGO.png"
+             alt="MOBIUS">
+        <div></div>
+        <span>$self->{institution}->{name}</span>
+    </h2>
+    <hr/>
+</div>
+<div id="message"><h3>$self->{message}</h3></div>
+<div id="metrics">
+    <h3>Patron Load Report <span>Date: $self->{reportTime}</span></h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Metric</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Created</td>
+            <td>$self->{response}->{created}</td>
+        </tr>
+        <tr>
+            <td>Updated</td>
+            <td>$self->{response}->{updated}</td>
+        </tr>
+        <tr>
+            <td>Failed</td>
+            <td>$self->{response}->{failed}</td>
+        </tr>
+        <tr>
+            <td class="bold">Total Records</td>
+            <td class="bold">$self->{response}->{total}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="spacer"></div>
+
+    <h3>Failed Users</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Error Message</th>
+        </tr>
+        </thead>
+        <tbody>
+        $self->{failedHTML}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

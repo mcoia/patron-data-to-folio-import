@@ -49,12 +49,7 @@ sub main
     startJob();
 
     $parser = Parser->new()->stagePatronRecords() if ($stage);
-
-    $folio = FolioService->new({
-        'username' => $ENV{folio_username}, # <== I need to change this to per/tenant.
-        'password' => $ENV{folio_password}, # <== I need to change this to per/tenant.
-        'cookies'  => 0,
-    })->login($conf->{primaryTenant})->importPatrons() if ($import);
+    $folio = FolioService->new()->importPatrons() if ($import);
 
     finishJob();
 
@@ -95,6 +90,11 @@ sub initLogger
 
 sub startJob
 {
+
+    my $jobType = "";
+    $jobType .= "drop_schema" if ($dropSchema);
+    $jobType .= "_stage" if ($stage);
+    $jobType .= "_import" if ($import);
 
     my $job = {
         'job_type'   => "$stage$import",
@@ -138,6 +138,9 @@ sub getHelpMessage
 sub checkOptions
 {
 
+    # It's true/false 1 or 0 booleans. Binary
+    # First is stage
+    # This is kind of dumb. There's only 2 types so I guess it's not that bad.
     $stage = (defined($stage) ? 1 : 0);
     $import = (defined($import) ? 1 : 0);
 

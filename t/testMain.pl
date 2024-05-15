@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings FATAL => 'all';
+use Try::Tiny;
 use lib qw(../lib);
 use Data::Dumper;
 
@@ -243,27 +244,7 @@ sub extract_patron_files
 
 }
 
-# testTings();
-sub testTings
-{
-   print "getPatronImportPendingSize: [" . $dao->getPatronImportPendingSize() . "]\n";
-}
-
-# test_1RecordLoad();
-sub test_1RecordLoad
-{
-
-    my $debug = 1;
-    # $folio->login();
-
-    # my $patrons = $dao->getPatrons2Import();
-    my $patrons = $dao->getFiles();
-
-    print Dumper($patrons);
-
-}
-
-test_query();
+# test_query();
 sub test_query
 {
 
@@ -272,5 +253,82 @@ sub test_query
 
 }
 
+# scanFilesForIllegalChars();
+sub scanFilesForIllegalChars
+{
+
+    my $query = "select * from patron_import.file_tracker ft";
+    my $data = $dao->query($query);
+
+    my @illegalChars = qw(" \ \b \f \n \r \t);
+
+    my @illegalCharsFound = ();
+    my $lineNumber = 0;
+
+    for my $row (@{$data})
+    {
+
+        $lineNumber = 0;
+        my $path = $row->[3];
+        print "Scanning $path\n";
+        my $file = $files->readFileToArray($path);
+        for my $line (@{$file})
+        {
+
+            # loop thru each char in the line and compare it to $ascii. If it's not in $ascii, print it.
+            for my $char (split(//, $line))
+            {
+
+                # check $char against @illegalChars and if it's in there, print it out
+                if (grep {$_ eq $char} @illegalChars)
+                {
+                    # print "Illegal character found: $char\n";
+                    push(@illegalCharsFound, {
+                        path  => $row->[3],
+                        line  => $lineNumber,
+                        char  => $char,
+                        ascii => ord($char),
+                        hex   => sprintf("%x", ord($char)),
+                        dec   => ord($char),
+                    });
+                }
+
+
+            }
+
+            $lineNumber++;
+        }
+    }
+
+    # print out all the illegal chars
+    print Dumper(\@illegalCharsFound);
+
+}
+
+test_patronRawData();
+sub test_patronRawData
+{
+
+    my $query = "select p.raw_data from patron_import.patron p limit 3";
+
+    for(@{$dao->query($query)})
+    {
+        my @rawData = split(/\n/, $_->[0]);
+
+        my $zeroLine = shift(@rawData);
+
+        my $ptype = substr($zeroLine, 1, 3);
+
+        print $ptype . "\n";
+
+
+
+
+    }
+
+
+
+
+}
 
 1;

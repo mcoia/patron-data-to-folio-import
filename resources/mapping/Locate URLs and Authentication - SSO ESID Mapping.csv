@@ -1,62 +1,62 @@
-A.T. Still University,UID (OpenAthens) ,email (tag z) > tag e,yes,added,,example: hbright@atsu.edu
-Avila University,Name ID (ADFS),barcode (tag b) > tag e,yes,added,,example: e	mccalleyse
-Benedictine College,(OpenAthens),email (tag z) > tag e,yes,added,,example: guti2732@ravens.benedictine.edu
-Calvary University,barcode/PIN,barcode (tag b) (use email for ESID),n/a,added,Calvary does not send us patron files.,example: 1002500123456
-Central Methodist University,employeeID,unique id (tag u) without suffix > tag e,yes,added,,example: 959999
-Columbia College,collegeId (Azure),unique id (tag u) without suffix > tag e,yes,added,,example: 3736353CC without the CC
-Conception Abbey and Seminary College,barcode/PIN,barcode (tag b) (use email for ESID),n/a,added,CA does not send us patron files.,"example barcode: 6366990709, example email: jwallace@conception.edu"
-Concordia Seminary,nameidentifier (Azure),unique id (tag u) > tag e,yes,added,,example: P910000001CL
-Cottey College,  employeeid (OpenAthens),barcode (tag b) > tag e,yes,added,,example: 25532
-Covenant Theological Seminary,user.userprincipalname (Azure),external id (tag e),yes,added,updated,example: 87642
-Crowder College,email address,email (tag z) > tag e,yes,added,,example: jaredbrown@crowder.edu
-Culver-Stockton College,(OpenAthens),email (tag z) > tag e,yes,added,updated,example: sva302@culver.edu
-Drury University,employeeID (OneLogin),barcode (tag b) > tag e,yes,added,,example: 525299
-East Central College,employeeID (OpenAthens),barcode (tag b) > tag e (IN PROCESS-CONFIRM),,added,,7-digit ID number (CONFIRM)
-Evangel University,(OpenAthens),email (tag z) > tag e,yes,added,,example: Abad21706364@evangel.edu
-Fontbonne University,(OpenAthens),email (tag z) > tag e,yes,added,,example: MVicke00524@fontbonne.edu
-Goldfarb School of Nursing at Barnes-Jewish College,UPN (OpenAthens),bjc email (tag e),yes,added,updated,example: ny37917@bjc.org
-Hannibal-LaGrange University,(ADFS),email (tag z) > tag e,yes,added,HLG's programmer died in 2022!,example: Ashley.Whitley.15@student.hlg.edu
-Harris-Stowe State University,barcode/PIN,barcode (tag b) (use email for ESID),n/a,added,HSSU does not send regular patron files,example: cwells99@hornets.hssu.edu
-Jefferson College,Name ID (GSuite Google),unique id (tag u) without suffix > tag e,yes,added,updated,example: change V00115420JC to V00115420
-Kansas City Art Institute,(OpenAthens),barcode (tag b) > tag e,yes,added,KCAI not sure how to update script!,example: 15846
-Kansas City Kansas Community College,eduPersonPrincipalName (Azure),UPN (matches email address) > tag e,yes,added,,"example: CTHOR8484@STUDENTS.KCKCC.EDU, KCKCC NEEDS BARCODES"
-Kansas City University,barcode/PIN,barcode (tag b) (use email for ESID),yes,added,,"example barcode: S123456KCU, example ESID: S111608@kansascity.edu"
-Kenrick-Glennon Theological Seminary,OA FOLIO ECS connector (barcode/pin),unique id (tag u) > tag e and > tag b,n/a,added,KGS does not send us patron files.,example: 202219100kgs
-Lincoln University,employeeid (Azure),barcode (tag b) > tag e,yes,added,,example: 0235254
-Lindenwood University,(OpenAthens),email (tag z) > tag e,yes,added,updated,example: KA160@lindenwood.edu
-Logan University,(Azure),unique id (tag u) without suffix > tag e,yes,added,updating,example: 000068861L but without the L on the end; they need barcodes as well!
-Maryville University,user.managerId (Okta),internal note (tag x) > tag e,yes,added,"IT is now managed by a project management office, continue to map from Internal Note (x) if possible",example 7-digit ID: 1234567
-Metropolitan Community College,(Azure),unique id (tag u) without suffix > tag e,yes,added,,example: 1489337MCC without MCC
-Midwestern Baptist Theological Seminary,OpenAthens - UPN Local ID from Azure,email (tag z) > tag e,yes,added,They have been creating patrons manually for 2 years.,example: cpostlewait@mbts.edu
-Mineral Area College,(OpenAthens),email (tag z) > tag e,yes,added,,example email: tony@mineralarea.edu
-Missouri Baptist University,(OpenAthens),email (tag z) > tag e,yes,added,,example: Joshua.Feather@mobap.edu
-Missouri Botanical Garden,(OpenAthens),email (tag z) > tag e (copy u > b),n/a,added,MBG does not send us patron files.,example: Jason.Bernth@mobot.org
-Missouri History Museum,barcode/PIN,barcode (tag b) (use email for ESID),n/a,added,MHM does not send us patron files,"example barcode: 3141234567, example ESID: emily@mohistory.org"
-Missouri Southern State University,user.employeeid (Azure),unique id (tag u) without suffix > tag e,yes,added,updated,example: S00001015MSSU (remove MSSU)
-Missouri State Library,barcode/PIN,barcode (tag b) (use barcode as ESID),n/a,added,MOSL does not send us patron files.,example: 11907000123456
-Missouri Valley College,(Google),email (tag z) > tag e,yes,added,,example: perkinss@moval.edu
-Missouri Western State University,employeeNumber (Shibboleth),barcode (tag b) > tag e,yes,added,,example barcode: G00064075
-Moberly Area Community College,(OpenAthens),MACC ID > tag e,,added,,example: 190770 (first part of email address: 190770@mail.macc.edu)
-Nazarene Theological Seminary,(OpenAthens),email (tag z) > tag e,n/a,added,NTS does not send us patron files.,example: kelee.prince@nts.edu
-North Central Missouri College, oa_campusid (ADFS),barcode (tag b) > tag e,yes,added,,example: 000130119
-Northwest Missouri State University,oa.campusid (OpenAthens),unique id (tag u) > tag e (without suffix),yes,added,updated,example: 919620970 without NW
-Ozark Christian College,employeeId (OpenAthens),barcode (tag b) > tag e,yes,added,,example barcode: 127345
-Ozarks Technical Community College,(OpenAthens),email (tag z) > tag e,yes,added,updated,example: ac0411249@otc.edu
-Park University,UID (ID number + @park.edu),"unique id (tag u) no suffix > tag e, format email",yes,added,,"example: 1709953@park.edu, PARK NEEDS BARCODES"
-Rockhurst University, employeeID (QuickLaunch),unique id without suffix (CONFIRM),,added,,"(6-digit ID number, example: 752891, CONFIRM)"
-Saint Louis Art Museum, user.principalname (Azure),internal note (tag x),n/a,added,SLAM does not send patron files.,example: krylance@slam.org
-Saint Paul School of Theology,(OpenAthens),email (tag z) > tag e,n/a,added,SPST does not send us patron files.,example: ardrea.smith@spst.edu
-Southwest Baptist University,user.email (OpenAthens),email (tag z) > tag e,yes,added,,example: s11095@sbuniv.edu
-Southwestern Baptist Theological Seminary,(ADFS),email (tag z) > tag e,yes,added,,example: Onyekachi.Akandu@email.swbts.edu
-St. Charles Community College,identifier (ID number) (OpenAthens),email (tag z) > tag e,yes,added,updated,example: mt281591@my.stchas.edu
-St. Louis Community College,udcid (25-character GUID) (Azure),univ id (tag e),yes,added,updated,example: 6361BC31252DB947A89BB9040FF9F421
-State Fair Community College,Employee ID or Local ID (OpenAthens),unique id (tag u) without suffix > tag e,yes,added,,example: 000244267SFCC (remove SFCC)
-State Technical College of Missouri,(OpenAthens),email (tag z) > tag e,yes,added,,example: Mohammed.Abuzeid@iam.statetechmo.edu
-Stephens College,user.userprincipalname (Azure),email (tag z) > tag e,yes,added,,example: sheather@stephens.edu
-Three Rivers College,barcode/PIN,barcode (tag b) (use email for ESID),yes,added,,"example barcode: 0165584, example ESID: shabib5584@mymail.trcc.edu"
-Truman State University,barcode/PIN,barcode (tag b) (use email for ESID),yes,added,,example email: sag2481@truman.edu
-University of Health Sciences and Pharmacy in St. Louis,user.userprincipalname (Azure),email (tag z) > tag e,yes,added,updated,example: Briana.Hepfinger@uhsp.edu
-Webster University,user.employeeid (Azure),u field without EWL suffix > tag e,yes,added,updated,example: 4194278EWL (without EWL)
-Westminster College,userPrincipalName (OpenAthens),email (tag z) > tag e,yes,added,,example: Rachelle.Simon@westminster-mo.edu
-William Jewell College,(OpenAthens),unique id without suffix > tag e (CONFIRM),,added,,"(7-digit ID number, CONFIRM)"
-William Woods University,user.userprincipalname (Azure),email address (tag z) > tag e,yes,added,updated,example: rachel.utrecht@williamwoods.edu
+A.T. Still University,UID (OpenAthens) ,email (tag z) > tag e
+Avila University,Name ID (ADFS),barcode (tag b) > tag e
+Benedictine College,(OpenAthens),email (tag z) > tag e
+Calvary University,barcode/PIN,barcode (tag b) (use email for ESID)
+Central Methodist University,employeeID,unique id (tag u) without suffix > tag e
+Columbia College,collegeId (Azure),unique id (tag u) without suffix > tag e
+Conception Abbey and Seminary College,barcode/PIN,barcode (tag b) (use email for ESID)
+Concordia Seminary,nameidentifier (Azure),unique id (tag u) > tag e
+Cottey College,  employeeid (OpenAthens),barcode (tag b) > tag e
+Covenant Theological Seminary,user.userprincipalname (Azure),external id (tag e)
+Crowder College,email address,email (tag z) > tag e
+Culver-Stockton College,(OpenAthens),email (tag z) > tag e
+Drury University,employeeID (OneLogin),barcode (tag b) > tag e
+East Central College,employeeID (OpenAthens),barcode (tag b) > tag e (IN PROCESS-CONFIRM)
+Evangel University,(OpenAthens),email (tag z) > tag e
+Fontbonne University,(OpenAthens),email (tag z) > tag e
+Goldfarb School of Nursing at Barnes-Jewish College,UPN (OpenAthens),bjc email (tag e)
+Hannibal-LaGrange University,(ADFS),email (tag z) > tag e
+Harris-Stowe State University,barcode/PIN,barcode (tag b) (use email for ESID)
+Jefferson College,Name ID (GSuite Google),unique id (tag u) without suffix > tag e
+Kansas City Art Institute,(OpenAthens),barcode (tag b) > tag e
+Kansas City Kansas Community College,eduPersonPrincipalName (Azure),UPN (matches email address) > tag e
+Kansas City University,barcode/PIN,barcode (tag b) (use email for ESID)
+Kenrick-Glennon Theological Seminary,OA FOLIO ECS connector (barcode/pin),unique id (tag u) > tag e and > tag b
+Lincoln University,employeeid (Azure),barcode (tag b) > tag e
+Lindenwood University,(OpenAthens),email (tag z) > tag e
+Logan University,(Azure),unique id (tag u) without suffix > tag e
+Maryville University,user.managerId (Okta),internal note (tag x) > tag e
+Metropolitan Community College,(Azure),unique id (tag u) without suffix > tag e
+Midwestern Baptist Theological Seminary,OpenAthens - UPN Local ID from Azure,email (tag z) > tag e
+Mineral Area College,(OpenAthens),email (tag z) > tag e
+Missouri Baptist University,(OpenAthens),email (tag z) > tag e
+Missouri Botanical Garden,(OpenAthens),email (tag z) > tag e (copy u > b)
+Missouri History Museum,barcode/PIN,barcode (tag b) (use email for ESID)
+Missouri Southern State University,user.employeeid (Azure),unique id (tag u) without suffix > tag e
+Missouri State Library,barcode/PIN,barcode (tag b) (use barcode as ESID)
+Missouri Valley College,(Google),email (tag z) > tag e
+Missouri Western State University,employeeNumber (Shibboleth),barcode (tag b) > tag e
+Moberly Area Community College,(OpenAthens),MACC ID > tag e
+Nazarene Theological Seminary,(OpenAthens),email (tag z) > tag e
+North Central Missouri College, oa_campusid (ADFS),barcode (tag b) > tag e
+Northwest Missouri State University,oa.campusid (OpenAthens),unique id (tag u) > tag e (without suffix)
+Ozark Christian College,employeeId (OpenAthens),barcode (tag b) > tag e
+Ozarks Technical Community College,(OpenAthens),email (tag z) > tag e
+Park University,UID (ID number + @park.edu),unique id (tag u) no suffix > tag e
+Rockhurst University, employeeID (QuickLaunch),unique id without suffix (CONFIRM)
+Saint Louis Art Museum, user.principalname (Azure),internal note (tag x)
+Saint Paul School of Theology,(OpenAthens),email (tag z) > tag e
+Southwest Baptist University,user.email (OpenAthens),email (tag z) > tag e
+Southwestern Baptist Theological Seminary,(ADFS),email (tag z) > tag e
+St. Charles Community College,identifier (ID number) (OpenAthens),email (tag z) > tag e
+St. Louis Community College,udcid (25-character GUID) (Azure),univ id (tag e)
+State Fair Community College,Employee ID or Local ID (OpenAthens),unique id (tag u) without suffix > tag e
+State Technical College of Missouri,(OpenAthens),email (tag z) > tag e
+Stephens College,user.userprincipalname (Azure),email (tag z) > tag e
+Three Rivers College,barcode/PIN,barcode (tag b) (use email for ESID)
+Truman State University,barcode/PIN,Use Unique ID as barcode (tag u) (Email as ESID) (Barcode as username)
+University of Health Sciences and Pharmacy in St. Louis,user.userprincipalname (Azure),email (tag z) > tag e
+Webster University,user.employeeid (Azure),u field without EWL suffix > tag e
+Westminster College,userPrincipalName (OpenAthens),email (tag z) > tag e
+William Jewell College,(OpenAthens),unique id without suffix > tag e (CONFIRM)
+William Woods University,user.userprincipalname (Azure),email address (tag z) > tag e

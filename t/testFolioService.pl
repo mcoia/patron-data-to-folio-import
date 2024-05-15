@@ -58,12 +58,11 @@ sub initLog
 sub test_1RecordLoad
 {
 
-    my $tenant = $main::conf->{primaryTenant};
+    # my $tenant = $main::conf->{primaryTenant};
+    # my $tenant = "cs00000001_0053";
+    my $tenant = "cs00000001_0006";
 
-    my $json = $files->readFileAsString("../output.json");
-    my $response = $folio->login($main::conf->{primaryTenant});
-
-    $response = $folio->importIntoFolio($tenant, $json);
+    my $response = $folio->login($tenant);
 
     print Dumper($response);
 
@@ -97,4 +96,138 @@ sub test_otherEndPoints
     # print "\n" for(0..10);
     print $response->{_content} . "\n";
 
+}
+
+# test_tenantLogins();
+sub test_tenantLogins
+{
+
+    my $query = "SELECT i.tenant, i.name, l.username, l.password FROM patron_import.login l
+                    join patron_import.institution i on i.id=l.institution_id;";
+
+    my $results = $dao->query($query);
+    for my $row (@{$results})
+    {
+        my $status = $folio->login($row->[0]);
+        print "success: [$row->[1] - $row->[0]\n" if ($status == 1);
+    }
+
+}
+
+# test_singleTenantLogin();
+sub test_singleTenantLogin
+{
+
+    my $tenant = "cs00000001_0060";
+    my $status = $folio->login($tenant);
+
+    print "success: [$tenant]\n" if ($status == 1);
+
+}
+
+# test_getFolioCredentials();
+sub test_getFolioCredentials
+{
+
+    my $tenant = "cs00000001_0060";
+    my $credentials = $main::dao->getFolioCredentials($tenant);
+
+    print Dumper($credentials);
+
+}
+
+# test_email();
+sub test_email
+{
+
+    my $template = <<"HTML";
+<h1>Test Email</h1>
+<p>this is a p tag</p>
+HTML
+
+    print "\n\nTesting email\n";
+    my @emailAddresses = qw(angelwilliamscott@gmail.com);
+    print "email addresses: [@emailAddresses]\n";
+
+    my $email = MOBIUS::Email->new("scottangel\@mobiusconsortium.org", \@emailAddresses, 0, 0);
+    $email->sendHTML("test-email", "MOBIUS", $template);
+
+}
+
+# test_buildReport(); # and send()
+sub test_buildReport
+{
+
+    my @importResponse = ();
+    for (0 .. 10)
+    {
+        push(@importResponse, {
+            'job_id'  => 1,
+            'message' => "this is a test message",
+            'created' => 10,
+            'updated' => 5,
+            'failed'  => 3,
+            'total'   => 18
+        });
+    }
+
+    my $response = $folio->getImportResponseTotals(\@importResponse);
+
+    # PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers)->buildReport()->sendEmail();
+    my $institution = {
+        name         => 'MOBIUS TEST',
+        emailsuccess => 'angelwilliamscott@gmail.com',
+    };
+
+    my @importFailedUsers = ();
+
+    for (0 .. 10)
+    {
+
+        push(@importFailedUsers, {
+            'externalSystemId' => "some-external-id-here",
+            'username'         => "username-goes-here",
+            'errorMessage'     => "some-error-message-goes-here",
+        });
+
+    }
+
+    my $report = PatronImportReporter->new($institution, $response, \@importFailedUsers)->buildReport()->sendEmail();
+
+}
+
+# test_getImportResponseTotals();
+sub test_getImportResponseTotals
+{
+
+    # 'institution_id' => $institution->{id},
+    #     'job_id'         => $main::jobID,
+    #     'message'        => $responseHash->{message},
+    #     'created'        => $responseHash->{createdRecords},
+    #     'updated'        => $responseHash->{updatedRecords},
+    #     'failed'         => $responseHash->{failedRecords},
+    #     'total'          => $responseHash->{totalRecords},
+
+
+    my @importResponse = ();
+    for (0 .. 10)
+    {
+        push(@importResponse, {
+            'job_id'  => 1,
+            'message' => "this is a test message",
+            'created' => 10,
+            'updated' => 5,
+            'failed'  => 3,
+            'total'   => 18
+        });
+    }
+
+    print Dumper($folio->getImportResponseTotals(\@importResponse));
+
+}
+
+# while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0)
+sub test_getPatronImportPendingSize
+{
+    # $self->query("select count(p.id) from patron_import.patron p where p.institution_id=$institution_id and p.ready and not p.error;")->[0]->[0];
 }

@@ -103,16 +103,17 @@ sub parse
                 my $patron = $self->_parsePatronRecord($record);
 
                 # Set the External System ID
-                $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
-                    if ($institution->{'esid'} ne '' && !defined($patron->{'esid'}));
+                $patron->{esid} = Parsers::ESID::getESID($patron, $institution) if ($institution->{'esid'} ne '');
+                # if ($institution->{'esid'} ne '' && !defined($patron->{'esid'}));
 
                 # Note, everything in the patron hash gets 'fingerprinted'.
                 # id's are basically irrelevant after and may change on subsequent loads. So we don't want
-                # to finger print id's.
+                # to finger print id's. job_id being one that WILL change.
+
                 $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
 
                 # set some id's, I decided I needed these for tracking down trash
-                $patron->{load} = 'false';
+                $patron->{load} = 'true';
                 $patron->{institution_id} = $institution->{id};
                 $patron->{file_id} = $file->{id};
                 $patron->{job_id} = $main::jobID;
@@ -197,9 +198,7 @@ sub _parsePatronRecord
     for my $data (@{$patronRecord})
     {
 
-        $self->{debug}->{raw} = $data if ($data =~ /^0/); # ----- DEBUG <-- delete when done
-
-        # sanitize the garbage
+        # sanitize the garbage. I should probably expand on this a little.
         $data =~ s/^\s*//g if ($data =~ /^0/);
         $data =~ s/\s*$//g if ($data =~ /^0/);
         $data =~ s/\n//g if ($data =~ /^0/);
@@ -333,7 +332,6 @@ sub _parsePatronRecord
         # manually. This can be done when keying a new record or later if patron records are loaded from a registration database.
         $patron->{'barcode'} = ($data =~ /^b(.*)$/gm)[0] if ($data =~ /^b/);
 
-
         # Email Address
         # Enter a complete email address if you want a patron to receive all borrower notices via email.
         $patron->{'email_address'} = ($data =~ /^z(.*)$/gm)[0] if ($data =~ /^z/);
@@ -343,46 +341,20 @@ sub _parsePatronRecord
         # staff, not to patrons in the VIEW your circulation record function.
         $patron->{'note'} = ($data =~ /^x(.*)$/gm)[0] if ($data =~ /^x/);
 
-
         # External System ID === NEW
         # This is a new field introduced after this project has started. No official description.
         $patron->{'esid'} = ($data =~ /^e(.*)$/gm)[0] if ($data =~ /^e/);
 
     }
 
+
+    # set the raw_data for this patron. This raw data gets fingerprinted!
+    my $raw_data = "";
+    for my $data (@{$patronRecord})
+    {$raw_data .= $data . "\n";}
+    $patron->{raw_data} = $raw_data;
+
     return $patron;
-}
-
-sub migrate
-{
-    my $self = shift;
-
-    # Inserts vs Updates
-    # We'll use the username as our key. That's what needs to be 100% unique across the consortium.
-    # The esid is unique to the tenant so this is redundant to key off it as well.
-
-    # query each stage_patron, look up their info in the final patron table using the username.
-    # If that username doesn't exists we're an insert.
-    # If that username exists we're an update.
-
-    # we're using the unique_id as the username as SSO uses the esid for login.
-    # The users will never use the username to login anyways.
-
-    # we're not finding the filename!
-    my $query = $main::files->readFileAsString($main::conf->{sqlFilePath} . "/migrate-generic.sql");
-    $main::dao->query($query);
-
-    # check for duplicate unique id's
-    $query = "select p.id, sp.*
-        from patron_import.stage_patron sp
-    left join patron_import.patron p on (sp.unique_id = p.username)
-    where sp.institution_id != p.institution_id;";
-
-    my @duplicateUniqueIDPatrons = @{$main::dao->query($query)};
-    my $duplicateSize = scalar(@duplicateUniqueIDPatrons);
-
-    $self->notifyDuplicateUniqueID(\@duplicateUniqueIDPatrons) if ($duplicateSize > 0);
-
 }
 
 1;

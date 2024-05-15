@@ -14,6 +14,7 @@ use JSON;
 use URI::Escape;
 use Data::UUID;
 use HTTP::CookieJar::LWP ();
+use PatronImportReporter;
 
 =pod
 
@@ -46,7 +47,7 @@ timeout                 180
 sub new
 {
     my $class = shift;
-    my $self = shift;
+    my $self = {};
     bless $self, $class;
     return $self;
 }
@@ -59,13 +60,37 @@ sub importPatrons
 
     for my $institution (@{$institutions})
     {
-        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0)
+
+        # We need the tenant for this institution
+        my $tenant = $institution->{tenant};
+
+        print "Importing Patrons for [$institution->{name}] using tenant:[$tenant]\n";
+        $main::log->add("Importing Patrons for [$institution->{name}] using tenant:[$tenant]");
+        $main::log->add("authenticating...");
+
+        # Login to folio tenant
+        my $loginStatus = $self->login($tenant);
+        next if ($loginStatus == 0);
+
+        print "authentication successful!\n";
+        $main::log->add("authentication successful!");
+
+        my @importResponse = ();
+        my @importFailedUsers = ();
+
+        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== I do NOT like this while loop. It has no break condition.
         {
+
+            print "Getting patrons for $institution->{name}\n";
+            $main::log->add("Getting patrons for $institution->{name}");
 
             # grab some patrons
             my $patrons = $main::dao->getPatronBatch2Import($institution->{id});
 
             my $totalRecords = scalar(@{$patrons});
+
+            print "Total Records:[$totalRecords]\n";
+            $main::log->add("Total Records:[$totalRecords]");
 
             my $json = "";
             for my $patron (@{$patrons})
@@ -75,23 +100,31 @@ sub importPatrons
 
             $json = $self->buildFinalJSON($json, $totalRecords);
 
-            # We need the tenant for this institution!
-            my $tenant = $institution->{tenant};
+            print "sending json to folio...\n";
+            $main::log->add("sending json to folio...");
+            $main::log->add("$json");
 
             # ship it!
             my $response = $self->importIntoFolio($tenant, $json);
-            print Dumper($response);
 
-            # example json response
-            # "message" : "Users were imported successfully.",
-            # "createdRecords" : 3,
-            # "updatedRecords" : 0,
-            # "failedRecords" : 0,
-            # "failedUsers" : [],
-            # "totalRecords" : 3
+            # Deal with the response
+            my $responseContent = $response->{_content};
 
-            my $responseHash = decode_json($response->{_content});
-            $main::dao->_insertHashIntoTable("import_response", {
+            print "================= RESPONSE =================\n";
+            print "$responseContent\n";
+
+            if ($responseContent =~ /Illegal unquoted character/)
+            {
+                print $json . "\n";
+            }
+
+            $main::log->add("================= RESPONSE =================");
+            $main::log->add("$responseContent");
+
+            # We will bomb here if these patron records get goofy chars in them. \ <== talking to you backspace!
+            # We're filtering out some of these chars in fileService->readFileToArray but are we catching them all?
+            my $responseHash = decode_json($responseContent);
+            my $importResponseHash = {
                 'institution_id' => $institution->{id},
                 'job_id'         => $main::jobID,
                 'message'        => $responseHash->{message},
@@ -99,24 +132,26 @@ sub importPatrons
                 'updated'        => $responseHash->{updatedRecords},
                 'failed'         => $responseHash->{failedRecords},
                 'total'          => $responseHash->{totalRecords},
-            });
+            };
+            $main::dao->_insertHashIntoTable("import_response", $importResponseHash);
+            push(@importResponse, $importResponseHash);
 
             my $import_response_id = $main::dao->getLastImportResponseID();
 
             for my $failedUser (@{$responseHash->{failedUsers}})
             {
 
-                # example failed user response
-                # "username" : "V00261368JC",
-                # "externalSystemId" : "V00261368",
-                # "errorMessage" : "Patron group does not exist in the system: [JC StudentXXX]"
-
-                $main::dao->_insertHashIntoTable("import_failed_users", {
+                my $importFailedUsersHash = {
                     'import_response_id' => $import_response_id,
                     'externalSystemId'   => $failedUser->{externalSystemId},
                     'username'           => $failedUser->{username},
                     'errorMessage'       => $failedUser->{errorMessage},
-                });
+                };
+                $main::dao->_insertHashIntoTable("import_failed_users", $importFailedUsersHash);
+
+                # Contain this list size for email.
+                my $importFailedUsersSize = @importFailedUsers;
+                push(@importFailedUsers, $importFailedUsersHash) if ($main::conf->{maxFailedUsers} < $importFailedUsersSize);
 
             }
 
@@ -126,9 +161,18 @@ sub importPatrons
                 'json'               => $json,
             }) if ($responseHash->{failedRecords} > 0);
 
+            # We disable so we don't try and reload the same patron. The fingerprint change will flip this.
             $main::dao->disablePatrons($patrons);
 
         }
+
+        # Build our report.
+        print "[$institution->{name}] Building a report\n";
+        $main::log->add("[$institution->{name}] Building a report");
+
+        my $importResponseTotals = $self->getImportResponseTotals(\@importResponse);
+        PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers)->buildReport()->sendEmail();
+
     }
     return $self;
 
@@ -139,34 +183,30 @@ sub login
     my $self = shift;
     my $tenant = shift;
 
-    # store our tenant for future use.
-    $self->{tenant} = $tenant;
-
     my $header = [
         'x-okapi-tenant' => "$tenant",
         'content-type'   => 'application/json'
     ];
 
-    my $user = encode_json({ username => $self->{username}, password => $self->{password} });
+    my $credentials = $main::dao->getFolioCredentials($tenant);
+    return $self->loginFailedMessage($tenant) if (!defined($credentials->{username}) || !defined($credentials->{password}));
+
+    my $userJSON = encode_json({ username => $credentials->{username}, password => $credentials->{password} });
 
     $self->{cookies} = HTTP::CookieJar::LWP->new();
-    my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $user);
+    my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $userJSON);
 
+    $main::log->add(Dumper($response)) if (!defined($response->{'_headers'}->{'set-cookie'}->[0]));
+
+    # Don't forget to cpan install LWP::Protocol::https
     # Check our login for cookies, if we didn't get any we failed and need to exit
-    if (!defined($response->{'_headers'}->{'set-cookie'}->[0]))
-    {
-        $main::log->addLine("Log in failed! Please set your username:password in the environment variables folio_username and folio_password");
-        print "\n\n=====================================================================================================\n";
-        print "                                 !!! Log in failed !!! \nPlease set your username:password with the environment variables folio_username and folio_password";
-        print "\n=====================================================================================================\n\n";
-        exit;
-    }
+    return $self->loginFailedMessage($tenant) if (!defined($response->{'_headers'}->{'set-cookie'}->[0]));
 
     # set our FART tokens. Folio-Access-Refresh-Tokens
     $self->{'tokens'}->{'AT'} = ($response->{'_headers'}->{'set-cookie'}->[0] =~ /=(.*?);\s/g)[0];
     $self->{'tokens'}->{'RT'} = ($response->{'_headers'}->{'set-cookie'}->[1] =~ /=(.*?);\s/g)[0];
 
-    return $self;
+    return 1;
 }
 
 sub HTTPRequest
@@ -206,7 +246,12 @@ sub buildPatronJSON
     # my $address = "";
     my $address = $self->buildAddressJSON($patron->{address});
 
-    #todo: I don't like this... fix it!
+    # notes about email. so... we're currently not importing the email address which is in the z-field of the
+    # patron file. It's not listed in the mod-user-import docs but when I looked at the Personal java object
+    # it is listed as being an acceptable field. It is a required field in the GUI.
+    # We're holding off right now until we get more information about why this isn't included.
+    # The thought is, is we don't want to fire off emails.
+    # Personally, I want to go ahead and add this now while in development as it'll be easier.
     my $template = <<json;
             {
               "username": "$patron->{username}",
@@ -224,6 +269,7 @@ sub buildPatronJSON
                 "mobilePhone": "$patron->{mobilephone}",
                 "dateOfBirth": "$patron->{dateofbirth}",
                 "addresses": $address,
+                "email": "$patron->{email}",
                 "preferredContactTypeId": "$patron->{preferredcontacttypeid}"
               },
               "enrollmentDate": "$patron->{enrollmentdate}",
@@ -315,6 +361,59 @@ sub importIntoFolio
     my $response = $self->HTTPRequest("POST", $url, $header, $json);
 
     return $response;
+
+}
+
+sub loginFailedMessage
+{
+    my $self = shift;
+    my $tenant = shift;
+
+    {
+
+        print "\n\n=====================================================================================================\n";
+        print "                                 !!! Log in failed !!!\n";
+        print "                    Login failed for tenant: $tenant\n";
+        print "                    $main::conf->{baseURL}$main::conf->{loginURL}\n";
+        print "                    Do we have a login for $tenant?\n";
+        print "=====================================================================================================\n\n";
+
+        $main::log->add("\n\n=====================================================================================================\n");
+        $main::log->add("                                 !!! Log in failed !!!\n");
+        $main::log->add("                    Login failed for tenant: $tenant\n");
+        $main::log->add("                    $main::conf->{baseURL}$main::conf->{loginURL}\n");
+        $main::log->add("=====================================================================================================\n\n");
+
+    }
+
+    return 0;
+
+}
+
+sub getImportResponseTotals
+{
+    my $self = shift;
+    my $importResponse = shift;
+
+    my $created = 0;
+    my $updated = 0;
+    my $failed = 0;
+    my $total = 0;
+
+    for my $h (@{$importResponse})
+    {
+        $created += $h->{created} if (defined($h->{created}));
+        $updated += $h->{updated} if (defined($h->{updated}));
+        $failed += $h->{failed} if (defined($h->{failed}));
+        $total += $h->{total} if (defined($h->{total}));
+    }
+
+    return {
+        created => $created,
+        updated => $updated,
+        failed  => $failed,
+        total   => $total
+    };
 
 }
 

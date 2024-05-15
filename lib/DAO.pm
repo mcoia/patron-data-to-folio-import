@@ -52,7 +52,7 @@ sub initDatabaseConnection
 sub initDatabaseSchema
 {
     my $self = shift;
-    my $filePath = $main::conf->{sqlFilePath} . "/db.sql";
+    my $filePath = $main::conf->{projectPath} . "/resources/sql/db.sql";
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
 
@@ -80,17 +80,24 @@ sub checkDatabaseStatus
     if ($main::runType eq 'drop_schema' || $institutionTableSize == 0)
     {
 
-        # Insert the MOBIUS Primary tenant
+        # Insert the MOBIUS Primary tenant. This should be in the db.sql yea?
         $self->query("INSERT INTO patron_import.institution (enabled, name, tenant, module, esid)
-        VALUES (false, 'MOBIUS Office', 'cs00000001', '', '')");
+        VALUES (false, 'MOBIUS Office', 'cs00000001', 'GenericParser', '')");
 
         # Check our institution map
         $main::files->buildInstitutionTableData();
 
-        my $ptypeMappingTableSize = $self->getTableSize("ptype_mapping");
+        # build out our ptype mapping table
         $main::files->buildPtypeMappingFromCSV();
 
+        # insert our folio logins
+        $self->populateFolioLoginTable();
+
+        # re-cache our columns due to db update.
+        $self->_cacheTableColumns();
+
     }
+
 }
 
 sub _initDatabaseCache
@@ -555,6 +562,8 @@ sub createTableFromCSV
 
     print "inserted [$count] records into $tableName\n";
 
+    return $csv;
+
 }
 
 sub getESIDFromMappingTable
@@ -605,7 +614,7 @@ sub getPatronImportPendingSize
     my $self = shift;
     my $institution_id = shift;
 
-    return $self->query("select count(p.id) from patron_import.patron p where p.institution_id=$institution_id and p.ready and not p.error;")->[0]->[0];
+    return $self->query("select count(p.id) from patron_import.patron p where p.institution_id=$institution_id and p.ready;")->[0]->[0];
 
 }
 
@@ -621,7 +630,7 @@ sub getPatronBatch2Import
 
     my $query = "select $columns from $schema.$tableName p where
                      p.ready and
-                     not p.error and
+                     p.patrongroup is not null and
                      p.institution_id=$institutionID
                      limit $chunkSize";
 
@@ -674,7 +683,14 @@ sub getPatronBatch2Import
 sub getFOLIOLoginCredentials
 {
     my $self = shift;
+    my $institution_id = shift;
 
+    my $tableName = "login";
+    my $columns = $self->_getTableColumns($tableName);
+
+    return $self->_convertQueryResultsToHash(
+        $tableName, $self->query("select $columns from $schema.$tableName l where l.institution_id=$institution_id")
+    )->[0];
 
 }
 
@@ -718,13 +734,19 @@ sub setPatronsReadyStatus
 
     my @externalSystemIDs = map {$_->{externalsystemid}} @{$patrons};
     for my $esid (@externalSystemIDs)
-    {$esid = "'$esid',";}
+    {
+        $esid =~ s/'/''/g; # escape ' tick marks in the esid.
+        $esid = "'$esid',";
+    }
 
     my $externalSystemIDs = "@externalSystemIDs";
-    $externalSystemIDs =~ s/,$//g;
-    $externalSystemIDs =~ s/\s//g;
+    $externalSystemIDs =~ s/,$//g; # <== removes the last comma?
+    $externalSystemIDs =~ s/\s//g; # <== remove spaces
 
-    my $query = "update patron_import.patron set ready=$status where externalsystemid in($externalSystemIDs)";
+    # print "externalSystemIDs: $externalSystemIDs\n";
+
+    # my $query = "update patron_import.patron set ready=$status where externalsystemid in($externalSystemIDs)";
+    my $query = "update patron_import.patron set ready=$status, load_date=now() where externalsystemid = ANY(ARRAY[$externalSystemIDs])";
     $self->{db}->update($query);
 
 }
@@ -734,6 +756,47 @@ sub getLastImportResponseID
     my $self = shift;
 
     return $self->query("select id from patron_import.import_response r order by r.id desc;")->[0]->[0];
+
+}
+
+sub populateFolioLoginTable
+{
+    my $self = shift;
+
+    my $csv = $main::dao->createTableFromCSV("mobius_api_user", $main::conf->{projectPath} . "/resources/mapping/mobius_api_user.csv");
+
+    my $update = "
+    insert into patron_import.login (institution_id, username)
+                    (select i.id, api.c2
+                     from patron_import.institution i
+                              join patron_import.mobius_api_user api on api.c1 = i.name);";
+
+    $self->query($update);
+
+    return $self;
+
+}
+
+sub getFolioCredentials
+{
+    my $self = shift;
+    my $tenant = shift;
+
+    my $tableName = "login";
+
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $query = "select l.username, l.password from patron_import.login l
+                    join patron_import.institution i on i.id = l.institution_id
+                    where i.tenant='$tenant'";
+
+    my $results = $self->query($query)->[0];
+    my $credentials = {
+        username => $results->[0],
+        password => $results->[1]
+    };
+
+    return $credentials;
 
 }
 

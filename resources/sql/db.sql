@@ -2,12 +2,14 @@ create schema if not exists patron_import;
 
 create table if not exists patron_import.institution
 (
-    id      SERIAL primary key,
-    enabled bool default true,
-    name    text,
-    tenant  text,
-    module  text,
-    esid    text
+    id           SERIAL primary key,
+    enabled      bool default true,
+    name         text,
+    tenant       text,
+    module       text,
+    esid         text,
+    emailSuccess text,
+    emailFail    text
 );
 
 create table if not exists patron_import.folder
@@ -55,7 +57,8 @@ create table if not exists patron_import.stage_patron
     job_id                 int references patron_import.job (id),
     institution_id         int references patron_import.institution (id),
     file_id                int references patron_import.file (id),
-    load                   bool not null default false,
+    load                   bool not null default true,
+    raw_data               text,
     esid                   text,
     fingerprint            text,
     field_code             text,
@@ -68,7 +71,7 @@ create table if not exists patron_import.stage_patron
     patron_block_code      text,
     patron_expiration_date text,
     name                   text,
-    address                text, -- todo: rename this to dollar_sign_address    text,
+    address                text,
     telephone              text,
     address2               text,
     telephone2             text,
@@ -87,10 +90,17 @@ create table if not exists patron_import.patron
     job_id                 int references patron_import.job (id),
     fingerprint            text,
     ready                  bool not null default true,
+    raw_data               text,
+
+    insert_date            timestamp     default now(),
+    update_date            timestamp     default null,
+    load_date              timestamp     default null,
+
     -- json specific below
     username               text,
     externalsystemid       text,
     barcode                text,
+    email                  text,
     active                 bool not null default true,
     patrongroup            text,
     lastname               text,
@@ -253,4 +263,63 @@ BEGIN
 END;
 $$;
 
+create function ptype_mapping_trigger_function() returns trigger
+    language plpgsql
+as
+$$
+DECLARE
+    _ptype      text;
+    _foliogroup text;
+    _patron_id  int;
+BEGIN
 
+    -- Loop through each patron and grab the id's with null foliogroups.
+    FOR _patron_id IN
+        SELECT id FROM patron_import.patron WHERE institution_id = NEW.institution_id AND patrongroup IS NULL
+        LOOP
+
+            -- grab the ptype from the raw_data field from the patron table
+            _ptype := ltrim(SUBSTRING((SELECT p.raw_data FROM patron_import.patron p WHERE p.id = _patron_id), 2, 3),
+                            '0');
+
+            -- Look up the foliogroup in the ptype_mapping table using the ptype
+            _foliogroup := (SELECT pt.foliogroup
+                            FROM patron_import.ptype_mapping pt
+                            WHERE pt.ptype = _ptype
+                              AND pt.institution_id = NEW.institution_id);
+
+            -- If a foliogroup is found, update the foliogroup field in the patron table
+            IF _foliogroup IS NOT NULL THEN
+                UPDATE patron_import.patron
+                SET patrongroup = _foliogroup
+                WHERE id = _patron_id AND patron.patrongroup IS NULL;
+            END IF;
+        END LOOP;
+
+    RETURN NEW;
+END;
+$$;
+
+alter function ptype_mapping_trigger_function() owner to postgres;
+
+CREATE TRIGGER ptype_mapping_trigger
+    AFTER INSERT OR UPDATE
+    ON patron_import.ptype_mapping
+    FOR EACH ROW
+EXECUTE PROCEDURE patron_import.ptype_mapping_trigger_function();
+
+CREATE OR REPLACE FUNCTION patron_import.update_date_trigger_function()
+    RETURNS trigger AS
+$$
+BEGIN
+    NEW.update_date = NOW();
+    RETURN NEW;
+END;
+$$
+LANGUAGE 'plpgsql';
+
+CREATE TRIGGER update_date_trigger
+    BEFORE UPDATE
+    ON patron_import.patron
+    FOR EACH ROW
+EXECUTE PROCEDURE patron_import.update_date_trigger_function();

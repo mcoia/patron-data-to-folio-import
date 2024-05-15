@@ -30,10 +30,12 @@ WHERE sp.id = b.id
 insert into patron_import.patron (institution_id,
                                   file_id,
                                   job_id,
+                                  raw_data,
                                   fingerprint,
                                   username,
                                   externalsystemid,
                                   barcode,
+                                  email,
                                   patrongroup,
                                   lastname,
                                   middlename,
@@ -45,16 +47,18 @@ insert into patron_import.patron (institution_id,
     (select sp.institution_id,
             sp.file_id,
             sp.job_id,
+            sp.raw_data,
             sp.fingerprint,
             sp.unique_id,
             sp.esid,
             sp.barcode,
+            sp.email_address,
             pt.foliogroup,
             btrim(regexp_replace(sp.name, ',.*', ''))                              as "lastname",
             btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')) as "middlename",
             btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')) as "firstname",
-            sp.telephone,
-            sp.telephone2,
+            btrim(regexp_replace(sp.telephone, '[^0-9|^\-]', '')),  -- remove all non-numeric characters except for - from phone number, was getting a lot of errors
+            btrim(regexp_replace(sp.telephone2, '[^0-9|^\-]', '')), -- change to [0-9-]+ <== that's easier to read.
             'email',
             (case
                  when sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' then sp.patron_expiration_date::DATE::TEXT
@@ -78,9 +82,11 @@ set file_id                = sp.file_id,
     lastname               = btrim(regexp_replace(sp.name, ',.*', '')),
     middlename             = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')),
     firstname              = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')),
-    phone                  = sp.telephone,
-    mobilephone            = sp.telephone2,
+    phone                  = btrim(regexp_replace(sp.telephone, '[0-9-]+', '')),  -- remove all non-numeric characters except for - from phone number, was getting a lot of errors
+    mobilephone            = btrim(regexp_replace(sp.telephone2, '[0-9-]+', '')), -- change [^0-9|^\-] to [0-9-]+ <== that's easier to read.
     preferredcontacttypeid = 'email',
+    ready                  = true,
+    update_date            = now(),
     expirationdate         = (case
                                   when sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
                                       then sp.patron_expiration_date::DATE::TEXT
@@ -92,6 +98,7 @@ where sp.fingerprint != p.fingerprint
   AND sp.unique_id = p.username
   AND sp.load;
 
+-- why is this here?!? We shouldn't be inserting anything without an externalsystemid
 -- convert our '' to NULLs
 -- external system id
 update patron_import.patron

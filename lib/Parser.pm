@@ -26,7 +26,6 @@ sub stagePatronRecords
 {
     my $self = shift;
 
-    # average function call time: 60.3ms 1000 times ran
     my $institutions = $main::dao->getInstitutionsFoldersAndFilesHash();
 
     # loop over our discovered files.
@@ -70,7 +69,7 @@ sub stagePatronRecords
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
         $main::log->addLine("================================================================================\n\n");
 
-        # New plan, we migrate records here, truncating the table after each loop
+        # We migrate records here, truncating the table after each loop
         $parser->migrate();
 
     }
@@ -78,29 +77,9 @@ sub stagePatronRecords
     return $self;
 }
 
-sub checkFileReady
-{
-    my $self = shift;
-    my $file = shift;
-    my @stat = stat $file;
-    my $baseline = $stat[7];
-    $baseline += 0;
-    my $now = -1;
-    while ($now != $baseline)
-    {
-        @stat = stat $file;
-        $now = $stat[7];
-        sleep 1;
-        @stat = stat $file;
-        $baseline = $stat[7];
-        $baseline += 0;
-        $now += 0;
-    }
-}
-
 sub saveStagedPatronRecords
 {
-    # this function is a mess. I hate it. I hate it so much that I don't even want to rework it.
+    # this function is a mess. I hate it. I hate it so much. It works so I don't even want to rework it. Gross.
 
     my $self = shift;
     my $patronRecordsHashArray = shift;
@@ -113,7 +92,7 @@ sub saveStagedPatronRecords
     my $col = $main::dao->_convertColumnArrayToCSVString(\@columns);
     my $totalColumns = @columns;
 
-    # this is a map! 1 liner I know it! If not, it should be a function
+    # my @patronRecords = map { [ map { $_->{$_} } @columns ] } @{$patronRecordsHashArray};
     my @patronRecords = ();
     for my $patronHash (@{$patronRecordsHashArray})
     {
@@ -131,7 +110,7 @@ sub saveStagedPatronRecords
     {
         my @chunkyPatrons = ($totalRecords >= $chunkSize) ? @patronRecords[0 .. $chunkSize - 1] : @patronRecords[0 .. $totalRecords - 1];
         push(@chunkedRecords, \@chunkyPatrons);
-        shift @patronRecords for (0 .. $chunkSize - 1); # <== does this get a - 1 too?
+        shift @patronRecords for (0 .. $chunkSize - 1);
         $totalRecords = @patronRecords;
     }
 
@@ -179,69 +158,6 @@ sub _buildParameters
     return $p;
 }
 
-sub _jsonTemplate
-{
-    my $self = shift;
-    my $patron = shift;
-
-    print Dumper($patron);
-
-    my $jsonTemplate = "
-{
-  \"username\": \"$patron->{username}\",
-  \"externalSystemId\": \"$patron->{externalID}\",
-  \"barcode\": \"$patron->{barcode}\",
-  \"active\": $patron->{active},
-  \"patronGroup\": \"$patron->{patronGroup}\",
-  \"personal\": {
-    \"lastName\": \"$patron->{name}\",
-    \"firstName\": \"$patron->{name}\",
-    \"phone\": \"$patron->{telephone}\",
-    \"addresses\": [
-      {
-        \"countryId\": \"US\",
-        \"addressLine1\": \"$patron->{address}\",
-        \"addressTypeId\": \"$patron->{addressTypeId}\",
-        \"primaryAddress\": true
-      }
-    ],
-  },
-  \"departments\": [
-    \"$patron->{department}\",
-  ]
-}
-
-";
-
-    return $jsonTemplate;
-
-}
-
-sub _mapPatronTypeToPatronGroup
-{
-    my $self = shift;
-    my $institution = shift;
-    my $patronType = shift;
-
-    # this is wrong now. We put this in the db.
-    my $ptypeMappingSheet = $main::files->getPTYPEMappingSheet();
-
-    my $pType = "NO-DATA"; # Should this default to Staff or be blank?
-
-    for my $row (@{$ptypeMappingSheet})
-    {
-
-        return $pType if ($patronType eq ''); # TODO: What should the default return value be? 'Patron'? currently 'NO-DATA'
-
-        my $patron_type = $patronType + 0;
-        return $row->[3] if ($patron_type == $row->[0]);
-
-    }
-
-    return $pType;
-
-}
-
 sub getPatronFingerPrint
 {
     # On the off chance this getHash() function doesn't work as expected we
@@ -249,9 +165,7 @@ sub getPatronFingerPrint
 
     my $self = shift;
     my $patron = shift;
-
-    my $utils = MOBIUS::Utils->new();
-    return $utils->getHash($patron);
+    return MOBIUS::Utils->new()->getHash($patron);
 
 }
 
@@ -265,6 +179,38 @@ sub notifyDuplicateUniqueID
     $main::log->addLine("duplicate unique_id found");
     $main::log->addLine(Dumper($duplicateUniqueIDPatrons));
     $main::log->addLine("\n################################################################################\n\n");
+
+}
+
+sub migrate
+{
+    my $self = shift;
+
+    # Inserts vs Updates
+    # We'll use the username as our key. That's what needs to be 100% unique across the consortium.
+    # The esid is unique to the tenant so this is redundant to key off it as well.
+
+    # query each stage_patron, look up their info in the final patron table using the username.
+    # If that username doesn't exists we're an insert.
+    # If that username exists we're an update.
+
+    # we're using the unique_id as the username as SSO uses the esid for login.
+    # The users will never use the username to login anyways.
+
+    # we're not finding the filename!
+    my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate-generic.sql");
+    $main::dao->query($query);
+
+    # check for duplicate unique id's
+    $query = "select p.id, sp.*
+        from patron_import.stage_patron sp
+    left join patron_import.patron p on (sp.unique_id = p.username)
+    where sp.institution_id != p.institution_id;";
+
+    my @duplicateUniqueIDPatrons = @{$main::dao->query($query)};
+    my $duplicateSize = scalar(@duplicateUniqueIDPatrons);
+
+    $self->notifyDuplicateUniqueID(\@duplicateUniqueIDPatrons) if ($duplicateSize > 0);
 
 }
 
