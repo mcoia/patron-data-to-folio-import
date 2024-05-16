@@ -263,40 +263,27 @@ BEGIN
 END;
 $$;
 
-create function ptype_mapping_trigger_function() returns trigger
+CREATE OR REPLACE FUNCTION patron_import.ptype_mapping_trigger_function() returns trigger
     language plpgsql
 as
 $$
 DECLARE
-    _ptype      text;
-    _foliogroup text;
-    _patron_id  int;
+    patron  patron_import.patron%ROWTYPE;
 BEGIN
 
+IF NEW.foliogroup IS NOT NULL THEN
     -- Loop through each patron and grab the id's with null foliogroups.
-    FOR _patron_id IN
-        SELECT id FROM patron_import.patron WHERE institution_id = NEW.institution_id AND patrongroup IS NULL
+    FOR patron IN
+        SELECT * FROM patron_import.patron P WHERE institution_id = NEW.institution_id AND (p.patrongroup IS NULL OR p.patrongroup != NEW.patrongroup)
         LOOP
-
-            -- grab the ptype from the raw_data field from the patron table
-            _ptype := ltrim(SUBSTRING((SELECT p.raw_data FROM patron_import.patron p WHERE p.id = _patron_id), 2, 3),
-                            '0');
-
-            -- Look up the foliogroup in the ptype_mapping table using the ptype
-            _foliogroup := (SELECT pt.foliogroup
-                            FROM patron_import.ptype_mapping pt
-                            WHERE pt.ptype = _ptype
-                              AND pt.institution_id = NEW.institution_id);
-
             -- If a foliogroup is found, update the foliogroup field in the patron table
-            IF _foliogroup IS NOT NULL THEN
-                UPDATE patron_import.patron
-                SET patrongroup = _foliogroup
-                WHERE id = _patron_id AND patron.patrongroup IS NULL;
-            END IF;
+            UPDATE patron_import.patron
+            SET patrongroup = NEW.foliogroup
+            WHERE id = patron.id;
         END LOOP;
+END IF;
+RETURN NEW;
 
-    RETURN NEW;
 END;
 $$;
 
