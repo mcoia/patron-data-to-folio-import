@@ -287,12 +287,6 @@ RETURN NEW;
 END;
 $$;
 
-update patron_import.patron patron
-SET
-patrongroup = mapper.foliogroup
-FROM
-
-
 alter function ptype_mapping_trigger_function() owner to postgres;
 
 CREATE TRIGGER ptype_mapping_trigger
