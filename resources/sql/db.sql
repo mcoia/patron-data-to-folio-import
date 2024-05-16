@@ -274,7 +274,7 @@ BEGIN
 IF NEW.foliogroup IS NOT NULL THEN
     -- Loop through each patron and grab the id's with null foliogroups.
     FOR patron IN
-        SELECT * FROM patron_import.patron P WHERE institution_id = NEW.institution_id AND (p.patrongroup IS NULL OR p.patrongroup != NEW.patrongroup)
+        SELECT * FROM patron_import.patron p WHERE institution_id = NEW.institution_id AND ltrim(SUBSTRING((p.raw_data), 2, 3),'0') = NEW.ptype AND (p.patrongroup IS NULL OR p.patrongroup != NEW.patrongroup)
         LOOP
             -- If a foliogroup is found, update the foliogroup field in the patron table
             UPDATE patron_import.patron
