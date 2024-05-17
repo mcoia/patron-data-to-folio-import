@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # ---------------------------------------------------------------
-# Copyright � 2013-2022 MOBIUS
+# Copyright  2013-2022 MOBIUS
 # Blake Graham-Henderson blake@mobiusconsortium.org 2013-2022
 # Scott Angel scottangel@mobiusconsoritum.org 2022
 #
