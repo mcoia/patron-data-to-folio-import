@@ -263,30 +263,24 @@ BEGIN
 END;
 $$;
 
-create function ptype_mapping_trigger_function() returns trigger
-    language plpgsql
-as
+CREATE OR REPLACE FUNCTION ptype_mapping_trigger_function() RETURNS trigger
+    LANGUAGE plpgsql
+AS
 $$
 
-DECLARE
-    patron patron_import.patron%ROWTYPE;
 BEGIN
 
     IF NEW.foliogroup IS NOT NULL THEN
 
-        FOR patron IN
-            SELECT * FROM patron_import.patron p
-            WHERE institution_id = NEW.institution_id
-              AND ltrim(SUBSTRING((p.raw_data), 2, 3), '0') = NEW.ptype
-              AND (p.patrongroup IS NULL OR p.patrongroup != NEW.foliogroup)
-            LOOP
+        UPDATE patron_import.patron patron
+        SET
+            patrongroup = NEW.foliogroup,
+            ready = true
+        WHERE
+        ltrim(SUBSTRING((patron.raw_data), 2, 3),'0') = NEW.ptype
+        AND NEW.institution_id=patron.institution_id
+        AND (patron.patrongroup IS NULL OR patron.patrongroup != NEW.foliogroup);
 
-                UPDATE patron_import.patron p
-                SET patrongroup = NEW.foliogroup,
-                    ready = true
-                WHERE id = patron.id;
-
-            END LOOP;
     END IF;
 
     RETURN NEW;
