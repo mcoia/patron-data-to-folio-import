@@ -78,6 +78,7 @@ sub importPatrons
         my @importResponse = ();
         my @importFailedUsers = ();
 
+        # fix this. It needs to be a for loop.
         while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== todo: I do NOT like this while loop. It has no break condition.
         {
 

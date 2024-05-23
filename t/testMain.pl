@@ -305,13 +305,13 @@ sub scanFilesForIllegalChars
 
 }
 
-test_patronRawData();
+# test_patronRawData();
 sub test_patronRawData
 {
 
     my $query = "select p.raw_data from patron_import.patron p limit 3";
 
-    for(@{$dao->query($query)})
+    for (@{$dao->query($query)})
     {
         my @rawData = split(/\n/, $_->[0]);
 
@@ -321,13 +321,29 @@ sub test_patronRawData
 
         print $ptype . "\n";
 
-
-
-
     }
 
+}
 
+rebuildJeffersonPatronFile();
+sub rebuildJeffersonPatronFile
+{
 
+    my $query = "select p.raw_data from patron_import.patron p where p.institution_id =3 ";
+
+    my $results = $dao->query($query);
+
+    my $filename = "./jcpat.txt";
+    for (@{$results})
+    {
+        print $_->[0];
+
+        # save $_->[0] to a file called jcpat.txt
+        open(my $fh, '>>', $filename) or die "Could not open file '$filename' $!";
+        print $fh $_->[0];
+        close $fh;
+
+    }
 
 }
 
