@@ -103,8 +103,7 @@ sub parse
                 my $patron = $self->_parsePatronRecord($record);
 
                 # Set the External System ID
-                $patron->{esid} = Parsers::ESID::getESID($patron, $institution) if ($institution->{'esid'} ne '');
-                # if ($institution->{'esid'} ne '' && !defined($patron->{'esid'}));
+                $patron->{esid} = Parsers::ESID::getESID($patron, $institution) if ($institution->{'esid'} ne '' && !defined($patron->{'esid'}));
 
                 # Note, everything in the patron hash gets 'fingerprinted'.
                 # id's are basically irrelevant after and may change on subsequent loads. So we don't want

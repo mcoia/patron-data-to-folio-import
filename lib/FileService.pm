@@ -172,7 +172,8 @@ sub patronFileDiscovery
     for my $file (@{$institution->{'folder'}->{files}})
     {
 
-        next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '');
+        # Skip files that are 'n/a'
+        next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '' || !defined($file->{'pattern'}));
         print "Looking for pattern: [$file->{pattern}]\n";
         $main::log->addLine("Looking for pattern: [$file->{pattern}]");
 
@@ -227,11 +228,8 @@ sub patronFileDiscovery
                         next;
                     }
 
-                    # todo: I'm giving this some more thought
-                    # my @zipFiles = `zip ~/old_files.zip $path` unless ($path =~ /KCAI/); # There was something about this KCAI file that was locking up the zip call.
-                    # I was getting some other wackiness with that file in other areas of the program too.
-                    # unlink $path; # <=== so scary! I don't like it.
-                    # what I would rather do is have a cleanUP() function
+                    # delete the file!
+                    unlink $path;
 
                     $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
 

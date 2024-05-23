@@ -263,7 +263,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION ptype_mapping_trigger_function() RETURNS trigger
+CREATE OR REPLACE FUNCTION patron_import.ptype_mapping_trigger_function() RETURNS trigger
     LANGUAGE plpgsql
 AS
 $$
@@ -273,13 +273,11 @@ BEGIN
     IF NEW.foliogroup IS NOT NULL THEN
 
         UPDATE patron_import.patron patron
-        SET
-            patrongroup = NEW.foliogroup,
-            ready = true
-        WHERE
-        ltrim(SUBSTRING((patron.raw_data), 2, 3),'0') = NEW.ptype
-        AND NEW.institution_id=patron.institution_id
-        AND (patron.patrongroup IS NULL OR patron.patrongroup != NEW.foliogroup);
+        SET patrongroup = NEW.foliogroup,
+            ready       = true
+        WHERE ltrim(SUBSTRING((patron.raw_data), 2, 3), '0') = NEW.ptype
+          AND NEW.institution_id = patron.institution_id
+          AND (patron.patrongroup IS NULL OR patron.patrongroup != NEW.foliogroup);
 
     END IF;
 
@@ -287,7 +285,7 @@ BEGIN
 END;
 $$;
 
-alter function ptype_mapping_trigger_function() owner to postgres;
+alter function patron_import.ptype_mapping_trigger_function() owner to postgres;
 
 CREATE TRIGGER ptype_mapping_trigger
     AFTER INSERT OR UPDATE

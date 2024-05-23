@@ -20,14 +20,14 @@ use DAO;
 my $configFile;
 my $help;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $dropSchema, $import, $stage);
+our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test);
 
 GetOptions(
-    "config=s"      => \$configFile,
-    "help:s"        => \$help,
-    "drop_schema:s" => \$dropSchema,
-    "import:s"      => \$import,
-    "stage:s"       => \$stage
+    "config=s" => \$configFile,
+    "help:s"   => \$help,
+    "import:s" => \$import,
+    "stage:s"  => \$stage,
+    "test:s"  => \$test,
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
@@ -92,7 +92,6 @@ sub startJob
 {
 
     my $jobType = "";
-    $jobType .= "drop_schema" if ($dropSchema);
     $jobType .= "_stage" if ($stage);
     $jobType .= "_import" if ($import);
 
@@ -137,6 +136,13 @@ sub getHelpMessage
 
 sub checkOptions
 {
+
+    # print a test message. Mainly for testing for our perl modules.
+    if(defined($test))
+    {
+        print "We are working!\n";
+        exit;
+    }
 
     # It's true/false 1 or 0 booleans. Binary
     # First is stage

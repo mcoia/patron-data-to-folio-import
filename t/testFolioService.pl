@@ -231,3 +231,26 @@ sub test_getPatronImportPendingSize
 {
     # $self->query("select count(p.id) from patron_import.patron p where p.institution_id=$institution_id and p.ready and not p.error;")->[0]->[0];
 }
+
+# test_escapeIllegalChars();
+sub test_escapeIllegalChars
+{
+
+    my $illegals = "";
+    for my $illegalChar (0 .. 31)
+    {$illegals .= chr($illegalChar);}
+
+    my $string = "this is some illegal characters.
+we have some return carriages and some new lines.
+ [$illegals]
+";
+
+    print "$string";
+    print "\n\n";
+
+    $string = $folio->escapeIllegalChars($string);
+
+    print "$string";
+    print "\n\n";
+
+}

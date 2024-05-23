@@ -78,7 +78,7 @@ sub importPatrons
         my @importResponse = ();
         my @importFailedUsers = ();
 
-        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== I do NOT like this while loop. It has no break condition.
+        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== todo: I do NOT like this while loop. It has no break condition.
         {
 
             print "Getting patrons for $institution->{name}\n";
@@ -150,8 +150,8 @@ sub importPatrons
                 $main::dao->_insertHashIntoTable("import_failed_users", $importFailedUsersHash);
 
                 # Contain this list size for email.
-                my $importFailedUsersSize = @importFailedUsers;
-                push(@importFailedUsers, $importFailedUsersHash) if ($main::conf->{maxFailedUsers} < $importFailedUsersSize);
+                my $importFailedUsersSize = scalar(@importFailedUsers);
+                push(@importFailedUsers, $importFailedUsersHash) if ($main::conf->{maxFailedUsers} >= $importFailedUsersSize);
 
             }
 
@@ -189,7 +189,7 @@ sub login
     ];
 
     my $credentials = $main::dao->getFolioCredentials($tenant);
-    return $self->loginFailedMessage($tenant) if (!defined($credentials->{username}) || !defined($credentials->{password}));
+    return $self->logLoginFailed($tenant) if (!defined($credentials->{username}) || !defined($credentials->{password}));
 
     my $userJSON = encode_json({ username => $credentials->{username}, password => $credentials->{password} });
 
@@ -200,7 +200,7 @@ sub login
 
     # Don't forget to cpan install LWP::Protocol::https
     # Check our login for cookies, if we didn't get any we failed and need to exit
-    return $self->loginFailedMessage($tenant) if (!defined($response->{'_headers'}->{'set-cookie'}->[0]));
+    return $self->logLoginFailed($tenant) if (!defined($response->{'_headers'}->{'set-cookie'}->[0]));
 
     # set our FART tokens. Folio-Access-Refresh-Tokens
     $self->{'tokens'}->{'AT'} = ($response->{'_headers'}->{'set-cookie'}->[0] =~ /=(.*?);\s/g)[0];
@@ -241,17 +241,17 @@ sub buildPatronJSON
     # # fix these pesky undef values.
     keys %$patron;
     while (my ($k, $v) = each %$patron)
-    {$patron->{$k} = "" if (!defined($v));}
+    {
+        # This is to remove all illegal chars in the json string
+        $patron->{$k} = $self->escapeIllegalChars($v) if (defined($v));
+
+        # we can't concat undef
+        $patron->{$k} = "" if (!defined($v));
+    }
 
     # my $address = "";
     my $address = $self->buildAddressJSON($patron->{address});
 
-    # notes about email. so... we're currently not importing the email address which is in the z-field of the
-    # patron file. It's not listed in the mod-user-import docs but when I looked at the Personal java object
-    # it is listed as being an acceptable field. It is a required field in the GUI.
-    # We're holding off right now until we get more information about why this isn't included.
-    # The thought is, is we don't want to fire off emails.
-    # Personally, I want to go ahead and add this now while in development as it'll be easier.
     my $template = <<json;
             {
               "username": "$patron->{username}",
@@ -364,7 +364,7 @@ sub importIntoFolio
 
 }
 
-sub loginFailedMessage
+sub logLoginFailed
 {
     my $self = shift;
     my $tenant = shift;
@@ -414,6 +414,22 @@ sub getImportResponseTotals
         failed  => $failed,
         total   => $total
     };
+
+}
+
+sub escapeIllegalChars
+{
+    my $self = shift;
+    my $string = shift;
+
+    # We need to escape all characters from chr(0) -> chr(31) in our json
+    for (0 .. 31)
+    {
+        my $char = chr($_);
+        $string =~ s/$char/\\$char/g;
+    }
+
+    return $string;
 
 }
 

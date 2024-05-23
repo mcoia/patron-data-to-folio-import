@@ -39,7 +39,8 @@ sub init
 sub initDatabaseConnection
 {
     my $self = shift;
-    eval {$self->{db} = DBhandler->new($main::conf->{db}, $main::conf->{dbhost}, $main::conf->{dbuser}, $main::conf->{dbpass}, $main::conf->{port} || 5432, "postgres", 1);};
+
+    eval {$self->{db} = DBhandler->new($main::conf->{db}, $main::conf->{dbhost}, $main::conf->{dbuser}, $main::conf->{dbpass}, $main::conf->{port} || $main::conf->{port}, "postgres", 1);};
     if ($@)
     {
         print "Could not establish a connection to the database\n";
@@ -54,16 +55,15 @@ sub initDatabaseSchema
     my $self = shift;
     my $filePath = $main::conf->{projectPath} . "/resources/sql/db.sql";
 
+    print "building schema using $filePath\n";
+    $main::log->addLine("building schema using $filePath");
+
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
 
     my $query = "";
     while (my $line = <$fileHandle>)
     {$query = $query . $line;}
     close $fileHandle;
-
-    # drop the schema if we pass in the --drop-schema
-    $query = "drop schema if exists patron_import cascade;" . $query if (defined $main::dropSchema);
-    print "drop schema if exists patron_import cascade;" if (defined $main::dropSchema);
 
     $self->{db}->update($query);
 
@@ -77,23 +77,36 @@ sub checkDatabaseStatus
     $self->_cacheTableColumns();
 
     my $institutionTableSize = $self->getTableSize("institution");
-    if ($main::runType eq 'drop_schema' || $institutionTableSize == 0)
+    if ($institutionTableSize == 0)
     {
+        print "building database tables\n";
+        $main::log->addLine("building database tables");
+
 
         # Insert the MOBIUS Primary tenant. This should be in the db.sql yea?
+        print "Insert the MOBIUS Primary tenant.\n";
+        $main::log->addLine("Insert the MOBIUS Primary tenant.");
         $self->query("INSERT INTO patron_import.institution (enabled, name, tenant, module, esid)
         VALUES (false, 'MOBIUS Office', 'cs00000001', 'GenericParser', '')");
 
         # Check our institution map
+        print "Building the institution tables.\n";
+        $main::log->addLine("Building the institution tables.");
         $main::files->buildInstitutionTableData();
 
         # build out our ptype mapping table
+        print "Building the ptype mapping tables.\n";
+        $main::log->addLine("Building the ptype mapping.");
         $main::files->buildPtypeMappingFromCSV();
 
         # insert our folio logins
+        print "Populating login tables.\n";
+        $main::log->addLine("Populating login tables.");
         $self->populateFolioLoginTable();
 
         # re-cache our columns due to db update.
+        print "Caching tables.\n";
+        $main::log->addLine("Caching tables.");
         $self->_cacheTableColumns();
 
     }
@@ -647,6 +660,11 @@ sub getPatronBatch2Import
 
         $query = "select $columns from $schema.$tableName a where a.id=$patron->{id}";
         my $address = $self->_convertQueryResultsToHash($tableName, $self->query($query));
+
+        # loop thru $address and check for null or undef values and set to "" if so.
+        for my $addressItem (@{$address})
+        {for my $key (keys %{$addressItem})
+        {$addressItem->{$key} = "" if (!defined($addressItem->{$key}));}}
 
         $patron->{address} = $address;
 
