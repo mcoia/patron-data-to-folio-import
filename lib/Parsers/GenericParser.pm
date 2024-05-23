@@ -104,7 +104,7 @@ sub parse
 
                 # Set the External System ID
                 $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
-                    if ($institution->{'esid'} ne '' && $patron->{'esid'} ne '');
+                    if ($institution->{'esid'} ne '' || $patron->{'esid'} ne '');
 
                 # Note, everything in the patron hash gets 'fingerprinted'.
                 # id's are basically irrelevant after and may change on subsequent loads. So we don't want
