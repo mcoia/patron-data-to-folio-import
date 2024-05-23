@@ -229,7 +229,7 @@ sub patronFileDiscovery
                     }
 
                     # delete the file!
-                    unlink $path;
+                    # unlink $path;
 
                     $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
 
