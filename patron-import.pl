@@ -7,7 +7,7 @@ use lib qw(lib);
 # Imports
 use Getopt::Long;
 use Data::Dumper;
-use MOBIUS::email;
+use MOBIUS::Email;
 use MOBIUS::Loghandler;
 use MOBIUS::DBhandler;
 use JSON;

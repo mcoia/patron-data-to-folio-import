@@ -360,7 +360,7 @@ sub buildInstitutionTableData
         }
 
         my $folder = {
-            'path' => "/mnt/dropbox/$institution->{cluster}/home/$institution->{cluster}/incoming"
+            'path' => "$main::conf->{dropBoxPath}/$institution->{cluster}/home/$institution->{cluster}/incoming"
         };
 
         # crossref array to see if it's already been added.
