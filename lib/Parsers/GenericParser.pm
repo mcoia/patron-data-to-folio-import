@@ -106,8 +106,8 @@ sub parse
                 $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
                     if ($institution->{'esid'} ne '' && $patron->{'esid'} eq '');
 
-                print Dumper($patron);
                 # skip if we didn't get an esid
+                next if(!defined($patron->{esid}));
                 next if($patron->{esid} eq '');
 
                 # Note, everything in the patron hash gets 'fingerprinted'.
