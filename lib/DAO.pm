@@ -644,10 +644,12 @@ sub getPatronBatch2Import
     my $query = "select $columns from $schema.$tableName p where
                      p.ready and
                      p.patrongroup is not null and
+                     p.externalsystemid is not null and
+                     p.username is not null and
                      p.institution_id=$institutionID
                      limit $chunkSize";
 
-    my $patrons = $self->_convertQueryResultsToHash("patron", $self->query($query));
+    my $patrons = $self->_convertQueryResultsToHash($tableName, $self->query($query));
 
     # we now need the addresses. Ideally this would be 1 query. this convertQueryResults is busted on joins.
     # DBI::pg has this tho! *i think. Live and learn. I would have totally used that to begin with. todo: <= do that!
@@ -750,21 +752,20 @@ sub setPatronsReadyStatus
     my $status = shift;
     my $patrons = shift;
 
-    my @externalSystemIDs = map {$_->{externalsystemid}} @{$patrons};
-    for my $esid (@externalSystemIDs)
+    my @usernames = map {$_->{username}} @{$patrons};
+    for my $username (@usernames)
     {
-        $esid =~ s/'/''/g; # escape ' tick marks in the esid.
-        $esid = "'$esid',";
+        $username =~ s/'/''/g; # escape ' tick marks in the esid.
+        $username = "'$username',";
     }
 
-    my $externalSystemIDs = "@externalSystemIDs";
-    $externalSystemIDs =~ s/,$//g; # <== removes the last comma?
-    $externalSystemIDs =~ s/\s//g; # <== remove spaces
+    my $usernames = "@usernames";
+    $usernames =~ s/,$//g; # <== removes the last comma?
+    $usernames =~ s/\s//g; # <== remove spaces
 
-    # print "externalSystemIDs: $externalSystemIDs\n";
-
-    # my $query = "update patron_import.patron set ready=$status where externalsystemid in($externalSystemIDs)";
-    my $query = "update patron_import.patron set ready=$status, load_date=now() where externalsystemid = ANY(ARRAY[$externalSystemIDs])";
+    # I don't like this load_date=now(). I don't think it should be setting that in this function
+    my $query = "update patron_import.patron set ready=$status, load_date=now()
+    where username = ANY(ARRAY[$usernames])";
     $self->{db}->update($query);
 
 }
