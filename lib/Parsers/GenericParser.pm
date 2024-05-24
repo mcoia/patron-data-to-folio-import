@@ -106,6 +106,7 @@ sub parse
                 $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
                     if ($institution->{'esid'} ne '' && $patron->{'esid'} eq '');
 
+                print Dumper($patron);
                 # skip if we didn't get an esid
                 next if($patron->{esid} eq '');
 
