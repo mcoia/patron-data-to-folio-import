@@ -104,12 +104,14 @@ sub parse
 
                 # Set the External System ID
                 $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
-                    if ($institution->{'esid'} ne '' || $patron->{'esid'} ne '');
+                    if ($institution->{'esid'} ne '' && $patron->{'esid'} eq '');
+
+                # skip if we didn't get an esid
+                next if($patron->{esid} eq '');
 
                 # Note, everything in the patron hash gets 'fingerprinted'.
                 # id's are basically irrelevant after and may change on subsequent loads. So we don't want
                 # to finger print id's. job_id being one that WILL change.
-
                 $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
 
                 # set some id's, I decided I needed these for tracking down trash
@@ -118,7 +120,7 @@ sub parse
                 $patron->{file_id} = $file->{id};
                 $patron->{job_id} = $main::jobID;
 
-                # We need to check this list four double entries.
+                # We need to check this list for double entries.
                 # Some patron files have double entries.
                 push(@parsedPatrons, $patron)
                     unless (grep /$patron->{unique_id}/, map {$_->{unique_id}} @parsedPatrons);

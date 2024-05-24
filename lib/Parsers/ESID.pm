@@ -19,7 +19,16 @@ sub getESID
     # I'm trying to error check this. I want a try/catch
     try
     {
-        $esid = eval "$institution->{esid}(\$patron)";
+        # I was getting some issues with this when esid is blank and there was no lookup.
+        # being that we only have a few options I decided to just type it out instead to prevent future bugs.
+        # I was getting esid=$VAR1 which was bombing the program.
+        # $esid = eval "$institution->{esid}(\$patron)";
+
+        $esid = $patron->{unique_id} if ($institution->{esid} eq "unique_id");
+        $esid = $patron->{email} if ($institution->{esid} eq "email");
+        $esid = $patron->{barcode} if ($institution->{esid} eq "barcode");
+        $esid = $patron->{note} if ($institution->{esid} eq "note");
+
     }
     catch
     {
@@ -54,7 +63,5 @@ sub note
     my $patron = shift;
     return $patron->{note};
 }
-
-
 
 1;
