@@ -57,10 +57,10 @@ sub getESID
     try
     {
 
-        return $self->{patron}->{unique_id} if ($self->{institution}->{esid} eq "unique_id");
-        return $self->{patron}->{email} if ($self->{institution}->{esid} eq "email");
-        return $self->{patron}->{barcode} if ($self->{institution}->{esid} eq "barcode");
-        return $self->{patron}->{note} if ($self->{institution}->{esid} eq "note");
+        # loop over the $self->{patron} keys, if the key matches the $self->{institution}->{esid} then return that value
+        # this is to replace those if statements and decouple the data from the logic.
+        foreach my $key (keys %{$self->{patron}})
+        {return $self->{patron}->{$key} if ($key eq $self->{institution}->{esid});}
 
         eval '$esid=$self->' . $self->{institution}->{esid} . '';
 
