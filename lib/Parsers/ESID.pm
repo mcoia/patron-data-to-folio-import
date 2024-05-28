@@ -8,15 +8,16 @@ use Try::Tiny;
 Okay, here is what I found.
 These institutions need to have the suffix dropped from the ESID:
 
-Columbia College:  "3406536" rather than "3406536CC"
-Logan:  "000070103" rather than "000070103L"
-Metropolitan Community College:  "1413784" rather than "1413784MCC"
-Rockhurst:  "770719" rather than "770719RG"
-State Fair:  "000284132" rather than "000284132SFCC"
+✓ Columbia College:  "3406536" rather than "3406536CC" <== remove suffix
+✓ Logan:  "000070103" rather than "000070103L" <== remove suffix
+✓ Metropolitan Community College:  "1413784" rather than "1413784MCC" <== remove suffix
+✓ Rockhurst:  "770719" rather than "770719RG" <== remove suffix
+✓ State Fair:  "000284132" rather than "000284132SFCC" <== remove suffix
+
 These institutions need to have the ESID padded out to 7-digits:
-East Central:  "0179959" rather than "179959"
-Maryville:  "0962514" rather than "962514"
-North Central also needs to be padded out with leading zeroes in the ESID "000164269" rather than "164269"
+✓ East Central:  "0179959" rather than "179959" <== padLeft
+? Maryville:  "0962514" rather than "962514" <== padLeft
+North Central also needs to be padded out with leading zeroes in the ESID "000164269" rather than "164269" <== padLeft
 
 Misc:
 I'm not sure when St. Charles dropped the suffix from their Unique ID, but I don't see it in the patron file.  I wonder if we need to add it back.  Help Desk folks?
@@ -27,31 +28,41 @@ https://docs.google.com/spreadsheets/d/1Q9EqkKqCkEchKzcumMcMWxr-UlPSB__xD0ddPPZa
 
 =cut
 
+sub new
+{
+    my $class = shift;
+    my $self = {
+        'institution' => shift,
+        'patron'      => shift,
+    };
+    bless $self, $class;
+    return $self;
+}
+
 sub getESID
 {
-    my $patron = shift;
-    my $institution = shift;
+    my $self = shift;
 
     my $esid = "";
 
+    # check for defined esid's in the patron record
+    $self->{patron}->{esid} = "" if (!defined($self->{patron}->{esid}));
 
-    # if ($institution->{'esid'} ne '' && $patron->{'esid'} eq '');
+    return $self->{patron}->{esid} if ($self->{patron}->{esid} ne '');
 
+    # check the institution esid, some are blank!
+    return $self->returnBlankESIDLogErrorMessage() if (!defined($self->{institution}->{esid}));
+    return $self->returnBlankESIDLogErrorMessage() if ($self->{institution}->{esid} eq '');
 
-
-
-    # I'm trying to error check this. I want a try/catch
     try
     {
-        # I was getting some issues with this when esid is blank and there was no lookup.
-        # being that we only have a few options I decided to just type it out instead to prevent future bugs.
-        # I was getting esid=$VAR1 which was bombing the program.
-        # $esid = eval "$institution->{esid}(\$patron)";
 
-        $esid = $patron->{unique_id} if ($institution->{esid} eq "unique_id");
-        $esid = $patron->{email} if ($institution->{esid} eq "email");
-        $esid = $patron->{barcode} if ($institution->{esid} eq "barcode");
-        $esid = $patron->{note} if ($institution->{esid} eq "note");
+        return $self->{patron}->{unique_id} if ($self->{institution}->{esid} eq "unique_id");
+        return $self->{patron}->{email} if ($self->{institution}->{esid} eq "email");
+        return $self->{patron}->{barcode} if ($self->{institution}->{esid} eq "barcode");
+        return $self->{patron}->{note} if ($self->{institution}->{esid} eq "note");
+
+        eval '$esid=$self->' . $self->{institution}->{esid} . '';
 
     }
     catch
@@ -63,29 +74,80 @@ sub getESID
 
 }
 
-sub unique_id
+sub returnBlankESIDLogErrorMessage
 {
-    my $patron = shift;
-    return $patron->{unique_id};
+    my $self = shift;
+
+    print "No ESID found for " . $self->{institution}->{name} . "\n";
+    $main::log->addLine("No ESID found for " . $self->{institution}->{name});
+    return "";
+
 }
 
-sub email
+# add $padChar to the left of the esid until it equals the $size specified.
+sub padLeft
 {
-    my $patron = shift;
-    return $patron->{email_address};
+    my $self = shift;
+    my $esid = shift;
+    my $padChar = shift;
+    my $size = shift;
+
+    while (length($esid) < $size)
+    {
+        $esid = $padChar . $esid;
+    }
+
+    return $esid;
+
 }
 
-sub barcode
+# remove the $suffix from the end of the $esid
+sub removeSuffix
 {
-    my $patron = shift;
-    return $patron->{barcode};
+    my $self = shift;
+    my $esid = shift;
+    my $suffix = shift;
+
+    $esid =~ s/$suffix$//g;
+
+    return $esid;
+
 }
 
-# this one looks pretty sketchy
-sub note
+sub removePrefix
 {
-    my $patron = shift;
-    return $patron->{note};
+    my $self = shift;
+    my $esid = shift;
+    my $prefix = shift;
+
+    $esid =~ s/^$prefix//g;
+
+    return $esid;
+
+}
+
+sub addSuffix
+{
+    my $self = shift;
+    my $esid = shift;
+    my $suffix = shift;
+
+    $esid =~ s/$/$suffix/g;
+
+    return $esid;
+
+}
+
+sub addPrefix
+{
+    my $self = shift;
+    my $esid = shift;
+    my $prefix = shift;
+
+    $esid =~ s/^/$prefix/g;
+
+    return $esid;
+
 }
 
 1;

@@ -102,13 +102,17 @@ sub parse
 
                 my $patron = $self->_parsePatronRecord($record);
 
+                my $esidBuilder = Parsers::ESID->new($institution, $patron);
 
                 # Set the External System ID
-                $patron->{esid} = Parsers::ESID::getESID($patron, $institution);
+                $patron->{esid} = $esidBuilder->getESID();
 
                 # skip if we didn't get an esid
-                next if(!defined($patron->{esid}));
-                next if($patron->{esid} eq '');
+                next if (!defined($patron->{esid}));
+                next if ($patron->{esid} eq '');
+
+                # free this object. I think...
+                undef $esidBuilder;
 
                 # Note, everything in the patron hash gets 'fingerprinted'.
                 # id's are basically irrelevant after and may change on subsequent loads. So we don't want
