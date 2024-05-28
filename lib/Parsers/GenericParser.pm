@@ -102,9 +102,9 @@ sub parse
 
                 my $patron = $self->_parsePatronRecord($record);
 
+
                 # Set the External System ID
-                $patron->{esid} = Parsers::ESID::getESID($patron, $institution)
-                    if ($institution->{'esid'} ne '' && $patron->{'esid'} eq '');
+                $patron->{esid} = Parsers::ESID::getESID($patron, $institution);
 
                 # skip if we didn't get an esid
                 next if(!defined($patron->{esid}));

@@ -229,7 +229,7 @@ I want to load up all the patron files that don't map to a ptype and figure out 
 
 }
 
-# extract_patron_files();
+extract_patron_files();
 sub extract_patron_files
 {
 
@@ -325,7 +325,7 @@ sub test_patronRawData
 
 }
 
-rebuildJeffersonPatronFile();
+# rebuildJeffersonPatronFile();
 sub rebuildJeffersonPatronFile
 {
 
