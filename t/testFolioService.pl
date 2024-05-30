@@ -54,15 +54,61 @@ sub initLog
     $log->truncFile("");
 }
 
-# test_1RecordLoad();
+test_1RecordLoad();
 sub test_1RecordLoad
 {
 
-    # my $tenant = $main::conf->{primaryTenant};
-    # my $tenant = "cs00000001_0053";
-    my $tenant = "cs00000001_0006";
+    my $tenant = "cs00000001_0042";
 
-    my $response = $folio->login($tenant);
+    my $password = $ENV{folio_password};
+
+    my $response = $folio->login($tenant, { username => 'mobius_api_kgbqs', password => $password });
+
+    my $json = <<"JSON";
+
+    {
+        "users": [
+            {
+                "username": "MOBIUS_TEST1",
+                "externalSystemId": "MOBIUS_TEST_ESID0123",
+                "barcode": "1234567890_MOBIUS_TEST",
+                "active": false,
+                "patronGroup": "TRUMAN Undergraduate",
+                "type": "patron",
+                "personal": {
+                    "lastName": "Handey1",
+                    "firstName": "Jack11",
+                    "middleName": "Michael11111",
+                    "preferredFirstName": "Jackie1111111",
+                    "phone": "+36 55 230 348",
+                    "mobilePhone": "+36 55 379 130",
+                    "dateOfBirth": "1995-10-10",
+                    "addresses": [
+                        {
+                            "countryId": "HU",
+                            "addressLine1": "Andrássy Street 1.",
+                            "addressLine2": "",
+                            "city": "Budapest",
+                            "region": "Pest",
+                            "postalCode": "1061",
+                            "addressTypeId": "Home",
+                            "primaryAddress": true
+                        }
+                    ],
+                    "preferredContactTypeId": "mail"
+                }
+            }
+        ],
+        "totalRecords": 1,
+        "deactivateMissingUsers": false,
+        "updateOnlyPresentFields": true,
+        "sourceType": ""
+    }
+
+JSON
+
+
+    $response = $folio->importIntoFolio($tenant, $json);
 
     print Dumper($response);
 

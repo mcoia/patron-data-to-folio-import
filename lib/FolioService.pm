@@ -79,7 +79,7 @@ sub importPatrons
         my @importFailedUsers = ();
 
         # fix this. It needs to be a for loop.
-        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== todo: I do NOT like this while loop. It has no break condition.
+        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== todo: I do NOT like this while loop. It has no 'REAL' break condition.
         {
 
             print "Getting patrons for $institution->{name}\n";
@@ -184,12 +184,14 @@ sub login
     my $self = shift;
     my $tenant = shift;
 
+    my $credentials = shift || $main::dao->getFolioCredentials($tenant);
+
+
     my $header = [
         'x-okapi-tenant' => "$tenant",
         'content-type'   => 'application/json'
     ];
 
-    my $credentials = $main::dao->getFolioCredentials($tenant);
     return $self->logLoginFailed($tenant) if (!defined($credentials->{username}) || !defined($credentials->{password}));
 
     my $userJSON = encode_json({ username => $credentials->{username}, password => $credentials->{password} });

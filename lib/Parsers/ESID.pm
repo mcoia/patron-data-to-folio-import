@@ -2,6 +2,7 @@ package Parsers::ESID;
 use strict;
 use warnings FATAL => 'all';
 use Try::Tiny;
+use Data::Dumper;
 
 =pod
 
@@ -54,13 +55,17 @@ sub getESID
     return $self->returnBlankESIDLogErrorMessage() if (!defined($self->{institution}->{esid}));
     return $self->returnBlankESIDLogErrorMessage() if ($self->{institution}->{esid} eq '');
 
+    return $self->{patron}->{unique_id} if ($self->{institution}->{esid} eq "unique_id");
+    return $self->{patron}->{email_address} if ($self->{institution}->{esid} eq "email");
+    return $self->{patron}->{barcode} if ($self->{institution}->{esid} eq "barcode");
+    return $self->{patron}->{note} if ($self->{institution}->{esid} eq "note");
+
     try
     {
-
         # loop over the $self->{patron} keys, if the key matches the $self->{institution}->{esid} then return that value
         # this is to replace those if statements and decouple the data from the logic.
-        foreach my $key (keys %{$self->{patron}})
-        {return $self->{patron}->{$key} if ($key eq $self->{institution}->{esid});}
+        # foreach my $key (keys %{$self->{patron}})
+        # {return $self->{patron}->{$key} if ($key eq $self->{institution}->{esid});}
 
         eval '$esid=$self->' . $self->{institution}->{esid} . '';
 
