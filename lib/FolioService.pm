@@ -281,6 +281,9 @@ sub buildPatronJSON
 json
     $json .= $template;
 
+    # replace null with ""
+    $json =~ s/null/""/g;
+
     return $json;
 
 }

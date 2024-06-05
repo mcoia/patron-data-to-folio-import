@@ -38,6 +38,38 @@ initConf();
 initLogger();
 main();
 
+=pod
+
+TODO:
+
+Patron names are getting the first name shoved into the middle name when they don't have a middle name.
+maybe I can use perl to help postgres know where to cut the names? like... Graham-Henderson, <F>William<FE><M>Blake<ME>
+
+expiration dates are not getting parsed correctly for 2 patrons. Their expiration dates
+contain a format of dd-MM-yy which is not able to parse correctly and therefor
+migrate.sql bombs and the stage patron table never truncates. Those records stay
+and bomb for each and every institution thereafter.
+
+Solution:
+    add an update statement above the update statement that contains the ::Date::Text
+    this update statement should add 20 in front of the year so postgres can figurout
+    what year it is.
+
+    We should check for existing patrons in the staging table before continuing
+    If we still have patrons in the stagin table we should halt execution, send an email
+    to the admins containing the sql error message if possible.
+
+    DBD::Pg::st execute failed: ERROR:  date/time field value out of range: "24-01-25"
+    How do I capture this error?
+    https://metacpan.org/pod/DBD::Pg#trace
+
+    Adrienne:
+    I need to update the build JSON portion.
+    If the field is empty it shouldn't be included in the json.
+
+
+=cut
+
 sub main
 {
 

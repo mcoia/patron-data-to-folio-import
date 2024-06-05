@@ -198,7 +198,7 @@ sub migrate
     # The users will never use the username to login anyways.
 
     # we're not finding the filename!
-    my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate-generic.sql");
+    my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
     $main::dao->query($query);
 
     # check for duplicate unique id's
