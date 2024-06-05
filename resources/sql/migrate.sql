@@ -28,10 +28,6 @@ WHERE sp.id = b.id
   AND not sp.load;
 
 
-UPDATE patron_import.stage_patron sp
-SET patron_expiration_date=to_char(to_date(sp.patron_expiration_date, 'DD-MM-YY'), 'MM-DD-YY')
-WHERE CAST(SUBSTRING(sp.patron_expiration_date, '^\d{2}') AS INTEGER) > 12;
-
 INSERT INTO patron_import.patron (institution_id,
                                   file_id,
                                   job_id,
