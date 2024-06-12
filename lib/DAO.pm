@@ -310,6 +310,13 @@ sub _getCurrentTimestamp
 
 }
 
+sub getStagePatronCount
+{
+    my $self = shift;
+    my $query = "SELECT count(*) as count FROM patron_import.stage_patron";
+    return $main::dao->query($query)->[0]->[0];
+}
+
 sub _convertQueryResultsToHash
 {
 
@@ -627,7 +634,19 @@ sub getPatronImportPendingSize
     my $self = shift;
     my $institution_id = shift;
 
-    return $self->query("select count(p.id) from patron_import.patron p where p.institution_id=$institution_id and p.ready;")->[0]->[0];
+    # select count(p.id) from patron_import.patron p
+    # where p.ready and
+    # p.patrongroup is not null and
+    # p.externalsystemid is not null and
+    # p.username is not null and
+    # p.institution_id=9;
+
+    return $self->query("select count(p.id) from patron_import.patron p where
+    p.ready and
+    p.patrongroup is not null and
+    p.externalsystemid is not null and
+    p.username is not null and
+    p.institution_id=$institution_id;")->[0]->[0];
 
 }
 
@@ -660,7 +679,7 @@ sub getPatronBatch2Import
     for my $patron (@{$patrons})
     {
 
-        $query = "select $columns from $schema.$tableName a where a.id=$patron->{id}";
+        $query = "select $columns from $schema.$tableName a where a.patron_id=$patron->{id}";
         my $address = $self->_convertQueryResultsToHash($tableName, $self->query($query));
 
         # loop thru $address and check for null or undef values and set to "" if so.
@@ -674,7 +693,7 @@ sub getPatronBatch2Import
         # This _convertQueryResultsToHash is the freaking problem here. It want's all the column names.
         # I really need to fix that. DBD::pg
 
-        # remove unwanted columns.
+        # remove unwanted columns. todo: does this matter? We don't populate these fields in the json data.
         delete($patron->{id});
         delete($patron->{institution_id});
         delete($patron->{file_id});

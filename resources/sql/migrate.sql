@@ -27,6 +27,7 @@ WHERE sp.id = b.id
   AND sp.esid is not null
   AND not sp.load;
 
+UPDATE patron_import.stage_patron sp SET patron_expiration_date='' WHERE substring(sp.patron_expiration_date from '^(\d+)')::INT > 12;
 
 INSERT INTO patron_import.patron (institution_id,
                                   file_id,
@@ -50,16 +51,16 @@ INSERT INTO patron_import.patron (institution_id,
             sp.job_id,
             sp.raw_data,
             sp.fingerprint,
-            sp.unique_id,
-            sp.esid,
-            sp.barcode,
-            sp.email_address,
+            btrim(sp.unique_id),
+            btrim(sp.esid),
+            btrim(sp.barcode),
+            btrim(sp.email_address),
             pt.foliogroup,
             btrim(regexp_replace(sp.name, ',.*', ''))                              as "lastname",
             btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')) as "middlename",
             btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')) as "firstname",
-            btrim(regexp_replace(sp.telephone, '[^0-9|^\-]', '')),  -- remove all non-numeric characters except for - from phone number, was getting a lot of errors
-            btrim(regexp_replace(sp.telephone2, '[^0-9|^\-]', '')), -- change to [0-9-]+ <== that's easier to read.
+            btrim(regexp_replace(sp.telephone, '[^0-9|^\-]', '')),
+            btrim(regexp_replace(sp.telephone2, '[^0-9|^\-]', '')),
             'email',
             (CASE
                  WHEN sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' then sp.patron_expiration_date::DATE::TEXT
@@ -80,15 +81,15 @@ UPDATE patron_import.patron p
 SET file_id                = sp.file_id,
     job_id                 = sp.job_id,
     fingerprint            = sp.fingerprint,
-    username               = sp.unique_id,
-    externalsystemid       = sp.esid,
-    barcode                = sp.barcode,
+    username               = btrim(sp.unique_id),
+    externalsystemid       = btrim(sp.esid),
+    barcode                = btrim(sp.barcode),
     patrongroup            = pt.foliogroup,
     lastname               = btrim(regexp_replace(sp.name, ',.*', '')),
     middlename             = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')),
     firstname              = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')),
-    phone                  = btrim(regexp_replace(sp.telephone, '[0-9-]+', '')),  -- remove all non-numeric characters except for - from phone number, was getting a lot of errors
-    mobilephone            = btrim(regexp_replace(sp.telephone2, '[0-9-]+', '')), -- change [^0-9|^\-] to [0-9-]+ <== that's easier to read.
+    phone                  = btrim(regexp_replace(sp.telephone, '[0-9-]+', '')),
+    mobilephone            = btrim(regexp_replace(sp.telephone2, '[0-9-]+', '')),
     preferredcontacttypeid = 'email',
     ready                  = true,
     update_date            = now(),
@@ -115,10 +116,12 @@ UPDATE patron_import.patron
 SET username=NULL
 WHERE username = '';
 
--- we don't load patrons without an external system id or username.
-UPDATE patron_import.patron
-SET ready = false
-WHERE externalsystemid is NULL
-   or username is NULL;
+-- clean up ALL patrons.
+-- we don't load patrons without an external system id, username and they must have a patron group associated.
+update patron_import.patron set ready=false
+    where
+    patrongroup is null or
+    externalsystemid is null or
+    username is null;
 
 TRUNCATE patron_import.stage_patron;

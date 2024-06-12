@@ -54,63 +54,52 @@ sub initLog
     $log->truncFile("");
 }
 
-test_1RecordLoad();
+# test_1RecordLoad();
 sub test_1RecordLoad
 {
 
-    my $tenant = "cs00000001_0042";
+    my $tenant = "cs00000001_0024";
 
     my $password = $ENV{folio_password};
 
-    my $response = $folio->login($tenant, { username => 'mobius_api_kgbqs', password => $password });
+    # my $response = $folio->login($tenant, { username => 'mobius_api_kgbqs', password => $password });
+    my $response = $folio->login($tenant, { username => 'mobius_api_irzsm', password => $password });
+
+
 
     my $json = <<"JSON";
-
-    {
-        "users": [
-            {
-                "username": "MOBIUS_TEST1",
-                "externalSystemId": "MOBIUS_TEST_ESID0123",
-                "barcode": "1234567890_MOBIUS_TEST",
-                "active": false,
-                "patronGroup": "TRUMAN Undergraduate",
-                "type": "patron",
-                "personal": {
-                    "lastName": "Handey1",
-                    "firstName": "Jack11",
-                    "middleName": "Michael11111",
-                    "preferredFirstName": "Jackie1111111",
-                    "phone": "+36 55 230 348",
-                    "mobilePhone": "+36 55 379 130",
-                    "dateOfBirth": "1995-10-10",
-                    "addresses": [
-                        {
-                            "countryId": "HU",
-                            "addressLine1": "Andrássy Street 1.",
-                            "addressLine2": "",
-                            "city": "Budapest",
-                            "region": "Pest",
-                            "postalCode": "1061",
-                            "addressTypeId": "Home",
-                            "primaryAddress": true
-                        }
-                    ],
-                    "preferredContactTypeId": "mail"
-                }
-            }
-        ],
-        "totalRecords": 1,
-        "deactivateMissingUsers": false,
-        "updateOnlyPresentFields": true,
-        "sourceType": ""
-    }
+{
+          "users": [            {
+              "username": "4268755EWL",
+              "externalSystemId": "4268755",
+              "barcode": "",
+              "active": true,
+              "patronGroup": "EWL-Webster Students International",
+              "type": "patron",
+              "personal": {
+                "lastName": "Zhou",
+                "firstName": "Zhenyu",
+                "middleName": "Zhenyu",
+                "preferredFirstName": "",
+                "phone": "",
+                "mobilePhone": "86 130 6785 1536",
+                "dateOfBirth": "",
+                "preferredContactTypeId": "email"
+              },
+              "expirationDate": "2025-01-10"
+            }],
+          "totalRecords": 1,
+          "deactivateMissingUsers": false,
+          "updateOnlyPresentFields": true,
+          "sourceType": ""
+        }
 
 JSON
 
 
-    $response = $folio->importIntoFolio($tenant, $json);
+    $response = $folio->_importIntoFolioUserImport($tenant, $json);
 
-    print Dumper($response);
+    print $response->{_content} . "\n";
 
 }
 
@@ -217,7 +206,7 @@ sub test_buildReport
         });
     }
 
-    my $response = $folio->getImportResponseTotals(\@importResponse);
+    my $response = $folio->_getImportUserImportResponseTotals(\@importResponse);
 
     # PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers)->buildReport()->sendEmail();
     my $institution = {
@@ -268,7 +257,7 @@ sub test_getImportResponseTotals
         });
     }
 
-    print Dumper($folio->getImportResponseTotals(\@importResponse));
+    print Dumper($folio->_getImportUserImportResponseTotals(\@importResponse));
 
 }
 
@@ -294,9 +283,38 @@ we have some return carriages and some new lines.
     print "$string";
     print "\n\n";
 
-    $string = $folio->escapeIllegalChars($string);
+    $string = $folio->_escapeIllegalChars($string);
 
     print "$string";
     print "\n\n";
+
+}
+
+# test_mod_users_groups();
+sub test_mod_users_groups
+{
+
+    # brooks user account
+    # my $endPoint = "/users/2e6628b9-3788-4473-8a6c-8cafc3defc64";
+    # my $endPoint = "/users/6bd7eb43-d2f7-4ef1-9283-40baa45c7f95";
+
+    # my $endPoint = "/groups";
+    my $endPoint = "/groups/b8b71b6f-e165-42f5-a8c8-03f14ad1ac05";
+
+    my $query = "(username==\"4268755EWL\")";
+    # my $endPoint = "/users?query=$query";
+
+    # my $endPoint = "/departments";
+
+    my $tenant = "cs00000001_0024";
+
+    $folio->login($tenant);
+    my $response = $folio->HTTPRequest("GET", $endPoint);
+    print Dumper($response);
+
+    # usergroups
+    # my $jsonResponse = $response->{_content};
+    # my $json = decode_json($jsonResponse);
+    # print "group: [$_->{group}] : $_->{desc}\n" for (@{$json->{usergroups}});
 
 }

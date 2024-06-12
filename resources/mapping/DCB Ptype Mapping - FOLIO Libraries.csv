@@ -44,9 +44,17 @@ Lincoln University,3,LINC Faculty/Staff
 Lincoln University,4,LINC Community
 Lincoln University,7,LINC ILL
 Lincoln University,10,LINC Faculty/Board/Emeritus
+Columbia College,51,CCIS Students
 Columbia College,52,CCIS Students
+Columbia College,53,CCIS Students
+Columbia College,59,CCIS Students
 Columbia College,54,CCIS Faculty/Staff
-Columbia College,55,CCIS Board/Emeritus
+Columbia College,60,CCIS Faculty/Staff
+Columbia College,61,CCIS Faculty/Staff
+Columbia College,63,CCIS Faculty/Staff
+Columbia College,64,CCIS Faculty/Staff
+Columbia College,55,CCIS Faculty/Staff
+Columbia College,65,CCIS Board/Emeritus
 Columbia College,57,CCIS ILL
 Columbia College,58,CCIS Courtesy
 Missouri State Library,80,MOSL State Employee
@@ -311,6 +319,7 @@ Midwestern Baptist Theological Seminary,75,MBTS Guest
 Midwestern Baptist Theological Seminary,76,MBTS PH.D Student
 Rockhurst University,81,ROCK RU Student
 Rockhurst University,82,ROCK RU Employee
+Rockhurst University,83,ROCK RU Employee
 Rockhurst University,85,ROCK RU Guest
 Rockhurst University,86,ROCK RU ILL
 Rockhurst University,87,ROCK RU ACCP Faculty
@@ -425,6 +434,7 @@ Missouri Southern State University,63,MSSU Graduate Student
 Missouri Southern State University,64,MSSU Friend
 Ozarks Technical Community College,76,OTC Student
 Ozarks Technical Community College,77,OTC Faculty-Staff
+Ozarks Technical Community College,78,OTC Faculty-Staff
 Ozarks Technical Community College,79,OTC Community
 Southwest Baptist University,101,SBU Undergraduate
 Southwest Baptist University,102,SBU Graduate
@@ -469,7 +479,6 @@ Ozark Christian College,189,OCC Affiliates
 Ozark Christian College,190,OCC Graduate
 Ozark Christian College,193,OCC Online
 Ozark Christian College,194,OCC Alumni
-Ozark Christian College,,OCC Student
 Southwestern Baptist Theological Seminary,1,SWBTS Student
 Southwestern Baptist Theological Seminary,2,SWBTS Doctoral Student
 Southwestern Baptist Theological Seminary,4,SWBTS ATLA/ACL Reciprocal

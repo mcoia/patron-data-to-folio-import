@@ -275,9 +275,17 @@ BEGIN
         UPDATE patron_import.patron patron
         SET patrongroup = NEW.foliogroup,
             ready       = true
-        WHERE ltrim(SUBSTRING((patron.raw_data), 2, 3), '0') = NEW.ptype
+        WHERE coalesce(NULLif(ltrim(SUBSTRING((patron.raw_data), 2, 3), '0'),''), '0') = NEW.ptype
           AND NEW.institution_id = patron.institution_id
           AND (patron.patrongroup IS NULL OR patron.patrongroup != NEW.foliogroup);
+
+
+        UPDATE patron_import.patron patron
+        SET patrongroup = NULL
+        FROM patron_import.patron p2
+            LEFT JOIN patron_import.ptype_mapping pt on (coalesce(NULLif(ltrim(SUBSTRING((p2.raw_data), 2, 3), '0'),''), '0') = pt.ptype and pt.institution_id=p2.institution_id)
+        WHERE patron.id=p2.id
+          AND pt.id is null AND p2.patrongroup IS NOT NULL;
 
     END IF;
 

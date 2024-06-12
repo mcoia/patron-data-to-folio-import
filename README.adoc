@@ -1,2 +1,60 @@
-=== Taking some patrons and loading them into folio using perl and postgres.
-==== I'll build out a real readme in time.
+# Patron Importer
+
+This project is a Perl-based application designed to import patron data into a FOLIO system. It uses SQL for data manipulation and storage.
+
+## Features
+
+- Test the system and ensure all Perl modules are installed.
+- Scan a specified dropbox directory for patron files.
+- Parse the patron files and store the data in a patron table.
+- Import the parsed patrons into a FOLIO system using the mod-user-import api.
+
+## Prerequisites
+
+- Perl
+- PostgreSQL
+- Access to a FOLIO system
+
+## Usage
+
+===== Here are the command line arguments for patron-import
+
+[source, bash]
+----
+# Test the system and make sure all perl modules are installed.
+./patron-import.pl --test
+
+# Scans dropbox for patron files, parses them where they end up in the patron table.
+./patron-import.pl --stage
+
+# Import patrons into folio.
+./patron-import.pl --import
+----
+
+### Test the system
+
+To test the system and ensure all Perl modules are installed, use the following command:
+
+```bash
+./patron-import.pl --test
+```
+
+### Stage the data
+
+To scan the dropbox for patron files and parse them into the patron table, use the following command:
+
+```bash
+./patron-import.pl --stage
+```
+
+### Import the data
+
+To import the parsed patrons into the FOLIO system, use the following command:
+
+```bash
+./patron-import.pl --import
+```
+
+## License
+
+This project is licensed under the MIT License - see the `LICENSE.md` file for details.

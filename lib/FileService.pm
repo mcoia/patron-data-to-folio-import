@@ -66,14 +66,14 @@ sub readFileAsString
     my $self = shift;
     my $fileName = shift;
 
-    my $query = "";
+    my $data = "";
 
     open my $fileHandle, '<', $fileName or die "Could not open file '$fileName' $!";
     while (my $line = <$fileHandle>)
-    {$query .= $line;}
+    {$data .= $line;}
     close $fileHandle;
 
-    return $query;
+    return $data;
 
 }
 

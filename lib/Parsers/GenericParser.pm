@@ -216,6 +216,7 @@ sub _parsePatronRecord
 
         # Each library defines a specific set of values for locally needed patron types. This value determines the borrowers’
         # privileges, renewals, loan periods, notices, and fine amounts if any.
+        # I'm adding + 0 to have perl convert this to a number.
         try
         {$patron->{'patron_type'} = substr($data, 1, 3) + 0 if ($data =~ /^0/);}
         catch

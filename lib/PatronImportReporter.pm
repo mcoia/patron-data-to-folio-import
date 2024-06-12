@@ -23,11 +23,16 @@ sub buildReport
 {
     my $self = shift;
 
-    $self->{failedHTML} = $self->_buildFailedUsersTemplate();
     $self->{reportTime} = strftime('%m-%d-%Y', localtime);
     $self->{message} = $self->_buildMessage();
 
-    my $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/html/report.html");
+    my $template = "";
+
+    $self->{failedHTML} = $self->_buildFailedUsersTextTemplate() if ($main::conf->{emailType} eq 'text');
+    $self->{failedHTML} = $self->_buildFailedUsersHTMLTemplate() if ($main::conf->{emailType} eq 'html');
+
+    $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.txt") if ($main::conf->{emailType} eq 'text');
+    $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.html") if ($main::conf->{emailType} eq 'html');
 
     $template =~ s/"/\\"/g;
     $template =~ s/\@/\\@/g;
@@ -78,7 +83,27 @@ sub sendEmail
 
 }
 
-sub _buildFailedUsersTemplate
+sub _buildFailedUsersTextTemplate
+{
+    my $self = shift;
+
+    my $text = "";
+    for my $failed (@{$self->{failed}})
+    {
+
+        my $failedText = <<"TEXT";
+                $failed->{username}
+                $failed->{errorMessage}
+TEXT
+
+        $text .= $failedText;
+    }
+
+    return $text;
+
+}
+
+sub _buildFailedUsersHTMLTemplate
 {
     my $self = shift;
 

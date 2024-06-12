@@ -1,0 +1,15 @@
+$self->{institution}->{name}
+
+$self->{message}
+
+Patron Load Report Date: $self->{reportTime}
+
+Created: $self->{response}->{created}
+
+Updated: $self->{response}->{updated}
+
+Failed: $self->{response}->{failed}
+
+Total Records: $self->{response}->{total}
+
+Failed: $self->{failedHTML}

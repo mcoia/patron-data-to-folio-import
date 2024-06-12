@@ -2,18 +2,10 @@
 use strict;
 use warnings FATAL => 'all';
 
-sub removeSuffix
+# my $e = "read timeout at /usr/local/share/perl/5.38.2/Net/HTTP/Methods.pm line 274.";
+my $e = "ead timeout at /usr/local/share/perl/5.38.2/Net/HTTP/Methods.pm line 274.";
+
+if ($e !~ /read timeout at/)
 {
-    my $esid = shift;
-    my $suffix = shift;
-
-    $esid =~ s/$suffix$//g;
-
-    return $esid;
-
+    print "timeout!\n";
 }
-# example: change V00115420JC to V00115420
-my $esid = removeSuffix("V00115420JC", "JC");
-print $esid . "\n" ;
-
-

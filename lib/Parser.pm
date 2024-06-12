@@ -201,17 +201,12 @@ sub migrate
     my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
     $main::dao->query($query);
 
-    # check for duplicate unique id's
-    $query = "select p.id, sp.*
-        from patron_import.stage_patron sp
-    left join patron_import.patron p on (sp.unique_id = p.username)
-    where sp.institution_id != p.institution_id;";
-
-    my @duplicateUniqueIDPatrons = @{$main::dao->query($query)};
-    my $duplicateSize = scalar(@duplicateUniqueIDPatrons);
-
-    $self->notifyDuplicateUniqueID(\@duplicateUniqueIDPatrons) if ($duplicateSize > 0);
+    # check the size of stage_patron
+    if ($main::dao->getStagePatronCount() == 0){
+        $main::log->addLine("Something went wrong! We did not truncate the stage_patron table.");
+    }
 
 }
+
 
 1;
