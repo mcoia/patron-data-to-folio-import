@@ -54,7 +54,3 @@ To import the parsed patrons into the FOLIO system, use the following command:
 ```bash
 ./patron-import.pl --import
 ```
-
-## License
-
-This project is licensed under the MIT License - see the `LICENSE.md` file for details.
