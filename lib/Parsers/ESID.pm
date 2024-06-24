@@ -49,9 +49,8 @@ sub getESID
     # check for defined esid's in the patron record
     $self->{patron}->{esid} = "" if (!defined($self->{patron}->{esid}));
 
-    return $self->{patron}->{esid} if ($self->{patron}->{esid} ne '');
+    return $self->{patron}->{esid} if($self->{patron}->{esid} ne '' && $self->{institution}->{esid} !~ /self/);
 
-    # check the institution esid, some are blank!
     return $self->returnBlankESIDLogErrorMessage() if (!defined($self->{institution}->{esid}));
     return $self->returnBlankESIDLogErrorMessage() if ($self->{institution}->{esid} eq '');
 
@@ -83,7 +82,7 @@ sub returnBlankESIDLogErrorMessage
 {
     my $self = shift;
 
-    print "No ESID found for " . $self->{institution}->{name} . "\n";
+    print "No ESID found for " . $self->{institution}->{name} . "\n" if($main::conf->{print2Console});
     $main::log->addLine("No ESID found for " . $self->{institution}->{name});
     return "";
 

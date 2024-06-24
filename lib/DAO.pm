@@ -10,7 +10,7 @@ use Try::Tiny;
 # https://metacpan.org/dist/ResourcePool/view/lib/ResourcePool.pm
 # https://metacpan.org/dist/ResourcePool/view/lib/ResourcePool/BigPicture.pod
 
-my $schema = "";
+my $schema = "patron_import";
 
 sub new
 {
@@ -30,7 +30,7 @@ sub init
     $schema = $main::conf->{schema};
 
     $self = initDatabaseConnection($self);
-    initDatabaseSchema($self);
+    # initDatabaseSchema($self); # <== this jacks up the output for command line api calls.
 
     return $self;
 
@@ -43,7 +43,7 @@ sub initDatabaseConnection
     eval {$self->{db} = DBhandler->new($main::conf->{db}, $main::conf->{dbhost}, $main::conf->{dbuser}, $main::conf->{dbpass}, $main::conf->{port} || $main::conf->{port}, "postgres", 1);};
     if ($@)
     {
-        print "Could not establish a connection to the database\n";
+        print "Could not establish a connection to the database\n" if($main::conf->{print2Console});
         exit 1;
     }
 
@@ -55,7 +55,7 @@ sub initDatabaseSchema
     my $self = shift;
     my $filePath = $main::conf->{projectPath} . "/resources/sql/db.sql";
 
-    print "building schema using $filePath\n";
+    print "building schema using $filePath\n" if($main::conf->{print2Console});
     $main::log->addLine("building schema using $filePath");
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
@@ -79,33 +79,32 @@ sub checkDatabaseStatus
     my $institutionTableSize = $self->getTableSize("institution");
     if ($institutionTableSize == 0)
     {
-        print "building database tables\n";
+        print "building database tables\n" if($main::conf->{print2Console});
         $main::log->addLine("building database tables");
 
-
         # Insert the MOBIUS Primary tenant. This should be in the db.sql yea?
-        print "Insert the MOBIUS Primary tenant.\n";
+        print "Insert the MOBIUS Primary tenant.\n" if($main::conf->{print2Console});
         $main::log->addLine("Insert the MOBIUS Primary tenant.");
         $self->query("INSERT INTO patron_import.institution (enabled, name, tenant, module, esid)
         VALUES (false, 'MOBIUS Office', 'cs00000001', 'GenericParser', '')");
 
         # Check our institution map
-        print "Building the institution tables.\n";
+        print "Building the institution tables.\n" if($main::conf->{print2Console});
         $main::log->addLine("Building the institution tables.");
         $main::files->buildInstitutionTableData();
 
         # build out our ptype mapping table
-        print "Building the ptype mapping tables.\n";
+        print "Building the ptype mapping tables.\n" if($main::conf->{print2Console});
         $main::log->addLine("Building the ptype mapping.");
         $main::files->buildPtypeMappingFromCSV();
 
         # insert our folio logins
-        print "Populating login tables.\n";
+        print "Populating login tables.\n" if($main::conf->{print2Console});
         $main::log->addLine("Populating login tables.");
         $self->populateFolioLoginTable();
 
         # re-cache our columns due to db update.
-        print "Caching tables.\n";
+        print "Caching tables.\n" if($main::conf->{print2Console});
         $main::log->addLine("Caching tables.");
         $self->_cacheTableColumns();
 
@@ -133,6 +132,25 @@ sub query
     my $query = shift;
 
     return $self->{db}->query($query);
+
+}
+
+sub queryHash
+{
+    my $self = shift;
+    my $tableName = shift;
+    my $query = shift;
+
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $results = [];
+
+    try
+    {$self->_convertQueryResultsToHash($tableName, $self->query($query));}
+    catch
+    {$main::log->addLine("queryHash failed! $query");};
+
+    return $results;
 
 }
 
@@ -194,16 +212,15 @@ sub _cacheTableColumns
 
 sub getStagedPatrons
 {
+    # this is only called in a test?!?
     my $self = shift;
     my $start = shift;
     my $stop = shift;
 
-    # select * from patron_import.stage_patron p where p.id > 1 and p.id < 1000;
     my $tableName = "stage_patron";
 
     my $columns = $self->_getTableColumns($tableName);
 
-    # my $query = "select $columns from $schema.stage_patron p where p.id > $start and p.id < $stop;";
     my $query = "select $columns
                  from patron_import.stage_patron sp
                           left join patron_import.patron p on (sp.fingerprint = p.fingerprint and sp.institution_id = p.institution_id)
@@ -307,6 +324,73 @@ sub _getCurrentTimestamp
     my ($sec, $min, $hour, $mday, $mon, $year) = localtime(time);
     return sprintf("%04d%02d%02d %02d:%02d:%02d",
         $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
+}
+
+sub getPatronByUsername
+{
+    my $self = shift;
+    my $username = shift;
+
+    my $tableName = "patron";
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $results = [];
+    my $query = "select $columns from $schema.$tableName where username='$username';";
+    print "$query\n" if($main::conf->{print2Console});
+
+    try
+    {$results = $self->_convertQueryResultsToHash($tableName, $self->query($query));}
+    catch
+    {
+        print "queryHash failed! $query\n" if($main::conf->{print2Console});
+        $main::log->addLine("queryHash failed! $query");
+    };
+
+    return $results->[0];
+
+}
+
+sub getTenantByUsername
+{
+    my $self = shift;
+    my $username = shift;
+
+    my $tableName = "institution";
+
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $results = [];
+
+    my $query = "select i.id,enabled,name,tenant,module,esid,emailsuccess,emailfail from patron_import.institution i
+         join patron_import.patron p on p.institution_id = i.id
+            where p.username = '$username';";
+
+    $results = $self->_convertQueryResultsToHash($tableName, $self->query($query));
+
+    return $results->[0]->{tenant};
+
+}
+
+
+sub getTenantByESID
+{
+    my $self = shift;
+    my $esid = shift;
+
+    my $tableName = "institution";
+
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $results = [];
+
+    my $query = "select i.id,enabled,name,tenant,module,esid,emailsuccess,emailfail from patron_import.institution i
+         join patron_import.patron p on p.institution_id = i.id
+            where p.externalsystemid = '$esid';";
+
+    $results = $self->_convertQueryResultsToHash($tableName, $self->query($query));
+
+    return $results->[0]->{tenant};
 
 }
 
@@ -418,7 +502,7 @@ sub getInstitutionsFoldersAndFilesHash
         {
 
             # grab the files associated with this folder & institution
-            my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $institution->{'id'}"))};
+            my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $institution->{'id'} order by f.id desc"))};
             my $institutionHash = {
                 'id'      => $institution->{'id'},
                 'enabled' => $institution->{'enabled'},
@@ -512,7 +596,7 @@ sub dropTable
     my $tableName = shift;
 
     my $query = "drop table if exists $schema.$tableName;";
-    print "$query\n";
+    print "$query\n" if($main::conf->{print2Console});
     $self->query($query);
 
 }
@@ -580,7 +664,7 @@ sub createTableFromCSV
         $count++;
     }
 
-    print "inserted [$count] records into $tableName\n";
+    print "inserted [$count] records into $tableName\n" if($main::conf->{print2Console});
 
     return $csv;
 
@@ -625,6 +709,25 @@ sub getFiles
 
     my $query = "select $columns from $schema.file f order by f.id asc";
     return $self->query($query);
+
+}
+
+sub getALLPatronImportPendingSize
+{
+    my $self = shift;
+
+    # select count(p.id) from patron_import.patron p
+    # where p.ready and
+    # p.patrongroup is not null and
+    # p.externalsystemid is not null and
+    # p.username is not null and
+    # p.institution_id=9;
+
+    return $self->query("select count(p.id) from patron_import.patron p where
+    p.ready and
+    p.patrongroup is not null and
+    p.externalsystemid is not null and
+    p.username is not null;")->[0]->[0];
 
 }
 

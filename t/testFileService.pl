@@ -27,7 +27,7 @@ sub initConf
     my $utils = MOBIUS::Utils->new();
 
     # Check our conf file
-    my $configFile = "/home/owner/repo/mobius/folio/patron-import/patron-import.conf";
+    my $configFile = "../patron-import.conf";
     $conf = $utils->readConfFile($configFile);
 
     exit if ($conf eq "false");
@@ -58,8 +58,18 @@ sub buildPtypeMappingFromCSV
     $files->buildPtypeMappingFromCSV();
 }
 
+test_patronFileDiscovery();
+sub test_patronFileDiscovery
+{
 
+    my $institutions = $main::dao->getInstitutionsFoldersAndFilesHash();
 
+    for my $institution (@{$institutions})
+    {
+        print Dumper($institution->{folder}->{files});
 
+    }
+
+}
 
 1;

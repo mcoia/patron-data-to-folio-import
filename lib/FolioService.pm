@@ -75,7 +75,7 @@ sub login
     $self->{cookies} = HTTP::CookieJar::LWP->new();
     my $response = $self->HTTPRequest("POST", $main::conf->{loginURL}, $header, $userJSON);
 
-    print Dumper($response) if ($printResponse);
+    print Dumper($response) if ($printResponse && $main::conf->{print2Console});
 
     $main::log->add(Dumper($response)) if (!defined($response->{'_headers'}->{'set-cookie'}->[0]));
 
@@ -123,7 +123,7 @@ sub importPatrons
         # We need the tenant for this institution
         my $tenant = $institution->{tenant};
 
-        print "Importing Patrons for [$institution->{name}] using tenant:[$tenant]\n";
+        print "Importing Patrons for [$institution->{name}] using tenant:[$tenant]\n" if ($main::conf->{print2Console});
         $main::log->add("Importing Patrons for [$institution->{name}] using tenant:[$tenant]");
         $main::log->add("authenticating...");
 
@@ -131,18 +131,17 @@ sub importPatrons
         my $loginStatus = $self->login($tenant);
         next if ($loginStatus == 0);
 
-        print "authentication successful!\n";
+        print "authentication successful!\n" if ($main::conf->{print2Console});
         $main::log->add("authentication successful!");
 
         my @importResponse = ();
         my @importFailedUsers = ();
 
-
         # fix this. It needs to be a for loop.
         while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== todo: I do NOT like this while loop. It has no 'REAL' break condition.
         {
 
-            print "Getting patrons for $institution->{name}\n";
+            print "Getting patrons for $institution->{name}\n" if ($main::conf->{print2Console});
             $main::log->add("");
             $main::log->add("____________________________________________");
             $main::log->add("Getting patrons for $institution->{name}");
@@ -153,7 +152,7 @@ sub importPatrons
 
             my $totalRecords = scalar(@{$patrons});
 
-            print "Total Records:[$totalRecords]\n";
+            print "Total Records:[$totalRecords]\n" if ($main::conf->{print2Console});
             $main::log->add("Total Records:[$totalRecords]");
 
             my $json = "";
@@ -166,7 +165,7 @@ sub importPatrons
             $json = $self->_removeEmptyFields($json);
 
             # ship it!
-            print "sending json to folio...\n";
+            print "sending json to folio...\n" if ($main::conf->{print2Console});
             $main::log->add("sending json to folio...");
             $main::log->add("$json");
             my $response = $self->_importIntoFolioUserImport($tenant, $json);
@@ -174,13 +173,13 @@ sub importPatrons
             # Deal with the response
             my $responseContent = $response->{_content};
 
-            print "================= RESPONSE =================\n";
-            print "$responseContent\n";
+            print "================= RESPONSE =================\n" if ($main::conf->{print2Console});
+            print "$responseContent\n" if ($main::conf->{print2Console});
 
             # Invalid token, we probably timed out. Folio can be slow sometimes.
             if ($responseContent =~ /Invalid token/)
             {
-                print "TOKEN Expired! Refreshing token\n";
+                print "TOKEN Expired! Refreshing token\n" if ($main::conf->{print2Console});
                 $main::log->addLine("TOKEN Expired! Refreshing token");
                 $self->login($tenant);
                 $disablePatrons = 0;
@@ -188,7 +187,7 @@ sub importPatrons
 
             if ($responseContent =~ /Illegal unquoted character/ || $responseContent =~ /malformed JSON string/)
             {
-                print $json . "\n";
+                print $json . "\n" if ($main::conf->{print2Console});
                 $main::log->add($json);
             }
 
@@ -197,8 +196,8 @@ sub importPatrons
 
             if ($responseContent =~ 'read timeout at')
             {
-                print "\n============== FOLIO TIMEOUT ===============\n";
-                print "Reloading patrons and trying again.\n\n";
+                print "\n============== FOLIO TIMEOUT ===============\n" if ($main::conf->{print2Console});
+                print "Reloading patrons and trying again.\n\n" if ($main::conf->{print2Console});
                 $main::log->add("Reloading patrons and trying again.");
                 $disablePatrons = 0;
             }
@@ -211,6 +210,8 @@ sub importPatrons
 
                 # We will bomb here if these patron records get goofy chars in them. \ <== talking to you backspace!
                 # We're filtering out some of these chars in fileService->readFileToArray but are we catching them all?
+                # Ahh.... folio strikes again! It's not my code but folio sending out garbage json. we have to wrap this
+                # in a try/catch now.
                 my $responseHash = decode_json($responseContent);
                 my $importResponseHash = {
                     'institution_id' => $institution->{id},
@@ -259,17 +260,21 @@ sub importPatrons
 
         }
 
+
         # Build our report.
-        print "[$institution->{name}] Building a report\n";
+        print "[$institution->{name}] Building a report\n" if ($main::conf->{print2Console});
         $main::log->add("[$institution->{name}] Building a report");
 
         my $importResponseTotals = $self->_getImportUserImportResponseTotals(\@importResponse);
 
         PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers)->buildReport()->sendEmail()
             if ($importResponseTotals->{total} > 0 || $importResponseTotals->{failed} > 0 || $importResponseTotals->{created} > 0 || $importResponseTotals->{updated} > 0);
-        # I'm not sure if this if statement is right. It's more because during testing we're getting emails with blank results.
 
     }
+
+    # should I check for patrons again? recursion?
+    # $self->importPatrons() if ($main::dao->getPatronImportPendingSize($institution->{id}) > 0);
+
     return $self;
 
 }
@@ -483,12 +488,12 @@ sub _logLoginFailed
 
     {
 
-        print "\n\n=====================================================================================================\n";
-        print "                                 !!! Log in failed !!!\n";
-        print "                    Login failed for tenant: $tenant\n";
-        print "                    $main::conf->{baseURL}$main::conf->{loginURL}\n";
-        print "                    Do we have a login for $tenant?\n";
-        print "=====================================================================================================\n\n";
+        print "\n\n=====================================================================================================\n" if ($main::conf->{print2Console});
+        print "                                 !!! Log in failed !!!\n" if ($main::conf->{print2Console});
+        print "                    Login failed for tenant: $tenant\n" if ($main::conf->{print2Console});
+        print "                    $main::conf->{baseURL}$main::conf->{loginURL}\n" if ($main::conf->{print2Console});
+        print "                    Do we have a login for $tenant?\n" if ($main::conf->{print2Console});
+        print "=====================================================================================================\n\n" if ($main::conf->{print2Console});
 
         $main::log->add("\n\n=====================================================================================================\n");
         $main::log->add("                                 !!! Log in failed !!!\n");
@@ -531,6 +536,7 @@ sub _getImportUserImportResponseTotals
 
 sub _escapeIllegalChars
 {
+
     my $self = shift;
     my $string = shift;
 
@@ -542,6 +548,51 @@ sub _escapeIllegalChars
     }
 
     return $string;
+
+}
+
+sub getFolioUserByUsername
+{
+    my $self = shift;
+
+    my $username = shift;
+    my $query = "(username==\"$username\")";
+    my $endPoint = "/users?query=$query";
+
+    print "$endPoint\n\n" if ($main::conf->{print2Console});
+
+    # this works because we only allow 1 username. they have to be unique.
+    my $tenant = $main::dao->getTenantByUsername($username);
+    print "tenant: $tenant\n" if ($main::conf->{print2Console});
+    $self->login($tenant);
+    my $response = $self->HTTPRequest("GET", $endPoint);
+
+    my $json = decode_json($response->{_content});
+    print encode_json($json->{users}) if ($main::conf->{print2Console});
+
+    exit;
+
+}
+
+sub getFolioUserByESID
+{
+
+    my $self = shift;
+    my $esid = shift;
+
+    my $query = "(externalSystemId==\"$esid\")";
+    my $endPoint = "/users?query=$query";
+
+    # this works because we only allow 1 username. they have to be unique.
+    my $tenant = $main::dao->getTenantByESID($esid);
+    $self = FolioService->new();
+    $self->login($tenant);
+    my $response = $self->HTTPRequest("GET", $endPoint);
+
+    my $json = decode_json($response->{_content});
+    print encode_json($json->{users}) if ($main::conf->{print2Console});
+
+    exit;
 
 }
 

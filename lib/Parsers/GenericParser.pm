@@ -111,9 +111,6 @@ sub parse
                 next if (!defined($patron->{esid}));
                 next if ($patron->{esid} eq '');
 
-                # free this object. I think...
-                undef $esidBuilder;
-
                 # Note, everything in the patron hash gets 'fingerprinted'.
                 # id's are basically irrelevant after and may change on subsequent loads. So we don't want
                 # to finger print id's. job_id being one that WILL change.
@@ -134,7 +131,7 @@ sub parse
 
         }
 
-        print "Total Patrons in $file->{name}: [$patronCounter]\n";
+        print "Total Patrons in $file->{name}: [$patronCounter]\n" if($main::conf->{print2Console});
         $main::log->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
 
     }

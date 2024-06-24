@@ -165,7 +165,7 @@ sub patronFileDiscovery
     {find(sub {push(@files, $File::Find::name)}, $institution->{'folder'}->{'path'});}
     catch
     {
-        print "Could not find this folder path! $institution->{'folder'}->{'path'}\n";
+        print "Could not find this folder path! $institution->{'folder'}->{'path'}\n" if($main::conf->{print2Console});
         $main::log->addLine("Could not find this folder path! $institution->{'folder'}->{'path'}");
     };
 
@@ -174,7 +174,7 @@ sub patronFileDiscovery
 
         # Skip files that are 'n/a'
         next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '' || !defined($file->{'pattern'}));
-        print "Looking for pattern: [$file->{pattern}]\n";
+        print "Looking for pattern: [$file->{pattern}]\n" if($main::conf->{print2Console});
         $main::log->addLine("Looking for pattern: [$file->{pattern}]");
 
         my @paths = ();
@@ -193,11 +193,11 @@ sub patronFileDiscovery
             for my $path (@paths)
             {
 
-                # unless (-d $path) # we're getting directories matching. *I don't like this. todo: shouldn't this be if(-f $path)
+                # Check if we're a file
                 if (-f $path)
                 {
 
-                    print "File Found: [$institution->{name}]:[$path]\n";
+                    print "File Found: [$institution->{name}]:[$path]\n" if($main::conf->{print2Console});
                     $main::log->addLine("File Found: [$institution->{'folder'}->{'path'}]:[$path]");
 
                     my $pathHash = {
@@ -209,13 +209,13 @@ sub patronFileDiscovery
                     };
 
 
-                    # we're going to skip files older than 3 months.
+                    # we're going to skip files older than n days. Setting in conf file.
                     my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
 
                     # if $path contains the word test skip
                     if (lc $path =~ /test/)
                     {
-                        print "File contains the word test. Skipping.\n";
+                        print "File contains the word test. Skipping.\n" if($main::conf->{print2Console});
                         $main::log->addLine("File contains the word test. Skipping.");
                         next;
                     }
@@ -223,7 +223,7 @@ sub patronFileDiscovery
                     # check our file dates for old files.
                     if (time > $pathHash->{lastModified} + $maxPatronFileAge)
                     {
-                        print "File is older than 3 months. Skipping.\n";
+                        print "File is older than 3 months. Skipping.\n" if($main::conf->{print2Console});
                         $main::log->addLine("File is older than 3 months. Skipping.");
                         next;
                     }
@@ -503,7 +503,7 @@ sub checkFileForSpecialChars
     my $self = shift;
     my $fileName = shift;
 
-    print "checking file $fileName\n";
+    print "checking file $fileName\n" if($main::conf->{print2Console});
 
     my $data = $self->readFileToArray($fileName);
 
@@ -511,20 +511,20 @@ sub checkFileForSpecialChars
     my $allowedChars = "+-,.0123456789:;<=>?\@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]^_`abcdefghijklmnopqrstuvwxyz ";
     my @allowedChars = split('', $allowedChars);
 
-    print "$allowedChars\n";
+    print "$allowedChars\n" if($main::conf->{print2Console});
 
     my $lineCount = 0;
     for my $line (@{$data})
     {
 
-        # print "[$lineCount]: $line\n";
+        # print "[$lineCount]: $line\n" if($main::conf->{print2Console});
         my @lineArray = split('', $line);
         for my $char (@lineArray)
         {
             my $match;
             for (@allowedChars)
             {$match = 1 if ($_ eq $char);}
-            print "[$lineCount]:[$char][" . ord($char) . "]\n" if (!defined $match);
+            print "[$lineCount]:[$char][" . ord($char) . "]\n" if (!defined $match && $main::conf->{print2Console});
 
         }
 

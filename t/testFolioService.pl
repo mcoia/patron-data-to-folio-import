@@ -65,34 +65,33 @@ sub test_1RecordLoad
     # my $response = $folio->login($tenant, { username => 'mobius_api_kgbqs', password => $password });
     my $response = $folio->login($tenant, { username => 'mobius_api_irzsm', password => $password });
 
-
-
     my $json = <<"JSON";
-{
-          "users": [            {
-              "username": "4268755EWL",
-              "externalSystemId": "4268755",
-              "barcode": "",
-              "active": true,
-              "patronGroup": "EWL-Webster Students International",
-              "type": "patron",
-              "personal": {
-                "lastName": "Zhou",
-                "firstName": "Zhenyu",
-                "middleName": "Zhenyu",
-                "preferredFirstName": "",
-                "phone": "",
-                "mobilePhone": "86 130 6785 1536",
-                "dateOfBirth": "",
-                "preferredContactTypeId": "email"
-              },
-              "expirationDate": "2025-01-10"
+    {
+        "users": [
+            {
+                "username": "4268755EWL",
+                "externalSystemId": "4268755",
+                "barcode": "",
+                "active": true,
+                "patronGroup": "EWL-Webster Students International",
+                "type": "patron",
+                "personal": {
+                    "lastName": "Zhou",
+                    "firstName": "Zhenyu",
+                    "middleName": "Zhenyu",
+                    "preferredFirstName": "",
+                    "phone": "",
+                    "mobilePhone": "86 130 6785 1536",
+                    "dateOfBirth": "",
+                    "preferredContactTypeId": "email"
+                },
+                "expirationDate": "2025-01-10"
             }],
-          "totalRecords": 1,
-          "deactivateMissingUsers": false,
-          "updateOnlyPresentFields": true,
-          "sourceType": ""
-        }
+        "totalRecords": 1,
+        "deactivateMissingUsers": false,
+        "updateOnlyPresentFields": true,
+        "sourceType": ""
+    }
 
 JSON
 
@@ -290,8 +289,17 @@ we have some return carriages and some new lines.
 
 }
 
-# test_mod_users_groups();
-sub test_mod_users_groups
+# test_getPatronByUsername();
+sub test_getPatronByUsername
+{
+
+    my $patron = $dao->getPatronByUsername("351234WW");
+    print Dumper($patron);
+
+}
+
+test_folio_api();
+sub test_folio_api
 {
 
     # brooks user account
@@ -299,14 +307,15 @@ sub test_mod_users_groups
     # my $endPoint = "/users/6bd7eb43-d2f7-4ef1-9283-40baa45c7f95";
 
     # my $endPoint = "/groups";
-    my $endPoint = "/groups/b8b71b6f-e165-42f5-a8c8-03f14ad1ac05";
+    # my $endPoint = "/groups/b8b71b6f-e165-42f5-a8c8-03f14ad1ac05";
 
-    my $query = "(username==\"4268755EWL\")";
-    # my $endPoint = "/users?query=$query";
+    # my $query = "(username==\"4268755EWL\")";
+    my $query = "(externalSystemId==\"856238\")";
+    my $endPoint = "/users?query=$query";
 
     # my $endPoint = "/departments";
 
-    my $tenant = "cs00000001_0024";
+    my $tenant = "cs00000001_0050";
 
     $folio->login($tenant);
     my $response = $folio->HTTPRequest("GET", $endPoint);
@@ -316,5 +325,34 @@ sub test_mod_users_groups
     # my $jsonResponse = $response->{_content};
     # my $json = decode_json($jsonResponse);
     # print "group: [$_->{group}] : $_->{desc}\n" for (@{$json->{usergroups}});
+
+}
+
+# deleteTrumanPatrons();
+sub deleteTrumanPatrons
+{
+
+    # 23
+    my $tenant = "cs00000001_0042";
+
+
+    # 08fbf342-7856-49a8-ac8c-0cc52daf2946
+
+    # my $endPoint = "/users?query=(active=false)&limit=1000";
+    my $endPoint = "/users/08fbf342-7856-49a8-ac8c-0cc52daf2946";
+
+    $folio->login($tenant);
+    # my $response = $folio->HTTPRequest("GET", $endPoint);
+    my $response = $folio->HTTPRequest("DELETE", $endPoint);
+    print Dumper($response);
+
+    # save $response->{_content} to a file called truman_patrons.json
+    my $json = $response->{_content};
+    # open(my $fh, '>', 'truman_patrons.json');
+    # print $fh $json;
+    # close $fh;
+
+
+
 
 }

@@ -8,6 +8,7 @@ use MOBIUS::Utils;
 use DAO;
 use Parser;
 use FileService;
+use JSON;
 
 use Data::Dumper;
 
@@ -435,5 +436,29 @@ sub test_populateFolioLoginTable
     $dao->populateFolioLoginTable();
 }
 
+test_getPatronByUsername();
+sub test_getPatronByUsername
+{
+    # print Dumper(
+    #     encode_json($dao->getPatronByUsername("351234WW"))
+    # );
+
+    my $username = "351234WW";
+
+    my $query = "(username==\"$username\")";
+    my $endPoint = "/users?query=$query";
+
+    # this works because we only allow 1 username. they have to be unique.
+    # my $tenant =
+    print Dumper(
+
+        $dao->getTenantByUsername($username)
+
+    );
+    # print $tenant . "\n";
+
+
+
+}
 
 1;

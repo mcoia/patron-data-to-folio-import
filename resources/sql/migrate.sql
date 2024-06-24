@@ -27,7 +27,9 @@ WHERE sp.id = b.id
   AND sp.esid is not null
   AND not sp.load;
 
-UPDATE patron_import.stage_patron sp SET patron_expiration_date='' WHERE substring(sp.patron_expiration_date from '^(\d+)')::INT > 12;
+UPDATE patron_import.stage_patron sp
+SET patron_expiration_date=''
+WHERE substring(sp.patron_expiration_date from '^(\d+)')::INT > 12;
 
 INSERT INTO patron_import.patron (institution_id,
                                   file_id,
@@ -93,6 +95,7 @@ SET file_id                = sp.file_id,
     preferredcontacttypeid = 'email',
     ready                  = true,
     update_date            = now(),
+    raw_data               = sp.raw_data,
     expirationdate         = (CASE
                                   WHEN sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
                                       THEN sp.patron_expiration_date::DATE::TEXT
@@ -100,9 +103,15 @@ SET file_id                = sp.file_id,
 FROM patron_import.stage_patron sp
          JOIN patron_import.institution i on (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
-WHERE sp.fingerprint != p.fingerprint
-  AND sp.unique_id = p.username
+WHERE sp.unique_id = p.username
+  AND sp.fingerprint != p.fingerprint
+  AND sp.esid = p.externalsystemid
   AND sp.load;
+
+-- fix these middle names
+update patron_import.patron p
+set middlename=''
+where p.firstname = p.middlename;
 
 -- why is this here?!? We shouldn't be inserting anything without an externalsystemid
 -- convert our '' to NULLs
@@ -118,10 +127,10 @@ WHERE username = '';
 
 -- clean up ALL patrons.
 -- we don't load patrons without an external system id, username and they must have a patron group associated.
-update patron_import.patron set ready=false
-    where
-    patrongroup is null or
-    externalsystemid is null or
-    username is null;
+update patron_import.patron
+set ready= false
+where patrongroup is null
+   or externalsystemid is null
+   or username is null;
 
 TRUNCATE patron_import.stage_patron;

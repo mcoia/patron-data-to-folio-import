@@ -2,7 +2,9 @@
 
 use strict;
 use warnings;
-use lib qw(lib);
+
+# use lib qw(lib);
+use lib qw(lib patron-data-to-folio-import/lib);
 
 # Imports
 use Getopt::Long;
@@ -20,14 +22,16 @@ use DAO;
 my $configFile;
 my $help;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test);
+our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test, $getFolioUserByUsername, $getFolioUserByESID);
 
 GetOptions(
-    "config=s" => \$configFile,
-    "help:s"   => \$help,
-    "import:s" => \$import,
-    "stage:s"  => \$stage,
-    "test:s"  => \$test,
+    "config=s"                 => \$configFile,
+    "help:s"                   => \$help,
+    "import:s"                 => \$import,
+    "stage:s"                  => \$stage,
+    "test:s"                   => \$test,
+    "getFolioUserByUsername:s" => \$getFolioUserByUsername,
+    "getFolioUserByESID:s"     => \$getFolioUserByESID,
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
@@ -38,35 +42,23 @@ initConf();
 initLogger();
 main();
 
-=pod
-
-TODO:
-
-expiration dates are not getting parsed correctly for 2 patrons. Their expiration dates
-contain a format of dd-MM-yy which is not able to parse correctly and therefor
-migrate.sql bombs and the stage patron table never truncates. Those records stay
-and bomb for each and every institution thereafter.
-
-Solution:
-
-    We should check for existing patrons in the staging table before continuing
-    If we still have patrons in the stagin table we should halt execution, send an email
-    to the admins containing the sql error message if possible.
-
-=cut
-
 sub main
 {
 
     # Create our main objects
     $dao = DAO->new();
     $files = FileService->new();
-    $dao->checkDatabaseStatus();
+    $dao->_cacheTableColumns();
+    $parser = Parser->new();
+    $folio = FolioService->new();
+
+    # check if we're a command line api call. These functions exit
+    commandLineAPICall();
 
     startJob();
 
-    $parser = Parser->new()->stagePatronRecords() if ($stage);
-    $folio = FolioService->new()->importPatrons() if ($import);
+    $parser->stagePatronRecords() if ($stage);
+    $folio->importPatrons() if ($import);
 
     finishJob();
 
@@ -79,6 +71,8 @@ sub initConf
 
     # Check our conf file
     $configFile = "patron-import.conf" if (!defined $configFile);
+    # $configFile = "/home/owner/repo/mobius/folio/patron-data-to-folio-import/patron-import.conf" if (!defined $configFile);
+    # $configFile = "patron-data-to-folio-import/patron-import.conf" if (!defined $configFile);
     $conf = $utils->readConfFile($configFile);
 
     exit if ($conf eq "false");
@@ -102,6 +96,15 @@ sub initLogger
 
     $log = Loghandler->new($logFileName);
     $log->truncFile("");
+
+}
+
+sub commandLineAPICall
+{
+    # Used to run specific methods from the command line.
+
+    $folio->getFolioUserByUsername($getFolioUserByUsername) if (defined $getFolioUserByUsername);
+    $folio->getFolioUserByESID($getFolioUserByESID) if (defined $getFolioUserByESID);
 
 }
 
@@ -143,10 +146,12 @@ sub getHelpMessage
 
     print
         "You can specify
-        --config                                      [Path to the config file]
-        --run                                         [stage | load]
-                                                      stage: This will stage patron records
-                                                      import:  This will load import records into folio.
+        --config                                      [Path to the config file] If none is specified patron-import.conf is used.
+        --stage                                       This will stage patron records
+        --import                                      This will load import records into folio.
+
+        --getFolioUserByUsername                      returns a json users[] array of the folio user using the username as the search parameter
+        --getFolioUserByESID                          returns a json users[] array of the folio user using the external system id as the search parameter
         \n";
     exit;
 }
@@ -154,12 +159,16 @@ sub getHelpMessage
 sub checkOptions
 {
 
-    # print a test message. Mainly for testing for our perl modules.
-    if(defined($test))
+    # print a test message. Mainly for testing for our perl modules without actually executing any other code.
+    if (defined($test))
     {
         print "We are working!\n";
         exit;
     }
+
+
+    # god this is so dumb. I was watching youtube videos about binary and must have gotten inspired.
+    # I'm going to fix this nonsense.
 
     # It's true/false 1 or 0 booleans. Binary
     # First is stage

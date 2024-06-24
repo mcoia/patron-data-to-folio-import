@@ -46,12 +46,12 @@ sub stagePatronRecords
 
         # Parser Not working? Don't forget to load it! use Parsers::ParserNameHere;
 
-        print "Searching for files...\n";
+        print "Searching for files...\n" if($main::conf->{print2Console});
         $main::log->addLine("Searching for files...\n");
-        print "$institution->{name}: $institution->{folder}->{path}\n";
+        print "$institution->{name}: $institution->{folder}->{path}\n" if($main::conf->{print2Console});
         $main::log->addLine("$institution->{name}: $institution->{folder}->{path}\n");
 
-        # We need the files associated with this institution.
+        # We need the files associated with this institution. I feel this should return $institution.
         $main::files->patronFileDiscovery($institution);
 
         # The $institution now contains the files needed for parsing. Thanks patronFileDiscovery!
@@ -63,9 +63,9 @@ sub stagePatronRecords
 
         # some debug metrics
         my $totalPatrons = scalar(@{$patronRecords});
-        print "Total Patrons: [$totalPatrons]\n";
-        print "Migrating records to final table...\n";
-        print "================================================================================\n\n";
+        print "Total Patrons: [$totalPatrons]\n" if($main::conf->{print2Console});
+        print "Migrating records to final table...\n" if($main::conf->{print2Console});
+        print "================================================================================\n\n" if($main::conf->{print2Console});
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
         $main::log->addLine("================================================================================\n\n");
 
@@ -202,9 +202,10 @@ sub migrate
     $main::dao->query($query);
 
     # check the size of stage_patron
-    if ($main::dao->getStagePatronCount() == 0){
+    if ($main::dao->getStagePatronCount() > 0){
         $main::log->addLine("Something went wrong! We did not truncate the stage_patron table.");
     }
+
 
 }
 

@@ -2,10 +2,13 @@
 use strict;
 use warnings FATAL => 'all';
 
-# my $e = "read timeout at /usr/local/share/perl/5.38.2/Net/HTTP/Methods.pm line 274.";
-my $e = "ead timeout at /usr/local/share/perl/5.38.2/Net/HTTP/Methods.pm line 274.";
+# my $e = "EUID735074";
+my $e = "e735074";
+# EUID735074
 
-if ($e !~ /read timeout at/)
-{
-    print "timeout!\n";
+
+
+
+if($e =~ /^e/){
+    print "yes!!\n";
 }
