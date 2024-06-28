@@ -2,13 +2,9 @@
 use strict;
 use warnings FATAL => 'all';
 
-# my $e = "EUID735074";
-my $e = "e735074";
-# EUID735074
+my $t = 0;
 
-
-
-
-if($e =~ /^e/){
-    print "yes!!\n";
+if ($t)
+{
+    print "hit!\n";
 }

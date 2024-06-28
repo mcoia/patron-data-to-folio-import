@@ -436,7 +436,7 @@ sub test_populateFolioLoginTable
     $dao->populateFolioLoginTable();
 }
 
-test_getPatronByUsername();
+# test_getPatronByUsername();
 sub test_getPatronByUsername
 {
     # print Dumper(
@@ -453,11 +453,24 @@ sub test_getPatronByUsername
     print Dumper(
 
         $dao->getTenantByUsername($username)
-
     );
     # print $tenant . "\n";
 
+}
 
+test_getPatronByESID();
+sub test_getPatronByESID
+{
+
+    print "test_getPatronByESID\n";
+
+    my $esid = "cspudich\@stchas.edu";
+    # patron-import.pl --getFolioUserByESID=' + esid;
+
+    print Dumper(
+        # $dao->getPatronByESID($esid)->{institution_id}
+        $dao->getTenantByESID($esid)
+    );
 
 }
 

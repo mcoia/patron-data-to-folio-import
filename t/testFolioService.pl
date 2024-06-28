@@ -298,7 +298,7 @@ sub test_getPatronByUsername
 
 }
 
-test_folio_api();
+# test_folio_api();
 sub test_folio_api
 {
 
@@ -328,31 +328,10 @@ sub test_folio_api
 
 }
 
-# deleteTrumanPatrons();
-sub deleteTrumanPatrons
+test_getFolioPatronGroupsByInstitutionId();
+sub test_getFolioPatronGroupsByInstitutionId
 {
-
-    # 23
-    my $tenant = "cs00000001_0042";
-
-
-    # 08fbf342-7856-49a8-ac8c-0cc52daf2946
-
-    # my $endPoint = "/users?query=(active=false)&limit=1000";
-    my $endPoint = "/users/08fbf342-7856-49a8-ac8c-0cc52daf2946";
-
-    $folio->login($tenant);
-    # my $response = $folio->HTTPRequest("GET", $endPoint);
-    my $response = $folio->HTTPRequest("DELETE", $endPoint);
-    print Dumper($response);
-
-    # save $response->{_content} to a file called truman_patrons.json
-    my $json = $response->{_content};
-    # open(my $fh, '>', 'truman_patrons.json');
-    # print $fh $json;
-    # close $fh;
-
-
+    $folio->getFolioPatronGroupsByInstitutionId(5);
 
 
 }

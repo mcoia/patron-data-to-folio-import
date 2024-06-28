@@ -133,4 +133,4 @@ where patrongroup is null
    or externalsystemid is null
    or username is null;
 
-TRUNCATE patron_import.stage_patron;
+-- TRUNCATE patron_import.stage_patron;

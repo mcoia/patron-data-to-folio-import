@@ -27,12 +27,13 @@ sub buildReport
     $self->{message} = $self->_buildMessage();
 
     my $template = "";
-
-    $self->{failedHTML} = $self->_buildFailedUsersTextTemplate() if ($main::conf->{emailType} eq 'text');
-    $self->{failedHTML} = $self->_buildFailedUsersHTMLTemplate() if ($main::conf->{emailType} eq 'html');
+    $self->{failedHTML} = "";
+    $self->{failedHTML} = $self->_buildFailedUsersTextTemplate() if ($main::conf->{emailType} eq 'text' && $main::conf->{includeFailedPatrons} eq 'true');
+    $self->{failedHTML} = $self->_buildFailedUsersHTMLTemplate() if ($main::conf->{emailType} eq 'html' && $main::conf->{includeFailedPatrons} eq 'true');
 
     $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.txt") if ($main::conf->{emailType} eq 'text');
-    $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.html") if ($main::conf->{emailType} eq 'html');
+    $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report-with-failures.html") if ($main::conf->{emailType} eq 'html' && $main::conf->{includeFailedPatrons} eq 'true');
+    $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.html") if ($main::conf->{emailType} eq 'html' && $main::conf->{includeFailedPatrons} eq 'false');
 
     $template =~ s/"/\\"/g;
     $template =~ s/\@/\\@/g;
@@ -58,7 +59,7 @@ sub sendEmail
     $main::log->add("no email address to send to") if (!defined($emailAddresses));
     return $self if (!defined($emailAddresses));
 
-    print "Sending emails to these addresses: [$emailAddresses]\n" if($main::conf->{print2Console});
+    print "Sending emails to these addresses: [$emailAddresses]\n" if ($main::conf->{print2Console});
     $main::log->add("Sending emails to these addresses: [$emailAddresses]");
 
     my @emailAddresses = split(',', $emailAddresses);
@@ -72,7 +73,7 @@ sub sendEmail
     }
     catch
     {
-        print "Email bombed!!!\n" if($main::conf->{print2Console});
+        print "Email bombed!!!\n" if ($main::conf->{print2Console});
         $main::log->add("******************* Email BOMBED *******************");
         $main::log->add("=================== EMAIL START ===================");
         $main::log->add($self->{template});

@@ -372,6 +372,29 @@ sub getTenantByUsername
 
 }
 
+sub getPatronByESID
+{
+    my $self = shift;
+    my $esid = shift;
+
+    my $tableName = "patron";
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $results = [];
+    my $query = "select $columns from $schema.$tableName where externalsystemid='$esid';";
+    print "$query\n" if($main::conf->{print2Console});
+
+    try
+    {$results = $self->_convertQueryResultsToHash($tableName, $self->query($query));}
+    catch
+    {
+        print "queryHash failed! $query\n" if($main::conf->{print2Console});
+        $main::log->addLine("queryHash failed! $query");
+    };
+
+    return $results->[0];
+
+}
 
 sub getTenantByESID
 {
@@ -467,6 +490,20 @@ sub _getTableColumns
     my $tableName = shift;
 
     return $self->_convertColumnArrayToCSVString(\@{$self->{'cache'}->{'columns'}->{$tableName}});
+
+}
+
+sub getInstitutionHashById
+{
+    my $self = shift;
+    my $institution_id = shift;
+
+    my $tableName = "institution";
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $query = "select $columns from $schema.$tableName t where t.id=$institution_id;";
+
+    return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
 
 }
 

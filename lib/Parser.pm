@@ -46,9 +46,9 @@ sub stagePatronRecords
 
         # Parser Not working? Don't forget to load it! use Parsers::ParserNameHere;
 
-        print "Searching for files...\n" if($main::conf->{print2Console});
+        print "Searching for files...\n" if ($main::conf->{print2Console});
         $main::log->addLine("Searching for files...\n");
-        print "$institution->{name}: $institution->{folder}->{path}\n" if($main::conf->{print2Console});
+        print "$institution->{name}: $institution->{folder}->{path}\n" if ($main::conf->{print2Console});
         $main::log->addLine("$institution->{name}: $institution->{folder}->{path}\n");
 
         # We need the files associated with this institution. I feel this should return $institution.
@@ -63,9 +63,9 @@ sub stagePatronRecords
 
         # some debug metrics
         my $totalPatrons = scalar(@{$patronRecords});
-        print "Total Patrons: [$totalPatrons]\n" if($main::conf->{print2Console});
-        print "Migrating records to final table...\n" if($main::conf->{print2Console});
-        print "================================================================================\n\n" if($main::conf->{print2Console});
+        print "Total Patrons: [$totalPatrons]\n" if ($main::conf->{print2Console});
+        print "Migrating records to final table...\n" if ($main::conf->{print2Console});
+        print "================================================================================\n\n" if ($main::conf->{print2Console});
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
         $main::log->addLine("================================================================================\n\n");
 
@@ -79,7 +79,6 @@ sub stagePatronRecords
 
 sub saveStagedPatronRecords
 {
-    # this function is a mess. I hate it. I hate it so much. It works so I don't even want to rework it. Gross.
 
     my $self = shift;
     my $patronRecordsHashArray = shift;
@@ -92,7 +91,6 @@ sub saveStagedPatronRecords
     my $col = $main::dao->_convertColumnArrayToCSVString(\@columns);
     my $totalColumns = @columns;
 
-    # my @patronRecords = map { [ map { $_->{$_} } @columns ] } @{$patronRecordsHashArray};
     my @patronRecords = ();
     for my $patronHash (@{$patronRecordsHashArray})
     {
@@ -201,13 +199,15 @@ sub migrate
     my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
     $main::dao->query($query);
 
+    $main::dao->query("truncate patron_import.stage_patron");
+
     # check the size of stage_patron
-    if ($main::dao->getStagePatronCount() > 0){
+    if ($main::dao->getStagePatronCount() > 0)
+    {
         $main::log->addLine("Something went wrong! We did not truncate the stage_patron table.");
+        exit;
     }
 
-
 }
-
 
 1;

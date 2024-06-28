@@ -22,16 +22,14 @@ use DAO;
 my $configFile;
 my $help;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test, $getFolioUserByUsername, $getFolioUserByESID);
+our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test);
 
 GetOptions(
-    "config=s"                 => \$configFile,
-    "help:s"                   => \$help,
-    "import:s"                 => \$import,
-    "stage:s"                  => \$stage,
-    "test:s"                   => \$test,
-    "getFolioUserByUsername:s" => \$getFolioUserByUsername,
-    "getFolioUserByESID:s"     => \$getFolioUserByESID,
+    "config=s" => \$configFile,
+    "help:s"   => \$help,
+    "import:s" => \$import,
+    "stage:s"  => \$stage,
+    "test:s"   => \$test,
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
@@ -49,16 +47,11 @@ sub main
     $dao = DAO->new();
     $files = FileService->new();
     $dao->_cacheTableColumns();
-    $parser = Parser->new();
-    $folio = FolioService->new();
-
-    # check if we're a command line api call. These functions exit
-    commandLineAPICall();
 
     startJob();
 
-    $parser->stagePatronRecords() if ($stage);
-    $folio->importPatrons() if ($import);
+    $parser = Parser->new()->stagePatronRecords() if ($stage);
+    $folio = FolioService->new()->importPatrons() if ($import);
 
     finishJob();
 
@@ -71,8 +64,6 @@ sub initConf
 
     # Check our conf file
     $configFile = "patron-import.conf" if (!defined $configFile);
-    # $configFile = "/home/owner/repo/mobius/folio/patron-data-to-folio-import/patron-import.conf" if (!defined $configFile);
-    # $configFile = "patron-data-to-folio-import/patron-import.conf" if (!defined $configFile);
     $conf = $utils->readConfFile($configFile);
 
     exit if ($conf eq "false");
@@ -99,24 +90,11 @@ sub initLogger
 
 }
 
-sub commandLineAPICall
-{
-    # Used to run specific methods from the command line.
-
-    $folio->getFolioUserByUsername($getFolioUserByUsername) if (defined $getFolioUserByUsername);
-    $folio->getFolioUserByESID($getFolioUserByESID) if (defined $getFolioUserByESID);
-
-}
-
 sub startJob
 {
 
-    my $jobType = "";
-    $jobType .= "_stage" if ($stage);
-    $jobType .= "_import" if ($import);
-
     my $job = {
-        'job_type'   => "$stage$import",
+        'job_type'   => "$import$stage",
         'start_time' => $dao->_getCurrentTimestamp,
         'stop_time'  => $dao->_getCurrentTimestamp,
     };

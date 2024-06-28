@@ -551,6 +551,9 @@ sub _escapeIllegalChars
 
 }
 
+
+##### API oriented methods below ############################
+
 sub getFolioUserByUsername
 {
     my $self = shift;
@@ -559,16 +562,13 @@ sub getFolioUserByUsername
     my $query = "(username==\"$username\")";
     my $endPoint = "/users?query=$query";
 
-    print "$endPoint\n\n" if ($main::conf->{print2Console});
-
     # this works because we only allow 1 username. they have to be unique.
     my $tenant = $main::dao->getTenantByUsername($username);
-    print "tenant: $tenant\n" if ($main::conf->{print2Console});
     $self->login($tenant);
     my $response = $self->HTTPRequest("GET", $endPoint);
 
     my $json = decode_json($response->{_content});
-    print encode_json($json->{users}) if ($main::conf->{print2Console});
+    print encode_json($json->{users});
 
     exit;
 
@@ -585,12 +585,28 @@ sub getFolioUserByESID
 
     # this works because we only allow 1 username. they have to be unique.
     my $tenant = $main::dao->getTenantByESID($esid);
-    $self = FolioService->new();
     $self->login($tenant);
     my $response = $self->HTTPRequest("GET", $endPoint);
 
     my $json = decode_json($response->{_content});
-    print encode_json($json->{users}) if ($main::conf->{print2Console});
+    print encode_json($json->{users});
+
+    exit;
+
+}
+
+sub getFolioPatronGroupsByInstitutionId
+{
+    my $self = shift;
+    my $institution_id = shift;
+
+    my $tenant = $main::dao->getInstitutionHashById($institution_id)->{tenant};
+    $self->login($tenant);
+
+    my $endPoint = "/groups";
+    my $response = $self->HTTPRequest("GET", $endPoint);
+    my $json = decode_json($response->{_content});
+    print encode_json($json->{usergroups});
 
     exit;
 
