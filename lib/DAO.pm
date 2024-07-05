@@ -538,6 +538,8 @@ sub getInstitutionsFoldersAndFilesHash
                                         where fm.institution_id = $institution->{'id'}"))})
         {
 
+            # We have nothing tieing the file -> folder. If we start adding custom folders each folder will have a full set of files.  But maybe that's what we want?
+            # Also, this is scoped wrong. It needs to be outside this folder loop. This logic is wrong. Folders can be arrays.
             # grab the files associated with this folder & institution
             my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $institution->{'id'} order by f.id desc"))};
             my $institutionHash = {

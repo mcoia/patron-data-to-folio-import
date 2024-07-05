@@ -1,0 +1,3208 @@
+{
+  "users": [
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000496183",
+      "personal": {
+        "email": "BXMudd3878@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Mudd",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "6100 County Road 113 $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Bridget",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "5732208207",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "214798WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "BXMudd3878@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "211134WW",
+      "personal": {
+        "email": "BNRay1223@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Ray",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "Fairview CT $Montgomery City, MO  63361",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Brittany",
+        "middleName": "Nichole",
+        "dateOfBirth": "",
+        "mobilePhone": "6363776231",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "211134WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "BNRay1223@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502888",
+      "personal": {
+        "email": "MEMoeller4220@owls.williamwoods.edu",
+        "phone": "5735440518",
+        "lastName": "Moeller",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1616 Jasper Ln $Jefferson City, MO  65109",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Madalynn",
+        "middleName": "Estelle",
+        "dateOfBirth": "",
+        "mobilePhone": "5735507742",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "254195WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MEMoeller4220@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000476631",
+      "personal": {
+        "email": "DJStark@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Stark",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "407 Brooke St $Springdale, AR  72762",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "DaShaun",
+        "middleName": "Jamal",
+        "dateOfBirth": "",
+        "mobilePhone": "4793792512",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "337903WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "DJStark@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000490456",
+      "personal": {
+        "email": "SRLeake6830@owls.williamwoods.edu",
+        "phone": "5736295471",
+        "lastName": "Leake",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "303 East Hawkins $Center, MO  63436",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Shay",
+        "middleName": "Rose",
+        "dateOfBirth": "",
+        "mobilePhone": "15738228197",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "346237WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "SRLeake6830@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498564",
+      "personal": {
+        "email": "DXErnst4822@owls.williamwoods.edu",
+        "phone": "5028891216",
+        "lastName": "Ernst",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "558 Eastern Parkway $Louisville, KY  40217",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Diane",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "15028891216",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "345334WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "DXErnst4822@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000499091",
+      "personal": {
+        "email": "JATruesdell1595@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Truesdell",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1798 Hwy JJ $Moberly, MO  65270",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jackson",
+        "middleName": "Allan",
+        "dateOfBirth": "",
+        "mobilePhone": "16606517546",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "344845WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JATruesdell1595@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000492347",
+      "personal": {
+        "email": "KMWheelerWehmeyer990@owls.williamwoods.edu",
+        "phone": "6362661754",
+        "lastName": "Wheeler-Wehmeyer",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "506 South Cherry Street $Owensville, MO  65066",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Kaiulani",
+        "middleName": "Marie",
+        "dateOfBirth": "",
+        "mobilePhone": "16362661754",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "343714WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "KMWheelerWehmeyer990@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494997",
+      "personal": {
+        "email": "VXSander0092@owls.williamwoods.edu",
+        "phone": "3148824173",
+        "lastName": "Sander",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "22 Fall Flower Court $Eureka, MO  63025-2746",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Veronica",
+        "middleName": "A",
+        "dateOfBirth": "",
+        "mobilePhone": "13148824173",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348311WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "VXSander0092@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "160000050375",
+      "personal": {
+        "email": "JDAdams5617@owls.williamwoods.edu",
+        "phone": "8165478946",
+        "lastName": "Adams",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "295 Cove Circle $Raymore, MO  64083",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jacob",
+        "middleName": "D",
+        "dateOfBirth": "",
+        "mobilePhone": "8166657775",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "357092WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JDAdams5617@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000492793",
+      "personal": {
+        "email": "CLArgent7992@owls.williamwoods.edu",
+        "phone": "3143030178",
+        "lastName": "Argent",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "739 Derby Way Drive $Wentzville, MO  63385",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Corynn",
+        "middleName": "Lee",
+        "dateOfBirth": "",
+        "mobilePhone": "13143030178",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348136WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CLArgent7992@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "192394WW",
+      "personal": {
+        "email": "ARBoone@owls.williamwoods.edu",
+        "phone": "8707401480",
+        "lastName": "Boone",
+        "addresses": [
+          {
+            "city": "Caruthersville",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "2005 South Ward Ave",
+            "addressLine2": "2005 South Ward Ave $Caruthersville, MO  63830",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Amber",
+        "middleName": "Renee",
+        "dateOfBirth": "",
+        "mobilePhone": "8707401480",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "192394WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "ARBoone@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "230402WW",
+      "personal": {
+        "email": "MXBowers3854@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Bowers",
+        "addresses": [
+          {
+            "city": "Columbia",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "5623 Spicewood Drive",
+            "addressLine2": "5623 Spicewood Drive $Columbia, MO  65201",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Melanie",
+        "middleName": "Anne",
+        "dateOfBirth": "",
+        "mobilePhone": "5732890041",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "230402WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MXBowers3854@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493015",
+      "personal": {
+        "email": "MNDenny3547@owls.williamwoods.edu",
+        "phone": "5732577627",
+        "lastName": "Denny",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1814 Van Loo Lane $Jefferson City, MO  65101",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Mackenzie",
+        "middleName": "Nicole",
+        "dateOfBirth": "",
+        "mobilePhone": "5732577627",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348103WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MNDenny3547@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493578",
+      "personal": {
+        "email": "SLMahacek5041@owls.williamwoods.edu",
+        "phone": "3143497411",
+        "lastName": "Mahacek",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "5034 Double Tree Dr. $Imperial, MO  63052",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Sydney",
+        "middleName": "Lauren",
+        "dateOfBirth": "",
+        "mobilePhone": "13143497411",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348070WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "SLMahacek5041@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502828",
+      "personal": {
+        "email": "MMBrinkmann6050@owls.williamwoods.edu",
+        "phone": "6362250637",
+        "lastName": "Brinkmann",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1156 Great Falls Ct $Manchester, MO  63021",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Madeline",
+        "middleName": "Marie",
+        "dateOfBirth": "",
+        "mobilePhone": "3148080832",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347945WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MMBrinkmann6050@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494345",
+      "personal": {
+        "email": "SRYoggerst8150@owls.williamwoods.edu",
+        "phone": "2175038090",
+        "lastName": "Yoggerst",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "109 West Raylots $Riverton, IL  62561-9602",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Spencer",
+        "middleName": "Ray",
+        "dateOfBirth": "",
+        "mobilePhone": "12175038090",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347806WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "SRYoggerst8150@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493168",
+      "personal": {
+        "email": "MKFitzpatrick2275@owls.williamwoods.edu",
+        "phone": "2242797380",
+        "lastName": "Fitzpatrick",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1044 Providence Lane $Buffalo Grove, IL  60089",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Mary",
+        "middleName": "K",
+        "dateOfBirth": "",
+        "mobilePhone": "12242797380",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347628WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MKFitzpatrick2275@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "347625WW",
+      "personal": {
+        "email": "CMHeitmann6488@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Heitmann",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "704 Hollyhock $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Cheryl",
+        "middleName": "Mae",
+        "dateOfBirth": "",
+        "mobilePhone": "",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347625WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CMHeitmann6488@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000492310",
+      "personal": {
+        "email": "DEBrennan6137@owls.williamwoods.edu",
+        "phone": "7202783417",
+        "lastName": "Brennan",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1205 E Capitol Ave $Jefferson City, MO  65101",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Dean",
+        "middleName": "Elliff",
+        "dateOfBirth": "",
+        "mobilePhone": "7202783417",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347515WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "DEBrennan6137@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000492864",
+      "personal": {
+        "email": "MEBishop6136@owls.williamwoods.edu",
+        "phone": "2175851843",
+        "lastName": "Bishop",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "2309 Sylvan Road $Springfield, IL  62704",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Megan",
+        "middleName": "Elizabeth",
+        "dateOfBirth": "",
+        "mobilePhone": "12175888824",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347402WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MEBishop6136@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494121",
+      "personal": {
+        "email": "JCTennyson2928@owls.williamwoods.edu",
+        "phone": "3147923030",
+        "lastName": "Tennyson",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "325 Buckington Street $Saint Peters, MO  63376",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "James",
+        "middleName": "Charles",
+        "dateOfBirth": "",
+        "mobilePhone": "13147923020",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347205WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JCTennyson2928@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493060",
+      "personal": {
+        "email": "WKEcker3705@owls.williamwoods.edu",
+        "phone": "2143102241",
+        "lastName": "Ecker",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "5105 Sandy Ct. $Mckinney, TX  75072",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Whitney",
+        "middleName": "Elizabeth",
+        "dateOfBirth": "",
+        "mobilePhone": "12143102241",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "347136WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "WKEcker3705@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494489",
+      "personal": {
+        "email": "GLLeuther2172@owls.williamwoods.edu",
+        "phone": "5732205522",
+        "lastName": "Leuther",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "417 Canterbury Dr $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Gavin",
+        "middleName": "Lee",
+        "dateOfBirth": "",
+        "mobilePhone": "5732205261",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "346816WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "GLLeuther2172@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "227782WW",
+      "personal": {
+        "email": "TAKilby4910@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Kilby",
+        "addresses": [
+          {
+            "city": "Sedalia",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "3608 Petree street",
+            "addressLine2": "3608 Petree street $Sedalia, MO  65301",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Tyler",
+        "middleName": "A",
+        "dateOfBirth": "",
+        "mobilePhone": "6602815411",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "227782WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "TAKilby4910@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498485",
+      "personal": {
+        "email": "MRBachand3369@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Bachand",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3 Tanglewood Dr $Saint Albans, VT  05478",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Megan",
+        "middleName": "Riley",
+        "dateOfBirth": "",
+        "mobilePhone": "18023935831",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350515WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MRBachand3369@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497075",
+      "personal": {
+        "email": "LMBrachio9335@owls.williamwoods.edu",
+        "phone": "9524317824",
+        "lastName": "Brachio",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1217 Spring Green Lane $Burnsville, MN  55306",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Lily",
+        "middleName": "Marie",
+        "dateOfBirth": "",
+        "mobilePhone": "19523005373",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350448WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "LMBrachio9335@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000500631",
+      "personal": {
+        "email": "JLRidgway5906@owls.williamwoods.edu",
+        "phone": "5025292902",
+        "lastName": "Ridgway",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1664 Logan Station Rd $Shelbyville, KY  40065",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jessica",
+        "middleName": "Loraine",
+        "dateOfBirth": "",
+        "mobilePhone": "5023213585",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350436WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JLRidgway5906@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497609",
+      "personal": {
+        "email": "LMHays4949@owls.williamwoods.edu",
+        "phone": "8166749180",
+        "lastName": "Hays",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "9520 N Askew $Kansas City, MO  64156",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Leah",
+        "middleName": "Marie",
+        "dateOfBirth": "",
+        "mobilePhone": "18165298725",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350419WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "LMHays4949@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502999",
+      "personal": {
+        "email": "MEVancil9368@owls.williamwoods.edu",
+        "phone": "3142654456",
+        "lastName": "Vancil",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "5850 Parkway Drive $House Springs, MO  63051",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Miranda",
+        "middleName": "E",
+        "dateOfBirth": "",
+        "mobilePhone": "3142654456",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350414WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MEVancil9368@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497333",
+      "personal": {
+        "email": "MDThompson4895@owls.williamwoods.edu",
+        "phone": "3142879548",
+        "lastName": "Thompson",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "987 Winter Park Drive $Fenton, MO  63026",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Mackenzie",
+        "middleName": "D",
+        "dateOfBirth": "",
+        "mobilePhone": "13144010808",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350365WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MDThompson4895@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497949",
+      "personal": {
+        "email": "DKRussell5166@owls.williamwoods.edu",
+        "phone": "5738265508",
+        "lastName": "Russell",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "7285 Clover Lane $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Dustin",
+        "middleName": "K",
+        "dateOfBirth": "",
+        "mobilePhone": "5738265508",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350348WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "DKRussell5166@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502416",
+      "personal": {
+        "email": "MLLong5339@owls.williamwoods.edu",
+        "phone": "5735598557",
+        "lastName": "Long",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "20705 St Hwy EE $Kennett, MO  63857",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Montana",
+        "middleName": "Lianne",
+        "dateOfBirth": "",
+        "mobilePhone": "5735598558",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350304WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MLLong5339@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "356891WW",
+      "personal": {
+        "email": "JXCoffelt2190@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Coffelt",
+        "addresses": [
+          {
+            "city": "Crocker",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "PO Box 853",
+            "addressLine2": "PO Box 853 $Crocker, MO  65452",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jeremy",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "5734339164",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "356891WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JXCoffelt2190@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497315",
+      "personal": {
+        "email": "KMRose5390@owls.williamwoods.edu",
+        "phone": "4177332556",
+        "lastName": "Rose",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "63 Sundance Road $Long Lane, MO  65590",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Kelsey",
+        "middleName": "M",
+        "dateOfBirth": "",
+        "mobilePhone": "14177332556",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350277WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "KMRose5390@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "361849WW",
+      "personal": {
+        "email": "DJLavoie3341@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Lavoie",
+        "addresses": [
+          {
+            "city": "Falcon",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "33100",
+            "addressLine2": "33100 $Falcon, MO  65470",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Dakota",
+        "middleName": "James",
+        "dateOfBirth": "",
+        "mobilePhone": "5735281765",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "361849WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "DJLavoie3341@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497850",
+      "personal": {
+        "email": "ARKowalke6182@owls.williamwoods.edu",
+        "phone": "2173472692",
+        "lastName": "Kowalke",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "508 North Third St $Effingham, IL  62401",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Allison",
+        "middleName": "Rose",
+        "dateOfBirth": "",
+        "mobilePhone": "12172408400",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350246WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "ARKowalke6182@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "357042WW",
+      "personal": {
+        "email": "BXPhelps6832@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Phelps",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "125 Oakmoor Drive $East Peoria, IL  61611",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Brayden",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "5735811776",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "357042WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "BXPhelps6832@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497583",
+      "personal": {
+        "email": "MEEdwards2330@owls.williamwoods.edu",
+        "phone": "5733530409",
+        "lastName": "Edwards",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "420 Gregory Blvd $Tipton, MO  65081",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Macie",
+        "middleName": "Erin",
+        "dateOfBirth": "",
+        "mobilePhone": "15733530409",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350061WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MEEdwards2330@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "273991WW",
+      "personal": {
+        "email": "CJWisdom3184@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Wisdom",
+        "addresses": [
+          {
+            "city": "St. James",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "15721 County Road 1050",
+            "addressLine2": "15721 County Road 1050 $St. James, MO  65559",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Chelsea",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "5732636375",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "273991WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CJWisdom3184@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000501319",
+      "personal": {
+        "email": "VLArriaga9319@owls.williamwoods.edu",
+        "phone": "6363754462",
+        "lastName": "Arriaga",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "5019 Country Manor Dr $Imperial, MO  63052",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Victoria",
+        "middleName": "Louise",
+        "dateOfBirth": "",
+        "mobilePhone": "6363754462",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350058WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "VLArriaga9319@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000500123",
+      "personal": {
+        "email": "jApropst4160@owls.williamwoods.edu",
+        "phone": "6603490010",
+        "lastName": "Propst",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "450 worth st $Holts Summit, MO  65043",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jeromy",
+        "middleName": "Adam",
+        "dateOfBirth": "",
+        "mobilePhone": "6603490010",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349929WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "jApropst4160@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "272582WW",
+      "personal": {
+        "email": "blowens@owls.williamwoods.edu",
+        "phone": "5732019913",
+        "lastName": "Owens",
+        "addresses": [
+          {
+            "city": "Rolla",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "14515 State Route O",
+            "addressLine2": "14515 State Route O $Rolla, MO  65401-7105",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Brian",
+        "middleName": "Lee",
+        "dateOfBirth": "",
+        "mobilePhone": "5732019913",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "272582WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "blowens@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494666",
+      "personal": {
+        "email": "TXBrady3587@owls.williamwoods.edu",
+        "phone": "8153428733",
+        "lastName": "Brady",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "4916 Charm Oak Dr. Apt. C $Jefferson City, MO  65109",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Tyrie",
+        "middleName": "Vincent",
+        "dateOfBirth": "",
+        "mobilePhone": "8153428733",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349828WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "TXBrady3587@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000496502",
+      "personal": {
+        "email": "HSBurkybile3198@owls.williamwoods.edu",
+        "phone": "5736803305",
+        "lastName": "Burkybile",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1503 Hough Park Street $Jefferson City, MO  65101",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Hannah",
+        "middleName": "Sky",
+        "dateOfBirth": "",
+        "mobilePhone": "5736803305",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349808WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "HSBurkybile3198@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000495068",
+      "personal": {
+        "email": "BSWendt7322@owls.williamwoods.edu",
+        "phone": "5737542876",
+        "lastName": "Wendt",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "328 W Second Street $Montgomery City, MO  63361",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Bailey",
+        "middleName": "Sadler",
+        "dateOfBirth": "",
+        "mobilePhone": "15737542876",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349807WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "BSWendt7322@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493355",
+      "personal": {
+        "email": "LXHelmert8623@owls.williamwoods.edu",
+        "phone": "8704212414",
+        "lastName": "Helmert",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1401 South Kingswood Way $Mountain Home, AR  72653",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Lauren",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "18704212414",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349771WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "LXHelmert8623@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "272065WW",
+      "personal": {
+        "email": "HCWilliams@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Williams",
+        "addresses": [
+          {
+            "city": "Nixa",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "5018 N Spyglass Ave.",
+            "addressLine2": "5018 N Spyglass Ave. $Nixa, MO  65714",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Helen",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "4173537029",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "272065WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "HCWilliams@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497342",
+      "personal": {
+        "email": "AJWillenberg6831@owls.williamwoods.edu",
+        "phone": "3144222699",
+        "lastName": "Willenberg",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "628 Wyndview Drive $Lake Saint Louis, MO  63367",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Anthony",
+        "middleName": "Joseph",
+        "dateOfBirth": "",
+        "mobilePhone": "13142161298",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349769WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "AJWillenberg6831@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494103",
+      "personal": {
+        "email": "JESwift6451@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Swift",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "835 Nichols Street $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jaden",
+        "middleName": "Elizabeth",
+        "dateOfBirth": "",
+        "mobilePhone": "13367343663",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349742WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JESwift6451@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494933",
+      "personal": {
+        "email": "IXHickman3580@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Hickman",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "170 Brookhill Lane $Troy, MO  63379",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Ian",
+        "middleName": "D",
+        "dateOfBirth": "",
+        "mobilePhone": "16363587291",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349741WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "IXHickman3580@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000494675",
+      "personal": {
+        "email": "KGDimler2193@owls.williamwoods.edu",
+        "phone": "5158676537",
+        "lastName": "Dimler",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "24568 288th Trail $Adel, IA  50003",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Kadyn",
+        "middleName": "Grace",
+        "dateOfBirth": "",
+        "mobilePhone": "15158295768",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349732WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "KGDimler2193@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498412",
+      "personal": {
+        "email": "AMDrbul6320@owls.williamwoods.edu",
+        "phone": "16363462238",
+        "lastName": "Drbul",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "17758 Vintage Oak Drive $Glencoe, MO  63038",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Alexis",
+        "middleName": "Mary",
+        "dateOfBirth": "",
+        "mobilePhone": "16363462238",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349441WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "AMDrbul6320@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502886",
+      "personal": {
+        "email": "GSHollenberg1850@owls.williamwoods.edu",
+        "phone": "5736919545",
+        "lastName": "Hollenberg",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "6110 old lohman rd $Jefferson city, MO  65109",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Grace",
+        "middleName": "S",
+        "dateOfBirth": "",
+        "mobilePhone": "5736919545",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349243WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "GSHollenberg1850@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493729",
+      "personal": {
+        "email": "CAMoxley1319@owls.williamwoods.edu",
+        "phone": "4173493139",
+        "lastName": "Moxley",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "10510 Boulder Road $Mountain Grove, MO  65711",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Sasha",
+        "middleName": "Allen",
+        "dateOfBirth": "",
+        "mobilePhone": "4173493139",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349174WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CAMoxley1319@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498635",
+      "personal": {
+        "email": "LWHornsby6199@owls.williamwoods.edu",
+        "phone": "5017730821",
+        "lastName": "Hornsby",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1309 Mellon St $Little Rock, AR  72207",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Laura",
+        "middleName": "W",
+        "dateOfBirth": "",
+        "mobilePhone": "5017730821",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "349105WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "LWHornsby6199@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502881",
+      "personal": {
+        "email": "ACBeckwith5244@owls.williamwoods.edu",
+        "phone": "7815342391",
+        "lastName": "Beckwith",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "583 Pond St. $South Weymouth, MA  02190",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Alexandra",
+        "middleName": "C",
+        "dateOfBirth": "",
+        "mobilePhone": "7815342391",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348844WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "ACBeckwith5244@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493649",
+      "personal": {
+        "email": "HMMesser0235@owls.williamwoods.edu",
+        "phone": "6182504915",
+        "lastName": "Messer",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "131 Covered Bridge Lane $Belleville, IL  62221",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "HolleyMaye",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "16182504915",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348811WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "HMMesser0235@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502998",
+      "personal": {
+        "email": "ACOMeara0058@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "O'Meara",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "4540 W 260th Terr $Louisburg, KS  66053",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Avery",
+        "middleName": "Christine",
+        "dateOfBirth": "",
+        "mobilePhone": "9133331749",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348568WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "ACOMeara0058@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "337799WW",
+      "personal": {
+        "email": "SLDonald@owls.williamwoods.edu",
+        "phone": "6602634973",
+        "lastName": "Donald",
+        "addresses": [
+          {
+            "city": "Cairo",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "2340 County Road 1390",
+            "addressLine2": "2340 County Road 1390 $Cairo, MO  65239-2311",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Stacy",
+        "middleName": "Loree",
+        "dateOfBirth": "",
+        "mobilePhone": "6608338987",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "337799WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "SLDonald@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502531",
+      "personal": {
+        "email": "BCWarmbrodt0369@owls.williamwoods.edu",
+        "phone": "5732207133",
+        "lastName": "Warmbrodt",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3214 Nicklaus Ct. $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Bryce",
+        "middleName": "C",
+        "dateOfBirth": "",
+        "mobilePhone": "5732207133",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348479WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "BCWarmbrodt0369@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000493239",
+      "personal": {
+        "email": "ZEGray8483@owls.williamwoods.edu",
+        "phone": "3146400702",
+        "lastName": "Gray",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "401 Canary Lane $Saint Charles, MO  63301",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Zoe",
+        "middleName": "Elizabeth",
+        "dateOfBirth": "",
+        "mobilePhone": "13146400702",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "348388WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "ZEGray8483@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497324",
+      "personal": {
+        "email": "IRSchwierjohn6623@owls.williamwoods.edu",
+        "phone": "3145046827",
+        "lastName": "Schwierjohn",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3337 Saddleridge Drive $Saint Charles, MO  63301",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Ian",
+        "middleName": "R",
+        "dateOfBirth": "",
+        "mobilePhone": "6364935939",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351471WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "IRSchwierjohn6623@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497690",
+      "personal": {
+        "email": "MMSilverwood4346@owls.williamwoods.edu",
+        "phone": "5732960397",
+        "lastName": "Silverwood",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "10900 N Varnon School Rd $Hallsville, MO  65255",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Mason",
+        "middleName": "M",
+        "dateOfBirth": "",
+        "mobilePhone": "15732960397",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351468WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MMSilverwood4346@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502876",
+      "personal": {
+        "email": "RDHagens5575@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Hagens",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "106 Mokane Rd $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Rylee",
+        "middleName": "Dawn",
+        "dateOfBirth": "",
+        "mobilePhone": "5734166184",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351467WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "RDHagens5575@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497529",
+      "personal": {
+        "email": "CXBennett0433@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Bennett",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3415 Street Road KK $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Cameron",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "15734695732",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351462WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CXBennett0433@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000496735",
+      "personal": {
+        "email": "SMRichardson0805@owls.williamwoods.edu",
+        "phone": "16363599707",
+        "lastName": "Richardson",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "18 Squaw Ct $Warrenton, MO  63383",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Sarah",
+        "middleName": "Michelle",
+        "dateOfBirth": "",
+        "mobilePhone": "16363599707",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351452WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "SMRichardson0805@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498207",
+      "personal": {
+        "email": "MMVerrett7442@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Verrett",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "2401 Great Planes Dr. $Neenah, WI  54956",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Miranda",
+        "middleName": "Marie",
+        "dateOfBirth": "",
+        "mobilePhone": "19209032843",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351442WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MMVerrett7442@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497663",
+      "personal": {
+        "email": "PSLucas9491@owls.williamwoods.edu",
+        "phone": "5738542773",
+        "lastName": "Lucas",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "10477 New Berry Ln $Cadet, MO  63630",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Phillip",
+        "middleName": "Scott",
+        "dateOfBirth": "",
+        "mobilePhone": "15738542773",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351435WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "PSLucas9491@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497814",
+      "personal": {
+        "email": "PGBernius3324@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Bernius",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "5632 east 113th st $Tulsa, OK  74137",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Patrick",
+        "middleName": "Garrett",
+        "dateOfBirth": "",
+        "mobilePhone": "19186888681",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351415WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "PGBernius3324@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497182",
+      "personal": {
+        "email": "EEHeintzberger5312@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Heintzberger",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "56316 Primrose Circle $Elkhart, IN  46516",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Eve",
+        "middleName": "Elizabeth",
+        "dateOfBirth": "",
+        "mobilePhone": "15748490818",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351391WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "EEHeintzberger5312@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498671",
+      "personal": {
+        "email": "CDKemp8912@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Kemp",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "221 South Main St $Greenfield, MO  65661",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Christopher",
+        "middleName": "Dale",
+        "dateOfBirth": "",
+        "mobilePhone": "14174144583",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351381WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CDKemp8912@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000500114",
+      "personal": {
+        "email": "TXHopkins4828@owls.williamwoods.edu",
+        "phone": "5733018869",
+        "lastName": "Hopkins",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1903 Chicago Rd. $Jefferson City, MO  65109",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Taylor",
+        "middleName": "Patrick",
+        "dateOfBirth": "",
+        "mobilePhone": "5733018869",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351348WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "TXHopkins4828@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497681",
+      "personal": {
+        "email": "VMPyeatt7935@owls.williamwoods.edu",
+        "phone": "4179887193",
+        "lastName": "Pyeatt",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "13990 West Farm Road 156 $Bois D Arc, MO  65612",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Vincent",
+        "middleName": "Michael",
+        "dateOfBirth": "",
+        "mobilePhone": "14179887193",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351338WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "VMPyeatt7935@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000496361",
+      "personal": {
+        "email": "chad.Bogue@williamwoods.edu",
+        "phone": "",
+        "lastName": "Bogue",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1105 Chippewa Drive $Fulton, MO  65251",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Chad",
+        "middleName": "Austin",
+        "dateOfBirth": "",
+        "mobilePhone": "5735508523",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351234WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "chad.Bogue@williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497128",
+      "personal": {
+        "email": "DRDavidson4711@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Davidson",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "10625 S Hwy AA $Stockton, MO  65785",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Danielle",
+        "middleName": "Rae",
+        "dateOfBirth": "",
+        "mobilePhone": "14175992713",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351223WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "DRDavidson4711@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497280",
+      "personal": {
+        "email": "CSMosby7958@owls.williamwoods.edu",
+        "phone": "4065616953",
+        "lastName": "Mosby",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "PO Box 258 $Roy, MT  59471",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Colleen",
+        "middleName": "S",
+        "dateOfBirth": "",
+        "mobilePhone": "14065616953",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351203WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CSMosby7958@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497716",
+      "personal": {
+        "email": "TAThompson0202@owls.williamwoods.edu",
+        "phone": "8169129648",
+        "lastName": "Thompson",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "24111 s wild goose lane $Peculiar, MO  64078",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Taylor",
+        "middleName": "Ann",
+        "dateOfBirth": "",
+        "mobilePhone": "18169129648",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351199WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "TAThompson0202@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497672",
+      "personal": {
+        "email": "CEPrescott3863@owls.williamwoods.edu",
+        "phone": "3144947133",
+        "lastName": "Prescott",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1238 Summer Lynne Dr,. $O Fallon, MO  63366",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Carson",
+        "middleName": "Earl",
+        "dateOfBirth": "",
+        "mobilePhone": "13144947133",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351193WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CEPrescott3863@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497299",
+      "personal": {
+        "email": "ERReynolds4284@owls.williamwoods.edu",
+        "phone": "2176906933",
+        "lastName": "Reynolds",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "203 East County Blacktop $Sigel, IL  62462",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Evelyn",
+        "middleName": "R",
+        "dateOfBirth": "",
+        "mobilePhone": "12176906933",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351174WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "ERReynolds4284@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502842",
+      "personal": {
+        "email": "REMertens7327@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Mertens",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "7 Oak Lane $Mexico, MO  65265",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Rachel",
+        "middleName": "E",
+        "dateOfBirth": "",
+        "mobilePhone": "5732530349",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351145WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "REMertens7327@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497547",
+      "personal": {
+        "email": "IRBoschert8139@owls.williamwoods.edu",
+        "phone": "6367348686",
+        "lastName": "Boschert",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "78 Huntington Parkway $Saint Charles, MO  63301",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Isabelle",
+        "middleName": "Rose",
+        "dateOfBirth": "",
+        "mobilePhone": "16367348686",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351073WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "IRBoschert8139@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497789",
+      "personal": {
+        "email": "LXAdams1717@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Adams",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3520 N 5th Terr $Saint Joseph, MO  64505",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Lauren",
+        "middleName": "A",
+        "dateOfBirth": "",
+        "mobilePhone": "18167522730",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "351014WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "LXAdams1717@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497958",
+      "personal": {
+        "email": "LERutter7065@owls.williamwoods.edu",
+        "phone": "19188016601",
+        "lastName": "Rutter",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "918 East 307 Lane $Grove, OK  74344",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Lainey",
+        "middleName": "Elizabeth",
+        "dateOfBirth": "",
+        "mobilePhone": "19188016601",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350992WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "LERutter7065@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498662",
+      "personal": {
+        "email": "JLKeilholz3681@owls.williamwoods.edu",
+        "phone": "5736192868",
+        "lastName": "Keilholz",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "153 Back Forty Drive $Chamois, MO  65024",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jessica",
+        "middleName": "Lauren",
+        "dateOfBirth": "",
+        "mobilePhone": "15736192868",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350935WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JLKeilholz3681@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "350931WW",
+      "personal": {
+        "email": "KLGrosklos8070@owls.williamwoods.edu",
+        "phone": "5735010703",
+        "lastName": "Grosklos",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "35151 Highway 154 $Stoutsville, MO  65283",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Kylei",
+        "middleName": "LeAnne",
+        "dateOfBirth": "",
+        "mobilePhone": "5735010703",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350931WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "KLGrosklos8070@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "350920WW",
+      "personal": {
+        "email": "AMcMurtry6594@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "McMurtry",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "1661 CR 296 $Columbia, MO  65202",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Abigail",
+        "middleName": "Lynn",
+        "dateOfBirth": "",
+        "mobilePhone": "5733565528",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350920WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "AMcMurtry6594@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "337779WW",
+      "personal": {
+        "email": "KXDorton0846@owls.williamwoods.edu",
+        "phone": "9186051571",
+        "lastName": "Dorton",
+        "addresses": [
+          {
+            "city": "Grove",
+            "region": "OK",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "63461 East 256 Lane",
+            "addressLine2": "63461 East 256 Lane $Grove, OK  74344",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Kaci",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "9186051571",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "337779WW",
+      "patronGroup": "WWU Graduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "KXDorton0846@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "112093WW",
+      "personal": {
+        "email": "toni.cox@williamwoods.edu",
+        "phone": "6606846387",
+        "lastName": "Cox",
+        "addresses": [
+          {
+            "city": "Jamesport",
+            "region": "MO",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "18141 State Highway P",
+            "addressLine2": "18141 State Highway P $Jamesport, MO  64648-7133",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Toni",
+        "middleName": "Yvonne",
+        "dateOfBirth": "",
+        "mobilePhone": "",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "112093WW",
+      "patronGroup": "WWU Faculty/Staff",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "toni.cox@williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497832",
+      "personal": {
+        "email": "ACHavens8376@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Havens",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "50 Osage Valley Lane $Bonnots Mill, MO  65016",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Allyson",
+        "middleName": "C",
+        "dateOfBirth": "",
+        "mobilePhone": "15736192255",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350858WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "ACHavens8376@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000495184",
+      "personal": {
+        "email": "SNTheodorou0203@owls.williamwoods.edu",
+        "phone": "3126781684",
+        "lastName": "Theodorou",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3304 whitegate rd $Joliet, IL  60431",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Sarah",
+        "middleName": "Nicole",
+        "dateOfBirth": "",
+        "mobilePhone": "3126781684",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "350767WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "SNTheodorou0203@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497887",
+      "personal": {
+        "email": "DPMcLone2358@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "McLone",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3126 Goodes Mill Rd $Villa Ridge, MO  63089",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Dylan",
+        "middleName": "Parker",
+        "dateOfBirth": "",
+        "mobilePhone": "16362347675",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353520WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "DPMcLone2358@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498190",
+      "personal": {
+        "email": "JAPolacek5388@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Polacek",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "9651 E Van Court Rd $Hallsville, MO  65255",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Jacob",
+        "middleName": "Allen",
+        "dateOfBirth": "",
+        "mobilePhone": "15732968044",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353498WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "JAPolacek5388@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497976",
+      "personal": {
+        "email": "HMWeidler8359@owls.williamwoods.edu",
+        "phone": "5307180699",
+        "lastName": "Weidler",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "PO Box 418 $Rough And Ready, CA  95975",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Hannah",
+        "middleName": "M",
+        "dateOfBirth": "",
+        "mobilePhone": "15307180699",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353483WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "HMWeidler8359@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498555",
+      "personal": {
+        "email": "CLEbers6587@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Ebers",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "3 Shire Dr $Wellsville, MO  63384",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Clayton",
+        "middleName": "Lee",
+        "dateOfBirth": "",
+        "mobilePhone": "15732204553",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353430WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "CLEbers6587@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497654",
+      "personal": {
+        "email": "KLKoenig3302@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Koenig",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "2339 Highway D $Huntsville, MO  65259",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Karter",
+        "middleName": "Lee",
+        "dateOfBirth": "",
+        "mobilePhone": "16606516929",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353424WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "KLKoenig3302@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000498831",
+      "personal": {
+        "email": "VXSchneider1755@owls.williamwoods.edu",
+        "phone": "420702047477",
+        "lastName": "Schneider",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "Ov?ÃÂ­ HÃÂ¡jek 2163/24 $Prague, UK  15800",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Vaclav",
+        "middleName": "",
+        "dateOfBirth": "",
+        "mobilePhone": "15738260574",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353421WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "VXSchneider1755@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000502238",
+      "personal": {
+        "email": "kMpoage9932@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Poage",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "18 Roppel Road $Wellsville, MO  63384",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Kaitlyn",
+        "middleName": "Marie",
+        "dateOfBirth": "",
+        "mobilePhone": "5732530106",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353403WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "kMpoage9932@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000501391",
+      "personal": {
+        "email": "MMCarlson9468@owls.williamwoods.edu",
+        "phone": "6209510229",
+        "lastName": "Carlson",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "513 Clover Ln $Hesston, KS  67062",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Maggie",
+        "middleName": "Mae",
+        "dateOfBirth": "",
+        "mobilePhone": "6209510229",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353342WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "MMCarlson9468@owls.williamwoods.edu"
+    },
+    {
+      "type": "patron",
+      "active": true,
+      "barcode": "1600000497707",
+      "personal": {
+        "email": "KAPatterson5280@owls.williamwoods.edu",
+        "phone": "",
+        "lastName": "Patterson",
+        "addresses": [
+          {
+            "city": "One University Avenue",
+            "region": "",
+            "countryId": "US",
+            "postalCode": "",
+            "addressLine1": "William Woods University",
+            "addressLine2": "2109 Homefield Ridge Court $O Fallon, MO  63366",
+            "addressTypeId": "Home",
+            "primaryAddress": "true"
+          }
+        ],
+        "firstName": "Kannon",
+        "middleName": "Alexander",
+        "dateOfBirth": "",
+        "mobilePhone": "16365159300",
+        "preferredFirstName": "",
+        "preferredContactTypeId": "email"
+      },
+      "username": "353334WW",
+      "patronGroup": "WWU Undergraduate",
+      "expirationDate": "2024-08-16",
+      "externalSystemId": "KAPatterson5280@owls.williamwoods.edu"
+    }
+  ],
+  "sourceType": "",
+  "totalRecords": 100,
+  "deactivateMissingUsers": false,
+  "updateOnlyPresentFields": true
+}

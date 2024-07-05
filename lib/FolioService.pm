@@ -137,8 +137,7 @@ sub importPatrons
         my @importResponse = ();
         my @importFailedUsers = ();
 
-        # fix this. It needs to be a for loop.
-        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0) # <== todo: I do NOT like this while loop. It has no 'REAL' break condition.
+        while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0)
         {
 
             print "Getting patrons for $institution->{name}\n" if ($main::conf->{print2Console});
@@ -167,7 +166,6 @@ sub importPatrons
             # ship it!
             print "sending json to folio...\n" if ($main::conf->{print2Console});
             $main::log->add("sending json to folio...");
-            $main::log->add("$json");
             my $response = $self->_importIntoFolioUserImport($tenant, $json);
 
             # Deal with the response
@@ -272,13 +270,34 @@ sub importPatrons
 
     }
 
-    # should I check for patrons again? recursion?
-    # $self->importPatrons() if ($main::dao->getPatronImportPendingSize($institution->{id}) > 0);
 
     return $self;
 
 }
 
+sub clean_hash
+{
+    my $self = shift;
+    my $hash = shift;
+
+    foreach my $key (keys %$hash)
+    {
+        if (ref $hash->{$key} eq 'HASH')
+        {
+            clean_hash($hash->{$key});
+            delete $hash->{$key} if !%{$hash->{$key}};
+        }
+        elsif (!defined $hash->{$key} || $hash->{$key} eq '')
+        {
+            delete $hash->{$key};
+        }
+    }
+
+    return $hash;
+
+}
+
+# This doesn't seem to be working as expected.
 sub _removeEmptyFields
 {
     my $self = shift;
@@ -603,7 +622,7 @@ sub getFolioPatronGroupsByInstitutionId
     my $tenant = $main::dao->getInstitutionHashById($institution_id)->{tenant};
     $self->login($tenant);
 
-    my $endPoint = "/groups";
+    my $endPoint = "/groups?query=cql.allRecords=1%20sortby%20group&limit=2000";
     my $response = $self->HTTPRequest("GET", $endPoint);
     my $json = decode_json($response->{_content});
     print encode_json($json->{usergroups});

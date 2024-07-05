@@ -124,9 +124,10 @@ sub parse
 
                 # We need to check this list for double entries.
                 # Some patron files have double entries.
-                push(@parsedPatrons, $patron);
-                    # unless (grep /$patron->{unique_id}/, map {$_->{unique_id}} @parsedPatrons);
+                push(@parsedPatrons, $patron)
+                    unless (grep /$patron->{fingerprint}/, map {$_->{fingerprint}} @parsedPatrons);
                 $patronCounter++;
+
             }
 
         }

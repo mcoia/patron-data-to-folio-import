@@ -92,6 +92,7 @@ create table if not exists patron_import.patron
     ready                  bool not null default true,
     raw_data               text,
 
+    -- dates
     insert_date            timestamp     default now(),
     update_date            timestamp     default null,
     load_date              timestamp     default null,
@@ -134,8 +135,11 @@ create table if not exists patron_import.ptype_mapping
     id             SERIAL primary key,
     institution_id int references patron_import.institution (id),
     ptype          text,
-    foliogroup     text
+    foliogroup     text,
+    priority       int
 );
+
+alter table patron_import.ptype_mapping add constraint ptype_mapping_priority_unique unique (institution_id, priority);
 
 create table if not exists patron_import.login
 (
@@ -178,6 +182,7 @@ CREATE INDEX IF NOT EXISTS patron_import_stage_patron_unique_id_idx ON patron_im
 CREATE INDEX IF NOT EXISTS patron_import_patron_fingerprint_idx ON patron_import.patron USING btree (fingerprint);
 CREATE INDEX IF NOT EXISTS patron_import_patron_external_system_id_idx ON patron_import.patron USING btree (externalsystemid);
 CREATE INDEX IF NOT EXISTS patron_import_patron_username_idx ON patron_import.patron USING btree (username);
+CREATE INDEX IF NOT EXISTS patron_import_ptype_mapping_foliogroup ON patron_import.ptype_mapping USING btree (foliogroup);
 
 CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()
     RETURNS trigger AS
@@ -275,7 +280,7 @@ BEGIN
         UPDATE patron_import.patron patron
         SET patrongroup = NEW.foliogroup,
             ready       = true
-        WHERE coalesce(NULLif(ltrim(SUBSTRING((patron.raw_data), 2, 3), '0'),''), '0') = NEW.ptype
+        WHERE coalesce(NULLif(ltrim(SUBSTRING((patron.raw_data), 2, 3), '0'), ''), '0') = NEW.ptype
           AND NEW.institution_id = patron.institution_id
           AND (patron.patrongroup IS NULL OR patron.patrongroup != NEW.foliogroup);
 
@@ -283,9 +288,12 @@ BEGIN
         UPDATE patron_import.patron patron
         SET patrongroup = NULL
         FROM patron_import.patron p2
-            LEFT JOIN patron_import.ptype_mapping pt on (coalesce(NULLif(ltrim(SUBSTRING((p2.raw_data), 2, 3), '0'),''), '0') = pt.ptype and pt.institution_id=p2.institution_id)
-        WHERE patron.id=p2.id
-          AND pt.id is null AND p2.patrongroup IS NOT NULL;
+                 LEFT JOIN patron_import.ptype_mapping pt
+                           on (coalesce(NULLif(ltrim(SUBSTRING((p2.raw_data), 2, 3), '0'), ''), '0') = pt.ptype and
+                               pt.institution_id = p2.institution_id)
+        WHERE patron.id = p2.id
+          AND pt.id is null
+          AND p2.patrongroup IS NOT NULL;
 
     END IF;
 
@@ -316,3 +324,17 @@ CREATE TRIGGER update_date_trigger
     ON patron_import.patron
     FOR EACH ROW
 EXECUTE PROCEDURE patron_import.update_date_trigger_function();
+
+-- this needs testing .
+-- CREATE OR REPLACE FUNCTION patron_import.date_checker( datestring TEXT )
+--     RETURNS TEXT AS
+-- $BODY$
+-- DECLARE
+--     return_string       TEXT;
+-- BEGIN
+--     return_string := datestring::DATE::TEXT;
+-- EXCEPTION WHEN OTHERS THEN RETURN NULL;
+-- RETURN return_string;
+-- END;
+-- $BODY$
+--     LANGUAGE PLPGSQL;

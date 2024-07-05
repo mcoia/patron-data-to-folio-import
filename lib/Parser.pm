@@ -184,27 +184,18 @@ sub migrate
 {
     my $self = shift;
 
-    # Inserts vs Updates
-    # We'll use the username as our key. That's what needs to be 100% unique across the consortium.
-    # The esid is unique to the tenant so this is redundant to key off it as well.
-
-    # query each stage_patron, look up their info in the final patron table using the username.
-    # If that username doesn't exists we're an insert.
-    # If that username exists we're an update.
-
-    # we're using the unique_id as the username as SSO uses the esid for login.
-    # The users will never use the username to login anyways.
-
-    # we're not finding the filename!
     my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
     $main::dao->query($query);
-
-    $main::dao->query("truncate patron_import.stage_patron");
 
     # check the size of stage_patron
     if ($main::dao->getStagePatronCount() > 0)
     {
+
         $main::log->addLine("Something went wrong! We did not truncate the stage_patron table.");
+
+        # Send me an email. Bug... This isn't right
+        # my $email = MOBIUS::Email->new($main::conf->{fromAddress}, [ $main::conf->{programFailEmailTo} ], 0, 0);
+        # $email->send("patron-load HALT!", "We failed!!!!");
         exit;
     }
 

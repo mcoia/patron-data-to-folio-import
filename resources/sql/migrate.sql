@@ -1,18 +1,39 @@
--- dedupe stage_patron
-UPDATE patron_import.stage_patron sp
-SET load = true
-FROM (SELECT MIN(id) as id
-      FROM patron_import.stage_patron
-      where not load
-      GROUP BY unique_id
-      HAVING COUNT(*) > 1) b
-WHERE sp.id = b.id
-  AND btrim(sp.unique_id) != ''
-  AND btrim(sp.esid) != ''
-  AND sp.unique_id is not null
-  AND sp.esid is not null
-  AND not sp.load;
+-- Remove rows that have blank keys
+DELETE
+FROM patron_import.stage_patron sp
+WHERE btrim(sp.esid) = '' or sp.esid is NULL;
+DELETE
+FROM patron_import.stage_patron sp
+WHERE btrim(sp.unique_id) = '' or sp.unique_id is NULL;
 
+-- Make higher priority patron types win over lower on duplicate patron rows
+DELETE
+FROM patron_import.stage_patron
+WHERE id IN
+      (SELECT sp2.id
+       FROM patron_import.stage_patron sp
+                JOIN patron_import.stage_patron sp2
+                     ON (sp.unique_id = sp2.unique_id and sp.id != sp2.id and sp.patron_type != sp2.patron_type and
+                         sp.institution_id = sp2.institution_id)
+                JOIN patron_import.ptype_mapping pt
+                     ON (pt.institution_id = sp.institution_id AND pt.ptype = sp.patron_type)
+                JOIN patron_import.ptype_mapping pt2
+                     ON (pt2.institution_id = sp2.institution_id AND pt2.ptype = sp2.patron_type)
+       WHERE pt.priority < pt2.priority);
+
+-- Remove patrons that have a lower load priority than what we already have in the patron table. (ptype_mapping.priority)
+DELETE
+FROM patron_import.stage_patron
+WHERE id IN (SELECT sp.id
+             FROM patron_import.stage_patron sp
+                      JOIN patron_import.patron p ON p.externalsystemid = sp.esid AND p.username = sp.unique_id
+                      JOIN patron_import.ptype_mapping pt
+                           ON pt.institution_id = sp.institution_id AND pt.ptype = sp.patron_type
+                      JOIN patron_import.ptype_mapping pt2
+                           ON pt2.institution_id = sp.institution_id AND p.patrongroup = pt2.foliogroup
+             WHERE pt.priority > pt2.priority);
+
+-- dedupe stage_patron
 UPDATE patron_import.stage_patron sp
 SET load = true
 FROM (SELECT MIN(id) as id
@@ -27,8 +48,9 @@ WHERE sp.id = b.id
   AND sp.esid is not null
   AND not sp.load;
 
+-- we don't delete the patron, we just clear the date when they put in some illegal format
 UPDATE patron_import.stage_patron sp
-SET patron_expiration_date=''
+SET patron_expiration_date=NULL
 WHERE substring(sp.patron_expiration_date from '^(\d+)')::INT > 12;
 
 INSERT INTO patron_import.patron (institution_id,
@@ -65,7 +87,7 @@ INSERT INTO patron_import.patron (institution_id,
             btrim(regexp_replace(sp.telephone2, '[^0-9|^\-]', '')),
             'email',
             (CASE
-                 WHEN sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' then sp.patron_expiration_date::DATE::TEXT
+                 WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' then sp.patron_expiration_date::DATE::TEXT
                  else NULL END)
      FROM patron_import.stage_patron sp
               JOIN patron_import.institution i ON (sp.institution_id = i.id)
@@ -77,7 +99,6 @@ INSERT INTO patron_import.patron (institution_id,
        AND sp.esid IS NOT NULL
        AND sp.esid != ''
        AND sp.load);
-
 
 UPDATE patron_import.patron p
 SET file_id                = sp.file_id,
@@ -97,7 +118,7 @@ SET file_id                = sp.file_id,
     update_date            = now(),
     raw_data               = sp.raw_data,
     expirationdate         = (CASE
-                                  WHEN sp.patron_expiration_date ~ '\d{2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
+                                  WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
                                       THEN sp.patron_expiration_date::DATE::TEXT
                                   ELSE NULL END)
 FROM patron_import.stage_patron sp
@@ -133,4 +154,11 @@ where patrongroup is null
    or externalsystemid is null
    or username is null;
 
--- TRUNCATE patron_import.stage_patron;
+update patron_import.patron
+    set expirationdate=NULL
+    where expirationdate='';
+
+-- I like having this here. after we run this sql file, we check the size of stage_patron
+-- if we still have patrons in this table we halt execution. Something went wrong. We have bad data
+-- and we don't want 'data pollution' in the patron db. We have to fix it.
+TRUNCATE patron_import.stage_patron;

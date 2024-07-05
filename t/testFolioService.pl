@@ -298,7 +298,7 @@ sub test_getPatronByUsername
 
 }
 
-# test_folio_api();
+test_folio_api();
 sub test_folio_api
 {
 
@@ -306,16 +306,16 @@ sub test_folio_api
     # my $endPoint = "/users/2e6628b9-3788-4473-8a6c-8cafc3defc64";
     # my $endPoint = "/users/6bd7eb43-d2f7-4ef1-9283-40baa45c7f95";
 
-    # my $endPoint = "/groups";
+    my $endPoint = "/groups";
     # my $endPoint = "/groups/b8b71b6f-e165-42f5-a8c8-03f14ad1ac05";
 
     # my $query = "(username==\"4268755EWL\")";
-    my $query = "(externalSystemId==\"856238\")";
-    my $endPoint = "/users?query=$query";
+    # my $query = "(externalSystemId==\"856238\")";
+    # my $endPoint = "/users?query=$query";
 
     # my $endPoint = "/departments";
 
-    my $tenant = "cs00000001_0050";
+    my $tenant = "cs00000001_0009";
 
     $folio->login($tenant);
     my $response = $folio->HTTPRequest("GET", $endPoint);
@@ -328,10 +328,8 @@ sub test_folio_api
 
 }
 
-test_getFolioPatronGroupsByInstitutionId();
+# test_getFolioPatronGroupsByInstitutionId();
 sub test_getFolioPatronGroupsByInstitutionId
 {
-    $folio->getFolioPatronGroupsByInstitutionId(5);
-
-
+    # $folio->getFolioPatronGroupsByInstitutionId(5);
 }
