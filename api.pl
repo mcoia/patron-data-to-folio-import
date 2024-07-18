@@ -36,6 +36,27 @@ initLogger();
 instantiateObjects();
 main();
 
+=pod
+
+                !!!! PLEASE NOTE !!!!
+                You have to symlink the patron-data-to-folio-import in the server/ directory for the angular app.
+
+                We print to the console and express.js reads whatever this thing spits out.
+
+
+
+=cut
+
+sub main
+{
+
+    # Used to run specific methods from the command line.
+    print $folio->getFolioUserJSONByUsername($getFolioUserByUsername) if (defined $getFolioUserByUsername);
+    print $folio->getFolioUserJSONByESID($getFolioUserByESID) if (defined $getFolioUserByESID);
+    print $folio->getFolioPatronGroupsByInstitutionId($getFolioPatronGroupByInstitutionId) if (defined $getFolioPatronGroupByInstitutionId);
+
+}
+
 sub initConf
 {
 
@@ -77,15 +98,5 @@ sub instantiateObjects
     $dao->_cacheTableColumns();
     $parser = Parser->new();
     $folio = FolioService->new();
-}
-
-sub main
-{
-
-    # Used to run specific methods from the command line.
-    $folio->getFolioUserByUsername($getFolioUserByUsername) if (defined $getFolioUserByUsername);
-    $folio->getFolioUserByESID($getFolioUserByESID) if (defined $getFolioUserByESID);
-    $folio->getFolioPatronGroupsByInstitutionId($getFolioPatronGroupByInstitutionId) if (defined $getFolioPatronGroupByInstitutionId);
-
 }
 

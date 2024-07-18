@@ -298,7 +298,7 @@ sub test_getPatronByUsername
 
 }
 
-test_folio_api();
+# test_folio_api();
 sub test_folio_api
 {
 
@@ -306,16 +306,20 @@ sub test_folio_api
     # my $endPoint = "/users/2e6628b9-3788-4473-8a6c-8cafc3defc64";
     # my $endPoint = "/users/6bd7eb43-d2f7-4ef1-9283-40baa45c7f95";
 
-    my $endPoint = "/groups";
+    # Jefferson College	cs00000001_0061
+
+
+    # my $endPoint = "/groups";
     # my $endPoint = "/groups/b8b71b6f-e165-42f5-a8c8-03f14ad1ac05";
 
     # my $query = "(username==\"4268755EWL\")";
     # my $query = "(externalSystemId==\"856238\")";
-    # my $endPoint = "/users?query=$query";
+    my $query = "(barcode==\"uV00082663JC\")";
+    my $endPoint = "/users?query=$query";
 
     # my $endPoint = "/departments";
 
-    my $tenant = "cs00000001_0009";
+    my $tenant = "cs00000001_0061";
 
     $folio->login($tenant);
     my $response = $folio->HTTPRequest("GET", $endPoint);
@@ -328,8 +332,274 @@ sub test_folio_api
 
 }
 
+# test_folio_api2();
+sub test_folio_api2
+{
+
+    # my $query = "(externalSystemId===\"\")";
+    # my $query = "cql.allRecords=1 NOT externalSystemId=\"\" type=patron &limit=2";
+    my $query = "cql.allRecords=1 NOT externalSystemId=\"\" AND type=patron &limit=2000";
+    my $endPoint = "/users?query=$query";
+
+    my $tenant = "cs00000001_0042";
+
+    $folio->login($tenant);
+    my $response = $folio->HTTPRequest("GET", $endPoint);
+    # print Dumper($response->{_content});
+
+    # save $response->{_content} to a file called ./tmp.json
+    open(my $fh, '>', './tmp.json');
+    print $fh $response->{_content};
+    close $fh;
+
+}
+
 # test_getFolioPatronGroupsByInstitutionId();
 sub test_getFolioPatronGroupsByInstitutionId
 {
-    # $folio->getFolioPatronGroupsByInstitutionId(5);
+    print $folio->getFolioPatronGroupsByInstitutionId(5);
+}
+
+# test_lookingforfiles();
+sub test_lookingforfiles
+{
+
+    my @files = (
+
+        "/mnt/dropbox/archway/home/archway/incoming/eccpat.txt",
+        "/mnt/dropbox/archway/home/archway/incoming/jcpat.txt",
+        "/mnt/dropbox/archway/home/archway/incoming/SCCstaff",
+        "/mnt/dropbox/archway/home/archway/incoming/SCCstudent",
+        "/mnt/dropbox/archway/home/archway/incoming/SLCCStaff",
+        "/mnt/dropbox/archway/home/archway/incoming/SLCCStudent",
+        "/mnt/dropbox/archway/home/archway/incoming/stlcoppat.txt",
+        "/mnt/dropbox/archway/home/archway/incoming/ub_patron.txt",
+        "/mnt/dropbox/arthur/home/arthur/incoming/WWUpatronsNEW.txt",
+        "/mnt/dropbox/avalon/home/avalon/incoming/patron-import/ATSU/import/ATSU_06252024.txt",
+        "/mnt/dropbox/avalon/home/avalon/incoming/patron-import/ATSU/import/ATSU_06282024.txt",
+        "/mnt/dropbox/avalon/home/avalon/incoming/tpbstupat",
+        "/mnt/dropbox/bridges/home/bridges/incoming/cslpatrons.txt",
+        "/mnt/dropbox/bridges/home/bridges/incoming/covfac.txt",
+        "/mnt/dropbox/bridges/home/bridges/incoming/covstu.txt",
+        "/mnt/dropbox/bridges/home/bridges/incoming/FCfacPAT.DAT",
+        "/mnt/dropbox/bridges/home/bridges/incoming/FCstuPAT.DAT",
+        "/mnt/dropbox/bridges/home/bridges/incoming/LUFACPAT.txt",
+        "/mnt/dropbox/bridges/home/bridges/incoming/LUSTUPAT.txt",
+        "/mnt/dropbox/bridges/home/bridges/incoming/loganstu.txt",
+        "/mnt/dropbox/bridges/home/bridges/incoming/EWLPat.txt",
+        "/mnt/dropbox/kc-towers/home/kc-towers/incoming/KCKCC_LIB_EMP.txt",
+        "/mnt/dropbox/kc-towers/home/kc-towers/incoming/KCKCC_LIB_STU.txt",
+        "/mnt/dropbox/kc-towers/home/kc-towers/incoming/nwmsuempl.txt",
+        "/mnt/dropbox/kc-towers/home/kc-towers/incoming/nwmsustu.txt",
+        "/mnt/dropbox/swan/home/swan/incoming/ccstupat.txt",
+        "/mnt/dropbox/swan/home/swan/incoming/EUPatronCamsExport_Jun_17_24.txt",
+        "/mnt/dropbox/swan/home/swan/incoming/MSSCALL",
+        "/mnt/dropbox/swan/home/swan/incoming/MobiusUpload2024FA_MAIN.txt",
+        "/mnt/dropbox/swan/home/swan/incoming/MobiusUpload2024FA_INET.txt",
+        "/mnt/dropbox/swan/home/swan/incoming/otcpat.txt",
+        "/mnt/dropbox/swan/home/swan/incoming/SBUPATRONS",
+        "/mnt/dropbox/swbts/home/swbts/incoming/patronLoad.txt"
+
+    );
+
+    for my $file (@files)
+    {
+
+        # check if $file exists
+        if (-e $file)
+        {
+            print "file exists: [$file]\n";
+        }
+        else
+        {
+            print "file does not exist: [$file]\n";
+        }
+
+
+    }
+
+}
+
+# test_importPatrons();
+sub test_importPatrons
+{
+
+    my $institution = {
+        id =>
+
+    };
+
+    print Dumper(
+        $main::dao->getPatronImportPendingSize($institution->{id})
+    );
+
+}
+
+# test_PatronJSONRemoveEmptyFieldsFromPatronHash();
+sub test_PatronJSONRemoveEmptyFieldsFromPatronHash
+{
+
+    # for my $institution_id (3, 4, 5, 7, 8, 9, 14, 15, 16, 17, 18, 21, 23, 24, 25, 26, 29, 30, 31, 32, 33, 43)
+    for my $institution_id (3)
+    {
+
+        my $patronsX = $dao->getPatronBatch2Import($institution_id);
+
+        # grab the first record from $patrons
+        my $patrons->[0] = $patronsX->[0];
+
+        # print $patrons size
+        print "patrons size: [" . scalar(@{$patrons}) . "]\n";
+
+        my $json = "";
+        for my $patron (@{$patrons})
+        {
+            $json .= $folio->_buildPatronJSON($patron);
+        }
+        chop($json);
+        chop($json);
+
+        my $patronSize = scalar(@{$patrons});
+
+        $json = $folio->_buildFinalJSON($json, $patronSize);
+
+        my $untouchedJson = $json;
+
+        $json = decode_json($json);
+        $json = remove_empty_fields($json);
+        $json = encode_json($json);
+
+        # $json = clean_json($json);
+
+        # $json = decode_json($json);
+        # $json = clean_hash($json);
+        # $json = encode_json($json);
+
+        # $json = $folio->_removeEmptyFields($json);
+
+
+        # save $json to a file called tmp.json
+        open(my $fh, '>', './tmp.json');
+        print $fh $json;
+        close $fh;
+
+        # save $untouchedJson to a file called untouched.json
+        open(my $fh2, '>', './untouched.json');
+        print $fh2 $untouchedJson;
+        close $fh2;
+
+        print $json . "\n";
+
+    }
+
+}
+
+sub remove_empty_fields
+{
+    my $hash = shift;
+
+    foreach my $key (keys %$hash)
+    {
+        if (ref $hash->{$key} eq 'HASH')
+        {
+            remove_empty_fields($hash->{$key});
+            delete $hash->{$key} if !%{$hash->{$key}};
+        }
+        elsif (ref $hash->{$key} eq 'ARRAY')
+        {
+            foreach my $item (@{$hash->{$key}})
+            {
+                remove_empty_fields($item) if ref $item eq 'HASH';
+            }
+            @{$hash->{$key}} = grep {ref $_ ne 'HASH' || %$_} @{$hash->{$key}};
+            delete $hash->{$key} if !@{$hash->{$key}};
+        }
+        else
+        {
+            delete $hash->{$key} if !defined($hash->{$key}) || $hash->{$key} eq '';
+        }
+    }
+    return $hash;
+}
+
+sub clean_json
+{
+    my $json = shift;
+
+    $json =~ s/\"\w+\":\s\"\",//g;
+    $json =~ s/\"\w+\":\"\",//g;
+    $json =~ s/^\n$//g;
+    $json =~ s/^\s+$//g;
+
+    $json =~ s/\s+(?=\})//g; # Remove spaces before closing brace
+    $json =~ s/\s+(?=\])//g; # Remove spaces before closing bracket
+    $json =~ s/\s+(\{)/$1/g; # Remove spaces before opening brace
+    $json =~ s/\s+(\[)/$1/g; # Remove spaces before opening bracket
+    $json =~ s/,\s+/,/g;     # Remove spaces after comma
+    $json =~ s/\:\s+/:/g;    # Remove spaces after colon
+    $json =~ s/^\s+//g;
+
+    return $json;
+
+}
+
+sub clean_hash
+{
+    # my $self = shift;
+    my $hash = shift;
+
+    foreach my $key (keys %$hash)
+    {
+        if (ref $hash->{$key} eq 'HASH')
+        {
+            clean_hash($hash->{$key});
+            delete $hash->{$key} if !%{$hash->{$key}};
+        }
+        elsif (!defined $hash->{$key} || $hash->{$key} eq '')
+        {
+            delete $hash->{$key};
+        }
+    }
+
+    return $hash;
+
+}
+
+# test_endPoint();
+sub test_endPoint
+{
+    my $institution_id = 3;
+
+    my $json = $folio->getFolioUserJSONByESID("ahoudei\@stchas.edu");
+    print $json . "\n";
+
+    my $folioUserByESID = decode_json($json);
+    print Dumper($folioUserByESID);
+
+}
+
+# test_generateFailedPatronsCSVReport();
+sub test_generateFailedPatronsCSVReport
+{
+
+    # for my $row (@{$main::dao->query("SELECT distinct ir.institution_id, MAX(ir.job_id)
+    #                                     FROM patron_import.import_failed_users ifu
+    #                                              join patron_import.import_response ir on ifu.import_response_id = ir.id
+    #                                     group by 1
+    #                                     order by 1, 2 desc")})
+    # {
+
+    # my $institution_id = $row->[0];
+    # my $job_id = $row->[1];
+    # print "Institution ID: $institution_id\n";
+    # print "Job ID: $job_id\n";
+
+    my $institution_id = 44;
+    my $job_id = 115;
+
+    $folio->generateFailedPatronsCSVReports($institution_id, $job_id);
+
+
+    # }
+
 }

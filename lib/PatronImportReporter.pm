@@ -59,7 +59,7 @@ sub sendEmail
     $main::log->add("no email address to send to") if (!defined($emailAddresses));
     return $self if (!defined($emailAddresses));
 
-    print "Sending emails to these addresses: [$emailAddresses]\n" if ($main::conf->{print2Console});
+    print "Sending emails to these addresses: [$emailAddresses]\n" if ($main::conf->{print2Console} eq 'true');
     $main::log->add("Sending emails to these addresses: [$emailAddresses]");
 
     my @emailAddresses = split(',', $emailAddresses);
@@ -73,7 +73,7 @@ sub sendEmail
     }
     catch
     {
-        print "Email bombed!!!\n" if ($main::conf->{print2Console});
+        print "Email bombed!!!\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->add("******************* Email BOMBED *******************");
         $main::log->add("=================== EMAIL START ===================");
         $main::log->add($self->{template});

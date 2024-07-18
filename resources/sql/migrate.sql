@@ -1,10 +1,13 @@
 -- Remove rows that have blank keys
 DELETE
 FROM patron_import.stage_patron sp
-WHERE btrim(sp.esid) = '' or sp.esid is NULL;
+WHERE btrim(sp.esid) = ''
+   or sp.esid is NULL;
+
 DELETE
 FROM patron_import.stage_patron sp
-WHERE btrim(sp.unique_id) = '' or sp.unique_id is NULL;
+WHERE btrim(sp.unique_id) = ''
+   or sp.unique_id is NULL;
 
 -- Make higher priority patron types win over lower on duplicate patron rows
 DELETE
@@ -48,6 +51,23 @@ WHERE sp.id = b.id
   AND sp.esid is not null
   AND not sp.load;
 
+
+-- We have got to remove the duplicates
+DELETE
+FROM patron_import.stage_patron p3
+WHERE p3.id IN (SELECT p.id
+                FROM patron_import.stage_patron p
+                WHERE p.unique_id IN (SELECT p1.unique_id
+                                      FROM patron_import.stage_patron p1
+                                      GROUP BY p1.unique_id
+                                      HAVING COUNT(*) > 1)
+                  AND p.id NOT IN (SELECT MAX(p2.id)
+                                   FROM patron_import.stage_patron p2
+                                   GROUP BY p2.unique_id
+                                   HAVING COUNT(*) > 1)
+                ORDER BY p.unique_id);
+
+
 -- we don't delete the patron, we just clear the date when they put in some illegal format
 UPDATE patron_import.stage_patron sp
 SET patron_expiration_date=NULL
@@ -66,6 +86,7 @@ INSERT INTO patron_import.patron (institution_id,
                                   lastname,
                                   middlename,
                                   firstname,
+                                  preferredfirstname,
                                   phone,
                                   mobilephone,
                                   preferredcontacttypeid,
@@ -83,6 +104,10 @@ INSERT INTO patron_import.patron (institution_id,
             btrim(regexp_replace(sp.name, ',.*', ''))                              as "lastname",
             btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')) as "middlename",
             btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')) as "firstname",
+            CASE
+                WHEN sp.preferred_name LIKE '%, %' THEN
+                    substring(sp.preferred_name from ', (.*) ')
+                ELSE NULL END,
             btrim(regexp_replace(sp.telephone, '[^0-9|^\-]', '')),
             btrim(regexp_replace(sp.telephone2, '[^0-9|^\-]', '')),
             'email',
@@ -111,6 +136,10 @@ SET file_id                = sp.file_id,
     lastname               = btrim(regexp_replace(sp.name, ',.*', '')),
     middlename             = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')),
     firstname              = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')),
+    preferredfirstname     = CASE
+                                 WHEN sp.preferred_name LIKE '%, %' THEN
+                                     substring(sp.preferred_name from ', (.*) ')
+                                 ELSE NULL END,
     phone                  = btrim(regexp_replace(sp.telephone, '[0-9-]+', '')),
     mobilephone            = btrim(regexp_replace(sp.telephone2, '[0-9-]+', '')),
     preferredcontacttypeid = 'email',
@@ -155,8 +184,8 @@ where patrongroup is null
    or username is null;
 
 update patron_import.patron
-    set expirationdate=NULL
-    where expirationdate='';
+set expirationdate=NULL
+where expirationdate = '';
 
 -- I like having this here. after we run this sql file, we check the size of stage_patron
 -- if we still have patrons in this table we halt execution. Something went wrong. We have bad data

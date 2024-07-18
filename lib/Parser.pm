@@ -46,9 +46,9 @@ sub stagePatronRecords
 
         # Parser Not working? Don't forget to load it! use Parsers::ParserNameHere;
 
-        print "Searching for files...\n" if ($main::conf->{print2Console});
+        print "Searching for files...\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Searching for files...\n");
-        print "$institution->{name}: $institution->{folder}->{path}\n" if ($main::conf->{print2Console});
+        print "$institution->{name}: $institution->{folder}->{path}\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("$institution->{name}: $institution->{folder}->{path}\n");
 
         # We need the files associated with this institution. I feel this should return $institution.
@@ -63,18 +63,47 @@ sub stagePatronRecords
 
         # some debug metrics
         my $totalPatrons = scalar(@{$patronRecords});
-        print "Total Patrons: [$totalPatrons]\n" if ($main::conf->{print2Console});
-        print "Migrating records to final table...\n" if ($main::conf->{print2Console});
-        print "================================================================================\n\n" if ($main::conf->{print2Console});
+        print "Total Patrons: [$totalPatrons]\n" if ($main::conf->{print2Console} eq 'true');
+        print "Migrating records to final table...\n" if ($main::conf->{print2Console} eq 'true');
+        print "================================================================================\n\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
         $main::log->addLine("================================================================================\n\n");
+
 
         # We migrate records here, truncating the table after each loop
         $parser->migrate();
 
+        # I've went a few rounds with this. This is where the delete patron file should go.
+        # I was going to delete them all at once but what if we crash on a patron file for some reason?
+        # Files won't get deleted. If we crash on a file, I want all previous files to have been removed.
+        $self->deletePatronFiles($institution) if($main::conf->{deleteFiles} eq 'true');
+
     }
 
     return $self;
+}
+
+sub deletePatronFiles
+{
+    my $self = shift;
+    my $institution = shift;
+
+    for my $file (@{$institution->{folder}->{files}})
+    {
+        for my $filePath (@{$file->{paths}})
+        {
+
+            print "deleting file: [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("deleting file: [$filePath]");
+
+            unlink $filePath;
+
+        }
+
+    }
+
+    return $self;
+
 }
 
 sub saveStagedPatronRecords
@@ -82,7 +111,7 @@ sub saveStagedPatronRecords
 
     my $self = shift;
     my $patronRecordsHashArray = shift;
-    my $chunkSize = shift || 500;
+    my $chunkSize = shift || 100;
 
     # $patronRecords is a hash of arrays. We need to convert the hash into an ordered array.
     my @columns = @{$main::dao->{'cache'}->{'columns'}->{'stage_patron'}};
@@ -127,6 +156,8 @@ sub saveStagedPatronRecords
         $main::dao->{db}->updateWithParameters($query, \@combinedChunkedRecords);
 
     }
+
+    return $self;
 
 }
 

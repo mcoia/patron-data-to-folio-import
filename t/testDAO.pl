@@ -458,7 +458,7 @@ sub test_getPatronByUsername
 
 }
 
-test_getPatronByESID();
+# test_getPatronByESID();
 sub test_getPatronByESID
 {
 
@@ -473,5 +473,155 @@ sub test_getPatronByESID
     );
 
 }
+
+# test_getFileTrackersByJobId();
+sub test_getFileTrackersByJobId
+{
+    print "test_getFileTrackersByJobId\n";
+
+    print Dumper(
+        $dao->getFileTrackersByJobId(113)
+    );
+
+}
+
+# test_getAllPatronFileFields();
+sub test_getAllPatronFileFields
+{
+
+    my @chars = ();
+    my @rougeChars = ();
+
+    for (my $i = 0; $i < 264027; $i = $i + 50)
+    {
+
+        my $query = "SELECT p.institution_id, p.raw_data FROM patron_import.patron p
+                    order by p.id desc
+                    limit 5 offset $i;";
+
+        my $results = $dao->query($query);
+
+        for my $result (@{$results})
+        {
+            my $institutionID = $result->[0];
+            my $rawData = $result->[1];
+
+            # grab the first character from each line and print it
+            for my $line (split(/\n/, $rawData))
+            {
+                my $char = substr($line, 0, 1) . "\n";
+                chomp($char);
+
+                if ($char eq 's' ||
+                    $char eq 'N' ||
+                    $char eq ' ' ||
+                    $char eq 'A' ||
+                    $char eq 'c')
+                {
+                    print "$line\n";
+                    my $out = "[$institutionID]:[$line]\n";
+                    push(@rougeChars, $out);
+                }
+
+
+                # add $char to @chars if it's not already in there
+                if (!grep {$_ eq $char} @chars)
+                {
+
+                    my $ascii = ord($char);
+
+                    my $charHash = {
+                        'char'  => $char,
+                        'ascii' => $ascii,
+                        'count' => 1
+                    };
+
+                    # push $charHash onto @chars if it's not already in there, if it is assign it to $charHash and increment the count + 1
+                    if (grep {$_->{char} eq $char} @chars)
+                    {
+                        my $index = 0;
+                        for my $c (@chars)
+                        {
+                            if ($c->{char} eq $char)
+                            {
+                                $chars[$index]->{count} = $chars[$index]->{count} + 1;
+                            }
+                            $index++;
+                        }
+                    }
+                    else
+                    {
+                        push(@chars, $charHash);
+                        print "adding $char\n";
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    # save rougeChars to a file
+    open my $fileHandle, '>', "illegalChars.txt" or die "Could not open file 'rougeChars.txt' $!";
+    for my $data (@rougeChars)
+    {
+        print $fileHandle $data;
+    }
+    close $fileHandle;
+
+}
+
+# saveFileTrackerContentsToFile();
+sub saveFileTrackerContentsToFile
+{
+
+    # 698
+    # 697
+
+    # path
+    # lastmodified
+    # contents
+
+
+    # select distinct ft.path, to_timestamp(ft.lastmodified)
+    # from patron_import.file_tracker ft
+    #     where to_timestamp(ft.lastmodified) > 'today'
+    # order by to_timestamp(ft.lastmodified) desc;
+
+
+    my $query = "select distinct ft.path, to_timestamp(ft.lastmodified), ft.contents
+from patron_import.file_tracker ft
+where to_timestamp(ft.lastmodified) > 'today'
+order by to_timestamp(ft.lastmodified) desc;";
+
+    my $results = $dao->query($query);
+    for my $row (@{$results})
+    {
+
+        my $path = $row->[0];
+        my $lastmodified = $row->[1];
+        my $contents = $row->[2];
+
+        print "[$lastmodified] path:[$path] \n";
+
+        # save the contents to the path
+        open my $fileHandle, '>', $path or die "Could not open file '$path' $!";
+        try
+        {
+            print $fileHandle $contents;
+        }
+        catch
+        {
+            print "Could not write to file: $path\n";
+        };
+        # print $fileHandle $contents;
+        close $fileHandle;
+
+    }
+
+}
+
 
 1;

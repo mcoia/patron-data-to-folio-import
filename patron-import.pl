@@ -117,6 +117,8 @@ sub finishJob
     # print $query;
     $dao->{db}->update($query);
 
+    $log->addLine("Job $jobID finished at $timestamp");
+
 }
 
 sub getHelpMessage

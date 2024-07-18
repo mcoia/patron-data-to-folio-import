@@ -165,7 +165,7 @@ sub patronFileDiscovery
     {find(sub {push(@files, $File::Find::name)}, $institution->{'folder'}->{'path'});}
     catch
     {
-        print "Could not find this folder path! $institution->{'folder'}->{'path'}\n" if($main::conf->{print2Console});
+        print "Could not find this folder path! $institution->{'folder'}->{'path'}\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Could not find this folder path! $institution->{'folder'}->{'path'}");
     };
 
@@ -174,7 +174,7 @@ sub patronFileDiscovery
 
         # Skip files that are 'n/a'
         next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '' || !defined($file->{'pattern'}));
-        print "Looking for pattern: [$file->{pattern}]\n" if($main::conf->{print2Console});
+        print "Looking for pattern: [$file->{pattern}]\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Looking for pattern: [$file->{pattern}]");
 
         my @paths = ();
@@ -197,7 +197,7 @@ sub patronFileDiscovery
                 if (-f $path)
                 {
 
-                    print "File Found: [$institution->{name}]:[$path]\n" if($main::conf->{print2Console});
+                    print "File Found: [$institution->{name}]:[$path]\n" if ($main::conf->{print2Console} eq 'true');
                     $main::log->addLine("File Found: [$institution->{'folder'}->{'path'}]:[$path]");
 
                     my $pathHash = {
@@ -206,8 +206,8 @@ sub patronFileDiscovery
                         'path'           => $path,
                         'size'           => (stat($path))[7],
                         'lastModified'   => (stat($path))[9],
+                        'contents'       => $self->readFileAsString($path)
                     };
-
 
                     # we're going to skip files older than n days. Setting in conf file.
                     my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
@@ -215,7 +215,7 @@ sub patronFileDiscovery
                     # if $path contains the word test skip
                     if (lc $path =~ /test/)
                     {
-                        print "File contains the word test. Skipping.\n" if($main::conf->{print2Console});
+                        print "File contains the word test. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
                         $main::log->addLine("File contains the word test. Skipping.");
                         next;
                     }
@@ -223,13 +223,10 @@ sub patronFileDiscovery
                     # check our file dates for old files.
                     if (time > $pathHash->{lastModified} + $maxPatronFileAge)
                     {
-                        print "File is older than 3 months. Skipping.\n" if($main::conf->{print2Console});
+                        print "File is older than 3 months. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
                         $main::log->addLine("File is older than 3 months. Skipping.");
                         next;
                     }
-
-                    # delete the file!
-                    # unlink $path;
 
                     $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
 
@@ -257,7 +254,7 @@ sub _loadCSVFileAsArray
 
 }
 
-sub saveFilePath
+sub saveFilePath # <== is this being used?!?!
 {
     # this needs updated.
 
@@ -503,7 +500,7 @@ sub checkFileForSpecialChars
     my $self = shift;
     my $fileName = shift;
 
-    print "checking file $fileName\n" if($main::conf->{print2Console});
+    print "checking file $fileName\n" if ($main::conf->{print2Console} eq 'true');
 
     my $data = $self->readFileToArray($fileName);
 
@@ -511,7 +508,7 @@ sub checkFileForSpecialChars
     my $allowedChars = "+-,.0123456789:;<=>?\@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]^_`abcdefghijklmnopqrstuvwxyz ";
     my @allowedChars = split('', $allowedChars);
 
-    print "$allowedChars\n" if($main::conf->{print2Console});
+    print "$allowedChars\n" if ($main::conf->{print2Console} eq 'true');
 
     my $lineCount = 0;
     for my $line (@{$data})
@@ -563,5 +560,15 @@ sub _addTenants
     return $institutions;
 
 }
+
+sub deletePatronFiles
+{
+    my $self = shift;
+
+
+
+    return $self;
+}
+
 
 1;

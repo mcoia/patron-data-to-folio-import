@@ -123,7 +123,7 @@ sub importPatrons
         # We need the tenant for this institution
         my $tenant = $institution->{tenant};
 
-        print "Importing Patrons for [$institution->{name}] using tenant:[$tenant]\n" if ($main::conf->{print2Console});
+        print "Importing Patrons for [$institution->{name}] using tenant:[$tenant]\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->add("Importing Patrons for [$institution->{name}] using tenant:[$tenant]");
         $main::log->add("authenticating...");
 
@@ -131,7 +131,7 @@ sub importPatrons
         my $loginStatus = $self->login($tenant);
         next if ($loginStatus == 0);
 
-        print "authentication successful!\n" if ($main::conf->{print2Console});
+        print "authentication successful!\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->add("authentication successful!");
 
         my @importResponse = ();
@@ -140,7 +140,7 @@ sub importPatrons
         while ($main::dao->getPatronImportPendingSize($institution->{id}) > 0)
         {
 
-            print "Getting patrons for $institution->{name}\n" if ($main::conf->{print2Console});
+            print "Getting patrons for $institution->{name}\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->add("");
             $main::log->add("____________________________________________");
             $main::log->add("Getting patrons for $institution->{name}");
@@ -151,7 +151,7 @@ sub importPatrons
 
             my $totalRecords = scalar(@{$patrons});
 
-            print "Total Records:[$totalRecords]\n" if ($main::conf->{print2Console});
+            print "Total Records:[$totalRecords]\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->add("Total Records:[$totalRecords]");
 
             my $json = "";
@@ -160,24 +160,29 @@ sub importPatrons
             chop($json);
             chop($json);
 
+            # Remove the empty fields from the json
             $json = $self->_buildFinalJSON($json, $totalRecords);
-            $json = $self->_removeEmptyFields($json);
+            $json = $self->_removeIllegalChars($json);
+            $json = decode_json($json);
+            $json = remove_empty_fields($json);
+            $json = encode_json($json);
 
             # ship it!
-            print "sending json to folio...\n" if ($main::conf->{print2Console});
+            print "sending json to folio...\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->add("sending json to folio...");
             my $response = $self->_importIntoFolioUserImport($tenant, $json);
+
 
             # Deal with the response
             my $responseContent = $response->{_content};
 
-            print "================= RESPONSE =================\n" if ($main::conf->{print2Console});
-            print "$responseContent\n" if ($main::conf->{print2Console});
+            print "================= RESPONSE =================\n" if ($main::conf->{print2Console} eq 'true');
+            print "$responseContent\n" if ($main::conf->{print2Console} eq 'true');
 
             # Invalid token, we probably timed out. Folio can be slow sometimes.
             if ($responseContent =~ /Invalid token/)
             {
-                print "TOKEN Expired! Refreshing token\n" if ($main::conf->{print2Console});
+                print "TOKEN Expired! Refreshing token\n" if ($main::conf->{print2Console} eq 'true');
                 $main::log->addLine("TOKEN Expired! Refreshing token");
                 $self->login($tenant);
                 $disablePatrons = 0;
@@ -185,7 +190,7 @@ sub importPatrons
 
             if ($responseContent =~ /Illegal unquoted character/ || $responseContent =~ /malformed JSON string/)
             {
-                print $json . "\n" if ($main::conf->{print2Console});
+                print $json . "\n" if ($main::conf->{print2Console} eq 'true');
                 $main::log->add($json);
             }
 
@@ -194,8 +199,8 @@ sub importPatrons
 
             if ($responseContent =~ 'read timeout at')
             {
-                print "\n============== FOLIO TIMEOUT ===============\n" if ($main::conf->{print2Console});
-                print "Reloading patrons and trying again.\n\n" if ($main::conf->{print2Console});
+                print "\n============== FOLIO TIMEOUT ===============\n" if ($main::conf->{print2Console} eq 'true');
+                print "Reloading patrons and trying again.\n\n" if ($main::conf->{print2Console} eq 'true');
                 $main::log->add("Reloading patrons and trying again.");
                 $disablePatrons = 0;
             }
@@ -258,9 +263,8 @@ sub importPatrons
 
         }
 
-
         # Build our report.
-        print "[$institution->{name}] Building a report\n" if ($main::conf->{print2Console});
+        print "[$institution->{name}] Building a report\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->add("[$institution->{name}] Building a report");
 
         my $importResponseTotals = $self->_getImportUserImportResponseTotals(\@importResponse);
@@ -270,30 +274,7 @@ sub importPatrons
 
     }
 
-
     return $self;
-
-}
-
-sub clean_hash
-{
-    my $self = shift;
-    my $hash = shift;
-
-    foreach my $key (keys %$hash)
-    {
-        if (ref $hash->{$key} eq 'HASH')
-        {
-            clean_hash($hash->{$key});
-            delete $hash->{$key} if !%{$hash->{$key}};
-        }
-        elsif (!defined $hash->{$key} || $hash->{$key} eq '')
-        {
-            delete $hash->{$key};
-        }
-    }
-
-    return $hash;
 
 }
 
@@ -363,6 +344,34 @@ sub _removeEmptyFields
 
 }
 
+sub remove_empty_fields
+{
+    my $hash = shift;
+
+    foreach my $key (keys %$hash)
+    {
+        if (ref $hash->{$key} eq 'HASH')
+        {
+            remove_empty_fields($hash->{$key});
+            delete $hash->{$key} if !%{$hash->{$key}};
+        }
+        elsif (ref $hash->{$key} eq 'ARRAY')
+        {
+            foreach my $item (@{$hash->{$key}})
+            {
+                remove_empty_fields($item) if ref $item eq 'HASH';
+            }
+            @{$hash->{$key}} = grep {ref $_ ne 'HASH' || %$_} @{$hash->{$key}};
+            delete $hash->{$key} if !@{$hash->{$key}};
+        }
+        else
+        {
+            delete $hash->{$key} if !defined($hash->{$key}) || $hash->{$key} eq '';
+        }
+    }
+    return $hash;
+}
+
 sub _buildPatronJSON
 {
     my $self = shift;
@@ -413,6 +422,11 @@ json
 
     # replace null with ""
     # $json =~ s/null/""/g;
+
+
+
+
+
 
     return $json;
 
@@ -507,12 +521,12 @@ sub _logLoginFailed
 
     {
 
-        print "\n\n=====================================================================================================\n" if ($main::conf->{print2Console});
-        print "                                 !!! Log in failed !!!\n" if ($main::conf->{print2Console});
-        print "                    Login failed for tenant: $tenant\n" if ($main::conf->{print2Console});
-        print "                    $main::conf->{baseURL}$main::conf->{loginURL}\n" if ($main::conf->{print2Console});
-        print "                    Do we have a login for $tenant?\n" if ($main::conf->{print2Console});
-        print "=====================================================================================================\n\n" if ($main::conf->{print2Console});
+        print "\n\n=====================================================================================================\n" if ($main::conf->{print2Console} eq 'true');
+        print "                                 !!! Log in failed !!!\n" if ($main::conf->{print2Console} eq 'true');
+        print "                    Login failed for tenant: $tenant\n" if ($main::conf->{print2Console} eq 'true');
+        print "                    $main::conf->{baseURL}$main::conf->{loginURL}\n" if ($main::conf->{print2Console} eq 'true');
+        print "                    Do we have a login for $tenant?\n" if ($main::conf->{print2Console} eq 'true');
+        print "=====================================================================================================\n\n" if ($main::conf->{print2Console} eq 'true');
 
         $main::log->add("\n\n=====================================================================================================\n");
         $main::log->add("                                 !!! Log in failed !!!\n");
@@ -570,10 +584,20 @@ sub _escapeIllegalChars
 
 }
 
+sub _removeIllegalChars {
+
+    my $self = shift;
+    my $string = shift;
+
+    $string = decode('UTF-8', $string);
+    $string =~ s/\x{fffd}//g;
+    $string = encode('UTF-8', $string);
+
+    return $string;
+}
 
 ##### API oriented methods below ############################
-
-sub getFolioUserByUsername
+sub getFolioUserJSONByUsername
 {
     my $self = shift;
 
@@ -587,13 +611,14 @@ sub getFolioUserByUsername
     my $response = $self->HTTPRequest("GET", $endPoint);
 
     my $json = decode_json($response->{_content});
-    print encode_json($json->{users});
+    my $user = $json->{users};
+    my $jsonUser = encode_json($user);
 
-    exit;
+    return $jsonUser;
 
 }
 
-sub getFolioUserByESID
+sub getFolioUserJSONByESID
 {
 
     my $self = shift;
@@ -608,9 +633,53 @@ sub getFolioUserByESID
     my $response = $self->HTTPRequest("GET", $endPoint);
 
     my $json = decode_json($response->{_content});
-    print encode_json($json->{users});
 
-    exit;
+    my $user = $json->{users};
+
+    my $jsonUser = encode_json($user);
+
+    return $jsonUser;
+
+}
+
+sub getFolioUserJSONByBarcodeAndInstitutionId
+{
+    my $self = shift;
+    my $institution_id = shift;
+    my $barcode = shift;
+
+    my $query = "(barcode==\"$barcode\")";
+    my $endPoint = "/users?query=$query";
+
+    # this works because we only allow 1 username. they have to be unique.
+    my $tenant = $main::dao->getTenantByInstitutionId($institution_id);
+    $self->login($tenant);
+    my $response = $self->HTTPRequest("GET", $endPoint);
+
+    my $json = decode_json($response->{_content});
+    my $user = $json->{users};
+    my $jsonUser = encode_json($user);
+
+    return $jsonUser;
+
+}
+
+sub getJSONByEndpoint
+{
+
+    # /groups being the endpoint, the query is the cql query.
+    # example endpoint: "/groups?query=cql.allRecords=1%20sortby%20group&limit=2000"
+
+    my $self = shift;
+    my $institution_id = shift;
+    my $endPoint = shift;
+
+    my $tenant = $main::dao->getInstitutionHashById($institution_id)->{tenant};
+    $self->login($tenant);
+
+    my $response = $self->HTTPRequest("GET", $endPoint);
+
+    return $response->{_content};
 
 }
 
@@ -624,10 +693,372 @@ sub getFolioPatronGroupsByInstitutionId
 
     my $endPoint = "/groups?query=cql.allRecords=1%20sortby%20group&limit=2000";
     my $response = $self->HTTPRequest("GET", $endPoint);
-    my $json = decode_json($response->{_content});
-    print encode_json($json->{usergroups});
 
-    exit;
+    my $json = decode_json($response->{_content});
+    my $patronGroups = encode_json($json->{usergroups});
+
+    return $patronGroups;
+
+}
+
+sub generateFailedPatronsCSVReports
+{
+
+    my $self = shift;
+    my $institution_id = shift;
+    my $job_id = shift;
+
+=pod
+
+    The plan...
+    ------------------------
+    Create a CSV of all the failed patrons for a specific job and institution.
+    where we Do folio api calls checking the most typical failed reasons.
+
+    -- Most common failed reasons.
+    ESID != ESID
+    Username != Username
+    Barcode.empty != Barcode.found
+        Begs the question. What if another user has the same barcode?
+    Patron Group not found
+
+    Do inactive users fail?
+    ------------------------
+
+    Get all the failed users per job per institution
+
+    Patron information.
+    Job information
+
+=cut
+
+    # for my $patron (@{$main::dao->getFailedUsersByInstitutionId($institution_id)})
+    # used to help guide copilot. This is the same query in getFailedUsersByInstitutionId(id)
+    my @patronReportArray = ();
+    for my $patronRow (@{$main::dao->query("SELECT
+                                       ir.job_id,
+                                       ifu.errormessage,
+                                       p.id,
+                                       p.institution_id,
+                                       p.externalsystemid,
+                                       p.username,
+                                       p.barcode,
+                                       p.lastname,
+                                       p.firstname,
+                                       p.expirationdate,
+                                       p.patrongroup,
+                                       p.raw_data
+                                FROM patron_import.import_failed_users ifu
+                                         join patron_import.import_response ir on ifu.import_response_id = ir.id
+                                         join patron_import.patron p on ifu.username = p.username and p.externalsystemid = ifu.externalsystemid
+                                where ir.institution_id = $institution_id and ir.job_id = $job_id
+                                order by ir.job_id desc, ifu.id asc;")})
+    {
+
+        my $patron = {
+            job_id           => $patronRow->[0],
+            errormessage     => $patronRow->[1],
+            id               => $patronRow->[2],
+            institution_id   => $patronRow->[3],
+            externalsystemid => $patronRow->[4],
+            username         => $patronRow->[5],
+            barcode          => $patronRow->[6],
+            lastname         => $patronRow->[7],
+            firstname        => $patronRow->[8],
+            expirationdate   => $patronRow->[9],
+            patrongroup      => $patronRow->[10],
+            raw_data         => $self->sanitizeForCSV($patronRow->[11]),
+        };
+
+        $patron = $self->_getFailedReason($patron);
+
+        print "=" x 100 . "\n";
+        print Dumper($patron->{failMessage});
+
+        push(@patronReportArray, $patron);
+
+    }
+
+    $self->generateFailedPatronsCSVReport(\@patronReportArray);
+    @patronReportArray = ();
+
+}
+
+sub generateFailedPatronsCSVReport
+{
+    my $self = shift;
+    my $patrons = shift;
+
+    # CSV header
+    my $csv = join(',',
+        'MOBIUS fail message',
+        'patron file externalsystemid',
+        'folio externalsystemid',
+        'patron file username',
+        'folio username',
+        'patron barcode',
+        'folio barcode',
+        'folio error message',
+        'job id',
+        'patron id',
+        'lastname',
+        'firstname',
+        'patrongroup'
+    ) . "\n";
+
+    # Process each patron
+    for my $patron (@{$patrons})
+    {
+        my $failedMessages = join('', map {"[$_]"} @{$patron->{failMessage}});
+
+        # List of required keys in $patron hash
+        my @required_keys = (
+            'job_id', 'errormessage', 'id', 'institution_id', 'externalsystemid',
+            'folioUserByUsername', 'username', 'folioUserByESID', 'barcode',
+            'lastname', 'firstname', 'expirationdate', 'patrongroup'
+        );
+
+        # Ensure all required keys exist and are initialized
+        for my $key (@required_keys)
+        {
+            $patron->{$key} //= '';
+        }
+
+        # Handle nested keys separately
+        $patron->{folioUserByUsername} //= {};
+        $patron->{folioUserByESID} //= {};
+
+        # Ensure nested keys are initialized
+        $patron->{folioUserByUsername}->{externalSystemId} //= '';
+        $patron->{folioUserByESID}->{username} //= '';
+        $patron->{folioUserByESID}->{barcode} //= '';
+
+        # Concatenate the CSV string
+        $csv .= join(',',
+            $failedMessages,
+            $patron->{externalsystemid},
+            $patron->{folioUserByUsername}->{externalSystemId},
+            $patron->{username},
+            $patron->{folioUserByESID}->{username},
+            $patron->{barcode},
+            $patron->{folioUserByESID}->{barcode},
+            $patron->{errormessage},
+            $patron->{job_id},
+            $patron->{id},
+            $patron->{lastname},
+            $patron->{firstname},
+            $patron->{patrongroup}
+        ) . "\n";
+    }
+
+    # Generate filename
+    my $filename = $self->getFailedPatronsCSVFilename($patrons->[0]);
+    print "Writing to file: $filename\n";
+
+    # Write to file
+    open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
+    print $fh $csv;
+    close $fh;
+
+}
+
+sub old_generateFailedPatronsCSVReport
+{
+    my $self = shift;
+    my $patrons = shift;
+
+    # failMessage, job_id, errormessage, id, institution_id, externalsystemid, username, barcode, lastname, firstname, expirationdate, patrongroup, raw_data
+    # generate a csv file out of the $patrons array
+    my $csv = "MOBIUS fail message,folio error message,job id,patron id,externalsystemid,folio externalsystemid,username,folio username,barcode,folio barcode,lastname,firstname,patrongroup\n";
+    for my $patron (@{$patrons})
+    {
+        my $failedMessages = "";
+        for (@{$patron->{failMessage}})
+        {$failedMessages = $failedMessages . "[$_]";}
+
+        # List of required keys in $patron hash
+        my @required_keys = (
+            'job_id', 'errormessage', 'id', 'institution_id', 'externalsystemid',
+            'folioUserByUsername', 'username', 'folioUserByESID', 'barcode',
+            'lastname', 'firstname', 'expirationdate', 'patrongroup'
+        );
+
+        # Ensure all required keys exist and are initialized
+        foreach my $key (@required_keys)
+        {
+            if (!exists $patron->{$key} || !defined $patron->{$key})
+            {
+                $patron->{$key} = '';
+            }
+        }
+
+        # Handle nested keys separately
+        $patron->{folioUserByUsername} //= {};
+        $patron->{folioUserByESID} //= {};
+
+        # Ensure nested keys are initialized
+        $patron->{folioUserByUsername}->{externalSystemId} //= '';
+        $patron->{folioUserByESID}->{username} //= '';
+        $patron->{folioUserByESID}->{barcode} //= '';
+
+        # Concatenate the CSV string
+        $csv = $csv . "$failedMessages,$patron->{errormessage},$patron->{job_id},$patron->{id},$patron->{externalsystemid},$patron->{folioUserByUsername}->{externalSystemId},$patron->{username},$patron->{folioUserByESID}->{username},$patron->{barcode},$patron->{folioUserByESID}->{barcode},$patron->{lastname},$patron->{firstname},$patron->{patrongroup}\n";
+
+    }
+
+    my $filename = $self->getFailedPatronsCSVFilename($patrons->[0]);
+
+    open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
+    print $fh $csv;
+    close $fh;
+
+}
+
+sub getFailedPatronsCSVFilename
+{
+    my $self = shift;
+    my $patron = shift;
+
+    # todo: this is a filepath and needs to have the directory added to it.
+    # my $filename = "failed_patrons_" . time() . ".tsv";
+    my $filename = "failed_patrons_" . time() . ".csv";
+
+    return $filename;
+
+}
+
+sub _getFailedReason
+{
+
+    # This function is like a frat party the next day. It's a mess.
+
+    my $self = shift;
+    my $patron = shift;
+
+    # Initialize failMessage as an array reference
+    $patron->{failMessage} = [];
+
+    my $folioUserByESIDJSON = $self->getFolioUserJSONByESID($patron->{externalsystemid});
+    my $folioUserByUsernameJSON = $self->getFolioUserJSONByUsername($patron->{username});
+    my $folioUserByBarcodeJSON = $self->getFolioUserJSONByBarcodeAndInstitutionId($patron->{institution_id}, $patron->{barcode});
+
+    my $folioUserByESID = decode_json($folioUserByESIDJSON)->[0];
+    my $folioUserByUsername = decode_json($folioUserByUsernameJSON)->[0];
+    my $folioUserByBarcode = decode_json($folioUserByBarcodeJSON)->[0];
+
+    # user has esid and they match, but the username doesn't.
+    if (defined($folioUserByESID))
+    {
+        if (defined($folioUserByESID->{username}))
+        {
+
+            push @{$patron->{failMessage}}, "The existing folio patron username does not match the one supplied in your patron file"
+                if ($patron->{username} ne $folioUserByESID->{username});
+
+        }
+        else
+        {
+            push @{$patron->{failMessage}}, "This folio user does not have a username";
+        }
+    }
+
+    # usernames match, but esid doesn't
+    if (defined($folioUserByUsername))
+    {
+        if (defined($folioUserByUsername->{externalSystemId}))
+        {
+            push @{$patron->{failMessage}}, "The folio ESID does not match the one supplied in your patron file"
+                if ($patron->{externalsystemid} ne $folioUserByUsername->{externalSystemId});
+        }
+        else
+        {
+            push @{$patron->{failMessage}}, "This folio user does not have an externalSystemId";
+        }
+    }
+
+    # Barcodes
+    # At this point we have a match on both username and esid
+    # let's check the barcode for when folio has a barcode but we don't supply one.
+    if (defined($folioUserByUsername))
+    {
+        push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
+            if ($folioUserByUsername->{barcode} ne '' && !defined($patron->{barcode}));
+        push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
+            if ($folioUserByUsername->{barcode} ne '' && $patron->{barcode} eq '');
+
+        # I'm not sure this matters does it? Can we update barcodes?
+        push @{$patron->{failMessage}}, "Barcode does not match"
+            if ($folioUserByUsername->{barcode} ne $patron->{barcode});
+    }
+
+    # Barcode
+    if (defined($folioUserByBarcode))
+    {
+
+        if (!$folioUserByBarcode->{active})
+        {
+            push @{$patron->{failMessage}}, "The folio patron is not active.";
+        }
+
+        if ($patron->{barcode} ne $folioUserByBarcode->{barcode} &&
+            $folioUserByBarcode->{username} ne $patron->{username})
+        {
+            push @{$patron->{failMessage}}, "This barcode is taken by another patron.";
+        }
+
+        if ($patron->{barcode} ne $folioUserByBarcode->{barcode} &&
+            $patron->{externalsystemid} ne $folioUserByBarcode->{externalSystemId})
+        {
+            push @{$patron->{failMessage}}, "This barcode is taken by another patron.";
+        }
+    }
+
+    # Check our patron groups
+    my $folioPatronGroupJSONArray = $self->getFolioPatronGroupsByInstitutionId($patron->{institution_id});
+    my $folioPatronGroupArray = decode_json($folioPatronGroupJSONArray);
+    my $foundPatronGroup = 0;
+    for (@{$folioPatronGroupArray})
+    {
+        $foundPatronGroup = 1 if ($_->{group} eq $patron->{patrongroup});
+    }
+    push @{$patron->{failMessage}}, "Patron Group not found in folio" if ($foundPatronGroup == 0);
+
+    # Not sure if this is how folio works?
+    push @{$patron->{failMessage}}, "Unknown: Patron Not Active" if ($folioUserByESIDJSON =~ /"active":false/);
+
+    push @{$patron->{failMessage}}, "Unknown" if (!@{$patron->{failMessage}});
+
+    # We add these fields to the CSV report.
+    $patron->{folioUserByESID} = {
+        username => "Folio Username Not Found by ESID $patron->{externalsystemid}",
+        barcode  => "Barcode Not Found by ESID $patron->{externalsystemid}",
+    };
+
+    $patron->{folioUserByUsername} = {
+        externalSystemId => "External System ID Not Found in Folio by Username $patron->{username}",
+        barcode          => "Barcode Not Found in Folio by Username $patron->{username}",
+    };
+
+    $patron->{folioUserByUsername} = $folioUserByUsername if (defined($folioUserByUsername));
+    $patron->{folioUserByESID} = $folioUserByESID if (defined($folioUserByESID));
+
+    return $patron;
+}
+
+sub sanitizeForCSV
+{
+    my $self = shift;
+    my $string = shift;
+
+    $string =~ s/\n/ /g;
+    $string =~ s/\r/ /g;
+    $string =~ s/\t/ /g;
+    $string =~ s/"/""/g;
+
+    # remove comma
+    $string =~ s/,/<replace-with-comma-here>/g;
+
+    return $string;
 
 }
 

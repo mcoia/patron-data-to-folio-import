@@ -48,7 +48,8 @@ create table if not exists patron_import.file_tracker
     institution_id int references patron_import.institution (id),
     path           text,
     size           int,
-    lastModified   int
+    lastModified   int,
+    contents       text
 );
 
 create table if not exists patron_import.stage_patron
@@ -79,7 +80,8 @@ create table if not exists patron_import.stage_patron
     unique_id              text,
     barcode                text,
     email_address          text,
-    note                   text
+    note                   text,
+    preferred_name         text
 );
 
 create table if not exists patron_import.patron
@@ -139,7 +141,8 @@ create table if not exists patron_import.ptype_mapping
     priority       int
 );
 
-alter table patron_import.ptype_mapping add constraint ptype_mapping_priority_unique unique (institution_id, priority);
+alter table patron_import.ptype_mapping
+    add constraint ptype_mapping_priority_unique unique (institution_id, priority);
 
 create table if not exists patron_import.login
 (

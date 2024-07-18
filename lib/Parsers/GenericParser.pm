@@ -351,6 +351,11 @@ sub _parsePatronRecord
         # This is a new field introduced after this project has started. No official description.
         $patron->{'esid'} = ($data =~ /^e(.*)$/gm)[0] if ($data =~ /^e/);
 
+        # Preferred Name
+        # This is a new field introduced after this project has started. No official description.
+        $patron->{'preferred_name'} = ($data =~ /^s(.*)$/gm)[0] if ($data =~ /^s/);
+
+
     }
 
 

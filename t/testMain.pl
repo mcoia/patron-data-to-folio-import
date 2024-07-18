@@ -347,4 +347,14 @@ sub rebuildJeffersonPatronFile
 
 }
 
+# test_deleteFile();
+sub test_deleteFile
+{
+
+    my $path = "/home/owner/tmp/search";
+    print "deleting $path\n";
+    unlink $path;
+
+}
+
 1;

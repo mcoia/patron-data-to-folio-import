@@ -4,3 +4,4 @@ _Deparsed_XSubs.pm
 resources/notes/*
 resources/sql/folio-logins.sql
 patron-import.conf
+backup-remote.sh

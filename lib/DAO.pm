@@ -43,7 +43,7 @@ sub initDatabaseConnection
     eval {$self->{db} = DBhandler->new($main::conf->{db}, $main::conf->{dbhost}, $main::conf->{dbuser}, $main::conf->{dbpass}, $main::conf->{port} || $main::conf->{port}, "postgres", 1);};
     if ($@)
     {
-        print "Could not establish a connection to the database\n" if($main::conf->{print2Console});
+        print "Could not establish a connection to the database\n" if ($main::conf->{print2Console} eq 'true');
         exit 1;
     }
 
@@ -55,7 +55,7 @@ sub initDatabaseSchema
     my $self = shift;
     my $filePath = $main::conf->{projectPath} . "/resources/sql/db.sql";
 
-    print "building schema using $filePath\n" if($main::conf->{print2Console});
+    print "building schema using $filePath\n" if ($main::conf->{print2Console} eq 'true');
     $main::log->addLine("building schema using $filePath");
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
@@ -79,32 +79,32 @@ sub checkDatabaseStatus
     my $institutionTableSize = $self->getTableSize("institution");
     if ($institutionTableSize == 0)
     {
-        print "building database tables\n" if($main::conf->{print2Console});
+        print "building database tables\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("building database tables");
 
         # Insert the MOBIUS Primary tenant. This should be in the db.sql yea?
-        print "Insert the MOBIUS Primary tenant.\n" if($main::conf->{print2Console});
+        print "Insert the MOBIUS Primary tenant.\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Insert the MOBIUS Primary tenant.");
         $self->query("INSERT INTO patron_import.institution (enabled, name, tenant, module, esid)
         VALUES (false, 'MOBIUS Office', 'cs00000001', 'GenericParser', '')");
 
         # Check our institution map
-        print "Building the institution tables.\n" if($main::conf->{print2Console});
+        print "Building the institution tables.\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Building the institution tables.");
         $main::files->buildInstitutionTableData();
 
         # build out our ptype mapping table
-        print "Building the ptype mapping tables.\n" if($main::conf->{print2Console});
+        print "Building the ptype mapping tables.\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Building the ptype mapping.");
         $main::files->buildPtypeMappingFromCSV();
 
         # insert our folio logins
-        print "Populating login tables.\n" if($main::conf->{print2Console});
+        print "Populating login tables.\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Populating login tables.");
         $self->populateFolioLoginTable();
 
         # re-cache our columns due to db update.
-        print "Caching tables.\n" if($main::conf->{print2Console});
+        print "Caching tables.\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Caching tables.");
         $self->_cacheTableColumns();
 
@@ -337,13 +337,13 @@ sub getPatronByUsername
 
     my $results = [];
     my $query = "select $columns from $schema.$tableName where username='$username';";
-    print "$query\n" if($main::conf->{print2Console});
+    print "$query\n" if ($main::conf->{print2Console} eq 'true');
 
     try
     {$results = $self->_convertQueryResultsToHash($tableName, $self->query($query));}
     catch
     {
-        print "queryHash failed! $query\n" if($main::conf->{print2Console});
+        print "queryHash failed! $query\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("queryHash failed! $query");
     };
 
@@ -382,13 +382,13 @@ sub getPatronByESID
 
     my $results = [];
     my $query = "select $columns from $schema.$tableName where externalsystemid='$esid';";
-    print "$query\n" if($main::conf->{print2Console});
+    print "$query\n" if ($main::conf->{print2Console} eq 'true');
 
     try
     {$results = $self->_convertQueryResultsToHash($tableName, $self->query($query));}
     catch
     {
-        print "queryHash failed! $query\n" if($main::conf->{print2Console});
+        print "queryHash failed! $query\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("queryHash failed! $query");
     };
 
@@ -416,6 +416,25 @@ sub getTenantByESID
     return $results->[0]->{tenant};
 
 }
+
+sub getTenantByInstitutionId
+{
+    my $self = shift;
+    my $institution_id = shift;
+
+    my $tableName = "institution";
+
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $results = [];
+
+    my $query = "select $columns from patron_import.institution i where i.id=$institution_id;";
+    $results = $self->_convertQueryResultsToHash($tableName, $self->query($query));
+
+    return $results->[0]->{tenant};
+
+}
+
 
 sub getStagePatronCount
 {
@@ -538,9 +557,63 @@ sub getInstitutionsFoldersAndFilesHash
                                         where fm.institution_id = $institution->{'id'}"))})
         {
 
-            # We have nothing tieing the file -> folder. If we start adding custom folders each folder will have a full set of files.  But maybe that's what we want?
-            # Also, this is scoped wrong. It needs to be outside this folder loop. This logic is wrong. Folders can be arrays.
-            # grab the files associated with this folder & institution
+=pod
+
+
+This is the current data structure. It's wrong. It should be an array of folders[]
+
+* I think this is how it should be.
+'folders' => [
+    'path' => 'some-folder-path',
+    'pattern' => []
+    'files' => [ '/mnt/dropbox/some-file-path'
+                 {
+                   'id' => 1,
+                   'name' => 'eccpat.txt',
+                   'pattern' => 'eccpat\\.txt',
+                   'paths' => [
+                                '/mnt/dropbox/archway/home/archway/incoming/eccpat.txt'
+                              ],
+                   'institution_id' => 2
+                 }
+    ],
+]
+
+* This is how it currently is.
+
+{
+          'module' => 'GenericParser',
+          'esid' => 'padLeft($self->{patron}->{barcode},\'0\', 7);',
+          'id' => 2,
+          'tenant' => 'cs00000001_0060',
+          'folder' => {
+                        'files' => [
+                                     {
+                                       'id' => 1,
+                                       'name' => 'eccpat.txt',
+                                       'pattern' => 'eccpat\\.txt',
+                                       'paths' => [
+                                                    '/mnt/dropbox/archway/home/archway/incoming/eccpat.txt'
+                                                  ],
+                                       'institution_id' => 2
+                                     }
+                                   ],
+                        'path' => '/mnt/dropbox/archway/home/archway/incoming',
+                        'id' => 1
+                      },
+          'enabled' => 1,
+          'name' => 'East Central College'
+        };
+
+
+
+We have nothing tieing the file -> folder. If we start adding custom folders each folder will have a full set of files.  But maybe that's what we want?
+Also, this is scoped wrong. It needs to be outside this folder loop. This logic is wrong. Folders can be arrays.
+grab the files associated with this folder & institution
+
+=cut
+
+
             my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $institution->{'id'} order by f.id desc"))};
             my $institutionHash = {
                 'id'      => $institution->{'id'},
@@ -593,6 +666,24 @@ sub getLastFileTrackerEntry
 
 }
 
+sub getFileTrackersByJobId
+{
+
+    my $self = shift;
+    my $jobID = shift;
+
+    my $tableName = "file_tracker";
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $query = "select path from $schema.$tableName t where t.job_id=$jobID";
+    my $results = $self->{db}->query($query);
+
+    my @paths = map {$_->[0]} @{$results};
+
+    return \@paths;
+
+}
+
 sub getLastJobID
 {
     my $self = shift;
@@ -635,7 +726,7 @@ sub dropTable
     my $tableName = shift;
 
     my $query = "drop table if exists $schema.$tableName;";
-    print "$query\n" if($main::conf->{print2Console});
+    print "$query\n" if ($main::conf->{print2Console} eq 'true');
     $self->query($query);
 
 }
@@ -703,7 +794,7 @@ sub createTableFromCSV
         $count++;
     }
 
-    print "inserted [$count] records into $tableName\n" if($main::conf->{print2Console});
+    print "inserted [$count] records into $tableName\n" if ($main::conf->{print2Console} eq 'true');
 
     return $csv;
 
@@ -776,13 +867,6 @@ sub getPatronImportPendingSize
     my $self = shift;
     my $institution_id = shift;
 
-    # select count(p.id) from patron_import.patron p
-    # where p.ready and
-    # p.patrongroup is not null and
-    # p.externalsystemid is not null and
-    # p.username is not null and
-    # p.institution_id=9;
-
     return $self->query("select count(p.id) from patron_import.patron p where
     p.ready and
     p.patrongroup is not null and
@@ -797,7 +881,7 @@ sub getPatronBatch2Import
     my $self = shift;
     my $institutionID = shift;
 
-    my $chunkSize = $main::conf->{patronImportChunkSize};
+    my $chunkSize = shift || $main::conf->{patronImportChunkSize};
 
     my $tableName = "patron";
     my $columns = $self->_getTableColumns($tableName);
@@ -814,6 +898,8 @@ sub getPatronBatch2Import
 
     # we now need the addresses. Ideally this would be 1 query. this convertQueryResults is busted on joins.
     # DBI::pg has this tho! *i think. Live and learn. I would have totally used that to begin with. todo: <= do that!
+    # Turns out the DBI::pg fetchrow_hashref is a thing. But it's basically the same thing I wrote and the joins would be busted
+    # on it too!
     $tableName = "address";
     $columns = $self->_getTableColumns("address");
 

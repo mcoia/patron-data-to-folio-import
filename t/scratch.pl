@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use strict;
 use warnings FATAL => 'all';
+use JSON;
 
-my $t = 0;
 
-if ($t)
-{
-    print "hit!\n";
-}
+my $string = "Álvaro";
+
+$string =~ s/Á/`A/g;
+
+print $string;
