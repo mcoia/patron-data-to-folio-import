@@ -51,8 +51,7 @@ WHERE sp.id = b.id
   AND sp.esid is not null
   AND not sp.load;
 
-
--- We have got to remove the duplicates
+-- We have got to remove these duplicates
 DELETE
 FROM patron_import.stage_patron p3
 WHERE p3.id IN (SELECT p.id
@@ -67,11 +66,21 @@ WHERE p3.id IN (SELECT p.id
                                    HAVING COUNT(*) > 1)
                 ORDER BY p.unique_id);
 
+-- delete all patrons who's fingerprint matches what's in the patron table.
+DELETE
+FROM patron_import.stage_patron
+WHERE id IN (SELECT sp.id
+             FROM patron_import.stage_patron sp
+                      JOIN patron_import.patron p ON p.fingerprint = sp.fingerprint);
 
 -- we don't delete the patron, we just clear the date when they put in some illegal format
 UPDATE patron_import.stage_patron sp
 SET patron_expiration_date=NULL
 WHERE substring(sp.patron_expiration_date from '^(\d+)')::INT > 12;
+
+-- folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024 and it's confusing the staff
+UPDATE patron_import.patron
+SET expirationdate = (expirationdate::date + INTERVAL '1 day')::date;
 
 INSERT INTO patron_import.patron (institution_id,
                                   file_id,
