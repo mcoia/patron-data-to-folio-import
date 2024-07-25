@@ -435,7 +435,6 @@ sub getTenantByInstitutionId
 
 }
 
-
 sub getStagePatronCount
 {
     my $self = shift;
@@ -1063,6 +1062,18 @@ sub getFolioCredentials
     };
 
     return $credentials;
+
+}
+
+sub setPatronsJobId
+{
+    my $self = shift;
+    my $patrons = shift;
+
+    my $jobId = $main::jobID;
+
+    for my $patron (@{$patrons})
+    {$self->query("update patron_import.patron set job_id=$jobId where id=$patron->{id}");}
 
 }
 

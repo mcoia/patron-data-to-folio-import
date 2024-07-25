@@ -204,4 +204,4 @@ where expirationdate = '';
 -- I like having this here. after we run this sql file, we check the size of stage_patron
 -- if we still have patrons in this table we halt execution. Something went wrong. We have bad data
 -- and we don't want 'data pollution' in the patron db. We have to fix it.
--- TRUNCATE patron_import.stage_patron;
+TRUNCATE patron_import.stage_patron;

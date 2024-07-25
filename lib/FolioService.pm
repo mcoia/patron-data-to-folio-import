@@ -206,6 +206,10 @@ sub importPatrons
             }
 
             # We disable so we don't try and reload the same patron. A fingerprint change will flip this.
+            print "Updating patron jobID's\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->add("Updating patron jobID's\n");
+
+            $main::dao->setPatronsJobId($patrons);
             $main::dao->disablePatrons($patrons) if ($disablePatrons);
 
             try
