@@ -203,7 +203,7 @@ BEGIN
 
     SELECT INTO originalAddress address
     FROM patron_import.stage_patron sp
-    WHERE sp.unique_id = NEW.username
+    WHERE btrim(lower(sp.unique_id)) = btrim(lower(NEW.username))
       AND sp.address IS NOT NULL
       AND btrim(sp.address) != ''
       AND sp.load
@@ -214,7 +214,7 @@ BEGIN
 
     SELECT INTO _addressLine2 address2
     FROM patron_import.stage_patron sp
-    WHERE sp.unique_id = NEW.username
+    WHERE btrim(lower(sp.unique_id)) = btrim(lower(NEW.username))
     LIMIT 1;
 
     IF originalAddress ~ '\$' THEN

@@ -2,6 +2,8 @@
 _Deparsed_XSubs.pm
 *.log
 resources/notes/*
-resources/sql/folio-logins.sql
+resources/sql/backup/*
+db-backup.sh
 patron-import.conf
 backup-remote.sh
+t/failed_patrons*

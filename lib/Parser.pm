@@ -71,12 +71,12 @@ sub stagePatronRecords
 
 
         # We migrate records here, truncating the table after each loop
-        $parser->migrate();
+        $self->migrate();
 
         # I've went a few rounds with this. This is where the delete patron file should go.
         # I was going to delete them all at once but what if we crash on a patron file for some reason?
         # Files won't get deleted. If we crash on a file, I want all previous files to have been removed.
-        $self->deletePatronFiles($institution) if($main::conf->{deleteFiles} eq 'true');
+        $self->deletePatronFiles($institution) if ($main::conf->{deleteFiles} eq 'true');
 
     }
 

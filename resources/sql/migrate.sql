@@ -1,3 +1,6 @@
+update patron_import.stage_patron
+set unique_id = btrim(lower(unique_id));
+
 -- Remove rows that have blank keys
 DELETE
 FROM patron_import.stage_patron sp
@@ -29,7 +32,8 @@ DELETE
 FROM patron_import.stage_patron
 WHERE id IN (SELECT sp.id
              FROM patron_import.stage_patron sp
-                      JOIN patron_import.patron p ON p.externalsystemid = sp.esid AND p.username = sp.unique_id
+                      JOIN patron_import.patron p
+                           ON p.externalsystemid = sp.esid AND btrim(lower(p.username)) = btrim(lower(sp.unique_id))
                       JOIN patron_import.ptype_mapping pt
                            ON pt.institution_id = sp.institution_id AND pt.ptype = sp.patron_type
                       JOIN patron_import.ptype_mapping pt2
@@ -51,6 +55,7 @@ WHERE sp.id = b.id
   AND sp.esid is not null
   AND not sp.load;
 
+-- wait... isn't this just another way of writing the update statement above?? lol logically speaking.
 -- We have got to remove these duplicates
 DELETE
 FROM patron_import.stage_patron p3
@@ -79,8 +84,8 @@ SET patron_expiration_date=NULL
 WHERE substring(sp.patron_expiration_date from '^(\d+)')::INT > 12;
 
 -- folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024 and it's confusing the staff
-UPDATE patron_import.patron
-SET expirationdate = (expirationdate::date + INTERVAL '1 day')::date;
+UPDATE patron_import.stage_patron
+SET patron_expiration_date = (patron_expiration_date::date + INTERVAL '1 day')::date;
 
 INSERT INTO patron_import.patron (institution_id,
                                   file_id,
@@ -126,7 +131,7 @@ INSERT INTO patron_import.patron (institution_id,
      FROM patron_import.stage_patron sp
               JOIN patron_import.institution i ON (sp.institution_id = i.id)
               LEFT JOIN patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-              LEFT JOIN patron_import.patron p2 ON (sp.unique_id = p2.username)
+              LEFT JOIN patron_import.patron p2 ON (btrim(lower(sp.unique_id)) = btrim(lower(p2.username)))
      WHERE p2.id IS NULL
        AND sp.unique_id IS NOT NULL
        AND sp.unique_id != ''
@@ -142,6 +147,7 @@ SET file_id                = sp.file_id,
     externalsystemid       = btrim(sp.esid),
     barcode                = btrim(sp.barcode),
     patrongroup            = pt.foliogroup,
+    email                  = btrim(sp.email_address),
     lastname               = btrim(regexp_replace(sp.name, ',.*', '')),
     middlename             = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')),
     firstname              = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')),
@@ -162,7 +168,7 @@ SET file_id                = sp.file_id,
 FROM patron_import.stage_patron sp
          JOIN patron_import.institution i on (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
-WHERE sp.unique_id = p.username
+WHERE btrim(lower(sp.unique_id)) = btrim(lower(p.username))
   AND sp.fingerprint != p.fingerprint
   AND sp.esid = p.externalsystemid
   AND sp.load;
@@ -172,8 +178,7 @@ update patron_import.patron p
 set middlename=''
 where p.firstname = p.middlename;
 
--- why is this here?!? We shouldn't be inserting anything without an externalsystemid
--- convert our '' to NULLs
+-- patron table maintenance
 -- external system id
 UPDATE patron_import.patron
 SET externalsystemid=NULL
@@ -199,4 +204,4 @@ where expirationdate = '';
 -- I like having this here. after we run this sql file, we check the size of stage_patron
 -- if we still have patrons in this table we halt execution. Something went wrong. We have bad data
 -- and we don't want 'data pollution' in the patron db. We have to fix it.
-TRUNCATE patron_import.stage_patron;
+-- TRUNCATE patron_import.stage_patron;
