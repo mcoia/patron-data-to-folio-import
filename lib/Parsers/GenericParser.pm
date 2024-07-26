@@ -102,6 +102,9 @@ sub parse
 
                 my $patron = $self->_parsePatronRecord($record);
 
+                # skip if we didn't get a patron
+                next if (!defined($patron));
+
                 my $esidBuilder = Parsers::ESID->new($institution, $patron);
 
                 # Set the External System ID
@@ -122,8 +125,7 @@ sub parse
                 $patron->{file_id} = $file->{id};
                 $patron->{job_id} = $main::jobID;
 
-                # We need to check this list for double entries.
-                # Some patron files have double entries.
+                # We need to check this list for double entries, defined patrons or patrons without any keys.
                 push(@parsedPatrons, $patron)
                     unless (grep /$patron->{fingerprint}/, map {$_->{fingerprint}} @parsedPatrons);
                 $patronCounter++;
@@ -132,7 +134,7 @@ sub parse
 
         }
 
-        print "Total Patrons in $file->{name}: [$patronCounter]\n" if($main::conf->{print2Console});
+        print "Total Patrons in $file->{name}: [$patronCounter]\n" if ($main::conf->{print2Console});
         $main::log->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
 
     }
@@ -176,6 +178,7 @@ sub _parsePatronRecord
 {
     my $self = shift;
     my $patronRecord = shift;
+    my $parsable = 1;
 
     my $patron = {
         'patron_type'            => "",
@@ -216,52 +219,142 @@ sub _parsePatronRecord
         # privileges, renewals, loan periods, notices, and fine amounts if any.
         # I'm adding + 0 to have perl convert this to a number.
         try
-        {$patron->{'patron_type'} = substr($data, 1, 3) + 0 if ($data =~ /^0/);}
+        {
+            $patron->{'patron_type'} = substr($data, 1, 3) + 0 if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! patron_type\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! patron_type");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # pcode1 (1 character)
         # This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
         # determine the codes used. If no code is assigned, the field should contain a hyphen (“-“).
         try
-        {$patron->{'pcode1'} = substr($data, 4, 1) if ($data =~ /^0/);}
+        {
+            $patron->{'pcode1'} = substr($data, 4, 1) if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'pcode1'} = ($data =~ /^0\d{3}(.{1}).*/gm)[0] if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! pcode1\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! pcode1");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # PCODE2 (1 character)
         # This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
         # determine the codes used. If no code is assigned, the field should contain a hyphen (“-“)
         try
-        {$patron->{'pcode2'} = substr($data, 5, 1) if ($data =~ /^0/);}
+        {
+            $patron->{'pcode2'} = substr($data, 5, 1) if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'pcode2'} = ($data =~ /^0\d{3}.{1}(.{1}).*/gm)[0] if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! pcode2\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! pcode2");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # PCODE3 (000 to 255)
         # This three-digit numeric code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
         # determine the codes used. (If your cluster does not have a PCODE3 value for N/A, enter “ “ three blanks if
         # PCODE3 is not defined on your system.)
         try
-        {$patron->{'pcode3'} = substr($data, 6, 3) if ($data =~ /^0/);}
+        {
+            $patron->{'pcode3'} = substr($data, 6, 3) if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(.{3}).*/gm)[0] if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'pcode3'} = ($data =~ /^0\d{3}.{2}(.{3}).*/gm)[0] if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! pcode3\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! pcode3");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # Home Library (5 characters)
         # This field uses a location code defined in the location tables. For all MOBIUS libraries this code should be one of
         # the three-character bibliographic locations entered in lower case letters and padded with two blanks. For example:
         # “wdb “
         try
-        {$patron->{'home_library'} = substr($data, 9, 5) if ($data =~ /^0/);}
+        {
+            $patron->{'home_library'} = substr($data, 9, 5) if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'home_library'} = ($data =~ /^0\d{3}.{2}.{3}(.{5}).*/gm)[0] if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'home_library'} = ($data =~ /^0\d{3}.{2}.{3}(.{5}).*/gm)[0] if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! home_library\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! home_library");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # Patron Message Code (1 character)
         # A value in this field triggers the display of the associated message each time a user selects and displays the patron
         # record. Libraries in a system (cluster) determine the codes used and the messages associated with them. (Hyphen
         # unless defined)
         try
-        {$patron->{'patron_message_code'} = substr($data, 14, 1) if ($data =~ /^0/);}
+        {
+            $patron->{'patron_message_code'} = substr($data, 14, 1) if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}.{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'patron_message_code'} = ($data =~ /^0\d{3}.{2}.{3}.{5}(.{1}).*/gm)[0] if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! patron_message_code\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! patron_message_code");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # Patron Block Code (1 character)
         # This code allows libraries to manually block a patron from checking-out or renewing items even if the patron has not
@@ -271,18 +364,48 @@ sub _parsePatronRecord
         # (cluster) determine the codes used and the meaning associated with each. Codes must be entered in a system table.
         # (Hyphen unless defined)
         try
-        {$patron->{'patron_block_code'} = substr($data, 15, 1) if ($data =~ /^0/);}
+        {
+            $patron->{'patron_block_code'} = substr($data, 15, 1) if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}.{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'patron_block_code'} = ($data =~ /^0\d{3}.{2}.{3}.{6}(.{1}).*/gm)[0] if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! patron_block_code\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! patron_block_code");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # Patron Expiration Date (8 characters, mm-dd-yy)
         # Patron records loaded into the system overlay on a key-match (see UNIQUEID). The incoming record expiration
         # date replaces the one in the database record. Libraries determine the expiration date needed to prevent loan periods
         # longer than the expiration date in the patron’s record.
         try
-        {$patron->{'patron_expiration_date'} = substr($data, 16, 8) if ($data =~ /^0/);}
+        {
+            $patron->{'patron_expiration_date'} = ($data =~ /--(\d+.*$)/gm)[0] if ($data =~ /^0/);
+        }
         catch
-        {$patron->{'patron_expiration_date'} = ($data =~ /--(\d+.*$)/gm)[0] if ($data =~ /^0/);};
+        {
+            try
+            {
+                $patron->{'patron_expiration_date'} = substr($data, 16, 8) if ($data =~ /^0/);
+            }
+            catch
+            {
+                print "we failed! patron_expiration_date\n" if ($main::conf->{print2Console});
+                print "data: [$data]\n" if ($main::conf->{print2Console});
+                $main::log->addLine("we failed! patron_expiration_date");
+                $main::log->addLine("data: [$data]");
+                $parsable = 0;
+            };
+        };
 
         # ========== Variable Length Fields
 
@@ -355,16 +478,23 @@ sub _parsePatronRecord
         # This is a new field introduced after this project has started. No official description.
         $patron->{'preferred_name'} = ($data =~ /^s(.*)$/gm)[0] if ($data =~ /^s/);
 
-
     }
-
 
     # set the raw_data for this patron. This raw data gets fingerprinted!
     my $raw_data = "";
     for my $data (@{$patronRecord})
-    {$raw_data .= $data . "\n";}
+    {
+        $raw_data .= $data . "\n";
+    }
     $patron->{raw_data} = $raw_data;
 
+    if ($parsable == 0)
+    {
+        print Dumper($patron) if ($main::conf->{print2Console});
+        $main::log->addLine(Dumper($patron));
+    }
+
+    return undef if ($parsable == 0);
     return $patron;
 }
 

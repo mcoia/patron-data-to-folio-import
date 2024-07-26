@@ -4,8 +4,12 @@ use warnings FATAL => 'all';
 use JSON;
 
 
-my $string = "Álvaro";
+my $patron = {
+    name => 'John Doe',
+};
 
-$string =~ s/Á/`A/g;
-
-print $string;
+if (!keys %$patron) {
+    print "patron is empty\n";
+} else {
+    print "patron is not empty\n";
+}

@@ -172,7 +172,6 @@ sub importPatrons
             $main::log->add("sending json to folio...");
             my $response = $self->_importIntoFolioUserImport($tenant, $json);
 
-
             # Deal with the response
             my $responseContent = $response->{_content};
 
@@ -210,7 +209,7 @@ sub importPatrons
             $main::log->add("Updating patron jobID's\n");
 
             $main::dao->setPatronsJobId($patrons);
-            $main::dao->disablePatrons($patrons) if ($disablePatrons);
+            $main::dao->finalizePatron($patrons) if ($disablePatrons);
 
             try
             {
@@ -425,12 +424,7 @@ json
     $json .= $template;
 
     # replace null with ""
-    # $json =~ s/null/""/g;
-
-
-
-
-
+    $json =~ s/null/""/g;
 
     return $json;
 

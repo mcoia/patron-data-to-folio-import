@@ -921,17 +921,18 @@ sub getPatronBatch2Import
         # I really need to fix that. DBD::pg
 
         # remove unwanted columns. todo: does this matter? We don't populate these fields in the json data.
-        delete($patron->{id});
-        delete($patron->{institution_id});
-        delete($patron->{file_id});
-        delete($patron->{job_id});
-        delete($patron->{fingerprint});
-        delete($patron->{ready});
-        delete($patron->{error});
-        delete($patron->{errormessage});
+        # delete($patron->{id});
+        # delete($patron->{institution_id});
+        # delete($patron->{file_id});
+        # delete($patron->{job_id});
+        # delete($patron->{fingerprint});
+        # delete($patron->{ready});
+        # delete($patron->{error});
+        # delete($patron->{errormessage});
 
         # remove unwanted address fields
 
+        # This should go above the assignment above.
         my $addressIndex = 0;
         for ($patron->{address})
         {
@@ -974,44 +975,42 @@ sub getInstitutionsHashByEnabled
 
 }
 
-sub enablePatrons
+# sub enablePatrons
+# {
+#     my $self = shift;
+#     my $patrons = shift;
+#     $self->setPatronsReadyStatus("true", $patrons);
+#
+#     return $self;
+# }
+#
+# sub disablePatrons
+# {
+#     my $self = shift;
+#     my $patrons = shift;
+#     $self->setPatronsReadyStatus("false", $patrons);
+#
+#     return $self;
+# }
+
+sub finalizePatron
 {
     my $self = shift;
     my $patrons = shift;
-    $self->setPatronsReadyStatus("true", $patrons);
 
-    return $self;
-}
-
-sub disablePatrons
-{
-    my $self = shift;
-    my $patrons = shift;
-    $self->setPatronsReadyStatus("false", $patrons);
-
-    return $self;
-}
-
-sub setPatronsReadyStatus
-{
-    my $self = shift;
-    my $status = shift;
-    my $patrons = shift;
-
-    my @usernames = map {$_->{username}} @{$patrons};
-    for my $username (@usernames)
+    my @patronIds = map {$_->{id}} @{$patrons};
+    for my $id (@patronIds)
     {
-        $username =~ s/'/''/g; # escape ' tick marks in the esid.
-        $username = "'$username',";
+        $id = "'$id',";
     }
 
-    my $usernames = "@usernames";
-    $usernames =~ s/,$//g; # <== removes the last comma?
-    $usernames =~ s/\s//g; # <== remove spaces
+    my $ids = "@patronIds";
+    $ids =~ s/,$//g; # <== removes the last comma?
+    my $jobID = $main::jobID;
 
-    # I don't like this load_date=now(). I don't think it should be setting that in this function
-    my $query = "update patron_import.patron set ready=$status, load_date=now()
-    where username = ANY(ARRAY[$usernames])";
+    my $query = "update patron_import.patron set ready=false, job_id=$jobID, load_date=now()
+    where id in($ids)";
+
     $self->{db}->update($query);
 
 }
@@ -1063,6 +1062,49 @@ sub getFolioCredentials
 
     return $credentials;
 
+}
+
+sub convertHashToSQLTable
+{
+    my $self = shift;
+    my $tableName = shift;
+    my $hash = shift;
+
+    my @columns;
+    push @columns, "id SERIAL PRIMARY KEY";
+
+    foreach my $key (keys %$hash)
+    {
+        next if $key eq 'id'; # Skip the 'id' key if it exists in the hash
+
+        my $value = $hash->{$key};
+        my $type;
+
+        if ($value =~ /^\d+$/)
+        {
+            $type = "INTEGER";
+        }
+        elsif ($value =~ /^\d+\.\d+$/)
+        {
+            $type = "DECIMAL";
+        }
+        else
+        {
+            $type = "TEXT";
+        }
+
+        push @columns, "$key $type";
+    }
+
+    my $columnsString = join ", ", @columns;
+
+    my $sql = qq{
+        CREATE TABLE $tableName (
+            $columnsString
+        );
+    };
+
+    return $sql;
 }
 
 sub setPatronsJobId

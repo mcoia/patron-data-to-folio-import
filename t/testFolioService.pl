@@ -578,28 +578,13 @@ sub test_endPoint
 
 }
 
-# test_generateFailedPatronsCSVReport();
+test_generateFailedPatronsCSVReport();
 sub test_generateFailedPatronsCSVReport
 {
 
-    # for my $row (@{$main::dao->query("SELECT distinct ir.institution_id, MAX(ir.job_id)
-    #                                     FROM patron_import.import_failed_users ifu
-    #                                              join patron_import.import_response ir on ifu.import_response_id = ir.id
-    #                                     group by 1
-    #                                     order by 1, 2 desc")})
-    # {
-
-    # my $institution_id = $row->[0];
-    # my $job_id = $row->[1];
-    # print "Institution ID: $institution_id\n";
-    # print "Job ID: $job_id\n";
-
-    my $institution_id = 44;
-    my $job_id = 115;
+    my $institution_id = 7;
+    my $job_id = 135;
 
     $folio->generateFailedPatronsCSVReports($institution_id, $job_id);
-
-
-    # }
 
 }
