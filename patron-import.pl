@@ -107,8 +107,6 @@ sub startJob
 sub finishJob
 {
 
-    my $job_type = shift;
-
     my $schema = $conf->{schema};
     my $timestamp = $dao->_getCurrentTimestamp();
     my $query = "update $schema.job

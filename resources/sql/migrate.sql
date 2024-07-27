@@ -1,16 +1,19 @@
-update patron_import.stage_patron
-set unique_id = btrim(lower(unique_id));
+------------------------
+-- Stage Patron Clean Up
+------------------------
+UPDATE patron_import.stage_patron
+SET unique_id = BTRIM(LOWER(unique_id));
 
 -- Remove rows that have blank keys
 DELETE
 FROM patron_import.stage_patron sp
-WHERE btrim(sp.esid) = ''
-   or sp.esid is NULL;
+WHERE BTRIM(sp.esid) = ''
+   OR sp.esid IS NULL;
 
 DELETE
 FROM patron_import.stage_patron sp
-WHERE btrim(sp.unique_id) = ''
-   or sp.unique_id is NULL;
+WHERE BTRIM(sp.unique_id) = ''
+   OR sp.unique_id IS NULL;
 
 -- Make higher priority patron types win over lower on duplicate patron rows
 DELETE
@@ -19,7 +22,7 @@ WHERE id IN
       (SELECT sp2.id
        FROM patron_import.stage_patron sp
                 JOIN patron_import.stage_patron sp2
-                     ON (sp.unique_id = sp2.unique_id and sp.id != sp2.id and sp.patron_type != sp2.patron_type and
+                     ON (sp.unique_id = sp2.unique_id AND sp.id != sp2.id AND sp.patron_type != sp2.patron_type AND
                          sp.institution_id = sp2.institution_id)
                 JOIN patron_import.ptype_mapping pt
                      ON (pt.institution_id = sp.institution_id AND pt.ptype = sp.patron_type)
@@ -33,7 +36,7 @@ FROM patron_import.stage_patron
 WHERE id IN (SELECT sp.id
              FROM patron_import.stage_patron sp
                       JOIN patron_import.patron p
-                           ON p.externalsystemid = sp.esid AND btrim(lower(p.username)) = btrim(lower(sp.unique_id))
+                           ON p.externalsystemid = sp.esid AND BTRIM(LOWER(p.username)) = BTRIM(LOWER(sp.unique_id))
                       JOIN patron_import.ptype_mapping pt
                            ON pt.institution_id = sp.institution_id AND pt.ptype = sp.patron_type
                       JOIN patron_import.ptype_mapping pt2
@@ -42,18 +45,18 @@ WHERE id IN (SELECT sp.id
 
 -- dedupe stage_patron
 UPDATE patron_import.stage_patron sp
-SET load = true
+SET load = TRUE
 FROM (SELECT MIN(id) as id
       FROM patron_import.stage_patron
-      where not load
+      WHERE NOT load
       GROUP BY unique_id
       HAVING COUNT(*) = 1) b
 WHERE sp.id = b.id
-  AND btrim(sp.unique_id) != ''
-  AND btrim(sp.esid) != ''
-  AND sp.unique_id is not null
-  AND sp.esid is not null
-  AND not sp.load;
+  AND BTRIM(sp.unique_id) != ''
+  AND BTRIM(sp.esid) != ''
+  AND sp.unique_id IS NOT NULL
+  AND sp.esid IS NOT NULL
+  AND NOT sp.load;
 
 -- wait... isn't this just another way of writing the update statement above?? lol logically speaking.
 -- We have got to remove these duplicates
@@ -80,12 +83,16 @@ WHERE id IN (SELECT sp.id
 
 -- we don't delete the patron, we just clear the date when they put in some illegal format
 UPDATE patron_import.stage_patron sp
-SET patron_expiration_date=NULL
-WHERE substring(sp.patron_expiration_date from '^(\d+)')::INT > 12;
+SET patron_expiration_date = NULL
+WHERE SUBSTRING(sp.patron_expiration_date FROM '^(\d+)')::INT > 12;
 
 -- folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024 and it's confusing the staff
 UPDATE patron_import.stage_patron
-SET patron_expiration_date = (patron_expiration_date::date + INTERVAL '1 day')::date;
+SET patron_expiration_date = (patron_expiration_date::DATE + INTERVAL '1 day')::DATE;
+
+------------------------
+-- Stage ==> Patron
+------------------------
 
 INSERT INTO patron_import.patron (institution_id,
                                   file_id,
@@ -110,28 +117,28 @@ INSERT INTO patron_import.patron (institution_id,
             sp.job_id,
             sp.raw_data,
             sp.fingerprint,
-            btrim(sp.unique_id),
-            btrim(sp.esid),
-            btrim(sp.barcode),
-            btrim(sp.email_address),
+            BTRIM(sp.unique_id),
+            BTRIM(sp.esid),
+            BTRIM(sp.barcode),
+            BTRIM(sp.email_address),
             pt.foliogroup,
-            btrim(regexp_replace(sp.name, ',.*', ''))                              as "lastname",
-            btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')) as "middlename",
-            btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')) as "firstname",
+            BTRIM(REGEXP_REPLACE(sp.name, ',.*', ''))                              AS "lastname",
+            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '.*\s', '')) AS "middlename",
+            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '\s.*', '')) AS "firstname",
             CASE
                 WHEN sp.preferred_name LIKE '%, %' THEN
-                    substring(sp.preferred_name from ', (.*) ')
+                    SUBSTRING(sp.preferred_name FROM ', (.*) ')
                 ELSE NULL END,
-            btrim(regexp_replace(sp.telephone, '[^0-9|^\-]', '')),
-            btrim(regexp_replace(sp.telephone2, '[^0-9|^\-]', '')),
+            BTRIM(REGEXP_REPLACE(sp.telephone, '[^0-9|^\-]', '')),
+            BTRIM(REGEXP_REPLACE(sp.telephone2, '[^0-9|^\-]', '')),
             'email',
             (CASE
-                 WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' then sp.patron_expiration_date::DATE::TEXT
-                 else NULL END)
+                 WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' THEN sp.patron_expiration_date::DATE::TEXT
+                 ELSE NULL END)
      FROM patron_import.stage_patron sp
               JOIN patron_import.institution i ON (sp.institution_id = i.id)
-              LEFT JOIN patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-              LEFT JOIN patron_import.patron p2 ON (btrim(lower(sp.unique_id)) = btrim(lower(p2.username)))
+              LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
+              LEFT JOIN patron_import.patron p2 ON (BTRIM(LOWER(sp.unique_id)) = BTRIM(LOWER(p2.username)))
      WHERE p2.id IS NULL
        AND sp.unique_id IS NOT NULL
        AND sp.unique_id != ''
@@ -143,65 +150,79 @@ UPDATE patron_import.patron p
 SET file_id                = sp.file_id,
     job_id                 = sp.job_id,
     fingerprint            = sp.fingerprint,
-    username               = btrim(sp.unique_id),
-    externalsystemid       = btrim(sp.esid),
-    barcode                = btrim(sp.barcode),
+    username               = BTRIM(sp.unique_id),
+    externalsystemid       = BTRIM(sp.esid),
+    barcode                = BTRIM(sp.barcode),
     patrongroup            = pt.foliogroup,
-    email                  = btrim(sp.email_address),
-    lastname               = btrim(regexp_replace(sp.name, ',.*', '')),
-    middlename             = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '.*\s', '')),
-    firstname              = btrim(regexp_replace(regexp_replace(sp.name, '.*, ', ''), '\s.*', '')),
+    email                  = BTRIM(sp.email_address),
+    lastname               = BTRIM(REGEXP_REPLACE(sp.name, ',.*', '')),
+    middlename             = BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '.*\s', '')),
+    firstname              = BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '\s.*', '')),
     preferredfirstname     = CASE
                                  WHEN sp.preferred_name LIKE '%, %' THEN
-                                     substring(sp.preferred_name from ', (.*) ')
+                                     SUBSTRING(sp.preferred_name FROM ', (.*) ')
                                  ELSE NULL END,
-    phone                  = btrim(regexp_replace(sp.telephone, '[0-9-]+', '')),
-    mobilephone            = btrim(regexp_replace(sp.telephone2, '[0-9-]+', '')),
+    phone                  = BTRIM(REGEXP_REPLACE(sp.telephone, '[0-9-]+', '')),
+    mobilephone            = BTRIM(REGEXP_REPLACE(sp.telephone2, '[0-9-]+', '')),
     preferredcontacttypeid = 'email',
-    ready                  = true,
-    update_date            = now(),
+    ready                  = TRUE,
+    update_date            = NOW(),
     raw_data               = sp.raw_data,
     expirationdate         = (CASE
                                   WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
                                       THEN sp.patron_expiration_date::DATE::TEXT
                                   ELSE NULL END)
 FROM patron_import.stage_patron sp
-         JOIN patron_import.institution i on (sp.institution_id = i.id)
-         LEFT JOIN patron_import.ptype_mapping pt on (pt.ptype = sp.patron_type and pt.institution_id = i.id)
-WHERE btrim(lower(sp.unique_id)) = btrim(lower(p.username))
+         JOIN patron_import.institution i ON (sp.institution_id = i.id)
+         LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
+WHERE BTRIM(LOWER(sp.unique_id)) = BTRIM(LOWER(p.username))
   AND sp.fingerprint != p.fingerprint
   AND sp.esid = p.externalsystemid
   AND sp.load;
 
+------------------------
+-- Patron Clean Up
+------------------------
+
 -- fix these middle names
-update patron_import.patron p
-set middlename=''
-where p.firstname = p.middlename;
+UPDATE patron_import.patron p
+SET middlename = ''
+WHERE p.firstname = p.middlename;
+
+UPDATE patron_import.patron
+SET expirationdate = NULL
+WHERE expirationdate = '';
+
+------------------------
+-- Patron Validation
+------------------------
+
+-- set ready false for '' on last name. folio requires a last name
+UPDATE patron_import.patron p
+SET ready    = FALSE,
+    lastname = NULL
+WHERE p.lastname = ''
+   OR p.lastname IS NULL;
 
 -- patron table maintenance
 -- external system id
 UPDATE patron_import.patron
-SET externalsystemid=NULL
+SET ready            = FALSE,
+    externalsystemid = NULL
 WHERE externalsystemid = '';
 
 -- username
 UPDATE patron_import.patron
-SET username=NULL
+SET ready    = FALSE,
+    username = NULL
 WHERE username = '';
 
--- clean up ALL patrons.
--- we don't load patrons without an external system id, username and they must have a patron group associated.
-update patron_import.patron
-set ready= false
-where patrongroup is null
-   or externalsystemid is null
-   or username is null;
+-- we don't load patrons without a patron group associated.
+UPDATE patron_import.patron
+SET ready = FALSE
+WHERE patrongroup IS NULL;
 
-update patron_import.patron
-set expirationdate=NULL
-where expirationdate = '';
 
--- I like having this here. after we run this sql file, we check the size of stage_patron
--- if we still have patrons in this table we halt execution. Something went wrong. We have bad data
--- and we don't want 'data pollution' in the patron db. We have to fix it.
+-- I like having this here. after we run this SQL file, we check the size of stage_patron
+-- if we still have patrons in this table we halt execution. Something went wrong.
 TRUNCATE patron_import.stage_patron;

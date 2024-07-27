@@ -178,7 +178,7 @@ sub _parsePatronRecord
 {
     my $self = shift;
     my $patronRecord = shift;
-    my $parsable = 1;
+    my $isParsed = 1;
 
     my $patron = {
         'patron_type'            => "",
@@ -234,7 +234,7 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! patron_type");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                $isParsed = 0; # <== We keep this! Very important. Patron Groups are permissions.
             };
         };
 
@@ -257,7 +257,7 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! pcode1");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                # $isParsed = 0; # We don't use pcodes at the moment.
             };
         };
 
@@ -280,7 +280,7 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! pcode2");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                # $isParsed = 0; # We don't use pcodes at the moment.
             };
         };
 
@@ -304,7 +304,7 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! pcode3");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                # $isParsed = 0; # We don't use pcodes at the moment.
             };
         };
 
@@ -328,7 +328,7 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! home_library");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                # $isParsed = 0;
             };
         };
 
@@ -352,7 +352,7 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! patron_message_code");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                # $isParsed = 0;
             };
         };
 
@@ -379,7 +379,7 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! patron_block_code");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                # $isParsed = 0;
             };
         };
 
@@ -389,7 +389,7 @@ sub _parsePatronRecord
         # longer than the expiration date in the patron’s record.
         try
         {
-            $patron->{'patron_expiration_date'} = ($data =~ /--(\d+.*$)/gm)[0] if ($data =~ /^0/);
+            $patron->{'patron_expiration_date'} = ($data =~ /.*--(\d.*)$/gm)[0] if ($data =~ /^0/);
         }
         catch
         {
@@ -403,7 +403,8 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! patron_expiration_date");
                 $main::log->addLine("data: [$data]");
-                $parsable = 0;
+                $patron->{'patron_expiration_date'} = "";
+                # $isParsed = 0;
             };
         };
 
@@ -488,13 +489,15 @@ sub _parsePatronRecord
     }
     $patron->{raw_data} = $raw_data;
 
-    if ($parsable == 0)
+    # We only trigger this on patron groups at the moment.
+    # Patron groups are permissions and need to be parsed correctly.
+    if ($isParsed == 0)
     {
         print Dumper($patron) if ($main::conf->{print2Console});
         $main::log->addLine(Dumper($patron));
     }
 
-    return undef if ($parsable == 0);
+    return undef if ($isParsed == 0);
     return $patron;
 }
 

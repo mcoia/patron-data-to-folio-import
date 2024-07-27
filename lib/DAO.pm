@@ -564,16 +564,12 @@ This is the current data structure. It's wrong. It should be an array of folders
 * I think this is how it should be.
 'folders' => [
     'path' => 'some-folder-path',
-    'pattern' => []
-    'files' => [ '/mnt/dropbox/some-file-path'
+    'files' => [
                  {
                    'id' => 1,
+                   'institution_id' => 2,
                    'name' => 'eccpat.txt',
                    'pattern' => 'eccpat\\.txt',
-                   'paths' => [
-                                '/mnt/dropbox/archway/home/archway/incoming/eccpat.txt'
-                              ],
-                   'institution_id' => 2
                  }
     ],
 ]
@@ -607,8 +603,7 @@ This is the current data structure. It's wrong. It should be an array of folders
 
 
 We have nothing tieing the file -> folder. If we start adding custom folders each folder will have a full set of files.  But maybe that's what we want?
-Also, this is scoped wrong. It needs to be outside this folder loop. This logic is wrong. Folders can be arrays.
-grab the files associated with this folder & institution
+Also, this is scoped wrong. It needs to be outside this folder loop. This logic is wrong.
 
 =cut
 
