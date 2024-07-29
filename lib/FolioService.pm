@@ -864,7 +864,7 @@ sub getFailedPatronsCSVFilename
     my $self = shift;
     my $patron = shift;
 
-    my $institutionName = $main::dao->getInstitutionHashById($patron->{externalsystemid});
+    my $institution = $main::dao->getInstitutionHashById($patron->{institution_id});
     my $jobID = $patron->{job_id};
 
     my $time = localtime();
@@ -873,7 +873,7 @@ sub getFailedPatronsCSVFilename
     $time =~ s/\s/_/g;
 
     # todo: this is a filepath and needs to have the directory added to it.
-    my $filename = $institutionName . "_job" . $jobID . "_" . $time . "_.csv";
+    my $filename = $institution->{name} . "_job" . $jobID . "_" . $time . ".csv";
 
     return $filename;
 
@@ -936,15 +936,15 @@ sub _getFailedReason
         if (defined($folioUserByUsername->{barcode}))
         {
 
-            push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
-                if ($folioUserByUsername->{barcode} ne '' && !defined($patron->{barcode}));
-
-            push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
-                if ($folioUserByUsername->{barcode} ne '' && $patron->{barcode} eq '');
+            # push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
+            #     if ($folioUserByUsername->{barcode} ne '' && !defined($patron->{barcode}));
+            #
+            # push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
+            #     if ($folioUserByUsername->{barcode} ne '' && $patron->{barcode} eq '');
 
             # I'm not sure this matters does it? Can we update barcodes?
             push @{$patron->{failMessage}}, "Barcode does not match"
-                if ($folioUserByUsername->{barcode} ne $patron->{barcode});
+                if ($folioUserByUsername->{barcode} ne $patron->{barcode} && $patron->{barcode} ne '' && defined($patron->{barcode}));
 
         }
     }
@@ -982,7 +982,7 @@ sub _getFailedReason
     push @{$patron->{failMessage}}, "Patron Group not found in folio" if ($foundPatronGroup == 0);
 
     # Not sure if this is how folio works?
-    push @{$patron->{failMessage}}, "Unknown: Patron Not Active" if ($folioUserByESIDJSON =~ /"active":false/);
+    push @{$patron->{failMessage}}, "Patron Not Active" if ($folioUserByESIDJSON =~ /"active":false/);
 
     push @{$patron->{failMessage}}, "Unknown" if (!@{$patron->{failMessage}});
 

@@ -578,7 +578,24 @@ sub test_endPoint
 
 }
 
-test_generateFailedPatronsCSVReport();
+sub mockPatronFiles
+{
+
+    # Get all the filetracker paths from the database and write those files to the filesystem
+    my $query = "select f.path from patron_import.file_tracker f";
+
+
+
+
+
+
+
+
+
+
+}
+
+# test_generateFailedPatronsCSVReport();
 sub test_generateFailedPatronsCSVReport
 {
 

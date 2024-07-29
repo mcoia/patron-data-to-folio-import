@@ -69,7 +69,6 @@ sub stagePatronRecords
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
         $main::log->addLine("================================================================================\n\n");
 
-
         # We migrate records here, truncating the table after each loop
         $self->migrate();
 

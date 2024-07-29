@@ -64,11 +64,20 @@ sub sendEmail
 
     my @emailAddresses = split(',', $emailAddresses);
 
+
     try
     {
+        # send a single email to each address, we have people responding to everyone in the email instead of creating a ticket.
+        for my $emailAddress (@emailAddresses)
+        {
 
-        my $email = MOBIUS::Email->new($main::conf->{fromAddress}, \@emailAddresses, 0, 0);
-        $email->sendHTML($main::conf->{subject}, "MOBIUS", $self->{template});
+            $emailAddress =~ s/\s+//g;
+            my @emailAddressSingleEmailArray = ($emailAddress);
+
+            my $email = MOBIUS::Email->new($main::conf->{fromAddress}, \@emailAddressSingleEmailArray, 0, 0);
+            $email->sendHTML($main::conf->{subject}, "MOBIUS", $self->{template});
+
+        }
 
     }
     catch
