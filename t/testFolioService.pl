@@ -582,8 +582,8 @@ test_generateFailedPatronsCSVReport();
 sub test_generateFailedPatronsCSVReport
 {
 
-    my $institution_id = 7;
-    my $job_id = 135;
+    my $institution_id = 43;
+    my $job_id = 137;
 
     $folio->generateFailedPatronsCSVReports($institution_id, $job_id);
 

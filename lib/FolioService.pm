@@ -580,7 +580,8 @@ sub _escapeIllegalChars
 
 }
 
-sub _removeIllegalChars {
+sub _removeIllegalChars
+{
 
     my $self = shift;
     my $string = shift;
@@ -858,66 +859,21 @@ sub generateFailedPatronsCSVReport
 
 }
 
-sub old_generateFailedPatronsCSVReport
-{
-    my $self = shift;
-    my $patrons = shift;
-
-    # failMessage, job_id, errormessage, id, institution_id, externalsystemid, username, barcode, lastname, firstname, expirationdate, patrongroup, raw_data
-    # generate a csv file out of the $patrons array
-    my $csv = "MOBIUS fail message,folio error message,job id,patron id,externalsystemid,folio externalsystemid,username,folio username,barcode,folio barcode,lastname,firstname,patrongroup\n";
-    for my $patron (@{$patrons})
-    {
-        my $failedMessages = "";
-        for (@{$patron->{failMessage}})
-        {$failedMessages = $failedMessages . "[$_]";}
-
-        # List of required keys in $patron hash
-        my @required_keys = (
-            'job_id', 'errormessage', 'id', 'institution_id', 'externalsystemid',
-            'folioUserByUsername', 'username', 'folioUserByESID', 'barcode',
-            'lastname', 'firstname', 'expirationdate', 'patrongroup'
-        );
-
-        # Ensure all required keys exist and are initialized
-        foreach my $key (@required_keys)
-        {
-            if (!exists $patron->{$key} || !defined $patron->{$key})
-            {
-                $patron->{$key} = '';
-            }
-        }
-
-        # Handle nested keys separately
-        $patron->{folioUserByUsername} //= {};
-        $patron->{folioUserByESID} //= {};
-
-        # Ensure nested keys are initialized
-        $patron->{folioUserByUsername}->{externalSystemId} //= '';
-        $patron->{folioUserByESID}->{username} //= '';
-        $patron->{folioUserByESID}->{barcode} //= '';
-
-        # Concatenate the CSV string
-        $csv = $csv . "$failedMessages,$patron->{errormessage},$patron->{job_id},$patron->{id},$patron->{externalsystemid},$patron->{folioUserByUsername}->{externalSystemId},$patron->{username},$patron->{folioUserByESID}->{username},$patron->{barcode},$patron->{folioUserByESID}->{barcode},$patron->{lastname},$patron->{firstname},$patron->{patrongroup}\n";
-
-    }
-
-    my $filename = $self->getFailedPatronsCSVFilename($patrons->[0]);
-
-    open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
-    print $fh $csv;
-    close $fh;
-
-}
-
 sub getFailedPatronsCSVFilename
 {
     my $self = shift;
     my $patron = shift;
 
+    my $institutionName = $main::dao->getInstitutionHashById($patron->{externalsystemid});
+    my $jobID = $patron->{job_id};
+
+    my $time = localtime();
+    my $epoch = time();
+    $time =~ s/\d\d:\d\d:\d\d\s//g;
+    $time =~ s/\s/_/g;
+
     # todo: this is a filepath and needs to have the directory added to it.
-    # my $filename = "failed_patrons_" . time() . ".tsv";
-    my $filename = "failed_patrons_" . time() . ".csv";
+    my $filename = $institutionName . "_job" . $jobID . "_" . $time . "_.csv";
 
     return $filename;
 
@@ -977,14 +933,20 @@ sub _getFailedReason
     # let's check the barcode for when folio has a barcode but we don't supply one.
     if (defined($folioUserByUsername))
     {
-        push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
-            if ($folioUserByUsername->{barcode} ne '' && !defined($patron->{barcode}));
-        push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
-            if ($folioUserByUsername->{barcode} ne '' && $patron->{barcode} eq '');
+        if (defined($folioUserByUsername->{barcode}))
+        {
 
-        # I'm not sure this matters does it? Can we update barcodes?
-        push @{$patron->{failMessage}}, "Barcode does not match"
-            if ($folioUserByUsername->{barcode} ne $patron->{barcode});
+            push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
+                if ($folioUserByUsername->{barcode} ne '' && !defined($patron->{barcode}));
+
+            push @{$patron->{failMessage}}, "The existing folio patron has a barcode while none was supplied in your patron file"
+                if ($folioUserByUsername->{barcode} ne '' && $patron->{barcode} eq '');
+
+            # I'm not sure this matters does it? Can we update barcodes?
+            push @{$patron->{failMessage}}, "Barcode does not match"
+                if ($folioUserByUsername->{barcode} ne $patron->{barcode});
+
+        }
     }
 
     # Barcode
