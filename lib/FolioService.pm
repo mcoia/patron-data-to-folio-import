@@ -11,12 +11,12 @@ use Try::Tiny;
 use Net::Address::IP::Local;
 use utf8;
 use LWP;
-use JSON;
 use URI::Escape;
 use Data::UUID;
 use HTTP::CookieJar::LWP ();
 use PatronImportReporter;
 use Encode;
+use JSON;
 
 =pod
 
@@ -373,58 +373,45 @@ sub remove_empty_fields
     return $hash;
 }
 
-sub _buildPatronJSON
-{
-    my $self = shift;
-    my $patron = shift;
+sub _buildPatronJSON {
 
-    my $json = "";
+    my ($self, $patron) = @_;
 
-    # # Use of uninitialized value in concatenation (.) or string at ...
-    # # fix these pesky undef values.
-    keys %$patron;
-    while (my ($k, $v) = each %$patron)
-    {
-        # This is to remove all illegal chars in the json string
-        $patron->{$k} = $self->_escapeIllegalChars($v) if (defined($v));
-
-        # we can't concat undef
-        $patron->{$k} = "" if (!defined($v));
+    # Sanitize and handle undefined values
+    for my $key (keys %$patron) {
+        if (defined $patron->{$key}) {
+            $patron->{$key} = $self->_escapeIllegalChars($patron->{$key});
+        } else {
+            $patron->{$key} = "";
+        }
     }
 
-    # my $address = "";
     my $address = $self->_buildAddressJSON($patron->{address});
 
-    my $template = <<json;
-            {
-              "username": "$patron->{username}",
-              "externalSystemId": "$patron->{externalsystemid}",
-              "barcode": "$patron->{barcode}",
-              "active": true,
-              "patronGroup": "$patron->{patrongroup}",
-              "type": "patron",
-              "personal": {
-                "lastName": "$patron->{lastname}",
-                "firstName": "$patron->{firstname}",
-                "middleName": "$patron->{middlename}",
-                "preferredFirstName": "$patron->{preferredfirstname}",
-                "phone": "$patron->{phone}",
-                "mobilePhone": "$patron->{mobilephone}",
-                "dateOfBirth": "$patron->{dateofbirth}",
-                "addresses": $address,
-                "email": "$patron->{email}",
-                "preferredContactTypeId": "$patron->{preferredcontacttypeid}"
-              },
-              "enrollmentDate": "$patron->{enrollmentdate}",
-              "expirationDate": "$patron->{expirationdate}"
-            },
-json
-    $json .= $template;
+    my $json_data = {
+        username => $patron->{username},
+        externalSystemId => $patron->{externalsystemid},
+        barcode => $patron->{barcode},
+        active => 'true',
+        patronGroup => $patron->{patrongroup},
+        type => "patron",
+        personal => {
+            lastName => $patron->{lastname},
+            firstName => $patron->{firstname},
+            middleName => $patron->{middlename},
+            preferredFirstName => $patron->{preferredfirstname},
+            phone => $patron->{phone},
+            mobilePhone => $patron->{mobilephone},
+            dateOfBirth => $patron->{dateofbirth},
+            addresses => $address,
+            email => $patron->{email},
+            preferredContactTypeId => $patron->{preferredcontacttypeid}
+        },
+        enrollmentDate => $patron->{enrollmentdate},
+        expirationDate => $patron->{expirationdate}
+    };
 
-    # replace null with ""
-    $json =~ s/null/""/g;
-
-    return $json;
+    return encode_json($json_data);
 
 }
 

@@ -13,6 +13,7 @@ use FolioService;
 use Parser;
 use Parsers::GenericParser;
 use JSON;
+use Test::More;
 
 our ($conf, $log);
 
@@ -578,19 +579,36 @@ sub test_endPoint
 
 }
 
-sub mockPatronFiles
+sub test_buildPatronJSON
 {
 
-    # Get all the filetracker paths from the database and write those files to the filesystem
-    my $query = "select f.path from patron_import.file_tracker f";
+
+    my $test_patron = {
+        username               => 'testuser',
+        externalsystemid       => '12345',
+        barcode                => '987654321',
+        patrongroup            => 'standard',
+        lastname               => 'Doe',
+        firstname              => 'John',
+        middlename             => 'A',
+        preferredfirstname     => 'Johnny',
+        phone                  => '123-456-7890',
+        mobilephone            => '098-765-4321',
+        dateofbirth            => '1990-01-01',
+        email                  => 'john.doe@example.com',
+        preferredcontacttypeid => 'email',
+        enrollmentdate         => '2023-01-01',
+        expirationdate         => '2024-01-01'
+    };
 
 
+    my $json = $folio->_buildPatronJSON($test_patron);
 
+    print $json . "\n";
 
+    my $hash = decode_json($json);
 
-
-
-
+    print Dumper($hash);
 
 
 }

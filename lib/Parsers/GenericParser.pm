@@ -257,7 +257,6 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! pcode1");
                 $main::log->addLine("data: [$data]");
-                # $isParsed = 0; # We don't use pcodes at the moment.
             };
         };
 
@@ -280,7 +279,6 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! pcode2");
                 $main::log->addLine("data: [$data]");
-                # $isParsed = 0; # We don't use pcodes at the moment.
             };
         };
 
@@ -304,7 +302,6 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! pcode3");
                 $main::log->addLine("data: [$data]");
-                # $isParsed = 0; # We don't use pcodes at the moment.
             };
         };
 
@@ -328,7 +325,6 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! home_library");
                 $main::log->addLine("data: [$data]");
-                # $isParsed = 0;
             };
         };
 
@@ -352,7 +348,6 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! patron_message_code");
                 $main::log->addLine("data: [$data]");
-                # $isParsed = 0;
             };
         };
 
@@ -379,7 +374,6 @@ sub _parsePatronRecord
                 print "data: [$data]\n" if ($main::conf->{print2Console});
                 $main::log->addLine("we failed! patron_block_code");
                 $main::log->addLine("data: [$data]");
-                # $isParsed = 0;
             };
         };
 
@@ -389,8 +383,7 @@ sub _parsePatronRecord
         # longer than the expiration date in the patron’s record.
         try
         {
-            # $patron->{'patron_expiration_date'} = ($data =~ /.*--(\d.*)$/gm)[0] if ($data =~ /^0/);
-            $patron->{'patron_expiration_date'} = ($data =~ /(\d{1,2}-\d{1,2}-\d{2,4})$/gm)[0] if ($data =~ /^0/);
+            $patron->{'patron_expiration_date'} = ($data =~ /(\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{2,4})$/gm)[0] || "" if ($data =~ /^0/);
         }
         catch
         {
@@ -405,7 +398,6 @@ sub _parsePatronRecord
                 $main::log->addLine("we failed! patron_expiration_date");
                 $main::log->addLine("data: [$data]");
                 $patron->{'patron_expiration_date'} = "";
-                # $isParsed = 0;
             };
         };
 
