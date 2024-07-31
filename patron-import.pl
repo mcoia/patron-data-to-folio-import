@@ -75,19 +75,23 @@ sub initConf
 
 sub initLogger
 {
-
     my $time = localtime();
-    my $epoch = time();
+    # Extract hours and minutes
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime();
+    my $hhmm = sprintf("%02d%02d", $hour, $min);
+
     $time =~ s/\d\d:\d\d:\d\d\s//g;
     $time =~ s/\s/_/g;
 
+    # Append hhmm to time
+    $time .= "_$hhmm";
+    $time = lc $time;
+
     my $logFileName = $conf->{logfile};
     $logFileName = lc $conf->{logfile} =~ s/\{time\}/_$time/gr if ($conf->{logfile} =~ /\{time\}/);
-    $logFileName = lc $conf->{logfile} =~ s/\{epoch\}/_$epoch/gr if ($conf->{logfile} =~ /\{epoch\}/);
 
     $log = Loghandler->new($logFileName);
     $log->truncFile("");
-
 }
 
 sub startJob

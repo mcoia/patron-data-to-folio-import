@@ -18,6 +18,7 @@ sub new
     my $self = {
         'db'    => 0,
         'cache' => {},
+        'dbh'   => 0,
     };
     $self = init($self);
     bless $self, $class;
@@ -30,6 +31,7 @@ sub init
     $schema = $main::conf->{schema};
 
     $self = initDatabaseConnection($self);
+    $self = initDatabaseConnectionDBI($self);
     # initDatabaseSchema($self); # <== this jacks up the output for command line api calls.
 
     return $self;
@@ -44,6 +46,27 @@ sub initDatabaseConnection
     if ($@)
     {
         print "Could not establish a connection to the database\n" if ($main::conf->{print2Console} eq 'true');
+        exit 1;
+    }
+
+    return $self;
+}
+
+sub initDatabaseConnectionDBI
+{
+    my $self = shift;
+
+    eval {
+        $self->{dbh} = DBI->connect(
+            "dbi:Pg:dbname=$main::conf->{db};host=$main::conf->{dbhost};port=$main::conf->{port}",
+            $main::conf->{dbuser},
+            $main::conf->{dbpass},
+            { RaiseError => 1, AutoCommit => 1 }
+        );
+    };
+    if ($@)
+    {
+        print "Could not establish a connection to the database: $@\n" if ($main::conf->{print2Console} eq 'true');
         exit 1;
     }
 
@@ -133,6 +156,36 @@ sub query
 
     return $self->{db}->query($query);
 
+}
+
+sub queryAsHash
+{
+    my ($self, $query) = @_;
+
+    unless ($self->{dbh})
+    {
+        $self->initDatabaseConnectionDBI();
+    }
+
+    my @results;
+    eval {
+        my $sth = $self->{dbh}->prepare($query);
+        $sth->execute();
+
+        while (my $row = $sth->fetchrow_hashref)
+        {
+            push @results, $row;
+        }
+
+        $sth->finish();
+    };
+    if ($@)
+    {
+        print "Error executing query: $@\n" if ($main::conf->{print2Console} eq 'true');
+        return undef;
+    }
+
+    return \@results;
 }
 
 sub queryHash

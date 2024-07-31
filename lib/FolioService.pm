@@ -373,7 +373,62 @@ sub remove_empty_fields
     return $hash;
 }
 
-sub _buildPatronJSON {
+sub _buildPatronJSON
+{
+    my $self = shift;
+    my $patron = shift;
+
+    my $json = "";
+
+    # # Use of uninitialized value in concatenation (.) or string at ...
+    # # fix these pesky undef values.
+    keys %$patron;
+    while (my ($k, $v) = each %$patron)
+    {
+        # This is to remove all illegal chars in the json string
+        $patron->{$k} = $self->_escapeIllegalChars($v) if (defined($v));
+
+        # we can't concat undef
+        $patron->{$k} = "" if (!defined($v));
+    }
+
+    # my $address = "";
+    my $address = $self->_buildAddressJSON($patron->{address});
+
+    my $template = <<json;
+            {
+              "username": "$patron->{username}",
+              "externalSystemId": "$patron->{externalsystemid}",
+              "barcode": "$patron->{barcode}",
+              "active": true,
+              "patronGroup": "$patron->{patrongroup}",
+              "type": "patron",
+              "personal": {
+                "lastName": "$patron->{lastname}",
+                "firstName": "$patron->{firstname}",
+                "middleName": "$patron->{middlename}",
+                "preferredFirstName": "$patron->{preferredfirstname}",
+                "phone": "$patron->{phone}",
+                "mobilePhone": "$patron->{mobilephone}",
+                "dateOfBirth": "$patron->{dateofbirth}",
+                "addresses": $address,
+                "email": "$patron->{email}",
+                "preferredContactTypeId": "$patron->{preferredcontacttypeid}"
+              },
+              "enrollmentDate": "$patron->{enrollmentdate}",
+              "expirationDate": "$patron->{expirationdate}"
+            },
+json
+    $json .= $template;
+
+    # replace null with ""
+    # $json =~ s/^null$/""/g;
+
+    return $json;
+
+}
+
+sub _buildPatronJSON_BROKE {
 
     my ($self, $patron) = @_;
 
