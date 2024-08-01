@@ -14,6 +14,7 @@ use Parser;
 use Parsers::GenericParser;
 use JSON;
 use Test::More;
+use ParallelExecutor;
 
 our ($conf, $log);
 
@@ -582,7 +583,6 @@ sub test_endPoint
 sub test_buildPatronJSON
 {
 
-
     my $test_patron = {
         username               => 'testuser',
         externalsystemid       => '12345',
@@ -601,7 +601,6 @@ sub test_buildPatronJSON
         expirationdate         => '2024-01-01'
     };
 
-
     my $json = $folio->_buildPatronJSON($test_patron);
 
     print $json . "\n";
@@ -609,7 +608,6 @@ sub test_buildPatronJSON
     my $hash = decode_json($json);
 
     print Dumper($hash);
-
 
 }
 
@@ -621,5 +619,57 @@ sub test_generateFailedPatronsCSVReport
     my $job_id = 137;
 
     $folio->generateFailedPatronsCSVReports($institution_id, $job_id);
+
+}
+
+# testQuery();
+sub testQuery
+{
+
+    print Dumper($dao->queryAsHash("select * from patron_import.institution;"));
+    print "=" x 80 . "\n";
+    print Dumper($dao->query("select * from patron_import.institution;"));
+
+}
+
+extractFileContentsFromFileTrackerAndWriteThemToDisk();
+sub extractFileContentsFromFileTrackerAndWriteThemToDisk
+{
+
+    buildDropboxDirectories();
+
+    my $query = "SELECT ft.institution_id, ft.path, ft.size, ft.contents
+        FROM patron_import.file_tracker ft
+            WHERE ft.lastModified >= EXTRACT(EPOCH FROM TIMESTAMP '2024-07-28 00:00:00')
+    ORDER BY ft.institution_id, ft.lastModified;";
+
+    for my $row (@{$dao->query($query)})
+    {
+
+        # save $row->[3] to a file
+        my $path = $row->[1];
+        my $contents = $row->[3];
+
+        print "saving file to disk: [$path]\n";
+
+        # use $parallel to save the file
+        open(my $fh, '>', $path);
+        print $fh $contents;
+        close $fh;
+
+    }
+
+}
+
+# buildDropboxDirectories();
+sub buildDropboxDirectories
+{
+
+    for my $row (@{$dao->query("select path from patron_import.folder")})
+    {
+        my $path = $row->[0];
+        print "mkdir -p $path\n";
+        my $mkdir = `mkdir -p $path`;
+    }
 
 }

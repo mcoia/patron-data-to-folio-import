@@ -11,6 +11,7 @@ use Time::HiRes qw(time);
 use Parsers::GenericParser;
 use Parsers::ESID;
 use MOBIUS::Utils;
+use ParallelExecutor;
 
 use Data::Dumper;
 
@@ -22,11 +23,66 @@ sub new
     return $self;
 }
 
+sub processInstitution
+{
+    my $self = shift;
+    my $institution = shift;
+
+
+    # Get our Parser Module that's stored in the database column 'module' in the institution table
+    my $module = "GenericParser"; # default to generic
+    $module = $institution->{module} if ($institution->{module} ne '' || $institution->{module} ne undef);
+
+    # Build the parser module.
+    my $parser;
+    my $createParser = '$parser = Parsers::' . $institution->{module} . '->new();';
+    eval $createParser;
+
+    # Parser Not working? Don't forget to load it! use Parsers::ParserNameHere;
+
+    print "Searching for files...\n" if ($main::conf->{print2Console} eq 'true');
+    $main::log->addLine("Searching for files...\n");
+    print "$institution->{name}: $institution->{folder}->{path}\n" if ($main::conf->{print2Console} eq 'true');
+    $main::log->addLine("$institution->{name}: $institution->{folder}->{path}\n");
+
+    # We need the files associated with this institution. I feel this should return $institution.
+    $main::files->patronFileDiscovery($institution);
+
+    # The $institution now contains the files needed for parsing. Thanks patronFileDiscovery!
+    # Parse the file records
+    my $patronRecords = $parser->parse($institution);
+
+    # Save these records to the database
+    $parser->saveStagedPatronRecords($patronRecords);
+
+    # some debug metrics
+    my $totalPatrons = scalar(@{$patronRecords});
+    print "Total Patrons: [$totalPatrons]\n" if ($main::conf->{print2Console} eq 'true');
+    print "Migrating records to final table...\n" if ($main::conf->{print2Console} eq 'true');
+    print "================================================================================\n\n" if ($main::conf->{print2Console} eq 'true');
+    $main::log->addLine("Total Patrons: [$totalPatrons]\n");
+    $main::log->addLine("================================================================================\n\n");
+
+    # We migrate records here, truncating the table after each loop
+    $self->migrate();
+
+    # I've went a few rounds with this. This is where the delete patron file should go.
+    # I was going to delete them all at once but what if we crash on a patron file for some reason?
+    # Files won't get deleted. If we crash on a file, I want all previous files to have been removed.
+    $self->deletePatronFiles($institution) if ($main::conf->{deleteFiles} eq 'true');
+
+}
+
 sub stagePatronRecords
 {
     my $self = shift;
 
     my $institutions = $main::dao->getInstitutionsFoldersAndFilesHash();
+
+    my $parallel = ParallelExecutor->new(
+        maxProcesses => $main::conf->{maxProcesses},
+        log          => $main::log
+    );
 
     # loop over our discovered files.
     for my $institution (@{$institutions})
@@ -34,48 +90,9 @@ sub stagePatronRecords
 
         # Gives us the ability to skip certain institutions if needed.
         next if (!$institution->{enabled});
+        $self->processInstitution($institution);
 
-        # Get our Parser Module that's stored in the database column 'module' in the institution table
-        my $module = "GenericParser"; # default to generic
-        $module = $institution->{module} if ($institution->{module} ne '' || $institution->{module} ne undef);
-
-        # Build the parser module.
-        my $parser;
-        my $createParser = '$parser = Parsers::' . $institution->{module} . '->new();';
-        eval $createParser;
-
-        # Parser Not working? Don't forget to load it! use Parsers::ParserNameHere;
-
-        print "Searching for files...\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Searching for files...\n");
-        print "$institution->{name}: $institution->{folder}->{path}\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("$institution->{name}: $institution->{folder}->{path}\n");
-
-        # We need the files associated with this institution. I feel this should return $institution.
-        $main::files->patronFileDiscovery($institution);
-
-        # The $institution now contains the files needed for parsing. Thanks patronFileDiscovery!
-        # Parse the file records
-        my $patronRecords = $parser->parse($institution);
-
-        # Save these records to the database
-        $parser->saveStagedPatronRecords($patronRecords);
-
-        # some debug metrics
-        my $totalPatrons = scalar(@{$patronRecords});
-        print "Total Patrons: [$totalPatrons]\n" if ($main::conf->{print2Console} eq 'true');
-        print "Migrating records to final table...\n" if ($main::conf->{print2Console} eq 'true');
-        print "================================================================================\n\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Total Patrons: [$totalPatrons]\n");
-        $main::log->addLine("================================================================================\n\n");
-
-        # We migrate records here, truncating the table after each loop
-        $self->migrate();
-
-        # I've went a few rounds with this. This is where the delete patron file should go.
-        # I was going to delete them all at once but what if we crash on a patron file for some reason?
-        # Files won't get deleted. If we crash on a file, I want all previous files to have been removed.
-        $self->deletePatronFiles($institution) if ($main::conf->{deleteFiles} eq 'true');
+        $parallel->addTask(sub {$self->processInstitution($institution)});
 
     }
 
