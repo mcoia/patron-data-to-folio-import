@@ -623,3 +623,45 @@ sub test_generateFailedPatronsCSVReport
     $folio->generateFailedPatronsCSVReports($institution_id, $job_id);
 
 }
+
+extractFileContentsFromFileTrackerAndWriteThemToDisk();
+sub extractFileContentsFromFileTrackerAndWriteThemToDisk
+{
+
+    buildDropboxDirectories();
+
+    my $query = "SELECT ft.institution_id, ft.path, ft.size, ft.contents
+        FROM patron_import.file_tracker ft
+            WHERE ft.lastModified >= EXTRACT(EPOCH FROM TIMESTAMP '2024-07-28 00:00:00')
+    ORDER BY ft.institution_id, ft.lastModified;";
+
+    for my $row (@{$dao->query($query)})
+    {
+
+        # save $row->[3] to a file
+        my $path = $row->[1];
+        my $contents = $row->[3];
+
+        print "saving file to disk: [$path]\n";
+
+        # use $parallel to save the file
+        open(my $fh, '>', $path);
+        print $fh $contents;
+        close $fh;
+
+    }
+
+}
+
+# buildDropboxDirectories();
+sub buildDropboxDirectories
+{
+
+    for my $row (@{$dao->query("select path from patron_import.folder")})
+    {
+        my $path = $row->[0];
+        print "mkdir -p $path\n";
+        my $mkdir = `mkdir -p $path`;
+    }
+
+}
