@@ -1167,4 +1167,55 @@ sub setPatronsJobId
 
 }
 
+sub getArrayOfEnabledInstitutionIDs
+{
+    my $self = shift;
+
+    my $tableName = "institution";
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $query = "select i.id from $schema.$tableName i where i.enabled";
+
+    my $results = $self->query($query);
+    my @ids = map {$_->[0]} @{$results};
+
+    return \@ids;
+
+}
+
+sub disableInstitution
+{
+    my $self = shift;
+    my $institutionID = shift;
+
+    my $query = "update patron_import.institution set enabled=false where id=$institutionID";
+    $self->query($query);
+
+}
+
+sub enableInstitution
+{
+    my $self = shift;
+    my $institutionID = shift;
+
+    my $query = "update patron_import.institution set enabled=true where id=$institutionID";
+    $self->query($query);
+
+}
+
+sub bulkEnableDisable
+{
+    my $self = shift;
+    my $enable = shift;
+    my $institutionIDs = shift;
+
+    my $idsAsString = join(",", @{$institutionIDs});
+
+    my $query = "update patron_import.institution set enabled=$enable where id in($idsAsString)";
+    $self->query($query);
+
+}
+
+
+
 1;

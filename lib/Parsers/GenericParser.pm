@@ -383,7 +383,7 @@ sub _parsePatronRecord
         # longer than the expiration date in the patron’s record.
         try
         {
-            $patron->{'patron_expiration_date'} = ($data =~ /(\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{2,4})$/gm)[0] || "" if ($data =~ /^0/);
+            $patron->{'patron_expiration_date'} = ($data =~ /(\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{2,4})\s*$/gm)[0] || "" if ($data =~ /^0/);
         }
         catch
         {
