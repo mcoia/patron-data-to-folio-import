@@ -88,7 +88,12 @@ WHERE SUBSTRING(sp.patron_expiration_date FROM '^(\d+)')::INT > 12;
 
 -- folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024 and it's confusing the staff
 UPDATE patron_import.stage_patron
-SET patron_expiration_date = (patron_expiration_date::DATE + INTERVAL '1 day')::DATE;
+SET patron_expiration_date = (
+    CASE
+        WHEN patron_expiration_date IS NULL OR patron_expiration_date = '' THEN '1970-01-01'
+        ELSE (patron_expiration_date::DATE + INTERVAL '1 day')::DATE
+        END
+    );
 
 ------------------------
 -- Stage ==> Patron
