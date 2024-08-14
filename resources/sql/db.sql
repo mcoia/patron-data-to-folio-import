@@ -93,6 +93,8 @@ create table if not exists patron_import.patron
     fingerprint            text,
     ready                  bool not null default true,
     raw_data               text,
+    address1_one_liner     text,
+    address2_one_liner     text,
 
     -- dates
     insert_date            timestamp     default now(),
@@ -187,69 +189,194 @@ CREATE INDEX IF NOT EXISTS patron_import_patron_external_system_id_idx ON patron
 CREATE INDEX IF NOT EXISTS patron_import_patron_username_idx ON patron_import.patron USING btree (username);
 CREATE INDEX IF NOT EXISTS patron_import_ptype_mapping_foliogroup ON patron_import.ptype_mapping USING btree (foliogroup);
 
+
+CREATE TYPE patron_import.address_unit AS (
+  line1 TEXT,
+  line2 TEXT,
+  city TEXT,
+  state TEXT,
+  zip TEXT,
+  valid BOOLEAN
+);
+
+CREATE OR REPLACE FUNCTION patron_import.parse_city_state_zip_liner_address(one_liner TEXT)
+  RETURNS patron_import.address_unit AS
+  $BODY$
+DECLARE
+  result                  patron_import.address_unit;
+  leftover                text;
+  l int;
+BEGIN
+    IF one_liner IS NULL THEN
+        result.valid := FALSE;
+        RETURN result;
+    END IF;
+    result.city := btrim(split_part(one_liner, ',', 1));
+    -- RAISE NOTICE '%', result.city;
+    one_liner := btrim(right(one_liner, (length(result.city)+1)*-1 ));
+
+    -- RAISE NOTICE '%', one_liner;
+    -- Make multiple spaces single spaces
+    one_liner := regexp_replace(one_liner, '\s+',' ','g');
+    -- RAISE NOTICE '%', one_liner;
+
+    result.state := btrim(split_part(one_liner, ' ', 1));
+    -- the zipcode gets the rest of the string
+    result.zip := btrim(right(one_liner, (length(result.state)+1)*-1 ));
+
+    RETURN result;
+END;
+$BODY$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION patron_import.parse_one_liner_address(one_liner TEXT)
+  RETURNS patron_import.address_unit AS
+  $BODY$
+DECLARE
+  result                  patron_import.address_unit;
+  city_state_zip          patron_import.address_unit;
+  loopres                 TEXT;
+  section_count           INT;
+BEGIN
+
+    -- assume invalid by default
+    result.valid := FALSE;
+
+    IF one_liner IS NULL THEN
+        RETURN result;
+    END IF;
+
+    -- RAISE NOTICE '%', one_liner;
+    -- double dollar signs need reduced to single
+    one_liner := regexp_replace(one_liner, '\$+','$','g');
+    -- RAISE NOTICE 'after double->single %', one_liner;
+
+    -- Short circuit when not enough data
+    IF LENGTH(BTRIM(one_liner)) < 2 THEN
+        return result;
+    END IF;
+
+    -- Figure out how many dollar signs there are
+    SELECT INTO section_count count(*) from regexp_matches(one_liner,'\$','g');
+
+    IF section_count > 0 THEN
+        result.line1 := btrim(split_part(one_liner, '$', 1));
+        -- RAISE NOTICE '%', result.line1;
+        one_liner := btrim(right(one_liner, (length(result.line1)+1)*-1 ));
+    END IF;
+
+    -- case when address has line1 and line2
+    IF section_count > 1 THEN
+        result.line2 := '';
+    END IF;
+
+    WHILE one_liner ~ '\$'
+    LOOP
+        loopres := btrim(split_part(one_liner, '$', 1));
+        result.line2 := result.line2 || ' ' || loopres;
+        -- RAISE NOTICE '%', result.line2;
+        one_liner := btrim(right(one_liner, (length(loopres)+1)*-1 ));
+    END LOOP;
+
+    -- get the city, state, zip from what's left
+    city_state_zip := patron_import.parse_city_state_zip_liner_address(one_liner);
+
+    result.city := city_state_zip.city;
+    result.state := city_state_zip.state;
+    result.zip := city_state_zip.zip;
+
+    result.valid := TRUE;
+    RETURN result;
+END;
+$BODY$
+LANGUAGE PLPGSQL;
+
 CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()
     RETURNS trigger AS
-
 $$
 DECLARE
-    originalAddress text;
-    _addressLine1   text;
-    _addressLine2   text;
-    _city           text;
-    _region         text;
-    _postalcode     text;
+    incoming_addresses        patron_import.address_unit[];
+    test_address              patron_import.address_unit;
+    one_liner                 TEXT;
+    array_setup               TEXT[];
+    primary_address           BOOLEAN := TRUE;
 
 BEGIN
 
-    SELECT INTO originalAddress address
-    FROM patron_import.stage_patron sp
-    WHERE btrim(lower(sp.unique_id)) = btrim(lower(NEW.username))
-      AND sp.address IS NOT NULL
-      AND btrim(sp.address) != ''
-      AND sp.load
-    LIMIT 1;
+    array_setup := ('{"' || regexp_replace(COALESCE(NEW.address1_one_liner::TEXT,''),'"',' ','g') || '","'|| regexp_replace(COALESCE(NEW.address2_one_liner::TEXT,''),'"',' ','g') || '"}')::TEXT[];
+    FOREACH one_liner IN ARRAY array_setup
+    LOOP
+        test_address := patron_import.parse_one_liner_address(one_liner);
+        IF test_address.valid
+        THEN
+            incoming_addresses := array_append(incoming_addresses, test_address);
+        END IF;
+    END LOOP;
 
-    IF NOT FOUND THEN RETURN NEW; END IF;
-    -- short circuit when address is null or empty
+    IF array_upper(incoming_addresses, 1) IS NOT NULL
+    THEN
+        IF TG_OP = 'UPDATE' THEN
+            -- REMOVE all previous addresses, in favor of the new one coming in
+            DELETE FROM patron_import.address  = NEW.id;
+        END IF;
 
-    SELECT INTO _addressLine2 address2
-    FROM patron_import.stage_patron sp
-    WHERE btrim(lower(sp.unique_id)) = btrim(lower(NEW.username))
-    LIMIT 1;
-
-    IF originalAddress ~ '\$' THEN
-        _addressLine1 := btrim(split_part(originalAddress, '$', 1));
-        originalAddress := btrim(split_part(originalAddress, '$', 2));
+        FOREACH test_address IN ARRAY incoming_addresses
+        LOOP
+            INSERT INTO patron_import.address (patron_id, addressLine1, addressLine2, city, region, postalCode, primaryaddress)
+            VALUES (NEW.id, test_address.line1, test_address.line2, test_address.city, test_address.state, test_address.zip, primary_address);
+            -- only the first address is primary, the rest are secondary+
+            primary_address := FALSE;
+        END LOOP;
     END IF;
-
-    _city := btrim(split_part(originalAddress, ',', 1));
-    originalAddress := btrim(split_part(originalAddress, ',', 2));
-
-    _region := btrim(split_part(originalAddress, ' ', 1));
-    _postalcode := btrim(split_part(originalAddress, ' ', 2));
-
-    -- TGOP = UPDATE
-    IF TG_OP = 'UPDATE' THEN
-
-        -- general update statement here
-        UPDATE patron_import.address
-        SET addressLine1 = _addressLine1,
-            addressLine2 = _addressline2,
-            city         = _city,
-            region       = _region,
-            postalCode   = _postalcode
-        WHERE patron_id = NEW.id;
-
-    ELSIF TG_OP = 'INSERT' THEN
-
-        INSERT INTO patron_import.address (patron_id, addressLine1, addressLine2, city, region, postalCode)
-        VALUES (NEW.id, _addressLine1, _addressLine2, _city, _region, _postalcode);
-    END IF;
-
     RETURN NEW;
-
 END;
 
+$$
+    LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION patron_import.populate_address_from_raw(patron_id INT)
+    RETURNS VOID AS
+$$
+DECLARE
+    address1           TEXT;
+    address2           TEXT;
+BEGIN
+    SELECT INTO address1 right(tline, -1) FROM
+    (
+        select regexp_split_to_table(raw_data,'[\n\r]') AS "tline"
+        FROM patron_import.patron
+        WHERE
+        id = patron_id
+    ) as alll
+    where
+    alll.tline ~'^a'
+    LIMIT 1;
+
+    SELECT INTO address2 right(tline, -1) FROM
+    (
+        select regexp_split_to_table(raw_data,'[\n\r]') AS "tline"
+        FROM patron_import.patron
+        WHERE
+        id = patron_id
+    ) as alll
+    where
+    alll.tline ~'^h'
+    LIMIT 1;
+
+    IF address1 IS NOT NULL
+    THEN
+        UPDATE patron_import.patron
+        SET address1_one_liner = address1
+        WHERE id = patron_id;
+    END IF;
+
+    IF address2 IS NOT NULL
+    THEN
+        UPDATE patron_import.patron
+        SET address2_one_liner = address2
+        WHERE id = patron_id;
+    END IF;
+END;
 $$
     LANGUAGE 'plpgsql';
 
