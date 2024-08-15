@@ -32,7 +32,7 @@ sub init
 
     $self = initDatabaseConnection($self);
     $self = initDatabaseConnectionDBI($self);
-    # initDatabaseSchema($self); # <== this jacks up the output for command line api calls.
+    initDatabaseSchema($self) if($main::initDB);
 
     return $self;
 

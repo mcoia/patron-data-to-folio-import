@@ -22,7 +22,7 @@ use DAO;
 my $configFile;
 my $help;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test);
+our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test, $initDB);
 
 GetOptions(
     "config=s" => \$configFile,
@@ -30,6 +30,7 @@ GetOptions(
     "import:s" => \$import,
     "stage:s"  => \$stage,
     "test:s"   => \$test,
+    "initDB:s" => \$initDB,
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
@@ -131,6 +132,7 @@ sub getHelpMessage
         --config                                      [Path to the config file] If none is specified patron-import.conf is used.
         --stage                                       This will stage patron records
         --import                                      This will load import records into folio.
+        --initDB                                      This will initialize the database.
 
         --getFolioUserByUsername                      returns a json users[] array of the folio user using the username as the search parameter
         --getFolioUserByESID                          returns a json users[] array of the folio user using the external system id as the search parameter

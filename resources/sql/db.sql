@@ -130,7 +130,7 @@ create table if not exists patron_import.address
     city           text,
     region         text,
     postalCode     text,
-    addressTypeId  text default 'Home',
+    addressTypeId  text default 'Address 1',
     primaryAddress bool default true
 );
 
@@ -189,23 +189,21 @@ CREATE INDEX IF NOT EXISTS patron_import_patron_external_system_id_idx ON patron
 CREATE INDEX IF NOT EXISTS patron_import_patron_username_idx ON patron_import.patron USING btree (username);
 CREATE INDEX IF NOT EXISTS patron_import_ptype_mapping_foliogroup ON patron_import.ptype_mapping USING btree (foliogroup);
 
-
-CREATE TYPE patron_import.address_unit AS (
-  line1 TEXT,
-  line2 TEXT,
-  city TEXT,
-  state TEXT,
-  zip TEXT,
-  valid BOOLEAN
+CREATE TYPE patron_import.address_unit AS
+(
+    line1 TEXT,
+    line2 TEXT,
+    city  TEXT,
+    state TEXT,
+    zip   TEXT,
+    valid BOOLEAN
 );
 
 CREATE OR REPLACE FUNCTION patron_import.parse_city_state_zip_liner_address(one_liner TEXT)
-  RETURNS patron_import.address_unit AS
-  $BODY$
+    RETURNS patron_import.address_unit AS
+$BODY$
 DECLARE
-  result                  patron_import.address_unit;
-  leftover                text;
-  l int;
+    result patron_import.address_unit;
 BEGIN
     IF one_liner IS NULL THEN
         result.valid := FALSE;
@@ -213,30 +211,30 @@ BEGIN
     END IF;
     result.city := btrim(split_part(one_liner, ',', 1));
     -- RAISE NOTICE '%', result.city;
-    one_liner := btrim(right(one_liner, (length(result.city)+1)*-1 ));
+    one_liner := btrim(right(one_liner, (length(result.city) + 1) * -1));
 
     -- RAISE NOTICE '%', one_liner;
     -- Make multiple spaces single spaces
-    one_liner := regexp_replace(one_liner, '\s+',' ','g');
+    one_liner := regexp_replace(one_liner, '\s+', ' ', 'g');
     -- RAISE NOTICE '%', one_liner;
 
     result.state := btrim(split_part(one_liner, ' ', 1));
     -- the zipcode gets the rest of the string
-    result.zip := btrim(right(one_liner, (length(result.state)+1)*-1 ));
+    result.zip := btrim(right(one_liner, (length(result.state) + 1) * -1));
 
     RETURN result;
 END;
 $BODY$
-LANGUAGE PLPGSQL;
+    LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION patron_import.parse_one_liner_address(one_liner TEXT)
-  RETURNS patron_import.address_unit AS
-  $BODY$
+    RETURNS patron_import.address_unit AS
+$BODY$
 DECLARE
-  result                  patron_import.address_unit;
-  city_state_zip          patron_import.address_unit;
-  loopres                 TEXT;
-  section_count           INT;
+    result         patron_import.address_unit;
+    city_state_zip patron_import.address_unit;
+    loopres        TEXT;
+    section_count  INT;
 BEGIN
 
     -- assume invalid by default
@@ -248,7 +246,7 @@ BEGIN
 
     -- RAISE NOTICE '%', one_liner;
     -- double dollar signs need reduced to single
-    one_liner := regexp_replace(one_liner, '\$+','$','g');
+    one_liner := regexp_replace(one_liner, '\$+', '$', 'g');
     -- RAISE NOTICE 'after double->single %', one_liner;
 
     -- Short circuit when not enough data
@@ -257,12 +255,12 @@ BEGIN
     END IF;
 
     -- Figure out how many dollar signs there are
-    SELECT INTO section_count count(*) from regexp_matches(one_liner,'\$','g');
+    SELECT INTO section_count count(*) from regexp_matches(one_liner, '\$', 'g');
 
     IF section_count > 0 THEN
         result.line1 := btrim(split_part(one_liner, '$', 1));
         -- RAISE NOTICE '%', result.line1;
-        one_liner := btrim(right(one_liner, (length(result.line1)+1)*-1 ));
+        one_liner := btrim(right(one_liner, (length(result.line1) + 1) * -1));
     END IF;
 
     -- case when address has line1 and line2
@@ -271,12 +269,13 @@ BEGIN
     END IF;
 
     WHILE one_liner ~ '\$'
-    LOOP
-        loopres := btrim(split_part(one_liner, '$', 1));
-        result.line2 := result.line2 || ' ' || loopres;
-        -- RAISE NOTICE '%', result.line2;
-        one_liner := btrim(right(one_liner, (length(loopres)+1)*-1 ));
-    END LOOP;
+        LOOP
+            loopres := btrim(split_part(one_liner, '$', 1));
+            result.line2 := result.line2 || ' ' || loopres;
+            -- RAISE NOTICE '%', result.line2;
+            one_liner := btrim(right(one_liner, (length(loopres) + 1) * -1));
+        END LOOP;
+    result.line2 := regexp_replace(result.line2, '\s+', ' ', 'g');
 
     -- get the city, state, zip from what's left
     city_state_zip := patron_import.parse_city_state_zip_liner_address(one_liner);
@@ -289,44 +288,49 @@ BEGIN
     RETURN result;
 END;
 $BODY$
-LANGUAGE PLPGSQL;
+    LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION patron_import.address_trigger_function()
     RETURNS trigger AS
 $$
 DECLARE
-    incoming_addresses        patron_import.address_unit[];
-    test_address              patron_import.address_unit;
-    one_liner                 TEXT;
-    array_setup               TEXT[];
-    primary_address           BOOLEAN := TRUE;
+    incoming_addresses patron_import.address_unit[];
+    test_address       patron_import.address_unit;
+    one_liner          TEXT;
+    array_setup        TEXT[];
+    primary_address    BOOLEAN := TRUE;
+    address_type       TEXT := 'Address 1';
 
 BEGIN
 
-    array_setup := ('{"' || regexp_replace(COALESCE(NEW.address1_one_liner::TEXT,''),'"',' ','g') || '","'|| regexp_replace(COALESCE(NEW.address2_one_liner::TEXT,''),'"',' ','g') || '"}')::TEXT[];
+    array_setup := ('{"' || regexp_replace(COALESCE(NEW.address1_one_liner::TEXT, ''), '"', ' ', 'g') || '","' ||
+                    regexp_replace(COALESCE(NEW.address2_one_liner::TEXT, ''), '"', ' ', 'g') || '"}')::TEXT[];
     FOREACH one_liner IN ARRAY array_setup
-    LOOP
-        test_address := patron_import.parse_one_liner_address(one_liner);
-        IF test_address.valid
-        THEN
-            incoming_addresses := array_append(incoming_addresses, test_address);
-        END IF;
-    END LOOP;
+        LOOP
+            test_address := patron_import.parse_one_liner_address(one_liner);
+            IF test_address.valid
+            THEN
+                incoming_addresses := array_append(incoming_addresses, test_address);
+            END IF;
+        END LOOP;
 
     IF array_upper(incoming_addresses, 1) IS NOT NULL
     THEN
         IF TG_OP = 'UPDATE' THEN
             -- REMOVE all previous addresses, in favor of the new one coming in
-            DELETE FROM patron_import.address  = NEW.id;
+            DELETE FROM patron_import.address WHERE patron_id = NEW.id;
         END IF;
 
         FOREACH test_address IN ARRAY incoming_addresses
-        LOOP
-            INSERT INTO patron_import.address (patron_id, addressLine1, addressLine2, city, region, postalCode, primaryaddress)
-            VALUES (NEW.id, test_address.line1, test_address.line2, test_address.city, test_address.state, test_address.zip, primary_address);
-            -- only the first address is primary, the rest are secondary+
-            primary_address := FALSE;
-        END LOOP;
+            LOOP
+                INSERT INTO patron_import.address (patron_id, addressLine1, addressLine2, city, region, postalCode,
+                                                   primaryaddress, addressTypeId)
+                VALUES (NEW.id, test_address.line1, test_address.line2, test_address.city, test_address.state,
+                        test_address.zip, primary_address, address_type);
+                -- only the first address is primary, the rest are secondary+
+                primary_address := FALSE;
+                address_type := 'Address 2';
+            END LOOP;
     END IF;
     RETURN NEW;
 END;
@@ -338,35 +342,37 @@ CREATE OR REPLACE FUNCTION patron_import.populate_address_from_raw(patron_id INT
     RETURNS VOID AS
 $$
 DECLARE
-    address1           TEXT;
-    address2           TEXT;
+    address1 TEXT;
+    address2 TEXT;
 BEGIN
-    SELECT INTO address1 right(tline, -1) FROM
-    (
-        select regexp_split_to_table(raw_data,'[\n\r]') AS "tline"
-        FROM patron_import.patron
-        WHERE
-        id = patron_id
-    ) as alll
-    where
-    alll.tline ~'^a'
+    SELECT INTO address1 right(tline, -1)
+    FROM (select regexp_split_to_table(raw_data, '[\n\r]') AS "tline"
+          FROM patron_import.patron
+          WHERE id = patron_id) as alll
+    where alll.tline ~ '^a'
     LIMIT 1;
 
-    SELECT INTO address2 right(tline, -1) FROM
-    (
-        select regexp_split_to_table(raw_data,'[\n\r]') AS "tline"
-        FROM patron_import.patron
-        WHERE
-        id = patron_id
-    ) as alll
-    where
-    alll.tline ~'^h'
-    LIMIT 1;
+    SELECT INTO address2 right(tline, -1)
+    FROM (select regexp_split_to_table(raw_data, '[\n\r]') AS "tline"
+          FROM patron_import.patron
+          WHERE id = patron_id) as alll
+    where alll.tline ~ '^h'
+    limit 1;
 
-    IF address1 IS NOT NULL
-    THEN
-        UPDATE patron_import.patron
-        SET address1_one_liner = address1
+    if address1 = address2
+    then
+        raise notice 'addresses are equal';
+        address2 := null;
+    end if;
+
+    if address1 is not null
+    then
+        update patron_import.patron
+        set address1_one_liner = address1
+        where id = patron_id;
+    else
+        update patron_import.patron
+        set address1_one_liner = NULL
         WHERE id = patron_id;
     END IF;
 
@@ -375,12 +381,16 @@ BEGIN
         UPDATE patron_import.patron
         SET address2_one_liner = address2
         WHERE id = patron_id;
+    ELSE
+        update patron_import.patron
+        set address2_one_liner = NULL
+        WHERE id = patron_id;
     END IF;
 END;
 $$
     LANGUAGE 'plpgsql';
 
-CREATE TRIGGER address_trigger
+CREATE OR REPLACE TRIGGER address_trigger
     AFTER INSERT OR UPDATE
     ON patron_import.patron
     FOR EACH ROW
@@ -433,7 +443,7 @@ $$;
 
 alter function patron_import.ptype_mapping_trigger_function() owner to postgres;
 
-CREATE TRIGGER ptype_mapping_trigger
+CREATE OR REPLACE TRIGGER ptype_mapping_trigger
     AFTER INSERT OR UPDATE
     ON patron_import.ptype_mapping
     FOR EACH ROW
@@ -449,22 +459,8 @@ END;
 $$
     LANGUAGE 'plpgsql';
 
-CREATE TRIGGER update_date_trigger
+CREATE OR REPLACE TRIGGER update_date_trigger
     BEFORE UPDATE
     ON patron_import.patron
     FOR EACH ROW
 EXECUTE PROCEDURE patron_import.update_date_trigger_function();
-
--- this needs testing .
--- CREATE OR REPLACE FUNCTION patron_import.date_checker( datestring TEXT )
---     RETURNS TEXT AS
--- $BODY$
--- DECLARE
---     return_string       TEXT;
--- BEGIN
---     return_string := datestring::DATE::TEXT;
--- EXCEPTION WHEN OTHERS THEN RETURN NULL;
--- RETURN return_string;
--- END;
--- $BODY$
---     LANGUAGE PLPGSQL;

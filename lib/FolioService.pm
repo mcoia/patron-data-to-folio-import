@@ -428,63 +428,10 @@ json
 
 }
 
-sub _buildPatronJSON_BROKE {
-
-    my ($self, $patron) = @_;
-
-    # Sanitize and handle undefined values
-    for my $key (keys %$patron) {
-        if (defined $patron->{$key}) {
-            $patron->{$key} = $self->_escapeIllegalChars($patron->{$key});
-        } else {
-            $patron->{$key} = "";
-        }
-    }
-
-    my $address = $self->_buildAddressJSON($patron->{address});
-
-    my $json_data = {
-        username => $patron->{username},
-        externalSystemId => $patron->{externalsystemid},
-        barcode => $patron->{barcode},
-        active => 'true',
-        patronGroup => $patron->{patrongroup},
-        type => "patron",
-        personal => {
-            lastName => $patron->{lastname},
-            firstName => $patron->{firstname},
-            middleName => $patron->{middlename},
-            preferredFirstName => $patron->{preferredfirstname},
-            phone => $patron->{phone},
-            mobilePhone => $patron->{mobilephone},
-            dateOfBirth => $patron->{dateofbirth},
-            addresses => $address,
-            email => $patron->{email},
-            preferredContactTypeId => $patron->{preferredcontacttypeid}
-        },
-        enrollmentDate => $patron->{enrollmentdate},
-        expirationDate => $patron->{expirationdate}
-    };
-
-    return encode_json($json_data);
-
-}
-
 sub _buildAddressJSON
 {
     my $self = shift;
     my $addresses = shift;
-
-    # {
-    #     "countryId": "HU",
-    #     "addressLine1": "Andrássy Street 1.",
-    #     "addressLine2": "",
-    #     "city": "Budapest",
-    #     "region": "Pest",
-    #     "postalCode": "1061",
-    #     "addressTypeId": "Home",
-    #     "primaryAddress": true
-    # }
 
     my @addressArray = ();
     for my $address (@{$addresses})

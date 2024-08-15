@@ -123,7 +123,7 @@ INSERT INTO patron_import.patron (institution_id,
             sp.file_id,
             sp.job_id,
             sp.raw_data,
-            sp.address1,
+            sp.address,
             sp.address2,
             sp.fingerprint,
             BTRIM(sp.unique_id),
@@ -171,13 +171,13 @@ SET file_id                = sp.file_id,
                                  WHEN sp.preferred_name LIKE '%, %' THEN
                                      SUBSTRING(sp.preferred_name FROM ', (.*) ')
                                  ELSE NULL END,
-    phone                  = BTRIM(REGEXP_REPLACE(sp.telephone, '[0-9-]+', '')),
-    mobilephone            = BTRIM(REGEXP_REPLACE(sp.telephone2, '[0-9-]+', '')),
+    phone                  = BTRIM(sp.telephone),
+    mobilephone            = BTRIM(sp.telephone2),
     preferredcontacttypeid = 'email',
     ready                  = TRUE,
     update_date            = NOW(),
     raw_data               = sp.raw_data,
-    address1_one_liner     = sp.address1,
+    address1_one_liner     = sp.address,
     address2_one_liner     = sp.address2,
     expirationdate         = (CASE
                                   WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
@@ -203,6 +203,23 @@ WHERE p.firstname = p.middlename;
 UPDATE patron_import.patron
 SET expirationdate = NULL
 WHERE expirationdate = '';
+
+-- Clean up some of these addresses only having a $ dollar sign or being ''. We want NULL for these.
+update patron_import.address
+set addressline1 = NULL
+where BTRIM(addressline1) = '';
+
+update patron_import.address
+set addressline2 = NULL
+where BTRIM(addressline2) = '';
+
+update patron_import.address
+set addressline1 = NULL
+where BTRIM(addressline1) = '$';
+
+update patron_import.address
+set addressline2 = NULL
+where BTRIM(addressline2) = '$';
 
 ------------------------
 -- Patron Validation
