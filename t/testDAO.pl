@@ -28,7 +28,7 @@ sub initConf
     my $utils = MOBIUS::Utils->new();
 
     # Check our conf file
-    my $configFile = "/home/owner/repo/mobius/folio/patron-data-to-folio-import/patron-import.conf";
+    my $configFile = "../patron-import.conf";
     $conf = $utils->readConfFile($configFile);
 
     exit if ($conf eq "false");
@@ -623,5 +623,64 @@ order by to_timestamp(ft.lastmodified) desc;";
 
 }
 
+# test01();
+sub test01
+{
+
+    my $patron = $dao->query("SELECT p.raw_data FROM patron_import.patron p limit 1;")->[0]->[0];
+
+    $patron =~ s/\n//g;
+
+    print $patron;
+
+}
+
+fixAddresses();
+sub fixAddresses
+{
+
+    for (@{$dao->query("select distinct a.patron_id from patron_import.patron p
+                            join patron_import.address a on a.patron_id=p.id where a.addresstypeid = 'Home'")})
+    {
+        print "id:[$_->[0]]\n";
+
+        print Dumper($dao->query("SELECT p.id,
+                                   p.raw_data,
+                                   a.addressline1,
+                                   a.addressline2,
+                                   a.city,
+                                   a.region,
+                                   a.postalcode,
+                                   a.addresstypeid,
+                                   a.primaryaddress
+                            FROM patron_import.patron p
+                                     left join patron_import.address a on a.patron_id = p.id
+                                     where p.id = $_->[0];"));
+
+        print "populating address from raw\n";
+        $dao->query("SELECT patron_import.populate_address_from_raw(p.id)");
+
+        # query patron by id and print the address
+        print Dumper($dao->query("SELECT p.id,
+                                   p.raw_data,
+                                   a.addressline1,
+                                   a.addressline2,
+                                   a.city,
+                                   a.region,
+                                   a.postalcode,
+                                   a.addresstypeid,
+                                   a.primaryaddress
+                            FROM patron_import.patron p
+                                     left join patron_import.address a on a.patron_id = p.id
+                                     where p.id = $_->[0];"));
+
+        print "=" x 50 . "\n";
+        print "Press enter to continue\n";
+        <STDIN>;
+
+    }
+
+
+}
 
 1;
