@@ -138,8 +138,8 @@ INSERT INTO patron_import.patron (institution_id,
                 WHEN sp.preferred_name LIKE '%, %' THEN
                     SUBSTRING(sp.preferred_name FROM ', (.*) ')
                 ELSE NULL END,
-            BTRIM(sp.telephone, '[^0-9|^\-]', ''),
-            BTRIM(sp.telephone2, '[^0-9|^\-]', ''),
+            BTRIM(sp.telephone),
+            BTRIM(sp.telephone2),
             'email',
             (CASE
                  WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' THEN sp.patron_expiration_date::DATE::TEXT
