@@ -205,21 +205,21 @@ SET expirationdate = NULL
 WHERE expirationdate = '';
 
 -- Clean up some of these addresses only having a $ dollar sign or being ''. We want NULL for these.
-update patron_import.address
-set addressline1 = NULL
-where BTRIM(addressline1) = '';
+UPDATE patron_import.address
+SET addressline1 = NULL
+WHERE BTRIM(addressline1) = '';
 
-update patron_import.address
-set addressline2 = NULL
-where BTRIM(addressline2) = '';
+UPDATE patron_import.address
+SET addressline2 = NULL
+WHERE BTRIM(addressline2) = '';
 
-update patron_import.address
-set addressline1 = NULL
-where BTRIM(addressline1) = '$';
+UPDATE patron_import.address
+SET addressline1 = NULL
+WHERE BTRIM(addressline1) = '$';
 
-update patron_import.address
-set addressline2 = NULL
-where BTRIM(addressline2) = '$';
+UPDATE patron_import.address
+SET addressline2 = NULL
+WHERE BTRIM(addressline2) = '$';
 
 ------------------------
 -- Patron Validation
