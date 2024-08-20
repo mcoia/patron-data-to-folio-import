@@ -90,7 +90,7 @@ WHERE SUBSTRING(sp.patron_expiration_date FROM '^(\d+)')::INT > 12;
 UPDATE patron_import.stage_patron
 SET patron_expiration_date = (
     CASE
-        WHEN patron_expiration_date IS NULL OR patron_expiration_date = '' THEN '1970-01-01'
+        WHEN patron_expiration_date IS NULL OR patron_expiration_date = '' THEN NULL
         ELSE (patron_expiration_date::DATE + INTERVAL '1 day')::DATE
         END
     );
