@@ -187,7 +187,7 @@ sub patronFileDiscovery
             my $thisFullPath = $_;
             my @frags = split(/\//, $thisFullPath);
             my $filename = pop @frags;
-            push(@paths, $thisFullPath) if ($filename =~ /$file->{pattern}/);
+            push(@paths, $thisFullPath) if ($filename =~ /$file->{pattern}/i);
             undef $thisFullPath;
             undef @frags;
         }
