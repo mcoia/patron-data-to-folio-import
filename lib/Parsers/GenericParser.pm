@@ -477,9 +477,7 @@ sub _parsePatronRecord
     # set the raw_data for this patron. This raw data gets fingerprinted!
     my $raw_data = "";
     for my $data (@{$patronRecord})
-    {
-        $raw_data .= $data . "\n";
-    }
+    {$raw_data .= $data . "\n";}
     $patron->{raw_data} = $raw_data;
 
     # We only trigger this on patron groups at the moment.

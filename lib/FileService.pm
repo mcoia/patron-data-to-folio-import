@@ -30,6 +30,8 @@ sub readFileToArray
 
     $main::log->addLogLine("reading file: [$filePath]");
 
+    $self->checkAndConvertIfNeeded($filePath);
+
     my @data = ();
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
@@ -41,7 +43,9 @@ sub readFileToArray
         # Instead of specifying what chars we don't want, maybe we specify chars we do want and remove the rest?
 
         # MS Word "Smart Quote" character
-        $line =~ s/\x{201C}/"/g;
+        $line =~ s/[\x{201c}\x{201d}]//g; # un-"smart" quotes
+        $line =~ s/[\x{2018}\x{2019}]//g; # un-"smart" apos
+
         $line =~ s/\\//g;
         $line =~ s/\n//g;
         $line =~ s/\r//g;
@@ -565,10 +569,67 @@ sub deletePatronFiles
 {
     my $self = shift;
 
-
-
     return $self;
 }
 
+sub normalizeLineEndings
+{
+    my $self = shift;
+    my $inputFile = shift;
+    my $outputFile = shift;
+
+    open my $inFH, '<:raw', $inputFile or die "Cannot open input file '$inputFile': $!";
+    open my $outFH, '>:raw', $outputFile or die "Cannot open output file '$outputFile' for writing: $!";
+
+    my $content = do {
+        local $/;
+        <$inFH>
+    };
+
+    # Convert all line endings to \n
+    $content =~ s/\r\n|\r/\n/g;
+
+    print $outFH $content;
+
+    close $inFH;
+    close $outFH;
+
+    print "File processed. Line endings converted to \\n.\n";
+}
+
+sub checkAndConvertIfNeeded
+{
+    my $self = shift;
+    my $filePath = shift;
+
+    open my $fh, '<:raw', $filePath or die "Cannot open file '$filePath': $!";
+
+    my $containsCR = 0;
+    while (my $line = <$fh>)
+    {
+        if ($line =~ /\r/)
+        {
+            $containsCR = 1;
+            last;
+        }
+    }
+
+    close $fh;
+
+    if ($containsCR != 0)
+    {
+        $main::log->addLogLine("File '$filePath' contains \\r line endings. Converting...");
+        print "File '$filePath' contains \\r line endings. Converting...\n" if ($main::conf->{print2Console} eq 'true');
+        my $tmpFile = $filePath . ".tmp";
+        $self->normalizeLineEndings($filePath, $tmpFile);
+        rename $tmpFile, $filePath or die "Cannot rename file: $!";
+        print "Conversion complete. Original file updated.\n" if ($main::conf->{print2Console} eq 'true');
+    }
+    else
+    {
+        print "File '$filePath' does not contain \\r line endings. No conversion needed.\n" if ($main::conf->{print2Console} eq 'true');
+    }
+
+}
 
 1;
