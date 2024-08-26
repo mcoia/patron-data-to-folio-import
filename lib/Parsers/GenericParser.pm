@@ -108,7 +108,7 @@ sub parse
                 my $esidBuilder = Parsers::ESID->new($institution, $patron);
 
                 # Set the External System ID
-                $patron->{esid} = $esidBuilder->getESID();
+                $patron->{esid} = $esidBuilder->getESID() if(!defined($patron->{esid}) || $patron->{esid} eq '');
 
                 # skip if we didn't get an esid
                 next if (!defined($patron->{esid}));
