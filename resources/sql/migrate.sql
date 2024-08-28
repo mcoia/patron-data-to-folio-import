@@ -132,8 +132,8 @@ INSERT INTO patron_import.patron (institution_id,
             BTRIM(sp.email_address),
             pt.foliogroup,
             BTRIM(REGEXP_REPLACE(sp.name, ',.*', ''))                              AS "lastname",
-            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '.*\s', '')) AS "middlename",
-            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '\s.*', '')) AS "firstname",
+            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*,\s?', ''), '.*\s', '')) AS "middlename",
+            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*,\s?', ''), '\s.*', '')) AS "firstname",
             CASE
                 WHEN sp.preferred_name LIKE '%, %' THEN
                     SUBSTRING(sp.preferred_name FROM ', (.*) ')

@@ -46,9 +46,12 @@ sub getESID
 
     my $esid = "";
 
-    # check for defined esid's in the patron record
+    # check for defined esid's in the patron record. Honestly, if we're not defined somethings wrong.
+    # We instantiate this variable back in the parser.
     $self->{patron}->{esid} = "" if (!defined($self->{patron}->{esid}));
 
+    # I knew I was checking for this!
+    # So there seems to be some kind of issue with this statement. We were setting the esid and this was still triggering.
     return $self->{patron}->{esid} if($self->{patron}->{esid} ne '' && $self->{institution}->{esid} !~ /self/);
 
     return $self->returnBlankESIDLogErrorMessage() if (!defined($self->{institution}->{esid}));
