@@ -99,6 +99,7 @@ SET patron_expiration_date = (
 -- Stage ==> Patron
 ------------------------
 
+-- INSERT statement
 INSERT INTO patron_import.patron (institution_id,
                                   file_id,
                                   job_id,
@@ -119,42 +120,60 @@ INSERT INTO patron_import.patron (institution_id,
                                   mobilephone,
                                   preferredcontacttypeid,
                                   expirationdate)
-    (SELECT sp.institution_id,
-            sp.file_id,
-            sp.job_id,
-            sp.raw_data,
-            sp.address,
-            sp.address2,
-            sp.fingerprint,
-            BTRIM(sp.unique_id),
-            BTRIM(sp.esid),
-            BTRIM(sp.barcode),
-            BTRIM(sp.email_address),
-            pt.foliogroup,
-            BTRIM(REGEXP_REPLACE(sp.name, ',.*', ''))                              AS "lastname",
-            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*,\s?', ''), '.*\s', '')) AS "middlename",
-            BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*,\s?', ''), '\s.*', '')) AS "firstname",
-            CASE
-                WHEN sp.preferred_name LIKE '%, %' THEN
-                    SUBSTRING(sp.preferred_name FROM ', (.*) ')
-                ELSE NULL END,
-            BTRIM(sp.telephone),
-            BTRIM(sp.telephone2),
-            'email',
-            (CASE
-                 WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' THEN sp.patron_expiration_date::DATE::TEXT
-                 ELSE NULL END)
-     FROM patron_import.stage_patron sp
-              JOIN patron_import.institution i ON (sp.institution_id = i.id)
-              LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-              LEFT JOIN patron_import.patron p2 ON (BTRIM(LOWER(sp.unique_id)) = BTRIM(LOWER(p2.username)))
-     WHERE p2.id IS NULL
-       AND sp.unique_id IS NOT NULL
-       AND sp.unique_id != ''
-       AND sp.esid IS NOT NULL
-       AND sp.esid != ''
-       AND sp.load);
+SELECT sp.institution_id,
+       sp.file_id,
+       sp.job_id,
+       sp.raw_data,
+       sp.address,
+       sp.address2,
+       sp.fingerprint,
+       BTRIM(sp.unique_id),
+       BTRIM(sp.esid),
+       BTRIM(sp.barcode),
+       BTRIM(sp.email_address),
+       pt.foliogroup,
+       BTRIM(REGEXP_REPLACE(sp.name, ',.*', '')) AS "lastname",
+       CASE
+           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '), 1) > 2
+               THEN REGEXP_REPLACE(
+                   BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), '^(\S+)\s+(.*?)\s*(?:,.*)?$', '\2')),
+                   ',', '', 'g'
+                    )
+           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '), 1) = 2
+               THEN REGEXP_REPLACE(
+                   BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*(\S+)\s+(\S+).*$', '\2')),
+                   ',', '', 'g'
+                    )
+           ELSE ''
+           END                                   AS "middlename",
+       REGEXP_REPLACE(
+               BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)),
+               ',', '', 'g'
+       )                                         AS "firstname",
+       CASE
+           WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ', (.*) ')
+           ELSE NULL
+           END,
+       BTRIM(sp.telephone),
+       BTRIM(sp.telephone2),
+       'email',
+       CASE
+           WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' THEN sp.patron_expiration_date::DATE::TEXT
+           ELSE NULL
+           END
+FROM patron_import.stage_patron sp
+         JOIN patron_import.institution i ON (sp.institution_id = i.id)
+         LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
+         LEFT JOIN patron_import.patron p2 ON (BTRIM(LOWER(sp.unique_id)) = BTRIM(LOWER(p2.username)))
+WHERE p2.id IS NULL
+  AND sp.unique_id IS NOT NULL
+  AND sp.unique_id != ''
+  AND sp.esid IS NOT NULL
+  AND sp.esid != ''
+  AND sp.load
+  AND sp.name !~ '0';
 
+-- UPDATE statement
 UPDATE patron_import.patron p
 SET file_id                = sp.file_id,
     job_id                 = sp.job_id,
@@ -165,12 +184,29 @@ SET file_id                = sp.file_id,
     patrongroup            = pt.foliogroup,
     email                  = BTRIM(sp.email_address),
     lastname               = BTRIM(REGEXP_REPLACE(sp.name, ',.*', '')),
-    middlename             = BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '.*\s', '')),
-    firstname              = BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '.*, ', ''), '\s.*', '')),
+    middlename             = CASE
+                                 WHEN ARRAY_LENGTH(
+                                              STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '),
+                                              1) > 2
+                                     THEN REGEXP_REPLACE(
+                                         BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''),
+                                                              '^(\S+)\s+(.*?)\s*(?:,.*)?$', '\2')), ',', '', 'g')
+                                 WHEN ARRAY_LENGTH(
+                                              STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '),
+                                              1) = 2
+                                     THEN REGEXP_REPLACE(
+                                         BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*(\S+)\s+(\S+).*$', '\2')),
+                                         ',', '', 'g')
+                                 ELSE ''
+        END,
+    firstname              = REGEXP_REPLACE(
+            BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)),
+            ',', '', 'g'
+                             ),
     preferredfirstname     = CASE
-                                 WHEN sp.preferred_name LIKE '%, %' THEN
-                                     SUBSTRING(sp.preferred_name FROM ', (.*) ')
-                                 ELSE NULL END,
+                                 WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ', (.*) ')
+                                 ELSE NULL
+        END,
     phone                  = BTRIM(sp.telephone),
     mobilephone            = BTRIM(sp.telephone2),
     preferredcontacttypeid = 'email',
@@ -179,17 +215,19 @@ SET file_id                = sp.file_id,
     raw_data               = sp.raw_data,
     address1_one_liner     = sp.address,
     address2_one_liner     = sp.address2,
-    expirationdate         = (CASE
-                                  WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
-                                      THEN sp.patron_expiration_date::DATE::TEXT
-                                  ELSE NULL END)
+    expirationdate         = CASE
+                                 WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
+                                     THEN sp.patron_expiration_date::DATE::TEXT
+                                 ELSE NULL
+        END
 FROM patron_import.stage_patron sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
 WHERE BTRIM(LOWER(sp.unique_id)) = BTRIM(LOWER(p.username))
   AND sp.fingerprint != p.fingerprint
   AND sp.esid = p.externalsystemid
-  AND sp.load;
+  AND sp.load
+  AND sp.name !~ '0';
 
 ------------------------
 -- Patron Clean Up
