@@ -1,6 +1,7 @@
 ------------------------
 -- Stage Patron Clean Up
 ------------------------
+-- I desperately want to remove and reverse this.
 UPDATE patron_import.stage_patron
 SET unique_id = BTRIM(LOWER(unique_id));
 
@@ -22,8 +23,7 @@ WHERE id IN
       (SELECT sp2.id
        FROM patron_import.stage_patron sp
                 JOIN patron_import.stage_patron sp2
-                     ON (sp.unique_id = sp2.unique_id AND sp.id != sp2.id AND sp.patron_type != sp2.patron_type AND
-                         sp.institution_id = sp2.institution_id)
+                     ON (sp.unique_id = sp2.unique_id AND sp.id != sp2.id AND sp.patron_type != sp2.patron_type AND sp.institution_id = sp2.institution_id)
                 JOIN patron_import.ptype_mapping pt
                      ON (pt.institution_id = sp.institution_id AND pt.ptype = sp.patron_type)
                 JOIN patron_import.ptype_mapping pt2
@@ -58,8 +58,7 @@ WHERE sp.id = b.id
   AND sp.esid IS NOT NULL
   AND NOT sp.load;
 
--- wait... isn't this just another way of writing the update statement above?? lol logically speaking.
--- We have got to remove these duplicates
+-- Removing duplicate entries from the patron stage
 DELETE
 FROM patron_import.stage_patron p3
 WHERE p3.id IN (SELECT p.id
@@ -74,19 +73,19 @@ WHERE p3.id IN (SELECT p.id
                                    HAVING COUNT(*) > 1)
                 ORDER BY p.unique_id);
 
--- delete all patrons who's fingerprint matches what's in the patron table.
+-- delete all patrons whose fingerprint matches what's in the patron table.
 DELETE
 FROM patron_import.stage_patron
 WHERE id IN (SELECT sp.id
              FROM patron_import.stage_patron sp
                       JOIN patron_import.patron p ON p.fingerprint = sp.fingerprint);
 
--- we don't delete the patron, we just clear the date when they put in some illegal format
+-- Instead of removing the patron, we simply reset the date if it is in an invalid format
 UPDATE patron_import.stage_patron sp
 SET patron_expiration_date = NULL
 WHERE SUBSTRING(sp.patron_expiration_date FROM '^(\d+)')::INT > 12;
 
--- folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024 and it's confusing the staff
+-- folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024, and it's confusing the staff
 UPDATE patron_import.stage_patron
 SET patron_expiration_date = (
     CASE
@@ -135,24 +134,16 @@ SELECT sp.institution_id,
        BTRIM(REGEXP_REPLACE(sp.name, ',.*', '')) AS "lastname",
        CASE
            WHEN ARRAY_LENGTH(STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '), 1) > 2
-               THEN REGEXP_REPLACE(
-                   BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), '^(\S+)\s+(.*?)\s*(?:,.*)?$', '\2')),
-                   ',', '', 'g'
-                    )
-           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '), 1) = 2
-               THEN REGEXP_REPLACE(
-                   BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*(\S+)\s+(\S+).*$', '\2')),
-                   ',', '', 'g'
-                    )
+               THEN REGEXP_REPLACE(BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), '^(\S+)\s+(.*?)\s*(?:,.*)?$', '\2')), ',', '', 'g')
+           WHEN ARRAY_LENGTH(STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '), 1) = 2 THEN REGEXP_REPLACE(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*(\S+)\s+(\S+).*$', '\2')), ',', '', 'g')
            ELSE ''
            END                                   AS "middlename",
-       REGEXP_REPLACE(
-               BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)),
-               ',', '', 'g'
+       REGEXP_REPLACE(BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)), ',', '', 'g'
        )                                         AS "firstname",
        CASE
-           WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ', (.*) ')
-           ELSE NULL
+           WHEN sp.preferred_name IS NULL OR sp.preferred_name = '' THEN NULL
+           WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ',(.*) ')
+           ELSE sp.preferred_name
            END,
        BTRIM(sp.telephone),
        BTRIM(sp.telephone2),
@@ -164,7 +155,7 @@ SELECT sp.institution_id,
 FROM patron_import.stage_patron sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-         LEFT JOIN patron_import.patron p2 ON (BTRIM(LOWER(sp.unique_id)) = BTRIM(LOWER(p2.username)))
+         LEFT JOIN patron_import.patron p2 ON BTRIM(sp.esid) = BTRIM(p2.externalsystemid)
 WHERE p2.id IS NULL
   AND sp.unique_id IS NOT NULL
   AND sp.unique_id != ''
@@ -185,26 +176,17 @@ SET file_id                = sp.file_id,
     email                  = BTRIM(sp.email_address),
     lastname               = BTRIM(REGEXP_REPLACE(sp.name, ',.*', '')),
     middlename             = CASE
-                                 WHEN ARRAY_LENGTH(
-                                              STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '),
-                                              1) > 2
+                                 WHEN ARRAY_LENGTH(STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '), 1) > 2
                                      THEN REGEXP_REPLACE(
-                                         BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''),
-                                                              '^(\S+)\s+(.*?)\s*(?:,.*)?$', '\2')), ',', '', 'g')
-                                 WHEN ARRAY_LENGTH(
-                                              STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '),
-                                              1) = 2
-                                     THEN REGEXP_REPLACE(
-                                         BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*(\S+)\s+(\S+).*$', '\2')),
-                                         ',', '', 'g')
+                                         BTRIM(REGEXP_REPLACE(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), '^(\S+)\s+(.*?)\s*(?:,.*)?$', '\2')), ',', '', 'g')
+                                 WHEN ARRAY_LENGTH(STRING_TO_ARRAY(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', '')), ' '), 1) = 2
+                                     THEN REGEXP_REPLACE(BTRIM(REGEXP_REPLACE(sp.name, '^[^,]+,\s*(\S+)\s+(\S+).*$', '\2')), ',', '', 'g')
                                  ELSE ''
         END,
-    firstname              = REGEXP_REPLACE(
-            BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)),
-            ',', '', 'g'
+    firstname = REGEXP_REPLACE(BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)), ',', '', 'g'
                              ),
     preferredfirstname     = CASE
-                                 WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ', (.*) ')
+                                 WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ',(.*) ')
                                  ELSE NULL
         END,
     phone                  = BTRIM(sp.telephone),
@@ -223,9 +205,10 @@ SET file_id                = sp.file_id,
 FROM patron_import.stage_patron sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-WHERE BTRIM(LOWER(sp.unique_id)) = BTRIM(LOWER(p.username))
-  AND sp.fingerprint != p.fingerprint
-  AND sp.esid = p.externalsystemid
+WHERE sp.fingerprint != p.fingerprint
+  AND BTRIM(sp.esid) = BTRIM(p.externalsystemid) -- <== We have to MATCH our ESID
+  AND sp.unique_id != ''
+  AND sp.unique_id is NOT NULL
   AND sp.load
   AND sp.name !~ '0';
 

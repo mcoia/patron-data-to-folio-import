@@ -32,7 +32,7 @@ sub init
 
     $self = initDatabaseConnection($self);
     $self = initDatabaseConnectionDBI($self);
-    initDatabaseSchema($self) if($main::initDB);
+    initDatabaseSchema($self) if ($main::initDB);
 
     return $self;
 
@@ -591,7 +591,7 @@ sub getInstitutionMapHashByName
 
 }
 
-sub getInstitutionsFoldersAndFilesHash
+sub getInstitutionsFoldersAndFilesHashOLD
 {
     my $self = shift;
 
@@ -685,6 +685,79 @@ Also, this is scoped wrong. It needs to be outside this folder loop. This logic 
     $self->{'cache'}->{'institutions'} = \@institutions;
 
     return $self->{'cache'}->{'institutions'};
+
+}
+
+sub getInstitutionsFoldersAndFilesHash
+{
+    my $self = shift;
+    my $institution_id = shift; # Optional parameter
+
+    # Return cached result if available and no specific institution_id is requested
+    return $self->{'cache'}->{'institutions'} if (!$institution_id && defined($self->{'cache'}->{'institutions'}));
+
+    my @institutions = ();
+    my $columns = $self->_getTableColumns("institution");
+
+    my $institution_query = "select $columns from patron_import.institution i";
+    $institution_query .= " WHERE i.id = $institution_id" if $institution_id;
+    $institution_query .= " order by i.id asc";
+
+    for my $institution (@{$self->_convertQueryResultsToHash("institution", $self->query($institution_query))})
+    {
+        my @folders = ();
+        for my $folder (@{$self->_convertQueryResultsToHash("folder", $self->query("
+            SELECT f.id, f.path
+            FROM patron_import.folder f
+            JOIN patron_import.institution_folder_map fm ON fm.folder_id = f.id
+            WHERE fm.institution_id = $institution->{'id'}
+        "))})
+        {
+            my @files = @{$self->_convertQueryResultsToHash("file", $self->query("
+                SELECT *
+                FROM patron_import.file f
+                WHERE f.institution_id = $institution->{'id'}
+                ORDER BY f.id DESC
+            "))};
+
+            push @folders, {
+                'folder_id' => $folder->{'id'},
+                'path'      => $folder->{'path'},
+                'files'     => \@files
+            };
+        }
+
+        my $institutionHash = {
+            'id'      => $institution->{'id'},
+            'enabled' => $institution->{'enabled'},
+            'name'    => $institution->{'name'},
+            'tenant'  => $institution->{'tenant'},
+            'module'  => $institution->{'module'},
+            'esid'    => $institution->{'esid'},
+            'folders' => \@folders
+        };
+
+        push(@institutions, $institutionHash);
+    }
+
+    # Only cache if we're getting all institutions
+    $self->{'cache'}->{'institutions'} = \@institutions unless $institution_id;
+
+    return \@institutions;
+}
+
+sub getFullPathByInstitutionId
+{
+    my $self = shift;
+    my $institution_id = shift;
+
+    my $query = "SELECT f.path || '/patron-import/' || i.abbreviation || '/import' AS full_path
+            FROM patron_import.institution i
+                     JOIN patron_import.institution_folder_map ifm ON i.id = ifm.institution_id
+                     JOIN patron_import.folder f ON ifm.folder_id = f.id
+            WHERE i.id = $institution_id";
+
+    return $self->{db}->query($query)->[0]->[0];
 
 }
 
@@ -1216,6 +1289,35 @@ sub bulkEnableDisable
 
 }
 
+sub startJob
+{
+    my $self = shift;
+    my $stage = shift;
+    my $import = shift;
 
+    my $job = {
+        'job_type'   => "$import$stage",
+        'start_time' => $self->_getCurrentTimestamp,
+        'stop_time'  => $self->_getCurrentTimestamp,
+    };
+
+    $self->_insertHashIntoTable("job", $job);
+    $main::jobID = $self->getLastJobID();
+
+}
+
+sub finishJob
+{
+    my $self = shift;
+   
+    my $timestamp = $self->_getCurrentTimestamp();
+    my $jobID = $main::jobID;
+    my $query = "update $schema.job
+                 set stop_time='$timestamp' where id=$jobID;";
+    print $query if ($main::conf->{print2Console} eq 'true');
+    $self->{db}->update($query);
+    $main::log->addLine("Job $main::jobID finished at $timestamp");
+
+}
 
 1;

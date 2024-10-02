@@ -61,81 +61,88 @@ sub parse
 
     my @parsedPatrons = ();
 
-    for my $file (@{$institution->{'folder'}->{files}})
+    for my $folder (@{$institution->{folders}})
     {
 
-        my $patronCounter = 0;
-        for my $path (@{$file->{'paths'}})
+        # for my $file (@{$institution->{'folder'}->{files}})
+        for my $file (@{$folder->{files}})
         {
 
-            my @patronRecords = ();
-            my @patronRecord = ();
-            my $patronRecordSize = 0;
-
-            # Read our patron file into an array.
-            my $data = $main::files->readFileToArray($path);
-            $self->{debug}->{path} = $path;
-
-            for my $line (@{$data})
+            my $patronCounter = 0;
+            for my $path (@{$file->{'paths'}})
             {
-                # $line =~ s/\s*$//g; # some libraries don't respect the 24 char limit. Whitespace.
-                # if ($line =~ /^0/ && length($line) == 24)
-                if ($line =~ /^0/)
+
+                my @patronRecords = ();
+                my @patronRecord = ();
+                my $patronRecordSize = 0;
+
+                print "Reading file: [$path]\n" if ($main::conf->{print2Console});
+                # Read our patron file into an array.
+                my $data = $main::files->readFileToArray($path);
+                $self->{debug}->{path} = $path;
+
+                for my $line (@{$data})
                 {
-                    $patronRecordSize = @patronRecord;
-                    my @patronRecordCopy = @patronRecord;
-                    push(@patronRecords, \@patronRecordCopy) if ($patronRecordSize > 0);
-                    @patronRecord = ();
+                    # $line =~ s/\s*$//g; # some libraries don't respect the 24 char limit. Whitespace.
+                    # if ($line =~ /^0/ && length($line) == 24)
+                    if ($line =~ /^0/)
+                    {
+                        $patronRecordSize = @patronRecord;
+                        my @patronRecordCopy = @patronRecord;
+                        push(@patronRecords, \@patronRecordCopy) if ($patronRecordSize > 0);
+                        @patronRecord = ();
+                    }
+
+                    push(@patronRecord, $line);
+
                 }
 
-                push(@patronRecord, $line);
+                # Push our last record
+                $patronRecordSize = @patronRecord;
+                push(@patronRecords, \@patronRecord) if ($patronRecordSize > 0);
+
+                # Now we do the actual parsing of this data.
+                for my $record (@patronRecords)
+                {
+
+                    my $patron = $self->_parsePatronRecord($record);
+
+                    # skip if we didn't get a patron
+                    next if (!defined($patron));
+
+                    my $esidBuilder = Parsers::ESID->new($institution, $patron);
+
+                    # Set the External System ID
+                    $patron->{esid} = $esidBuilder->getESID() if (!defined($patron->{esid}) || $patron->{esid} eq '');
+
+                    # skip if we didn't get an esid
+                    next if (!defined($patron->{esid}));
+                    next if ($patron->{esid} eq '');
+
+                    # Note, everything in the patron hash gets 'fingerprinted'.
+                    # id's are basically irrelevant after and may change on subsequent loads. So we don't want
+                    # to finger print id's. job_id being one that WILL change.
+                    $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
+
+                    # set some id's, I decided I needed these for tracking down trash
+                    $patron->{load} = 'true';
+                    $patron->{institution_id} = $institution->{id};
+                    $patron->{file_id} = $file->{id};
+                    $patron->{job_id} = $main::jobID;
+
+                    # We need to check this list for double entries, defined patrons or patrons without any keys.
+                    push(@parsedPatrons, $patron)
+                        unless (grep /$patron->{fingerprint}/, map {$_->{fingerprint}} @parsedPatrons);
+                    $patronCounter++;
+
+                }
 
             }
 
-            # Push our last record
-            $patronRecordSize = @patronRecord;
-            push(@patronRecords, \@patronRecord) if ($patronRecordSize > 0);
-
-            # Now we do the actual parsing of this data.
-            for my $record (@patronRecords)
-            {
-
-                my $patron = $self->_parsePatronRecord($record);
-
-                # skip if we didn't get a patron
-                next if (!defined($patron));
-
-                my $esidBuilder = Parsers::ESID->new($institution, $patron);
-
-                # Set the External System ID
-                $patron->{esid} = $esidBuilder->getESID() if(!defined($patron->{esid}) || $patron->{esid} eq '');
-
-                # skip if we didn't get an esid
-                next if (!defined($patron->{esid}));
-                next if ($patron->{esid} eq '');
-
-                # Note, everything in the patron hash gets 'fingerprinted'.
-                # id's are basically irrelevant after and may change on subsequent loads. So we don't want
-                # to finger print id's. job_id being one that WILL change.
-                $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
-
-                # set some id's, I decided I needed these for tracking down trash
-                $patron->{load} = 'true';
-                $patron->{institution_id} = $institution->{id};
-                $patron->{file_id} = $file->{id};
-                $patron->{job_id} = $main::jobID;
-
-                # We need to check this list for double entries, defined patrons or patrons without any keys.
-                push(@parsedPatrons, $patron)
-                    unless (grep /$patron->{fingerprint}/, map {$_->{fingerprint}} @parsedPatrons);
-                $patronCounter++;
-
-            }
+            print "Total Patrons in $file->{name}: [$patronCounter]\n" if ($main::conf->{print2Console});
+            $main::log->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
 
         }
-
-        print "Total Patrons in $file->{name}: [$patronCounter]\n" if ($main::conf->{print2Console});
-        $main::log->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
 
     }
 

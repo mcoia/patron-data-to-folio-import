@@ -49,12 +49,10 @@ sub main
     $files = FileService->new();
     $dao->_cacheTableColumns();
 
-    startJob();
-
-    $parser = Parser->new()->stagePatronRecords() if ($stage);
-    $folio = FolioService->new()->importPatrons() if ($import);
-
-    finishJob();
+    $dao->startJob();
+    $parser = Parser->new()->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash()) if($stage);
+    $folio = FolioService->new()->importPatronsForEnabledInstitutions() if ($import);
+    $dao->finishJob();
 
 }
 
@@ -93,35 +91,6 @@ sub initLogger
 
     $log = Loghandler->new($logFileName);
     $log->truncFile("");
-}
-
-sub startJob
-{
-
-    my $job = {
-        'job_type'   => "$import$stage",
-        'start_time' => $dao->_getCurrentTimestamp,
-        'stop_time'  => $dao->_getCurrentTimestamp,
-    };
-
-    $dao->_insertHashIntoTable("job", $job);
-    $jobID = $dao->getLastJobID();
-
-}
-
-sub finishJob
-{
-
-    my $schema = $conf->{schema};
-    my $timestamp = $dao->_getCurrentTimestamp();
-    my $query = "update $schema.job
-                 set stop_time='$timestamp' where id=$jobID;";
-
-    # print $query;
-    $dao->{db}->update($query);
-
-    $log->addLine("Job $jobID finished at $timestamp");
-
 }
 
 sub getHelpMessage

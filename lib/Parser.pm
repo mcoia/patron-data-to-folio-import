@@ -4,6 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 no warnings 'uninitialized';
 use Time::HiRes qw(time);
+use List::Util qw(any);
 
 # https://www.perlmonks.org/?node_id=313810
 # we may have to manually import each and every nParser. I couldn't get this to auto require.
@@ -26,7 +27,8 @@ sub stagePatronRecords
 {
     my $self = shift;
 
-    my $institutions = $main::dao->getInstitutionsFoldersAndFilesHash();
+    # this is an array of institutions
+    my $institutions = shift;
 
     # loop over our discovered files.
     for my $institution (@{$institutions})
@@ -43,18 +45,22 @@ sub stagePatronRecords
         my $parser;
         my $createParser = '$parser = Parsers::' . $institution->{module} . '->new();';
         eval $createParser;
-
         # Parser Not working? Don't forget to load it! use Parsers::ParserNameHere;
 
         print "Searching for files...\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Searching for files...\n");
-        print "$institution->{name}: $institution->{folder}->{path}\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("$institution->{name}: $institution->{folder}->{path}\n");
 
-        # We need the files associated with this institution. I feel this should return $institution.
-        $main::files->patronFileDiscovery($institution);
 
         # The $institution now contains the files needed for parsing. Thanks patronFileDiscovery!
+        # We still need to skip the files in our buildDropboxFolderStructureByInstitutionId
+        $main::files->patronFileDiscovery($institution);
+
+        my $dropboxFolder = $main::files->buildDropboxFolderByInstitutionId($institution->{id});
+
+        # We push everything into the institution->folder and then iterate thru removing duplicates.
+        push(@{$institution->{folders}}, $dropboxFolder);
+        $self->removeDuplicatePaths($institution);
+
         # Parse the file records
         my $patronRecords = $parser->parse($institution);
 
@@ -82,23 +88,51 @@ sub stagePatronRecords
     return $self;
 }
 
+sub removeDuplicatePaths
+{
+    my $self = shift;
+    my $institution = shift;
+
+    my %allUniquePaths;
+
+    foreach my $folder (@{$institution->{folders}})
+    {
+        foreach my $file (@{$folder->{files}})
+        {
+            my @uniqueFilePaths;
+            foreach my $path (@{$file->{paths}})
+            {
+                unless (exists $allUniquePaths{$path})
+                {
+                    $allUniquePaths{$path} = 1;
+                    push @uniqueFilePaths, $path;
+                }
+            }
+            $file->{paths} = \@uniqueFilePaths;
+        }
+    }
+}
+
 sub deletePatronFiles
 {
     my $self = shift;
     my $institution = shift;
 
-    for my $file (@{$institution->{folder}->{files}})
+    for my $folder (@{$institution->{folders}})
     {
-        for my $filePath (@{$file->{paths}})
+        for my $file (@{$folder->{files}})
         {
+            for my $filePath (@{$file->{paths}})
+            {
 
-            print "deleting file: [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
-            $main::log->addLine("deleting file: [$filePath]");
+                print "deleting file: [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
+                $main::log->addLine("deleting file: [$filePath]");
 
-            unlink $filePath;
+                unlink $filePath;
+
+            }
 
         }
-
     }
 
     return $self;

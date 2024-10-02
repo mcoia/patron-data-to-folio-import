@@ -111,11 +111,29 @@ sub HTTPRequest
 
 }
 
+sub importPatronsForEnabledInstitutions
+{
+    my $self = shift;
+    my $institutions = $main::dao->getInstitutionsHashByEnabled();
+    $self->importPatrons($institutions);
+
+}
+
+sub importPatronsByInstitutionId
+{
+    my $self = shift;
+    my $institution_id = shift;
+
+    my $institution = $main::dao->getInstitutionHashById($institution_id);
+    my @institutions = ($institution);
+    $self->importPatrons(\@institutions);
+
+}
+
 sub importPatrons
 {
     my $self = shift;
-
-    my $institutions = $main::dao->getInstitutionsHashByEnabled();
+    my $institutions = shift;
 
     for my $institution (@{$institutions})
     {

@@ -160,90 +160,138 @@ sub patronFileDiscovery
     my $self = shift;
     my $institution = shift;
 
-
-    # Grab all the files in the institution folder path
-    my @files = ();
-
-    # This is our File::Find module. This thing is super fast!
-    try
-    {find(sub {push(@files, $File::Find::name)}, $institution->{'folder'}->{'path'});}
-    catch
-    {
-        print "Could not find this folder path! $institution->{'folder'}->{'path'}\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Could not find this folder path! $institution->{'folder'}->{'path'}");
-    };
-
-    for my $file (@{$institution->{'folder'}->{files}})
+    for my $folder (@{$institution->{folders}})
     {
 
-        # Skip files that are 'n/a'
-        next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '' || !defined($file->{'pattern'}));
-        print "Looking for pattern: [$file->{pattern}]\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Looking for pattern: [$file->{pattern}]");
+        # Grab all the files in the institution folder path
+        my @files = ();
 
-        my @paths = ();
-        foreach (@files)
+        # This is our File::Find module. This thing is super fast!
+        try
+        {find(sub {push(@files, $File::Find::name)}, $folder->{'path'});}
+        catch
         {
-            my $thisFullPath = $_;
-            my @frags = split(/\//, $thisFullPath);
-            my $filename = pop @frags;
-            push(@paths, $thisFullPath) if ($filename =~ /$file->{pattern}/i);
-            undef $thisFullPath;
-            undef @frags;
-        }
+            print "Could not find this folder path! $folder->{'path'}\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("Could not find this folder path! $folder->{'path'}");
+        };
 
-        if (@paths)
+        for my $file (@{$folder->{files}})
         {
-            for my $path (@paths)
+
+            # Skip files that are 'n/a'
+            next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '' || !defined($file->{'pattern'}));
+
+            print "Looking for pattern: [$file->{pattern}]\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("Looking for pattern: [$file->{pattern}]");
+
+            my @paths = ();
+            foreach (@files)
             {
+                my $thisFullPath = $_;
+                my @frags = split(/\//, $thisFullPath);
+                my $filename = pop @frags;
+                push(@paths, $thisFullPath) if ($filename =~ /$file->{pattern}/i);
+                undef $thisFullPath;
+                undef @frags;
+            }
 
-                # Check if we're a file
-                if (-f $path)
+            if (@paths)
+            {
+                for my $path (@paths)
                 {
 
-                    print "File Found: [$institution->{name}]:[$path]\n" if ($main::conf->{print2Console} eq 'true');
-                    $main::log->addLine("File Found: [$institution->{'folder'}->{'path'}]:[$path]");
-
-                    my $pathHash = {
-                        'job_id'         => $main::jobID,
-                        'institution_id' => $institution->{'id'},
-                        'path'           => $path,
-                        'size'           => (stat($path))[7],
-                        'lastModified'   => (stat($path))[9],
-                        'contents'       => $self->readFileAsString($path)
-                    };
-
-                    # we're going to skip files older than n days. Setting in conf file.
-                    my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
-
-                    # if $path contains the word test skip
-                    if (lc $path =~ /test/)
+                    # Check if we're a file
+                    if (-f $path)
                     {
-                        print "File contains the word test. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
-                        $main::log->addLine("File contains the word test. Skipping.");
-                        next;
-                    }
 
-                    # check our file dates for old files.
-                    if (time > $pathHash->{lastModified} + $maxPatronFileAge)
-                    {
-                        print "File is older than 3 months. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
-                        $main::log->addLine("File is older than 3 months. Skipping.");
-                        next;
-                    }
+                        print "File Found: [$institution->{name}]:[$path]\n" if ($main::conf->{print2Console} eq 'true');
+                        $main::log->addLine("File Found: [$folder->{'path'}]:[$path]");
 
-                    $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
+                        my $pathHash = $self->buildPathHash($path, $institution->{'id'});
+
+                        # we're going to skip files older than n days. Setting in conf file.
+                        my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
+
+                        # if $path contains the word test skip
+                        if (lc $path =~ /test/)
+                        {
+                            print "File contains the word test. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
+                            $main::log->addLine("File contains the word test. Skipping.");
+                            next;
+                        }
+
+                        # check our file dates for old files.
+                        if (time > $pathHash->{lastModified} + $maxPatronFileAge)
+                        {
+                            print "File is older than 3 months. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
+                            $main::log->addLine("File is older than 3 months. Skipping.");
+                            next;
+                        }
+
+                        $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
+
+                    }
 
                 }
 
             }
 
-        }
+            $file->{paths} = \@paths;
 
-        $file->{paths} = \@paths;
+        }
 
     }
 
+}
+
+sub buildDropboxFolderByInstitutionId
+{
+    my $self = shift;
+    my $institution_id = shift;
+
+    my $dropboxSpecificInstitutionDirectoryPath = $main::dao->getFullPathByInstitutionId($institution_id);
+
+    my @files;
+
+    # Define the wanted subroutine here, with access to @files
+    my $wanted = sub {
+        push @files, $File::Find::name if -f; # Only add files, avoiding directories
+    };
+
+    try
+    {
+        find($wanted, $dropboxSpecificInstitutionDirectoryPath); # Find all files in the specified path
+    }
+    catch
+    {};
+
+    my $folder = {
+        path  => $dropboxSpecificInstitutionDirectoryPath,
+        files => []
+    };
+
+    for my $filePath (@files)
+    {
+
+        # Assuming $filePath is defined and contains the path of the file
+        my $fileName = $filePath;
+        $fileName =~ s|.*/||; # This regex matches everything up to the last '/' and removes it, leaving just the file name
+
+        my @filePathArray = ();
+        push @filePathArray, $filePath;
+
+        push @{$folder->{files}}, {
+            paths => \@filePathArray,
+            name  => $fileName
+
+        };
+
+        # now insert this file into our file tracker table.
+        $main::dao->_insertHashIntoTable("file_tracker", $self->buildPathHash($filePath, $institution_id));
+
+    }
+
+    return $folder;
 }
 
 sub _loadCSVFileAsArray
@@ -629,6 +677,23 @@ sub checkAndConvertIfNeeded
     {
         print "File '$filePath' does not contain \\r line endings. No conversion needed.\n" if ($main::conf->{print2Console} eq 'true');
     }
+
+}
+
+sub buildPathHash
+{
+    my $self = shift;
+    my $path = shift;
+    my $institution_id = shift;
+
+    return {
+        'job_id'         => $main::jobID,
+        'institution_id' => $institution_id,
+        'path'           => $path,
+        'size'           => (stat($path))[7],
+        'lastModified'   => (stat($path))[9],
+        'contents'       => $self->readFileAsString($path)
+    };
 
 }
 

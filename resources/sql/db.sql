@@ -9,7 +9,8 @@ create table if not exists patron_import.institution
     module       text,
     esid         text,
     emailSuccess text,
-    emailFail    text
+    emailFail    text,
+    abbreviation text
 );
 
 create table if not exists patron_import.folder
