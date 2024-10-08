@@ -197,6 +197,7 @@ sub _parsePatronRecord
         'patron_block_code'      => "",
         'patron_expiration_date' => "",
         'name'                   => "",
+        'preferred_name'         => "",
         'address'                => "",
         'telephone'              => "",
         'address2'               => "",

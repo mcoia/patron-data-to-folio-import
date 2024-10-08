@@ -52,6 +52,8 @@ sub sendEmail
 {
     my $self = shift;
 
+    return $self if($main::conf->{sendEmail});
+
     my $emailAddresses = $self->{institution}->{emailsuccess};
 
     # We don't have any email address to send too!

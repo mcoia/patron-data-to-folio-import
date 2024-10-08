@@ -19,6 +19,18 @@ WHERE p.preferredfirstname IS NULL
    OR (p.preferredfirstname IS NOT NULL
     AND p.preferredfirstname != SUBSTRING((regexp_match(p.raw_data, '^s(.*)$', 'm'))[1] FROM ', (.*) '));
 
+
+
+-- Update preferred names from raw where the ^s is present but the preferredfirstname is null
+UPDATE patron_import.patron p
+SET preferredfirstname = TRIM((regexp_match(p.raw_data, '^s(.*)$', 'm'))[1]),
+    ready              = true
+WHERE
+    p.preferredfirstname IS NULL
+  AND (regexp_match(p.raw_data, '^s(.*)$', 'm'))[1] IS NOT NULL
+  AND TRIM((regexp_match(p.raw_data, '^s(.*)$', 'm'))[1]) != '';
+
+
 ----------------------------------------
 -- Update phone numbers from raw
 UPDATE patron_import.patron p

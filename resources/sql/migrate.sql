@@ -207,6 +207,7 @@ FROM patron_import.stage_patron sp
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
 WHERE sp.fingerprint != p.fingerprint
   AND BTRIM(sp.esid) = BTRIM(p.externalsystemid) -- <== We have to MATCH our ESID
+  AND sp.institution_id = p.institution_id
   AND sp.unique_id != ''
   AND sp.unique_id is NOT NULL
   AND sp.load
