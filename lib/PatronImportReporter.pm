@@ -52,7 +52,7 @@ sub sendEmail
 {
     my $self = shift;
 
-    return $self if($main::conf->{sendEmail});
+    return $self if($main::conf->{sendEmail} eq 'false');
 
     my $emailAddresses = $self->{institution}->{emailsuccess};
 
