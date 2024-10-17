@@ -244,7 +244,7 @@ sub patronFileDiscovery
 
 }
 
-sub buildDropboxFolderByInstitutionId
+sub patronFileDiscoverySpecificFolder
 {
     my $self = shift;
     my $institution_id = shift;

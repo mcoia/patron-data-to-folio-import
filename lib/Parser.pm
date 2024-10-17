@@ -55,7 +55,7 @@ sub stagePatronRecords
         # We still need to skip the files in our buildDropboxFolderStructureByInstitutionId
         $main::files->patronFileDiscovery($institution);
 
-        my $dropboxFolder = $main::files->buildDropboxFolderByInstitutionId($institution->{id});
+        my $dropboxFolder = $main::files->patronFileDiscoverySpecificFolder($institution->{id});
 
         # We push everything into the institution->folder and then iterate thru removing duplicates.
         push(@{$institution->{folders}}, $dropboxFolder);
