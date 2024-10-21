@@ -465,3 +465,12 @@ CREATE OR REPLACE TRIGGER update_date_trigger
     ON patron_import.patron
     FOR EACH ROW
 EXECUTE PROCEDURE patron_import.update_date_trigger_function();
+
+-- Constraints
+-- ESID is unique per institution
+ALTER TABLE patron_import.patron
+    ADD CONSTRAINT unique_esid_per_institution UNIQUE (institution_id, externalsystemid);
+
+-- username is unique across all institutions
+ALTER TABLE patron_import.patron
+    ADD CONSTRAINT unique_username UNIQUE (username);

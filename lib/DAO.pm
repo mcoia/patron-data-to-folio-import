@@ -151,12 +151,23 @@ sub _initDatabaseCache
 
 sub query
 {
+
     my $self = shift;
     my $query = shift;
 
-    return $self->{db}->query($query);
+    my $result = eval {
+        $self->{db}->query($query);
+    };
+
+    if ($@) {
+        $main::log->addLine("Database error: $@");
+        return undef;
+    }
+
+    return $result;
 
 }
+
 
 sub queryAsHash
 {
@@ -1309,7 +1320,7 @@ sub startJob
 sub finishJob
 {
     my $self = shift;
-   
+
     my $timestamp = $self->_getCurrentTimestamp();
     my $jobID = $main::jobID;
     my $query = "update $schema.job

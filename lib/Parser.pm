@@ -249,20 +249,63 @@ sub migrate
     my $self = shift;
 
     my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
-    $main::dao->query($query);
+
+    my $result = eval {
+        $main::dao->query($query);
+    };
+    if ($@ || !$result)
+    {
+        $main::log->addLine("Error executing migration SQL: " . ($@ || "Unknown error"));
+        return 0; # Indicate failure
+    }
 
     # check the size of stage_patron
     if ($main::dao->getStagePatronCount() > 0)
     {
-
         $main::log->addLine("Something went wrong! We did not truncate the stage_patron table.");
-
-        # Send me an email. Bug... This isn't right
-        # my $email = MOBIUS::Email->new($main::conf->{fromAddress}, [ $main::conf->{programFailEmailTo} ], 0, 0);
-        # $email->send("patron-load HALT!", "We failed!!!!");
-        exit;
+        $self->sendMigrationFailureEmail();
+        $main::log->addLine("Exiting...");
+        exit; # -- We have to halt execution and exit immediately.
     }
 
+    return 1;
+}
+
+sub sendMigrationFailureEmail
+{
+
+    my $self = shift;
+
+    # Send an email with the log file attached to the admin.
+    my $adminEmail = $main::conf->{adminEmail};
+    my @emailAddresses;
+    push(@emailAddresses, $adminEmail);
+
+    $main::log->addLine("We have failed to migrate the records. Sending email to: [$adminEmail]");
+    my $email = MOBIUS::Email->new($main::conf->{fromAddress}, \@emailAddresses, 0, 0);
+    my $log = $main::files->readFileAsString($main::log->{_file});
+
+    my $logAsHTML = $self->convertLogToHTML($log);
+    my $html = "<html lang=\"en\"><body>$logAsHTML</body></html>";
+
+    $email->sendHTML("Patron Loads FAILED!!!", "MOBIUS", $log);
+
+}
+
+sub convertLogToHTML
+{
+    my $self = shift;
+    my $log = shift;
+
+    # split $log on \n. Iterate over each line wrapping it in a <p>{{line}}</p> tags.
+    my @lines = split(/\n/, $log);
+    my $html = "";
+    for my $line (@lines)
+    {
+        $html .= "<p>$line</p>";
+    }
+
+    return $html;
 }
 
 1;

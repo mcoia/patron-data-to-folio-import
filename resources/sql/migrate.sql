@@ -1,3 +1,4 @@
+BEGIN;
 ------------------------
 -- Stage Patron Clean Up
 ------------------------
@@ -207,6 +208,7 @@ FROM patron_import.stage_patron sp
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
 WHERE sp.fingerprint != p.fingerprint
   AND BTRIM(sp.esid) = BTRIM(p.externalsystemid) -- <== We have to MATCH our ESID
+  AND sp.institution_id = p.institution_id
   AND sp.unique_id != ''
   AND sp.unique_id is NOT NULL
   AND sp.load
@@ -275,3 +277,5 @@ WHERE patrongroup IS NULL;
 -- I like having this here. after we run this SQL file, we check the size of stage_patron
 -- if we still have patrons in this table we halt execution. Something went wrong.
 TRUNCATE patron_import.stage_patron;
+
+COMMIT;
