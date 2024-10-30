@@ -31,3 +31,7 @@ ALTER TABLE patron_import.patron ADD COLUMN IF NOT EXISTS departments TEXT[];
 -- We need to alter the existing column and convert it into an array.
 -- UPDATE patron_import.stage_patron SET department = NULL;
 ALTER TABLE patron_import.stage_patron ALTER COLUMN department TYPE text[];
+
+
+UPDATE patron_import.institution SET module = 'SierraParser' WHERE module = 'GenericParser';
+
