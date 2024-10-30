@@ -102,7 +102,14 @@ sub updateWithParameters
         {
             $param = undef;
         }
-        $q->bind_param($i, $param);
+        # Check if parameter is an array reference
+        if (ref($param) eq 'ARRAY') {
+            # Use bind_param with the special array type from DBD::Pg
+            $q->bind_param($i, $param, { pg_type => DBD::Pg::PG_VARCHAR . '[]' });
+        }
+        else {
+            $q->bind_param($i, $param);
+        }
         $i++;
     }
     my $ret = $q->execute();

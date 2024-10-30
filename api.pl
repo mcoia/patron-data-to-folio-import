@@ -16,14 +16,14 @@ use JSON;
 use MOBIUS::Utils;
 use FileService;
 use FolioService;
-use Parser;
+use ParserManager;
 use DAO;
 
 $| = 1;  # Disable output buffering on STDOUT
 
 my $configFile;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $getFolioUserByUsername, $getFolioUserByESID, $getFolioPatronGroupByInstitutionId, $processInstitutionId);
+our ($conf, $log, $dao, $files, $parserManager, $folio, $getFolioUserByUsername, $getFolioUserByESID, $getFolioPatronGroupByInstitutionId, $processInstitutionId);
 
 GetOptions(
     "config=s"                             => \$configFile,
@@ -108,7 +108,7 @@ sub instantiateObjects
     $dao = DAO->new();
     $files = FileService->new();
     $dao->_cacheTableColumns();
-    $parser = Parser->new();
+    $parserManager = ParserManager->new();
     $folio = FolioService->new();
 }
 
@@ -124,7 +124,7 @@ sub processInstitutionId
 
     $dao->startJob();
 
-    $parser->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash($institution_id));
+    $parserManager->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash($institution_id));
     $folio->importPatronsByInstitutionId($institution_id);
 
     $dao->finishJob();

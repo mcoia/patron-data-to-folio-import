@@ -1,4 +1,4 @@
-package Parsers::GenericParser;
+package Parsers::SierraParser;
 use strict;
 use warnings FATAL => 'all';
 use Data::Dumper;
@@ -6,13 +6,29 @@ use MOBIUS::Utils;
 use JSON;
 use Try::Tiny;
 
-use parent 'Parser';
+use parent 'Parsers::ParserInterface';
 
 sub new
 {
     my $class = shift;
-    my $self = {};
+    my $self = {
+        institution => shift,
+    };
     bless $self, $class;
+    return $self;
+}
+
+sub onInit
+{
+    my $self = shift;
+    print "Parser onInit not implemented\n" if ($main::conf->{print2Console} eq 'true');
+    return $self;
+}
+
+sub beforeParse
+{
+    my $self = shift;
+    print "Parser beforeParse not implemented\n" if ($main::conf->{print2Console} eq 'true');
     return $self;
 }
 
@@ -57,14 +73,14 @@ sub parse
 {
 
     my $self = shift;
-    my $institution = shift;
+
+    my $institution = $self->{institution};
 
     my @parsedPatrons = ();
 
     for my $folder (@{$institution->{folders}})
     {
 
-        # for my $file (@{$institution->{'folder'}->{files}})
         for my $file (@{$folder->{files}})
         {
 
@@ -122,13 +138,13 @@ sub parse
                     # Note, everything in the patron hash gets 'fingerprinted'.
                     # id's are basically irrelevant after and may change on subsequent loads. So we don't want
                     # to finger print id's. job_id being one that WILL change.
-                    $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
+                    $patron->{fingerprint} = $main::parserManager->getPatronFingerPrint($patron);
 
                     # set some id's, I decided I needed these for tracking down trash
                     $patron->{load} = 'true';
                     $patron->{institution_id} = $institution->{id};
-                    $patron->{file_id} = $file->{id};
                     $patron->{job_id} = $main::jobID;
+                    $patron->{file_id} = $main::dao->getFileTrackerIDByJobIDAndFilePath($path);
 
                     # We need to check this list for double entries, defined patrons or patrons without any keys.
                     push(@parsedPatrons, $patron)
@@ -146,6 +162,7 @@ sub parse
 
     }
 
+    $self->{parsedPatrons} = \@parsedPatrons;
     return \@parsedPatrons;
 
 }
@@ -208,6 +225,8 @@ sub _parsePatronRecord
         'email_address'          => "",
         'note'                   => "",
         'esid'                   => "",
+        'custom_fields'          => "",
+        'department'             => "{}",
     };
 
     # loop thru our patron record
@@ -439,7 +458,11 @@ sub _parsePatronRecord
         # MOBIUS systems use this field to provide a library return address for INN-Reach (Direct Patron) Request notices.
         # This is a local adaptation and is not documented in the User Manual. Enter the same three-character bibliographic
         # location code used in the Home Library fixed field in lower case letters. Do not follow it with blank spaces.
-        $patron->{'department'} = ($data =~ /^d(.*)$/gm)[0] if ($data =~ /^d/);
+        # $patron->{'department'} = ($data =~ /^d(.*)$/gm)[0] if ($data =~ /^d/);
+        $patron->{'department'} = $self->_parseDepartment($data) if ($data =~ /^d/);
+
+        # Custom Fields
+        $patron->{'custom_fields'} = $self->_parseCustomFields($data) if ($data =~ /^c/);
 
         # Unique ID
         # This is an extremely important field for patron records in a MOBIUS system. Whether a record is loaded or keyed
@@ -498,6 +521,90 @@ sub _parsePatronRecord
 
     return undef if ($isParsed == 0);
     return $patron;
+}
+
+sub _parseDepartment
+{
+    my $self = shift;
+    my $data = shift;
+
+    # instead of returning an empty array we return an empty string.
+    # this will get filtered out in the import.
+    return "{}" if ($data !~ /<department>/);
+
+    my @departments;
+    while ($data =~ /<department>([^<]+)/g)
+    {
+        my $department = $1;
+        $department =~ s/^\s+|\s+$//g;
+        push @departments, $department;
+    }
+
+    return encode_json(\@departments);
+}
+
+sub _parseCustomFields
+{
+
+    my $self = shift;
+    my $data = shift;
+    my $customFields = {};
+
+    return "" if ($data !~ /<fieldname>/);
+
+    # Split the data into chunks based on the <fieldname> tag
+    my @fields = split(/<fieldname>/, $data);
+
+    # Skip 'c'
+    shift @fields;
+
+    foreach my $field (@fields)
+    {
+
+        # Extract field name
+        my ($fieldName) = $field =~ /^([^<]+)/;
+        $fieldName =~ s/^\s+|\s+$//g;
+
+        # Extract values
+        my @values = $field =~ /<value>([^<]+)/g;
+
+        $customFields->{$fieldName} = \@values if @values;
+    }
+
+    my $json = encode_json($customFields);
+
+    # remove the outer { } curly braces from the json string
+    $json =~ s/^{(.*)}$/$1/g;
+    return $json;
+
+    # print Dumper($customFields);
+    # return $customFields;
+
+}
+
+sub afterParse
+{
+    my $self = shift;
+    print "Parser afterParse not implemented\n" if ($main::conf->{print2Console} eq 'true');
+    return $self;
+}
+
+sub finish
+{
+    my $self = shift;
+    print "Parser finish not implemented\n" if ($main::conf->{print2Console} eq 'true');
+    return $self;
+}
+
+sub getPatronFingerPrint
+{
+    # On the off chance this getHash() function doesn't work as expected we
+    # can just update this method to point to something else.
+
+    my $self = shift;
+    my $patron = shift;
+    return MOBIUS::Utils->new()->getHash($patron);
+
 }
 
 1;

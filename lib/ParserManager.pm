@@ -1,15 +1,13 @@
-package Parser;
+package ParserManager;
 
 use strict;
 use warnings FATAL => 'all';
 no warnings 'uninitialized';
 use Time::HiRes qw(time);
 use List::Util qw(any);
-
-# https://www.perlmonks.org/?node_id=313810
-# we may have to manually import each and every nParser. I couldn't get this to auto require.
-
-use Parsers::GenericParser;
+use Parsers::SierraParser;
+use Parsers::CovenantParser;
+use Parsers::TrumanParser;
 use Parsers::ESID;
 use MOBIUS::Utils;
 
@@ -38,18 +36,18 @@ sub stagePatronRecords
         next if (!$institution->{enabled});
 
         # Get our Parser Module that's stored in the database column 'module' in the institution table
-        my $module = "GenericParser"; # default to generic
+        my $module = "SierraParser"; # default to generic
         $module = $institution->{module} if ($institution->{module} ne '' || $institution->{module} ne undef);
 
         # Build the parser module.
         my $parser;
-        my $createParser = '$parser = Parsers::' . $institution->{module} . '->new();';
+        my $createParser = '$parser = Parsers::' . $institution->{module} . '->new($institution);';
+        print "Creating parser: [$createParser]\n" if ($main::conf->{print2Console} eq 'true');
         eval $createParser;
         # Parser Not working? Don't forget to load it! use Parsers::ParserNameHere;
 
         print "Searching for files...\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Searching for files...\n");
-
 
         # The $institution now contains the files needed for parsing. Thanks patronFileDiscovery!
         # We still need to skip the files in our buildDropboxFolderStructureByInstitutionId
@@ -61,14 +59,18 @@ sub stagePatronRecords
         push(@{$institution->{folders}}, $dropboxFolder);
         $self->removeDuplicatePaths($institution);
 
-        # Parse the file records
-        my $patronRecords = $parser->parse($institution);
+        # Our parsers life cycle hooks
+        $parser->onInit();
+        $parser->beforeParse();
+        $parser->parse();
+        $parser->afterParse();
+        $parser->finish();
 
         # Save these records to the database
-        $parser->saveStagedPatronRecords($patronRecords);
+        $self->saveStagedPatronRecords($parser->{parsedPatrons});
 
         # some debug metrics
-        my $totalPatrons = scalar(@{$patronRecords});
+        my $totalPatrons = scalar(@{$parser->{parsedPatrons}});
         print "Total Patrons: [$totalPatrons]\n" if ($main::conf->{print2Console} eq 'true');
         print "Migrating records to final table...\n" if ($main::conf->{print2Console} eq 'true');
         print "================================================================================\n\n" if ($main::conf->{print2Console} eq 'true');
@@ -77,10 +79,6 @@ sub stagePatronRecords
 
         # We migrate records here, truncating the table after each loop
         $self->migrate();
-
-        # I've went a few rounds with this. This is where the delete patron file should go.
-        # I was going to delete them all at once but what if we crash on a patron file for some reason?
-        # Files won't get deleted. If we crash on a file, I want all previous files to have been removed.
         $self->deletePatronFiles($institution) if ($main::conf->{deleteFiles} eq 'true');
 
     }
@@ -253,6 +251,7 @@ sub migrate
     my $result = eval {
         $main::dao->query($query);
     };
+
     if ($@ || !$result)
     {
         $main::log->addLine("Error executing migration SQL: " . ($@ || "Unknown error"));
@@ -263,8 +262,8 @@ sub migrate
     if ($main::dao->getStagePatronCount() > 0)
     {
         $main::log->addLine("Something went wrong! We did not truncate the stage_patron table.");
-        $self->sendMigrationFailureEmail();
         $main::log->addLine("Exiting...");
+        $self->sendMigrationFailureEmail();
         exit; # -- We have to halt execution and exit immediately.
     }
 

@@ -1,4 +1,5 @@
-BEGIN;
+-- BEGIN;
+
 ------------------------
 -- Stage Patron Clean Up
 ------------------------
@@ -119,6 +120,8 @@ INSERT INTO patron_import.patron (institution_id,
                                   phone,
                                   mobilephone,
                                   preferredcontacttypeid,
+                                  departments,
+                                  custom_fields,
                                   expirationdate)
 SELECT sp.institution_id,
        sp.file_id,
@@ -143,12 +146,14 @@ SELECT sp.institution_id,
        )                                         AS "firstname",
        CASE
            WHEN sp.preferred_name IS NULL OR sp.preferred_name = '' THEN NULL
-           WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ',(.*) ')
-           ELSE sp.preferred_name
+           WHEN sp.preferred_name LIKE '%, %' THEN BTRIM(SUBSTRING(sp.preferred_name FROM ',(.*) '))
+           ELSE BTRIM(sp.preferred_name)
            END,
        BTRIM(sp.telephone),
        BTRIM(sp.telephone2),
        'email',
+       sp.department,
+       sp.custom_fields,
        CASE
            WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' THEN sp.patron_expiration_date::DATE::TEXT
            ELSE NULL
@@ -160,6 +165,10 @@ FROM patron_import.stage_patron sp
 WHERE p2.id IS NULL
   AND sp.unique_id IS NOT NULL
   AND sp.unique_id != ''
+
+  -- is this right? We can't insert a patron that already exists in the patron table with the same username
+  AND sp.unique_id NOT IN (SELECT BTRIM(LOWER(username)) FROM patron_import.patron where username = sp.unique_id)
+
   AND sp.esid IS NOT NULL
   AND sp.esid != ''
   AND sp.load
@@ -187,7 +196,7 @@ SET file_id                = sp.file_id,
     firstname = REGEXP_REPLACE(BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)), ',', '', 'g'
                              ),
     preferredfirstname     = CASE
-                                 WHEN sp.preferred_name LIKE '%, %' THEN SUBSTRING(sp.preferred_name FROM ',(.*) ')
+                                 WHEN sp.preferred_name LIKE '%, %' THEN BTRIM(SUBSTRING(sp.preferred_name FROM ',(.*) '))
                                  ELSE NULL
         END,
     phone                  = BTRIM(sp.telephone),
@@ -198,6 +207,8 @@ SET file_id                = sp.file_id,
     raw_data               = sp.raw_data,
     address1_one_liner     = sp.address,
     address2_one_liner     = sp.address2,
+    departments            = sp.department,
+    custom_fields          = sp.custom_fields,
     expirationdate         = CASE
                                  WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
                                      THEN sp.patron_expiration_date::DATE::TEXT
@@ -278,4 +289,4 @@ WHERE patrongroup IS NULL;
 -- if we still have patrons in this table we halt execution. Something went wrong.
 TRUNCATE patron_import.stage_patron;
 
-COMMIT;
+-- COMMIT;

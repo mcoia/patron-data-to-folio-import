@@ -16,13 +16,13 @@ use JSON;
 use MOBIUS::Utils;
 use FileService;
 use FolioService;
-use Parser;
+use ParserManager;
 use DAO;
 
 my $configFile;
 my $help;
 
-our ($conf, $log, $dao, $files, $parser, $folio, $jobID, $import, $stage, $test, $initDB);
+our ($conf, $log, $dao, $files, $parserManager, $folio, $jobID, $import, $stage, $test, $initDB);
 
 GetOptions(
     "config=s" => \$configFile,
@@ -50,8 +50,12 @@ sub main
     $dao->_cacheTableColumns();
 
     $dao->startJob();
-    $parser = Parser->new()->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash()) if($stage);
-    $folio = FolioService->new()->importPatronsForEnabledInstitutions() if ($import);
+    $folio = FolioService->new();
+    $parserManager = ParserManager->new();
+
+    $parserManager->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash()) if ($stage);
+    $folio->importPatronsForEnabledInstitutions() if ($import);
+
     $dao->finishJob();
 
 }

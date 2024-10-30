@@ -1043,17 +1043,15 @@ sub generateRandomString
     return $ret;
 }
 
-sub generateRandomString_v2 {
+sub generateRandomString_v2
+{
     my $length = shift;
 
-    my @chars = ('a'..'z', 'A'..'Z', 0..9);
+    my @chars = ('a' .. 'z', 'A' .. 'Z', 0 .. 9);
     my $random_string = '';
-    foreach (1..$length) {
-        $random_string .= $chars[rand @chars];
-    }
+    foreach (1 .. $length) {$random_string .= $chars[rand @chars];}
     return $random_string;
 }
-
 
 sub getHash
 {

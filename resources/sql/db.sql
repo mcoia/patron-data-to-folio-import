@@ -82,7 +82,8 @@ create table if not exists patron_import.stage_patron
     barcode                text,
     email_address          text,
     note                   text,
-    preferred_name         text
+    preferred_name         text,
+    custom_fields          text
 );
 
 create table if not exists patron_import.patron
@@ -118,8 +119,16 @@ create table if not exists patron_import.patron
     dateofbirth            text,
     preferredcontacttypeid text,
     enrollmentdate         text,
-    expirationdate         text
+    expirationdate         text,
+    departments            text[],
+
+    -- custom fields are stored as json but in a text field. We don't need the jsonb type as we're not searching this column.
+    -- So the idea is we build a perl hash and convert that into json for storage, on retrieval we'll convert json->perl hash
+    -- this way we can store complex datasets without busting this up into another table, doing complex joins and overly complicating this field.
+    -- we just need the custom field data which consist of a
+    custom_fields          text
 );
+
 
 create table if not exists patron_import.address
 (
@@ -300,7 +309,7 @@ DECLARE
     one_liner          TEXT;
     array_setup        TEXT[];
     primary_address    BOOLEAN := TRUE;
-    address_type       TEXT := 'Address 1';
+    address_type       TEXT    := 'Address 1';
 
 BEGIN
 

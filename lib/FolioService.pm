@@ -172,22 +172,20 @@ sub importPatrons
             print "Total Records:[$totalRecords]\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->add("Total Records:[$totalRecords]");
 
+            # should I have a json builder class?
             my $json = "";
             for my $patron (@{$patrons})
-            {$json .= $self->_buildPatronJSON($patron);}
-            chop($json);
+            {$json .= $self->_buildPatronJSON($patron) . ",";}
             chop($json);
 
-            # Remove the empty fields from the json
+            # Build out the final json
             $json = $self->_buildFinalJSON($json, $totalRecords);
-            $json = $self->_removeIllegalChars($json);
-            $json = decode_json($json);
-            $json = remove_empty_fields($json);
-            $json = encode_json($json);
+            $json = $self->_removeIllegalChars($json); # <== this should already be done in the buildPatronJSON method
 
             # ship it!
             print "sending json to folio...\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->add("sending json to folio...");
+            $main::log->add($json);
             my $response = $self->_importIntoFolioUserImport($tenant, $json);
 
             # Deal with the response
@@ -297,72 +295,6 @@ sub importPatrons
 
 }
 
-# This doesn't seem to be working as expected.
-sub _removeEmptyFields
-{
-    my $self = shift;
-    my $json = shift;
-
-    $json = encode('UTF-8', $json);
-
-    my $perlJSON = "";
-
-    try
-    {
-        $perlJSON = decode_json($json);
-    }
-    catch
-    {
-        $main::log->addLine("FAILED DECODE");
-        $main::log->addLine($json);
-        exit;
-    };
-
-    for my $user (@{$perlJSON->{users}})
-    {
-
-        # loop thru the $user hash and print out the key value pairs
-        while (my ($k, $v) = each %$user)
-        {
-            delete($user->{$k}) if (!defined($v) || $v eq '');
-
-            # clean up this null garbage
-            my $addresses = $user->{personal}->{addresses};
-            my @indexesToRemove = ();
-
-            my $index = 0;
-            for my $address (@{$addresses})
-            {
-                while (my ($ak, $av) = each %$address)
-                {delete $address->{$ak} if (!defined($av) || $av eq 'null');}
-
-                # if we're only 1 key in this hash it's the primaryAddress field and we need to remove it.
-                delete($address->{primaryAddress}) if (scalar(keys %$address) == 1);
-
-                # if $address only contains 1 element add the index to @indexesToRemove
-                push(@indexesToRemove, $index) if (scalar(keys %$address) == 0);
-
-                $index++;
-
-            }
-
-            # was getting something like... addresses: { addressLine1: { primary: true }}
-            # which isn't going to work. I'm not sure how to remove an element from a looped array while inside the loop
-            # so I grab the index and just remove it after the for loop.
-
-            # remove the empty hashes from the array
-            for my $indexToRemove (@indexesToRemove)
-            {splice(@{$addresses}, $indexToRemove, 1);}
-
-        }
-    }
-
-    $json = encode_json($perlJSON);
-
-    return $json;
-
-}
-
 sub remove_empty_fields
 {
     my $hash = shift;
@@ -396,60 +328,58 @@ sub _buildPatronJSON
     my $self = shift;
     my $patron = shift;
 
-    my $json = "";
+    my $departments = $self->_buildDepartmentsStringFromArray($patron->{departments});
+    my $address = $self->_buildAddress($patron->{address});
+    my $customFields = decode_json("{" . $patron->{custom_fields} . "}");
 
-    # # Use of uninitialized value in concatenation (.) or string at ...
-    # # fix these pesky undef values.
-    keys %$patron;
-    while (my ($k, $v) = each %$patron)
-    {
-        # This is to remove all illegal chars in the json string
-        $patron->{$k} = $self->_escapeIllegalChars($v) if (defined($v));
+    my $template = {
+        username         => defined($patron->{username}) ? $patron->{username} : "",
+        externalSystemId => defined($patron->{externalsystemid}) ? $patron->{externalsystemid} : "",
+        barcode          => defined($patron->{barcode}) ? $patron->{barcode} : "",
+        active           => \1,
+        patronGroup      => defined($patron->{patrongroup}) ? $patron->{patrongroup} : "",
+        type             => "patron",
+        personal         => {
+            lastName               => defined($patron->{lastname}) ? $patron->{lastname} : "",
+            firstName              => defined($patron->{firstname}) ? $patron->{firstname} : "",
+            middleName             => defined($patron->{middlename}) ? $patron->{middlename} : "",
+            preferredFirstName     => defined($patron->{preferredfirstname}) ? $patron->{preferredfirstname} : "",
+            phone                  => defined($patron->{phone}) ? $patron->{phone} : "",
+            mobilePhone            => defined($patron->{mobilephone}) ? $patron->{mobilephone} : "",
+            dateOfBirth            => defined($patron->{dateofbirth}) ? $patron->{dateofbirth} : "",
+            addresses              => defined($address) ? $address : "",
+            email                  => defined($patron->{email}) ? $patron->{email} : "",
+            preferredContactTypeId => defined($patron->{preferredcontacttypeid}) ? $patron->{preferredcontacttypeid} : "",
+        },
+        enrollmentDate   => defined($patron->{enrollmentdate}) ? $patron->{enrollmentdate} : "",
+        expirationDate   => defined($patron->{expirationdate}) ? $patron->{expirationdate} : "",
+    };
 
-        # we can't concat undef
-        $patron->{$k} = "" if (!defined($v));
-    }
+    # departments      => defined($departments) ? [ $departments ] : [],
+    # customFields     => defined($customFields) ? $customFields : "",
 
-    # my $address = "";
-    my $address = $self->_buildAddressJSON($patron->{address});
+    # Add departments only if there's valid data
+    if (defined($departments) && length($departments))
+    {$template->{departments} = [ $departments ];}
 
-    my $template = <<json;
-            {
-              "username": "$patron->{username}",
-              "externalSystemId": "$patron->{externalsystemid}",
-              "barcode": "$patron->{barcode}",
-              "active": true,
-              "patronGroup": "$patron->{patrongroup}",
-              "type": "patron",
-              "personal": {
-                "lastName": "$patron->{lastname}",
-                "firstName": "$patron->{firstname}",
-                "middleName": "$patron->{middlename}",
-                "preferredFirstName": "$patron->{preferredfirstname}",
-                "phone": "$patron->{phone}",
-                "mobilePhone": "$patron->{mobilephone}",
-                "dateOfBirth": "$patron->{dateofbirth}",
-                "addresses": $address,
-                "email": "$patron->{email}",
-                "preferredContactTypeId": "$patron->{preferredcontacttypeid}"
-              },
-              "enrollmentDate": "$patron->{enrollmentdate}",
-              "expirationDate": "$patron->{expirationdate}"
-            },
-json
-    $json .= $template;
+    # Add customFields only if there's valid data
+    if (defined($customFields) && %$customFields)
+    {$template->{customFields} = $customFields;}
 
-    # replace null with ""
-    # $json =~ s/^null$/""/g;
+    # Remove the empty fields from the json
+    $template = remove_empty_fields($template);
 
-    return $json;
-
+    return encode_json($template);
 }
 
-sub _buildAddressJSON
+sub _buildAddress
 {
     my $self = shift;
     my $addresses = shift;
+
+    # this is basically a mapping function at this point. our database columns don't quite match the json keys
+    # Example: countryid ==> countryId
+    # Folio can't map the lower case chars so we have to map these over.
 
     my @addressArray = ();
     for my $address (@{$addresses})
@@ -472,7 +402,23 @@ sub _buildAddressJSON
         push(@addressArray, $jsonAddress);
     }
 
-    return encode_json(\@addressArray);
+    return \@addressArray;
+
+}
+
+sub _buildDepartmentsStringFromArray
+{
+    my $self = shift;
+    my $departments = shift;
+
+    return "" if (!defined($departments) || !@{$departments});
+
+    my $formattedDepartments = "";
+    for (@{$departments})
+    {$formattedDepartments .= $_ . ",";}
+    chop($formattedDepartments);
+
+    return $formattedDepartments;
 
 }
 
@@ -481,15 +427,13 @@ sub _buildFinalJSON
     my $self = shift;
     my $json = shift;
     my $totalRecords = shift;
-    my $sourceType = shift || "";
 
     my $finalJSON = <<json;
         {
           "users": [$json],
           "totalRecords": $totalRecords,
           "deactivateMissingUsers": $main::conf->{deactivateMissingUsers},
-          "updateOnlyPresentFields": $main::conf->{updateOnlyPresentFields},
-          "sourceType": "$sourceType"
+          "updateOnlyPresentFields": $main::conf->{updateOnlyPresentFields}
         }
 json
 
@@ -672,7 +616,7 @@ sub getJSONByEndpoint
 {
 
     # /groups being the endpoint, the query is the cql query.
-    # example endpoint: "/groups?query=cql.allRecords=1%20sortby%20group&limit=2000"
+    # example endpoint: "/groups?query=cql.allRecords=1&limit=1000"
 
     my $self = shift;
     my $institution_id = shift;
@@ -1024,6 +968,62 @@ sub sanitizeForCSV
     $string =~ s/,/<replace-with-comma-here>/g;
 
     return $string;
+
+}
+
+sub getXOkapiModuleIdByTenant
+{
+    my $self = shift;
+    my $tenant = shift;
+
+    my $login = $self->login($tenant);
+    my $endpoint = "_/proxy/tenants/$tenant/interfaces/custom-fields";
+    my $response = $self->HTTPRequest("GET", "/" . $endpoint);
+
+    my $hashResponse = decode_json($response->{_content});
+    return $hashResponse->[0]->{id};
+
+}
+
+sub getCustomFieldsByTenant
+{
+    my $self = shift;
+    my $tenant = shift;
+
+    my $endpoint = "custom-fields?query=cql.allRecords=1&limit=1000";
+    my $module_id = $self->getXOkapiModuleIdByTenant($tenant);
+
+    my $header = [
+        'x-okapi-tenant'    => "$tenant",
+        'x-okapi-module-id' => $module_id,
+        'content-type'      => 'application/json'
+    ];
+
+    # login to folio and get the custom fields
+    $self->login($tenant);
+    my $response = $self->HTTPRequest("GET", "/" . $endpoint, $header);
+
+    my $jsonHash = decode_json($response->{_content});
+
+    # return a perl array of hashes
+    return $jsonHash->{customFields};
+
+}
+
+sub getDepartmentsByTenant
+{
+    my $self = shift;
+    my $tenant = shift;
+
+    my $endpoint = "departments?query=cql.allRecords=1&limit=1000";
+
+    $self->login($tenant);
+    my $response = $self->HTTPRequest("GET", "/" . $endpoint);
+
+    my $jsonHash = decode_json($response->{_content});
+
+    # return a perl array of hashes
+    return $jsonHash->{departments};
 
 }
 

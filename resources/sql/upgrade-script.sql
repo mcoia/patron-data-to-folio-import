@@ -12,3 +12,22 @@ ALTER TABLE patron_import.patron
 -- username is unique across all institutions
 ALTER TABLE patron_import.patron
     ADD CONSTRAINT unique_username UNIQUE (username);
+
+
+
+-- remove these constraints
+ALTER TABLE patron_import.stage_patron DROP CONSTRAINT stage_patron_file_id_fkey;
+ALTER TABLE patron_import.patron DROP CONSTRAINT patron_file_id_fkey;
+
+ALTER TABLE patron_import.patron ADD COLUMN IF NOT EXISTS custom_fields TEXT;
+ALTER TABLE patron_import.stage_patron ADD COLUMN IF NOT EXISTS custom_fields TEXT;
+
+-- departments            text[],
+ALTER TABLE patron_import.stage_patron ADD COLUMN IF NOT EXISTS departments TEXT[];
+ALTER TABLE patron_import.patron ADD COLUMN IF NOT EXISTS departments TEXT[];
+
+
+
+-- We need to alter the existing column and convert it into an array.
+-- UPDATE patron_import.stage_patron SET department = NULL;
+ALTER TABLE patron_import.stage_patron ALTER COLUMN department TYPE text[];

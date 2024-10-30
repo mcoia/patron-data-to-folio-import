@@ -393,7 +393,7 @@ sub buildInstitutionTableData
         my $institutionToSave = {
             'name'    => $institution->{name},
             'enabled' => 'TRUE',
-            'module'  => "GenericParser",
+            'module'  => "SierraParser",
             'esid'    => $esid,
             'tenant'  => $institution->{tenant}
         };

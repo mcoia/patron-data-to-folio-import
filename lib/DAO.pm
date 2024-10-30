@@ -109,7 +109,7 @@ sub checkDatabaseStatus
         print "Insert the MOBIUS Primary tenant.\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Insert the MOBIUS Primary tenant.");
         $self->query("INSERT INTO patron_import.institution (enabled, name, tenant, module, esid)
-        VALUES (false, 'MOBIUS Office', 'cs00000001', 'GenericParser', '')");
+        VALUES (false, 'MOBIUS Office', 'cs00000001', 'SierraParser', '')");
 
         # Check our institution map
         print "Building the institution tables.\n" if ($main::conf->{print2Console} eq 'true');
@@ -155,19 +155,10 @@ sub query
     my $self = shift;
     my $query = shift;
 
-    my $result = eval {
-        $self->{db}->query($query);
-    };
-
-    if ($@) {
-        $main::log->addLine("Database error: $@");
-        return undef;
-    }
-
-    return $result;
+    # I'm a lazy developer. I don't want to type $main::dao->{db}->query(...) each time saving valuable seconds off my life!
+    return $self->{db}->query($query);
 
 }
-
 
 sub queryAsHash
 {
@@ -460,6 +451,21 @@ sub getPatronByESID
 
 }
 
+sub getPatronHashByID
+{
+    my $self = shift;
+    my $id = shift;
+
+    my $tableName = "patron";
+    my $columns = $self->_getTableColumns($tableName);
+
+    my $query = "select $columns from $schema.$tableName where id='$id';";
+    my $results = $self->_convertQueryResultsToHash($tableName, $self->query($query));
+
+    return $results->[0];
+
+}
+
 sub getTenantByESID
 {
     my $self = shift;
@@ -641,7 +647,7 @@ This is the current data structure. It's wrong. It should be an array of folders
 * This is how it currently is.
 
 {
-          'module' => 'GenericParser',
+          'module' => 'SierraParser',
           'esid' => 'padLeft($self->{patron}->{barcode},\'0\', 7);',
           'id' => 2,
           'tenant' => 'cs00000001_0060',
@@ -1030,7 +1036,7 @@ sub getPatronBatch2Import
     # we now need the addresses. Ideally this would be 1 query. this convertQueryResults is busted on joins.
     # DBI::pg has this tho! *i think. Live and learn. I would have totally used that to begin with. todo: <= do that!
     # Turns out the DBI::pg fetchrow_hashref is a thing. But it's basically the same thing I wrote and the joins would be busted
-    # on it too!
+    # on it too! *Yea, I really need to retest this theory because I'm pretty sure I can actually do this. I rework DBHandler.pm soon!
     $tableName = "address";
     $columns = $self->_getTableColumns("address");
 
@@ -1325,9 +1331,22 @@ sub finishJob
     my $jobID = $main::jobID;
     my $query = "update $schema.job
                  set stop_time='$timestamp' where id=$jobID;";
-    print $query if ($main::conf->{print2Console} eq 'true');
+    print $query . "\n" if ($main::conf->{print2Console} eq 'true');
     $self->{db}->update($query);
     $main::log->addLine("Job $main::jobID finished at $timestamp");
+
+}
+
+# getFileTrackerIDByJobIDAndFilePath($main::jobID, $path);
+sub getFileTrackerIDByJobIDAndFilePath
+{
+    my $self = shift;
+    my $path = shift;
+
+    my $jobID = $main::jobID;
+
+    my $query = "select id from $schema.file_tracker where job_id=$jobID and path='$path'";
+    return $self->query($query)->[0]->[0];
 
 }
 
