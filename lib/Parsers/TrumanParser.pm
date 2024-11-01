@@ -3,16 +3,6 @@ use strict;
 use warnings FATAL => 'all';
 use parent 'Parsers::SierraParser';
 
-sub new
-{
-    my $class = shift;
-    my $self = {
-        institution => shift,
-    };
-    bless $self, $class;
-    return $self;
-}
-
 sub afterParse
 {
     my $self = shift;
