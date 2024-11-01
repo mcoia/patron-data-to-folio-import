@@ -328,9 +328,12 @@ sub _buildPatronJSON
     my $self = shift;
     my $patron = shift;
 
-    my $departments = $self->_buildDepartmentsStringFromArray($patron->{departments});
-    my $address = $self->_buildAddress($patron->{address});
-    my $customFields = decode_json("{" . $patron->{custom_fields} . "}");
+    my ($departments, $address, $customFields);
+
+    # only set these values if they are defined and have data
+    $departments = defined($patron->{departments}) && @{$patron->{departments}} ? $self->_buildDepartmentsStringFromArray($patron->{departments}) : undef;
+    $address = defined($patron->{address}) && @{$patron->{address}} ? $self->_buildAddress($patron->{address}) : undef;
+    $customFields = defined($patron->{custom_fields}) && $patron->{custom_fields} ne '' ? decode_json("{" . $patron->{custom_fields} . "}") : undef;
 
     my $template = {
         username         => defined($patron->{username}) ? $patron->{username} : "",
@@ -354,9 +357,6 @@ sub _buildPatronJSON
         enrollmentDate   => defined($patron->{enrollmentdate}) ? $patron->{enrollmentdate} : "",
         expirationDate   => defined($patron->{expirationdate}) ? $patron->{expirationdate} : "",
     };
-
-    # departments      => defined($departments) ? [ $departments ] : [],
-    # customFields     => defined($customFields) ? $customFields : "",
 
     # Add departments only if there's valid data
     if (defined($departments) && length($departments))

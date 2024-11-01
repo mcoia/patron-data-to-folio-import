@@ -8,6 +8,7 @@ use List::Util qw(any);
 use Parsers::SierraParser;
 use Parsers::CovenantParser;
 use Parsers::TrumanParser;
+use Parsers::KCKCCParser;
 use Parsers::ESID;
 use MOBIUS::Utils;
 
