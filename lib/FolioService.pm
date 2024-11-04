@@ -295,7 +295,7 @@ sub importPatrons
 
 }
 
-sub remove_empty_fields
+sub removeEmptyFields
 {
     my $hash = shift;
 
@@ -303,14 +303,14 @@ sub remove_empty_fields
     {
         if (ref $hash->{$key} eq 'HASH')
         {
-            remove_empty_fields($hash->{$key});
+            removeEmptyFields($hash->{$key});
             delete $hash->{$key} if !%{$hash->{$key}};
         }
         elsif (ref $hash->{$key} eq 'ARRAY')
         {
             foreach my $item (@{$hash->{$key}})
             {
-                remove_empty_fields($item) if ref $item eq 'HASH';
+                removeEmptyFields($item) if ref $item eq 'HASH';
             }
             @{$hash->{$key}} = grep {ref $_ ne 'HASH' || %$_} @{$hash->{$key}};
             delete $hash->{$key} if !@{$hash->{$key}};
@@ -367,7 +367,7 @@ sub _buildPatronJSON
     {$template->{customFields} = $customFields;}
 
     # Remove the empty fields from the json
-    $template = remove_empty_fields($template);
+    $template = removeEmptyFields($template);
 
     return encode_json($template);
 }
