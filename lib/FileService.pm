@@ -4,10 +4,8 @@ use strict;
 use warnings FATAL => 'all';
 use File::Find;
 use Try::Tiny;
-
-# no warnings 'uninitialized';
+use Encode qw(decode encode);
 use Data::Dumper;
-
 use Text::CSV::Simple;
 
 =head1 new(conf, log)
@@ -22,47 +20,94 @@ sub new
     return $self;
 }
 
+sub cleanLine
+{
+    my $self = shift;
+    my $line = shift;
+
+    $line =~ s/[\x{201c}\x{201d}]//g; # Remove smart quotes
+    $line =~ s/[\x{2018}\x{2019}]//g; # Remove smart apostrophes
+    $line =~ s/\\//g;                 # Remove backslashes
+    $line =~ s/\"//g;                 # Remove regular quotes
+    $line =~ s/[\x00-\x1F\x7F]//g;    # Remove control characters
+
+    return $line;
+}
+
 sub readFileToArray
 {
-
     my $self = shift;
     my $filePath = shift;
 
     $main::log->addLogLine("reading file: [$filePath]");
 
-    $self->checkAndConvertIfNeeded($filePath);
-
-    my @data = ();
-
-    open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
-    my $lineCount = 0;
-    while (my $line = <$fileHandle>)
-    {
-
-        # Maybe we should invert this logic?
-        # Instead of specifying what chars we don't want, maybe we specify chars we do want and remove the rest?
-
-        # MS Word "Smart Quote" character
-        $line =~ s/[\x{201c}\x{201d}]//g; # un-"smart" quotes
-        $line =~ s/[\x{2018}\x{2019}]//g; # un-"smart" apos
-
-        $line =~ s/\\//g;
-        $line =~ s/\n//g;
-        $line =~ s/\r//g;
-        $line =~ s/\"//g;
-        $line =~ s/[\x00-\x1F\x7F-\x9F]//g;
-
-        push(@data, $line) if ($line ne '');
-        $lineCount++;
+    # Check if file exists and is readable
+    unless (-e $filePath && -r $filePath) {
+        die "File does not exist or is not readable: $filePath";
     }
 
-    close $fileHandle;
+    my @data = ();
+    my $lineCount = 0;
+    my @encodings = ('UTF-8', 'cp1252', 'MacRoman');
+    my $lastError = "";
+    my $success = 0;
+
+    # Try different encodings
+    foreach my $encoding (@encodings)
+    {
+        eval {
+            @data = (); # Clear the array
+            $lineCount = 0;
+
+            # Set up the file handle with proper encoding and binmode
+            open(my $fh, '<', $filePath) or die "Could not open file '$filePath': $!";
+            binmode($fh, ":encoding($encoding)");
+
+            # Enable all platform line endings
+            local $/ = undef; # Slurp mode
+            my $content = <$fh>;
+            close($fh);
+
+            # Skip if content is empty
+            die "Empty file" unless defined $content && length($content) > 0;
+
+            # Split on any type of line ending
+            my @lines = split(/\r\n|\r|\n/, $content);
+
+            foreach my $line (@lines)
+            {
+                $line = $self->cleanLine($line);
+                if ($line =~ /\S/) { # Only keep non-empty lines
+                    push(@data, $line);
+                    $lineCount++;
+                }
+            }
+
+            # Check if we got any valid data
+            die "No valid data found with $encoding" unless @data;
+
+            $success = 1; # Mark as successful if we got here
+            1;
+        } or do {
+            $lastError = $@ || "Unknown error";
+            $main::log->addLogLine("Attempt with $encoding failed: $lastError");
+            next; # Try next encoding
+        };
+
+        # If successful, exit the loop
+        last if $success;
+    }
+
+    # If all encodings failed
+    unless ($success) {
+        $main::log->addLogLine("Failed to read file with any encoding. Last error: $lastError");
+        die "Failed to read file with any encoding. Last error: $lastError";
+    }
 
     my $arraySize = @data;
     $main::log->addLogLine("Total lines read: [$lineCount] : Total array size: [$arraySize]");
 
     return \@data;
-
 }
 
 sub readFileAsString
