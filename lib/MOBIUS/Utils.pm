@@ -1064,6 +1064,11 @@ sub calcSHA1
 {
     my $self = shift;
     my $data = shift;
+
+    # Encode data as UTF-8 before calculating hash. I was getting 'Wide character in subroutine entry'
+    utf8::upgrade($data);
+    $data = Encode::encode_utf8($data);
+
     my $sha1 = Digest::SHA1->new;
     $sha1->add($data);
     return $sha1->hexdigest;
