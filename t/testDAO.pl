@@ -101,15 +101,15 @@ sub test_processPatronRecord
 
     my @patronRecord = ();
 
-    push(@patronRecord, "0012--000srb  --07-31-24");
-    push(@patronRecord, "nSOUCHEK, MARILYN KAY");
-    push(@patronRecord, "a239 MARTIGNEY DR\$SAINT LOUIS, MO 63129-3411");
-    push(@patronRecord, "t618-789-2955");
-    push(@patronRecord, "h239 MARTIGNEY DR\$SAINT LOUIS, MO 63129-3411");
-    push(@patronRecord, "t618-789-2955");
-    push(@patronRecord, "dlmb");
-    push(@patronRecord, "uA02559733ST");
-    push(@patronRecord, "bA02559733ST");
+    push(@patronRecord, "0012--000xxx  --07-31-24");
+    push(@patronRecord, "nDOE, JOHN");
+    push(@patronRecord, "a123 MAIN ST\$ANYTOWN, USA 12345-6789");
+    push(@patronRecord, "t123-456-7890");
+    push(@patronRecord, "h123 MAIN ST\$ANYTOWN, USA 12345-6789");
+    push(@patronRecord, "t123-456-7890");
+    push(@patronRecord, "dlxx");
+    push(@patronRecord, "uA12345678XX");
+    push(@patronRecord, "bA12345678XX");
 
     print "0155m 004lmb    06-30-24\n";
     my $patronHash = $parser->_parsePatronRecord(\@patronRecord);
@@ -307,31 +307,31 @@ sub test__insertHash
 {
 
     my $patron = {
-        'job_id'         => 27,
-        'institution_id' => 1,
-        'file_id'        => 209,
-        'esid'           => "donya.johnsen\@student.eastcentral.edu",
-        # 'fingerprint'            => "6fed6323a384ad9c550e1a2073ea01fa3ae7b5c6",
-        # 'field_code'             => "0",
-        # 'patron_type'            => "003",
-        # 'pcode1'                 => "e",
-        # 'pcode2'                 => "-",
-        # 'pcode3'                 => "001",
-        # 'home_library'           => "ecb  ",
-        # 'patron_message_code'    => "-",
-        # 'patron_block_code'      => "-",
-        # 'patron_expiration_date' => "05-08-24",
-        'name'           => "Johnsen, Donya R",
-        # 'address'                => "550 Crestfall Dr\$Washington, MO  63090-7123",
-        # 'telephone'              => "573-205-1594",
-        # 'address2'               => "",
-        # 'telephone2'             => "",
-        # 'department'             => "ecb",
-        # 'unique_id'              => "0005468EC",
-        'barcode'        => "0005468",
-        'email_address'  => "donya.johnsen\@student.eastcentral.edu",
-        # 'note'                   => ""
-    };
+    'job_id'         => 27,
+    'institution_id' => 1,
+    'file_id'        => 209,
+    'esid'           => "john.doe\@example.edu",
+    # 'fingerprint'            => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    # 'field_code'             => "0",
+    # 'patron_type'            => "003",
+    # 'pcode1'                 => "e",
+    # 'pcode2'                 => "-",
+    # 'pcode3'                 => "001",
+    # 'home_library'           => "abc  ",
+    # 'patron_message_code'    => "-",
+    # 'patron_block_code'      => "-",
+    # 'patron_expiration_date' => "05-08-24",
+    'name'           => "Doe, John",
+    # 'address'                => "123 Main St\$Anytown, USA 12345-6789",
+    # 'telephone'              => "123-456-7890",
+    # 'address2'               => "",
+    # 'telephone2'             => "",
+    # 'department'             => "abc",
+    # 'unique_id'              => "0001234ABC",
+    'barcode'        => "0001234",
+    'email_address'  => "john.doe\@example.edu",
+    # 'note'                   => ""
+};
 
     $dao->_insertHashIntoTable("stage_patron", $patron);
 
@@ -464,7 +464,7 @@ sub test_getPatronByESID
 
     print "test_getPatronByESID\n";
 
-    my $esid = "cspudich\@stchas.edu";
+    my $esid = "test\@test.edu";
     # patron-import.pl --getFolioUserByESID=' + esid;
 
     print Dumper(
