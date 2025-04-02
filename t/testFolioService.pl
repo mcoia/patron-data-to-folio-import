@@ -68,31 +68,32 @@ sub test_1RecordLoad
 
     my $json = <<"JSON";
     {
-        "users": [
-            {
-                "username": "4268755EWL",
-                "externalSystemId": "4268755",
-                "barcode": "",
-                "active": true,
-                "patronGroup": "EWL-Webster Students International",
-                "type": "patron",
-                "personal": {
-                    "lastName": "Zhou",
-                    "firstName": "Zhenyu",
-                    "middleName": "Zhenyu",
-                    "preferredFirstName": "",
-                    "phone": "",
-                    "mobilePhone": "86 130 6785 1536",
-                    "dateOfBirth": "",
-                    "preferredContactTypeId": "email"
-                },
-                "expirationDate": "2025-01-10"
-            }],
-        "totalRecords": 1,
-        "deactivateMissingUsers": false,
-        "updateOnlyPresentFields": true,
-        "sourceType": ""
-    }
+    "users": [
+        {
+            "username": "1234567ABC",
+            "externalSystemId": "1234567",
+            "barcode": "",
+            "active": true,
+            "patronGroup": "ABC-Group",
+            "type": "patron",
+            "personal": {
+                "lastName": "Doe",
+                "firstName": "John",
+                "middleName": "John",
+                "preferredFirstName": "",
+                "phone": "",
+                "mobilePhone": "12 345 6789 0123",
+                "dateOfBirth": "",
+                "preferredContactTypeId": "email"
+            },
+            "expirationDate": "2025-01-10"
+        }
+    ],
+    "totalRecords": 1,
+    "deactivateMissingUsers": false,
+    "updateOnlyPresentFields": true,
+    "sourceType": ""
+}
 
 JSON
 
