@@ -10,6 +10,7 @@ use Parsers::CovenantParser;
 use Parsers::TrumanParser;
 use Parsers::KCKCCParser;
 use Parsers::ESID;
+use Parsers::TRCParser;
 use MOBIUS::Utils;
 
 use Data::Dumper;
@@ -249,9 +250,7 @@ sub migrate
 
     my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
 
-    my $result = eval {
-        $main::dao->query($query);
-    };
+    my $result = eval {$main::dao->update($query);};
 
     if ($@ || !$result)
     {
