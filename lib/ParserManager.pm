@@ -250,13 +250,7 @@ sub migrate
 
     my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
 
-    my $result = eval {$main::dao->update($query);};
-
-    if ($@ || !$result)
-    {
-        $main::log->addLine("Error executing migration SQL: " . ($@ || "Unknown error"));
-        return 0; # Indicate failure
-    }
+    my $result = eval {$main::dao->query($query);};
 
     # check the size of stage_patron
     if ($main::dao->getStagePatronCount() > 0)
@@ -267,7 +261,6 @@ sub migrate
         exit; # -- We have to halt execution and exit immediately.
     }
 
-    return 1;
 }
 
 sub sendMigrationFailureEmail

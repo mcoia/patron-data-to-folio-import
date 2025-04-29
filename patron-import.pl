@@ -78,17 +78,11 @@ sub initConf
 
 sub initLogger
 {
-    my $time = localtime();
-    # Extract hours and minutes
-    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime();
-    my $hhmm = sprintf("%02d%02d", $hour, $min);
+    my ($sec, $min, $hour, $mday, $mon, $year) = localtime();
+    $year += 1900;
+    $mon += 1;
 
-    $time =~ s/\d\d:\d\d:\d\d\s//g;
-    $time =~ s/\s/_/g;
-
-    # Append hhmm to time
-    $time .= "_$hhmm";
-    $time = lc $time;
+    my $time = sprintf("%04d-%02d-%02d_%02d%02d", $year, $mon, $mday, $hour, $min);
 
     my $logFileName = $conf->{logfile};
     $logFileName = lc $conf->{logfile} =~ s/\{time\}/_$time/gr if ($conf->{logfile} =~ /\{time\}/);
