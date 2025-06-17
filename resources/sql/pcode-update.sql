@@ -94,6 +94,9 @@ INSERT INTO pcode3_mapping (institution_id, pcode3, pcode3_value) VALUES (47, '8
 INSERT INTO pcode3_mapping (institution_id, pcode3, pcode3_value) VALUES (47, '88', 'PSYCH');
 INSERT INTO pcode3_mapping (institution_id, pcode3, pcode3_value) VALUES (47, '0', 'UNDC');
 
+-- Add note column to patron table
+ALTER TABLE patron_import.patron ADD COLUMN note text;
+
 -- Create the indexes for the mapping tables
 -- CREATE INDEX idx_pcode1_mapping_institution_id ON pcode1_mapping (institution_id);
 -- CREATE INDEX idx_pcode2_mapping_institution_id ON pcode2_mapping (institution_id);

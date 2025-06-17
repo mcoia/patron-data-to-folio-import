@@ -122,7 +122,6 @@ INSERT INTO patron_import.patron (institution_id,
                                   preferredcontacttypeid,
                                   departments,
                                   custom_fields,
-                                  note,
                                   expirationdate)
 SELECT sp.institution_id,
        sp.file_id,
@@ -155,7 +154,6 @@ SELECT sp.institution_id,
        'email',
        sp.department,
        sp.custom_fields,
-       sp.note,
        CASE
            WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' THEN sp.patron_expiration_date::DATE::TEXT
            ELSE NULL
@@ -211,7 +209,6 @@ SET file_id                = sp.file_id,
     address2_one_liner     = sp.address2,
     departments            = sp.department,
     custom_fields          = sp.custom_fields,
-    note                   = sp.note,
     expirationdate         = CASE
                                  WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
                                      THEN sp.patron_expiration_date::DATE::TEXT

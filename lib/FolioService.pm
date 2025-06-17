@@ -356,6 +356,7 @@ sub _buildPatronJSON
         },
         enrollmentDate   => defined($patron->{enrollmentdate}) ? $patron->{enrollmentdate} : "",
         expirationDate   => defined($patron->{expirationdate}) ? $patron->{expirationdate} : "",
+        note             => defined($patron->{note}) ? $patron->{note} : "",
     };
 
     # Add departments only if there's valid data
