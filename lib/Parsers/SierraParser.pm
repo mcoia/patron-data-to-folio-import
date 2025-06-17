@@ -543,7 +543,7 @@ sub _parseDepartment
     return encode_json(\@departments);
 }
 
-sub _parseCustomFields
+sub _parseCustomFieldsOLD
 {
 
     my $self = shift;
@@ -580,6 +580,35 @@ sub _parseCustomFields
     # print Dumper($customFields);
     # return $customFields;
 
+}
+
+sub _parseCustomFields
+{
+    my $self = shift;
+    my $data = shift;
+    my $customFields = {};
+
+    return "" if ($data !~ /<field name=/);
+
+    # Use a more robust XML parsing approach
+    while ($data =~ /<field name="([^"]+)">(.*?)<\/field>/gs) {
+        my $fieldName = $1;
+        my $fieldContent = $2;
+
+        # Extract values with proper closing tags
+        my @values = $fieldContent =~ /<value>(.*?)<\/value>/gs;
+
+        # Trim whitespace from values (optional)
+        @values = map { s/^\s+|\s+$//g; $_ } @values;
+
+        $customFields->{$fieldName} = \@values if @values;
+    }
+
+    my $json = encode_json($customFields);
+
+    # Remove the outer { } curly braces from the json string
+    $json =~ s/^{(.*)}$/$1/g;
+    return $json;
 }
 
 sub afterParse

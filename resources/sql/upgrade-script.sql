@@ -34,3 +34,6 @@ ALTER TABLE patron_import.stage_patron ALTER COLUMN department TYPE text[];
 
 
 UPDATE patron_import.institution SET module = 'SierraParser' WHERE module = 'GenericParser';
+
+
+

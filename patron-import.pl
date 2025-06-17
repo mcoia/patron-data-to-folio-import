@@ -100,7 +100,6 @@ sub getHelpMessage
         --stage                                       This will stage patron records
         --import                                      This will load import records into folio.
         --initDB                                      This will initialize the database.
-
         --getFolioUserByUsername                      returns a json users[] array of the folio user using the username as the search parameter
         --getFolioUserByESID                          returns a json users[] array of the folio user using the external system id as the search parameter
         \n";

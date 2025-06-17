@@ -286,7 +286,7 @@ sub importPatrons
 
         my $importResponseTotals = $self->_getImportUserImportResponseTotals(\@importResponse);
 
-        PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers)->buildReport()->sendEmail()
+        PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers)->buildReport()->buildFailedPatronCSVReport()->sendEmail()
             if ($importResponseTotals->{total} > 0 || $importResponseTotals->{failed} > 0 || $importResponseTotals->{created} > 0 || $importResponseTotals->{updated} > 0);
 
     }
@@ -1019,6 +1019,8 @@ sub getDepartmentsByTenant
 
     $self->login($tenant);
     my $response = $self->HTTPRequest("GET", "/" . $endpoint);
+
+    print Dumper($response);
 
     my $jsonHash = decode_json($response->{_content});
 

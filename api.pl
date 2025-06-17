@@ -125,7 +125,7 @@ sub processInstitutionId
     $dao->startJob();
 
     $parserManager->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash($institution_id));
-    $folio->importPatronsByInstitutionId($institution_id);
+    $folio->importPatronsByInstitutionId($institution_id) if($conf->{web_import} eq 'true');
 
     $dao->finishJob();
 

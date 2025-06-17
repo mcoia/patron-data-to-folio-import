@@ -48,6 +48,25 @@ sub buildReport
     return $self;
 }
 
+sub buildFailedPatronCSVReport
+{
+    my $self = shift;
+
+    # We need to save a copy of the failed csv report to the dropbox path.
+
+    my $institution = $self->{institution};
+
+    # app.get('/api/patron-import/institution/:id/job/:job_id/failed-patrons/download', patronImport.getFailedUsersByInstitutionIdAndJobIdDownloadCSV);
+
+    # we need to make an api call to get the failed users csv report
+
+    # now save the csv to the dropbox path
+
+    return $self;
+
+}
+
+
 sub sendEmail
 {
     my $self = shift;

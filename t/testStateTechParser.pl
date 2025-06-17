@@ -33,7 +33,7 @@ sub getHash
 package main;
 
 # Path to your actual CSV file
-my $csv_file = "patrons.csv";
+my $csv_file = "../StateTechPatrons.csv";
 
 # Create test environment
 our $conf = { print2Console => 1 };
@@ -46,19 +46,23 @@ our $parserManager = bless {}, 'MockParserManager';
 sub MockParserManager::getPatronFingerPrint
 {return MOBIUS::Utils->new()->getHash(shift);}
 
-# Load the actual TRCParser code
-require "Parsers/TRCParser.pm";
+our $log = bless {}, 'MockLog';
+sub MockLog::addLine
+{print "LOG: " . shift . "\n";}
+
+# Load the actual StateTechParser code
+require "Parsers/StateTechParser.pm";
 
 # Create test institution
 my $institution = {
     id     => 42,
-    name   => "Test Institution",
-    tenant => "test_tenant",
+    name   => "State Tech",
+    tenant => "state_tech_tenant",
     esid   => "unique_id"
 };
 
 # Create parser instance
-my $parser = Parsers::TRCParser->new($institution);
+my $parser = Parsers::StateTechParser->new($institution);
 
 # Test the parser with our actual CSV file
 print "Testing parse() function with $csv_file...\n";
@@ -66,10 +70,10 @@ print "Testing parse() function with $csv_file...\n";
 # Mock folder and file structure
 $parser->{institution}->{folders} = [
     {
-        name  => "Test Folder",
+        name  => "State Tech Folder",
         files => [
             {
-                name  => "Test File",
+                name  => "StateTechPatrons.csv",
                 paths => [ $csv_file ]
             }
         ]

@@ -11,6 +11,8 @@ use Parsers::TrumanParser;
 use Parsers::KCKCCParser;
 use Parsers::ESID;
 use Parsers::TRCParser;
+use Parsers::MissouriWesternParser;
+use Parsers::StateTechParser;
 use MOBIUS::Utils;
 
 use Data::Dumper;
@@ -55,11 +57,21 @@ sub stagePatronRecords
         # We still need to skip the files in our buildDropboxFolderStructureByInstitutionId
         $main::files->patronFileDiscovery($institution);
 
+
+        # If we keep getting stray files in these dropbox folders we may have to disable this portion.
+        # I would need to know who's uploading files that are being imported that are not actual patron files.
+        ## ---- start dropbox specific folders
+
         my $dropboxFolder = $main::files->patronFileDiscoverySpecificFolder($institution->{id});
 
         # We push everything into the institution->folder and then iterate thru removing duplicates.
         push(@{$institution->{folders}}, $dropboxFolder);
         $self->removeDuplicatePaths($institution);
+
+        ## ---- end dropbox specific folders
+
+        # set the institutions so the parser can access
+        $parser->{institution} = $institution;
 
         # Our parsers life cycle hooks
         $parser->onInit();

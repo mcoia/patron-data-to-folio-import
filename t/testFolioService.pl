@@ -10,8 +10,7 @@ use MOBIUS::Loghandler;
 use DAO;
 use FileService;
 use FolioService;
-use Parser;
-use Parsers::GenericParser;
+use Parsers::SierraParser;
 use JSON;
 use Test::More;
 
@@ -22,7 +21,7 @@ initLog();
 
 our $dao = DAO->new()->_cacheTableColumns();
 our $files = FileService->new();
-our $parser = Parser->new();
+our $parser = Parsers::SierraParser->new();
 
 our $folio = FolioService->new({
     'username' => $ENV{folio_username},
@@ -68,32 +67,32 @@ sub test_1RecordLoad
 
     my $json = <<"JSON";
     {
-    "users": [
-        {
-            "username": "1234567ABC",
-            "externalSystemId": "1234567",
-            "barcode": "",
-            "active": true,
-            "patronGroup": "ABC-Group",
-            "type": "patron",
-            "personal": {
-                "lastName": "Doe",
-                "firstName": "John",
-                "middleName": "John",
-                "preferredFirstName": "",
-                "phone": "",
-                "mobilePhone": "12 345 6789 0123",
-                "dateOfBirth": "",
-                "preferredContactTypeId": "email"
-            },
-            "expirationDate": "2025-01-10"
-        }
-    ],
-    "totalRecords": 1,
-    "deactivateMissingUsers": false,
-    "updateOnlyPresentFields": true,
-    "sourceType": ""
-}
+        "users": [
+            {
+                "username": "1234567ABC",
+                "externalSystemId": "1234567",
+                "barcode": "",
+                "active": true,
+                "patronGroup": "ABC-Group",
+                "type": "patron",
+                "personal": {
+                    "lastName": "Doe",
+                    "firstName": "John",
+                    "middleName": "John",
+                    "preferredFirstName": "",
+                    "phone": "",
+                    "mobilePhone": "12 345 6789 0123",
+                    "dateOfBirth": "",
+                    "preferredContactTypeId": "email"
+                },
+                "expirationDate": "2025-01-10"
+            }
+        ],
+        "totalRecords": 1,
+        "deactivateMissingUsers": false,
+        "updateOnlyPresentFields": true,
+        "sourceType": ""
+    }
 
 JSON
 
@@ -583,7 +582,6 @@ sub test_endPoint
 sub test_buildPatronJSON
 {
 
-
     my $test_patron = {
         username               => 'testuser',
         externalsystemid       => '12345',
@@ -602,7 +600,6 @@ sub test_buildPatronJSON
         expirationdate         => '2024-01-01'
     };
 
-
     my $json = $folio->_buildPatronJSON($test_patron);
 
     print $json . "\n";
@@ -610,7 +607,6 @@ sub test_buildPatronJSON
     my $hash = decode_json($json);
 
     print Dumper($hash);
-
 
 }
 
@@ -625,7 +621,7 @@ sub test_generateFailedPatronsCSVReport
 
 }
 
-extractFileContentsFromFileTrackerAndWriteThemToDisk();
+# extractFileContentsFromFileTrackerAndWriteThemToDisk();
 sub extractFileContentsFromFileTrackerAndWriteThemToDisk
 {
 
@@ -666,3 +662,17 @@ sub buildDropboxDirectories
     }
 
 }
+
+test_departments_api();
+sub test_departments_api
+{
+
+    my $tenant = "cs00000001_0008";
+
+    my $departments = $folio->getDepartmentsByTenant($tenant);
+
+    print Dumper($departments);
+
+}
+
+1;

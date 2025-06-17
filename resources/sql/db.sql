@@ -192,6 +192,30 @@ create table if not exists patron_import.import_failed_users_json
     json               jsonb
 );
 
+create table pcode1_mapping
+(
+    id             SERIAL primary key,
+    institution_id int references patron_import.institution (id),
+    pcode1         text,
+    pcode1_value   text
+);
+
+create table pcode2_mapping
+(
+    id             SERIAL primary key,
+    institution_id int references patron_import.institution (id),
+    pcode2         text,
+    pcode2_value   text
+);
+
+create table pcode3_mapping
+(
+    id             SERIAL primary key,
+    institution_id int references patron_import.institution (id),
+    pcode3         text,
+    pcode3_value   text
+);
+
 CREATE INDEX IF NOT EXISTS patron_import_institution_id_idx ON patron_import.institution USING btree (id);
 CREATE INDEX IF NOT EXISTS patron_import_stage_patron_unique_id_idx ON patron_import.stage_patron USING btree (unique_id);
 CREATE INDEX IF NOT EXISTS patron_import_patron_fingerprint_idx ON patron_import.patron USING btree (fingerprint);
