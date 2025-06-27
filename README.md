@@ -1,5 +1,5 @@
 <div align="center">
-<img align="center" style="margin: 100px 0px 0px 0px" height="150" src="screenshots/img.png" />
+<img align="center" style="margin: 100px 0px 0px 0px" height="150" src="resources/img/mark.png" />
 <h2 style="margin-top: 0px;" align="center">Patron Data to FOLIO Import</h2>
 <h5 align="center">Enterprise-grade ETL system for synchronizing patron records from various library management systems into FOLIO for the <a href="http://mobiusconsortium.org">MOBIUS Consortium</a></h5>
 
