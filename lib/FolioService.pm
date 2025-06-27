@@ -333,7 +333,7 @@ sub _buildPatronJSON
     # only set these values if they are defined and have data
     $departments = defined($patron->{departments}) && @{$patron->{departments}} ? $self->_buildDepartmentsStringFromArray($patron->{departments}) : undef;
     $address = defined($patron->{address}) && @{$patron->{address}} ? $self->_buildAddress($patron->{address}) : undef;
-    $customFields = defined($patron->{custom_fields}) && $patron->{custom_fields} ne '' ? decode_json("{" . $patron->{custom_fields} . "}") : undef;
+    $customFields = defined($patron->{custom_fields}) && $patron->{custom_fields} ne '' ? decode_json($patron->{custom_fields}) : undef;
 
     my $template = {
         username         => defined($patron->{username}) ? $patron->{username} : "",
@@ -356,7 +356,7 @@ sub _buildPatronJSON
         },
         enrollmentDate   => defined($patron->{enrollmentdate}) ? $patron->{enrollmentdate} : "",
         expirationDate   => defined($patron->{expirationdate}) ? $patron->{expirationdate} : "",
-        note             => defined($patron->{note}) ? $patron->{note} : "",
+        # note             => defined($patron->{note}) ? $patron->{note} : "", # Note field not supported by FOLIO User model
     };
 
     # Add departments only if there's valid data
@@ -364,8 +364,15 @@ sub _buildPatronJSON
     {$template->{departments} = [ $departments ];}
 
     # Add customFields only if there's valid data
-    if (defined($customFields) && %$customFields)
-    {$template->{customFields} = $customFields;}
+    if (defined($customFields)) {
+        if (ref($customFields) eq 'HASH' && keys %$customFields) {
+            # Custom fields are already in object format
+            $template->{customFields} = $customFields;
+        } elsif (ref($customFields) eq 'ARRAY' && @$customFields) {
+            # Custom fields are in array format - pass through for testing
+            $template->{customFields} = $customFields;
+        }
+    }
 
     # Remove the empty fields from the json
     $template = removeEmptyFields($template);
@@ -980,6 +987,44 @@ sub getXOkapiModuleIdByTenant
     my $login = $self->login($tenant);
     my $endpoint = "_/proxy/tenants/$tenant/interfaces/custom-fields";
     my $response = $self->HTTPRequest("GET", "/" . $endpoint);
+    # print Dumper($response) if ($main::conf->{print2Console} eq 'true');
+
+    my $hashResponse = decode_json($response->{_content});
+
+    return $hashResponse->[0]->{id};
+
+}
+
+
+sub getXOkapiModuleIdArrayByTenant
+{
+    my $self = shift;
+    my $tenant = shift;
+
+    my $login = $self->login($tenant);
+    my $endpoint = "_/proxy/tenants/$tenant/interfaces/custom-fields";
+    my $response = $self->HTTPRequest("GET", "/" . $endpoint);
+    # print Dumper($response) if ($main::conf->{print2Console} eq 'true');
+
+    my $hashResponse = decode_json($response->{_content});
+    return $hashResponse;
+
+}
+
+sub getModUserModuleIdByTenant
+{
+    my $self = shift;
+    my $tenant = shift;
+
+    my $login = $self->login($tenant);
+    my $endpoint = "custom-fields";
+
+
+
+
+
+    my $response = $self->HTTPRequest("GET", "/" . $endpoint);
+    print Dumper($response) if ($main::conf->{print2Console} eq 'true');
 
     my $hashResponse = decode_json($response->{_content});
     return $hashResponse->[0]->{id};
@@ -991,8 +1036,12 @@ sub getCustomFieldsByTenant
     my $self = shift;
     my $tenant = shift;
 
-    my $endpoint = "custom-fields?query=cql.allRecords=1&limit=1000";
-    my $module_id = $self->getXOkapiModuleIdByTenant($tenant);
+    my $endpoint = "custom-fields/?query=cql.allRecords=1&limit=1000";
+    # my $module_id = 'mod-users-19.3.2';
+    # my $module_id = $self->getXOkapiModuleIdByTenant($tenant);
+    my $module_id = getModUserModuleIdByTenant($tenant);
+
+    print "module_id: $module_id\n" if ($main::conf->{print2Console} eq 'true');
 
     my $header = [
         'x-okapi-tenant'    => "$tenant",
@@ -1007,7 +1056,8 @@ sub getCustomFieldsByTenant
     my $jsonHash = decode_json($response->{_content});
 
     # return a perl array of hashes
-    return $jsonHash->{customFields};
+    # return $jsonHash->{customFields};
+    return $jsonHash;
 
 }
 
