@@ -25,9 +25,35 @@ The **Patron Data to FOLIO Import** system is a robust, enterprise-grade ETL (Ex
 
 ### Architecture
 
-<div align="center">
-<img src="screenshots/img_1.png" alt="System Architecture" width="800" />
-</div>
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Data Sources  │────│  Parser System  │────│  PostgreSQL DB  │
+│                 │    │                 │    │                 │
+│ • Sierra ILS    │    │ • SierraParser  │    │ • stage_patron  │
+│ • CSV Files     │    │ • CovenantParser│    │ • patron        │
+│ • Custom Format │    │ • TRCParser     │    │ • address       │
+│                 │    │ • MWParser      │    │                 │
+│                 │    │ • StateTechPars │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                                        │
+                                                        ▼
+                                               ┌─────────────────┐
+                                               │  FOLIO Service  │
+                                               │                 │
+                                               │ • REST API      │
+                                               │ • Authentication│
+                                               │ • Error Handle  │
+                                               └─────────────────┘
+                                                        │
+                                                        ▼
+                                               ┌─────────────────┐
+                                               │  FOLIO System   │
+                                               │                 │
+                                               │ • User Import   │
+                                               │ • mod-users     │
+                                               │ • Custom Fields │
+                                               └─────────────────┘
+```
 
 The system follows a five-component architecture:
 
@@ -49,7 +75,7 @@ The system follows a five-component architecture:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/patron-data-to-folio-import.git
+git clone https://github.com/mcoia/patron-data-to-folio-import.git
 cd patron-data-to-folio-import
 ```
 
