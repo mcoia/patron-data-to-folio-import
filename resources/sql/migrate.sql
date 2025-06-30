@@ -163,7 +163,8 @@ SELECT sp.institution_id,
 FROM patron_import.stage_patron sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-         LEFT JOIN patron_import.patron p2 ON BTRIM(sp.esid) = BTRIM(p2.externalsystemid)
+         LEFT JOIN patron_import.patron p2 ON BTRIM(sp.esid) = BTRIM(p2.externalsystemid) AND sp.institution_id = p2.institution_id
+
 WHERE p2.id IS NULL
   AND sp.unique_id IS NOT NULL
   AND sp.unique_id != ''
