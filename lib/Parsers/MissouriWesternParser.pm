@@ -168,18 +168,20 @@ sub _processPatronCustomFields
     # Map PCODE3 to Department field
     if ($patron->{pcode3} && $patron->{pcode3} ne '' && $patron->{pcode3} ne '-')
     {
-        my $department = $pcode_mappings->{pcode3}->{$patron->{pcode3}};
+        # Normalize PCODE3 by removing leading zeros (e.g., '047' becomes '47', '000' becomes '0')
+        my $normalized_pcode3 = $patron->{pcode3} + 0;
+        my $department = $pcode_mappings->{pcode3}->{$normalized_pcode3};
         if ($department)
         {
             # Update the department field as PostgreSQL array (staging table expects text[])
             $patron->{department} = [ $department ];
             $updated_fields++;
-            print "  Mapped PCODE3 '$patron->{pcode3}' -> Department: $department\n" if ($main::conf->{print2Console} eq 'true');
+            print "  Mapped PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3) -> Department: $department\n" if ($main::conf->{print2Console} eq 'true');
         }
         else
         {
-            $main::log->addLine("WARNING: No mapping found for PCODE3 '$patron->{pcode3}' for patron $patron_id");
-            print "  WARNING: No mapping found for PCODE3 '$patron->{pcode3}'\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("WARNING: No mapping found for PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3) for patron $patron_id");
+            print "  WARNING: No mapping found for PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3)\n" if ($main::conf->{print2Console} eq 'true');
         }
     }
 
