@@ -93,7 +93,7 @@ sub stagePatronRecords
 
         # We migrate records here, truncating the table after each loop
         $self->migrate();
-        $self->deletePatronFiles($institution) if ($main::conf->{deleteFiles} eq 'true');
+        $self->deletePatronFiles($institution) if ($main::conf->{deleteFiles} eq 'true' && $totalPatrons > 0);
 
     }
 
@@ -114,10 +114,16 @@ sub removeDuplicatePaths
             my @uniqueFilePaths;
             foreach my $path (@{$file->{paths}})
             {
-                unless (exists $allUniquePaths{$path})
+                if (!exists $allUniquePaths{$path})
                 {
                     $allUniquePaths{$path} = 1;
                     push @uniqueFilePaths, $path;
+                }
+                else
+                {
+                    # Log when a file path is removed as duplicate
+                    print "Removed duplicate file path: [$path]\n" if ($main::conf->{print2Console} eq 'true');
+                    $main::log->addLine("Removed duplicate file path: [$path]");
                 }
             }
             $file->{paths} = \@uniqueFilePaths;
@@ -313,3 +319,4 @@ sub convertLogToHTML
 }
 
 1;
+
