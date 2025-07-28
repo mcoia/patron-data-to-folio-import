@@ -83,10 +83,24 @@ sub parse
 
         for my $file (@{$folder->{files}})
         {
+            # Skip files without paths (shouldn't happen with our dropbox fix, but safety check)
+            if (!$file->{paths} || !@{$file->{paths}}) {
+                print "Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown') . "\n" if ($main::conf->{print2Console} eq 'true');
+                $main::log->addLine("Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown'));
+                next;
+            }
 
             my $patronCounter = 0;
             for my $path (@{$file->{'paths'}})
             {
+                # Log whether this is a pattern-matched file or dropbox file
+                if ($file->{dropbox_file}) {
+                    print "Processing dropbox file: $file->{name} at $path\n" if ($main::conf->{print2Console} eq 'true');
+                    $main::log->addLine("Processing dropbox file: $file->{name} at $path");
+                } else {
+                    print "Processing pattern-matched file: $file->{name} at $path\n" if ($main::conf->{print2Console} eq 'true');
+                    $main::log->addLine("Processing pattern-matched file: $file->{name} at $path");
+                }
 
                 my @patronRecords = ();
                 my @patronRecord = ();

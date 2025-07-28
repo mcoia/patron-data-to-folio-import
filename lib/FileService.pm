@@ -317,23 +317,45 @@ sub patronFileDiscoverySpecificFolder
 
     for my $filePath (@files)
     {
+        # Skip files that contain 'test' in the name
+        if (lc $filePath =~ /test/)
+        {
+            print "Dropbox file contains 'test'. Skipping: [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("Dropbox file contains 'test'. Skipping: [$filePath]");
+            next;
+        }
 
-        # Assuming $filePath is defined and contains the path of the file
+        # Check file age (same logic as pattern discovery)
+        my $pathHash = $self->buildPathHash($filePath, $institution_id);
+        my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
+        if (time > $pathHash->{lastModified} + $maxPatronFileAge)
+        {
+            print "Dropbox file is older than $main::conf->{maxPatronFileAge} days. Skipping: [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("Dropbox file is older than $main::conf->{maxPatronFileAge} days. Skipping: [$filePath]");
+            next;
+        }
+
         my $fileName = $filePath;
-        $fileName =~ s|.*/||; # This regex matches everything up to the last '/' and removes it, leaving just the file name
+        $fileName =~ s|.*/||; # Extract just the filename
 
         my @filePathArray = ();
         push @filePathArray, $filePath;
 
+        # FIX: Create file entry that parsers can process
         push @{$folder->{files}}, {
             paths => \@filePathArray,
-            name  => $fileName
-
+            name  => $fileName,
+            pattern => ".*", # Accept any file from dropbox (no pattern restriction)
+            dropbox_file => 1, # Flag to indicate this came from dropbox discovery
+            institution_id => $institution_id
         };
 
-        # now insert this file into our file tracker table.
-        $main::dao->_insertHashIntoTable("file_tracker", $self->buildPathHash($filePath, $institution_id));
+        # Log that we found and backed up a dropbox file
+        print "Dropbox file found and backed up: [$fileName] at [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
+        $main::log->addLine("Dropbox file found and backed up: [$fileName] at [$filePath]");
 
+        # Backup file contents to database
+        $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
     }
 
     return $folder;

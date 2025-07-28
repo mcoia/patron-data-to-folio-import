@@ -92,8 +92,29 @@ sub stagePatronRecords
         $main::log->addLine("================================================================================\n\n");
 
         # We migrate records here, truncating the table after each loop
-        $self->migrate();
-        $self->deletePatronFiles($institution) if ($main::conf->{deleteFiles} eq 'true' && $totalPatrons > 0);
+        my $migrationSuccess = $self->migrate();
+        my $finalPatronCount = $self->getFinalPatronCount($institution->{id});
+
+        # Enhanced deletion logic - only delete if processing was completely successful
+        my $shouldDelete = $main::conf->{deleteFiles} eq 'true' && 
+                           $migrationSuccess && 
+                           $totalPatrons > 0 && 
+                           $finalPatronCount > 0;
+
+        if ($shouldDelete) {
+            print "All processing successful. Deleting files for institution: $institution->{name}\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("Deleting files - Migration successful, $totalPatrons parsed, $finalPatronCount imported for institution: $institution->{name}");
+            $self->deletePatronFiles($institution);
+        } else {
+            my $reason = "Files preserved - ";
+            $reason .= "deleteFiles=false " if ($main::conf->{deleteFiles} ne 'true');
+            $reason .= "migration failed " if (!$migrationSuccess);
+            $reason .= "no patrons parsed " if ($totalPatrons == 0);
+            $reason .= "no patrons imported " if ($finalPatronCount == 0);
+            
+            print "$reason for institution: $institution->{name}\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine("$reason for institution: $institution->{name}");
+        }
 
     }
 
@@ -268,17 +289,42 @@ sub migrate
 
     my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
 
-    my $result = eval {$main::dao->query($query);};
+    my $migrationSuccess = 0;
+    my $result = eval {
+        $main::dao->query($query);
+        $migrationSuccess = 1;
+        1; # Return success
+    };
+
+    if (!$result || $@) {
+        $main::log->addLine("Migration failed: $@");
+        print "Migration failed: $@\n" if ($main::conf->{print2Console} eq 'true');
+        $migrationSuccess = 0;
+    }
 
     # check the size of stage_patron
     if ($main::dao->getStagePatronCount() > 0)
     {
-        $main::log->addLine("Something went wrong! We did not truncate the stage_patron table.");
-        $main::log->addLine("Exiting...");
+        $main::log->addLine("Migration failed - stage_patron table not truncated properly.");
+        print "Migration failed - stage_patron table not truncated properly.\n" if ($main::conf->{print2Console} eq 'true');
         $self->sendMigrationFailureEmail();
-        exit; # -- We have to halt execution and exit immediately.
+        $migrationSuccess = 0;
+        # Don't exit - let the system continue and preserve files
     }
 
+    return $migrationSuccess;
+}
+
+sub getFinalPatronCount
+{
+    my $self = shift;
+    my $institution_id = shift;
+    
+    # Count patrons that actually made it to the final patron table for this institution
+    my $query = "SELECT COUNT(*) FROM patron_import.patron WHERE institution_id = ? AND job_id = ?";
+    my $result = $main::dao->query($query, [$institution_id, $main::jobID]);
+    
+    return $result->[0]->[0] || 0;
 }
 
 sub sendMigrationFailureEmail
