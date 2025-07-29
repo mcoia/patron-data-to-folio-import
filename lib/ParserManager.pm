@@ -93,25 +93,19 @@ sub stagePatronRecords
 
         # We migrate records here, truncating the table after each loop
         my $migrationSuccess = $self->migrate();
-        my $finalPatronCount = $self->getFinalPatronCount($institution->{id});
 
-        # Enhanced deletion logic - only delete if processing was completely successful
-        my $shouldDelete = $main::conf->{deleteFiles} eq 'true' && 
-                           $migrationSuccess && 
-                           $totalPatrons > 0 && 
-                           $finalPatronCount > 0;
-
-        if ($shouldDelete) {
+        if ($main::conf->{deleteFiles} eq 'true' &&
+                           $migrationSuccess &&
+                           $totalPatrons > 0) {
             print "All processing successful. Deleting files for institution: $institution->{name}\n" if ($main::conf->{print2Console} eq 'true');
-            $main::log->addLine("Deleting files - Migration successful, $totalPatrons parsed, $finalPatronCount imported for institution: $institution->{name}");
+            $main::log->addLine("Deleting files - Migration successful, $totalPatrons parsed for institution: $institution->{name}");
             $self->deletePatronFiles($institution);
         } else {
             my $reason = "Files preserved - ";
             $reason .= "deleteFiles=false " if ($main::conf->{deleteFiles} ne 'true');
             $reason .= "migration failed " if (!$migrationSuccess);
             $reason .= "no patrons parsed " if ($totalPatrons == 0);
-            $reason .= "no patrons imported " if ($finalPatronCount == 0);
-            
+
             print "$reason for institution: $institution->{name}\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->addLine("$reason for institution: $institution->{name}");
         }
@@ -319,11 +313,11 @@ sub getFinalPatronCount
 {
     my $self = shift;
     my $institution_id = shift;
-    
+
     # Count patrons that actually made it to the final patron table for this institution
     my $query = "SELECT COUNT(*) FROM patron_import.patron WHERE institution_id = ? AND job_id = ?";
     my $result = $main::dao->query($query, [$institution_id, $main::jobID]);
-    
+
     return $result->[0]->[0] || 0;
 }
 
