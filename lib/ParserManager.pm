@@ -89,7 +89,6 @@ sub stagePatronRecords
         print "Migrating records to final table...\n" if ($main::conf->{print2Console} eq 'true');
         print "================================================================================\n\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
-        $main::log->addLine("================================================================================\n\n");
 
         # We migrate records here, truncating the table after each loop
         my $migrationSuccess = $self->migrate();
@@ -109,6 +108,7 @@ sub stagePatronRecords
             print "$reason for institution: $institution->{name}\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->addLine("$reason for institution: $institution->{name}");
         }
+        $main::log->addLine("================================================================================\n\n");
 
     }
 
