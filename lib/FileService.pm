@@ -257,14 +257,6 @@ sub patronFileDiscovery
                         # we're going to skip files older than n days. Setting in conf file.
                         my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
 
-                        # if $path contains the word test skip
-                        if (lc $path =~ /test/)
-                        {
-                            print "File contains the word test. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
-                            $main::log->addLine("File contains the word test. Skipping.");
-                            next;
-                        }
-
                         # check our file dates for old files.
                         if (time > $pathHash->{lastModified} + $maxPatronFileAge)
                         {
