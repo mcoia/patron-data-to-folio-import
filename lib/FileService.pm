@@ -309,13 +309,6 @@ sub patronFileDiscoverySpecificFolder
 
     for my $filePath (@files)
     {
-        # Skip files that contain 'test' in the name
-        if (lc $filePath =~ /test/)
-        {
-            print "Dropbox file contains 'test'. Skipping: [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
-            $main::log->addLine("Dropbox file contains 'test'. Skipping: [$filePath]");
-            next;
-        }
 
         # Check file age (same logic as pattern discovery)
         my $pathHash = $self->buildPathHash($filePath, $institution_id);
