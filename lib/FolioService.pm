@@ -364,11 +364,15 @@ sub _buildPatronJSON
     {$template->{departments} = [ $departments ];}
 
     # Add customFields only if there's valid data
-    if (defined($customFields)) {
-        if (ref($customFields) eq 'HASH' && keys %$customFields) {
+    if (defined($customFields))
+    {
+        if (ref($customFields) eq 'HASH' && keys %$customFields)
+        {
             # Custom fields are already in object format
             $template->{customFields} = $customFields;
-        } elsif (ref($customFields) eq 'ARRAY' && @$customFields) {
+        }
+        elsif (ref($customFields) eq 'ARRAY' && @$customFields)
+        {
             # Custom fields are in array format - pass through for testing
             $template->{customFields} = $customFields;
         }
@@ -650,7 +654,14 @@ sub getFolioPatronGroupsByInstitutionId
     my $endPoint = "/groups?query=cql.allRecords=1%20sortby%20group&limit=2000";
     my $response = $self->HTTPRequest("GET", $endPoint);
 
-    my $json = decode_json($response->{_content});
+    my $json;
+    eval {
+        $json = decode_json($response->{_content});
+        1;
+    } or do {
+        my $error = $@ || 'Unknown error';
+        die "Failed to decode JSON for patron groups: $error\nContent: $response->{_content}\n";
+    };
     my $patronGroups = encode_json($json->{usergroups});
 
     return $patronGroups;
@@ -995,7 +1006,6 @@ sub getXOkapiModuleIdByTenant
 
 }
 
-
 sub getXOkapiModuleIdArrayByTenant
 {
     my $self = shift;
@@ -1018,10 +1028,6 @@ sub getModUserModuleIdByTenant
 
     my $login = $self->login($tenant);
     my $endpoint = "custom-fields";
-
-
-
-
 
     my $response = $self->HTTPRequest("GET", "/" . $endpoint);
     print Dumper($response) if ($main::conf->{print2Console} eq 'true');
