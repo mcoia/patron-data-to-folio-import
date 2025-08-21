@@ -89,7 +89,7 @@ sub parse
 
                     # We need to check this list for double entries
                     push(@parsedPatrons, $patron)
-                        unless (grep /$patron->{fingerprint}/, map {$_->{fingerprint}} @parsedPatrons);
+                        unless (grep { $_ eq $patron->{fingerprint} } map {$_->{fingerprint}} @parsedPatrons);
                     $patronCounter++;
                 }
 
