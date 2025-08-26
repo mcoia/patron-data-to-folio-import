@@ -13,6 +13,7 @@ use Parsers::ESID;
 use Parsers::TRCParser;
 use Parsers::MissouriWesternParser;
 use Parsers::StateTechParser;
+use Parsers::GoldfarbParser;
 use MOBIUS::Utils;
 
 use Data::Dumper;

@@ -56,11 +56,63 @@ sub buildFailedPatronCSVReport
 
     my $institution = $self->{institution};
 
-    # app.get('/api/patron-import/institution/:id/job/:job_id/failed-patrons/download', patronImport.getFailedUsersByInstitutionIdAndJobIdDownloadCSV);
-
-    # we need to make an api call to get the failed users csv report
-
-    # now save the csv to the dropbox path
+    try {
+        my $query = "SELECT i.name,
+                           p.job_id,
+                           p.id,
+                           p.firstname,
+                           p.lastname,
+                           p.barcode,
+                           ifu.username,
+                           ifu.externalsystemid,
+                           ifu.errormessage,
+                           p.raw_data
+                    FROM patron_import.import_response ir
+                             JOIN patron_import.import_failed_users ifu ON ir.id = ifu.import_response_id
+                             JOIN patron_import.institution i on ir.institution_id = i.id
+                             LEFT JOIN patron_import.patron p
+                                       ON ifu.externalsystemid = p.externalsystemid AND ifu.username = p.username
+                    WHERE ir.institution_id = \$1
+                      AND ir.job_id = \$2
+                    ORDER BY ifu.id";
+        
+        my $results = $main::dao->query($query, [$institution->{id}, $main::jobID]);
+        
+        if (@$results) {
+            use Text::CSV;
+            use File::Path qw(make_path);
+            
+            my $csv = Text::CSV->new({ binary => 1, eol => "\n" });
+            my $timestamp = strftime('%Y%m%d_%H%M%S', localtime);
+            
+            # Build file path: tenant/home/tenant/incoming/patron-import/abbreviation/reports
+            my $reports_dir = "$institution->{tenant}/home/$institution->{tenant}/incoming/patron-import/$institution->{abbreviation}/reports";
+            make_path($reports_dir) unless -d $reports_dir;
+            
+            my $filename = "failed_patrons_$institution->{abbreviation}_$main::jobID\_$timestamp.csv";
+            my $filepath = "$reports_dir/$filename";
+            
+            open my $fh, ">", $filepath or die "Could not open '$filepath': $!";
+            
+            # Write CSV header
+            $csv->print($fh, ['Institution', 'Job ID', 'Patron ID', 'First Name', 'Last Name', 'Barcode', 
+                              'Username', 'External System ID', 'Error Message', 'Raw Data']);
+            
+            # Write data rows
+            for my $row (@$results) {
+                $csv->print($fh, $row);
+            }
+            
+            close $fh;
+            
+            $main::log->add("Failed patron CSV report saved to: $filepath") if $main::log;
+            print "Failed patron CSV report saved to: $filepath\n" if ($main::conf->{print2Console} eq 'true');
+        }
+    }
+    catch {
+        $main::log->add("Error creating failed patron CSV report: $_") if $main::log;
+        print "Error creating failed patron CSV report: $_\n" if ($main::conf->{print2Console} eq 'true');
+    };
 
     return $self;
 
