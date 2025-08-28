@@ -84,11 +84,13 @@ sub buildFailedPatronCSVReport
             
             my $csv = Text::CSV->new({ binary => 1, eol => "\n" });
             my $timestamp = strftime('%Y%m%d_%H%M%S', localtime);
-            
-            # Build file path: tenant/home/tenant/incoming/patron-import/abbreviation/reports
-            my $reports_dir = "$institution->{tenant}/home/$institution->{tenant}/incoming/patron-import/$institution->{abbreviation}/reports";
-            make_path($reports_dir) unless -d $reports_dir;
-            
+
+            # This is pulled from the folder table in the db.
+            # folder.path = '/mnt/dropbox/arthur/home/arthur/incoming'
+            # Build file path: {folder.path}/patron-import/{institution.abbreviation}/reports
+            my $folder = $main::dao->getFullPathByInstitutionId($institution->{id});
+            my $reports_dir = $folder . "/reports" ;
+
             my $filename = "failed_patrons_$institution->{abbreviation}_$main::jobID\_$timestamp.csv";
             my $filepath = "$reports_dir/$filename";
             

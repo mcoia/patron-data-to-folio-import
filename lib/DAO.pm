@@ -768,7 +768,7 @@ sub getFullPathByInstitutionId
     my $self = shift;
     my $institution_id = shift;
 
-    my $query = "SELECT f.path || '/patron-import/' || i.abbreviation || '/import' AS full_path
+    my $query = "SELECT f.path || '/patron-import/' || i.abbreviation
             FROM patron_import.institution i
                      JOIN patron_import.institution_folder_map ifm ON i.id = ifm.institution_id
                      JOIN patron_import.folder f ON ifm.folder_id = f.id

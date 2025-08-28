@@ -286,7 +286,7 @@ sub patronFileDiscoverySpecificFolder
     my $self = shift;
     my $institution_id = shift;
 
-    my $dropboxSpecificInstitutionDirectoryPath = $main::dao->getFullPathByInstitutionId($institution_id);
+    my $dropboxSpecificInstitutionDirectoryPath = $main::dao->getFullPathByInstitutionId($institution_id) . "/import";
 
     my @files;
 
