@@ -72,11 +72,11 @@ sub buildFailedPatronCSVReport
                              JOIN patron_import.institution i on ir.institution_id = i.id
                              LEFT JOIN patron_import.patron p
                                        ON ifu.externalsystemid = p.externalsystemid AND ifu.username = p.username
-                    WHERE ir.institution_id = \$1
-                      AND ir.job_id = \$2
+                    WHERE ir.institution_id = $institution->{id}
+                      AND ir.job_id = $main::jobID
                     ORDER BY ifu.id";
         
-        my $results = $main::dao->query($query, [$institution->{id}, $main::jobID]);
+        my $results = $main::dao->query($query);
         
         if (@$results) {
             use Text::CSV;
