@@ -286,7 +286,41 @@ sub patronFileDiscoverySpecificFolder
     my $self = shift;
     my $institution_id = shift;
 
-    my $dropboxSpecificInstitutionDirectoryPath = $main::dao->getFullPathByInstitutionId($institution_id) . "/import";
+    print "Dropbox discovery starting for institution_id: [$institution_id]\n" if ($main::conf->{print2Console} eq 'true');
+    $main::log->addLine("Dropbox discovery starting for institution_id: [$institution_id]");
+
+    my $basePath = $main::dao->getFullPathByInstitutionId($institution_id);
+    print "Base path from database: [$basePath]\n" if ($main::conf->{print2Console} eq 'true');
+    $main::log->addLine("Base path from database: [$basePath]");
+
+    my $dropboxSpecificInstitutionDirectoryPath = $basePath . "/import";
+    print "Looking for dropbox files in: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
+    $main::log->addLine("Looking for dropbox files in: [$dropboxSpecificInstitutionDirectoryPath]");
+
+    # Check if directory exists and is accessible
+    if (!defined($dropboxSpecificInstitutionDirectoryPath) || $dropboxSpecificInstitutionDirectoryPath eq '/import') {
+        print "ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete\n" if ($main::conf->{print2Console} eq 'true');
+        $main::log->addLine("ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete");
+        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+    }
+
+    if (!-e $dropboxSpecificInstitutionDirectoryPath) {
+        print "WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
+        $main::log->addLine("WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]");
+        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+    }
+
+    if (!-d $dropboxSpecificInstitutionDirectoryPath) {
+        print "WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
+        $main::log->addLine("WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]");
+        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+    }
+
+    if (!-r $dropboxSpecificInstitutionDirectoryPath) {
+        print "ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
+        $main::log->addLine("ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]");
+        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+    }
 
     my @files;
 
@@ -300,7 +334,15 @@ sub patronFileDiscoverySpecificFolder
         find($wanted, $dropboxSpecificInstitutionDirectoryPath); # Find all files in the specified path
     }
     catch
-    {};
+    {
+        my $error = $_ || $@ || 'Unknown error';
+        print "ERROR: File::Find failed for [$dropboxSpecificInstitutionDirectoryPath]: $error\n" if ($main::conf->{print2Console} eq 'true');
+        $main::log->addLine("ERROR: File::Find failed for [$dropboxSpecificInstitutionDirectoryPath]: $error");
+    };
+
+    my $fileCount = scalar(@files);
+    print "Found [$fileCount] files in dropbox directory\n" if ($main::conf->{print2Console} eq 'true');
+    $main::log->addLine("Found [$fileCount] files in dropbox directory");
 
     my $folder = {
         path  => $dropboxSpecificInstitutionDirectoryPath,
