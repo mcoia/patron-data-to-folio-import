@@ -168,6 +168,12 @@ sub _parseCSVRow
     # Clean up fields - normalize empty placeholders
     $patronType =~ s/^\s+|\s+$//g;
     $expirationDate =~ s/^\s+|\s+$//g;
+
+    # Convert expiration date from M/D/YYYY to YYYY-MM-DD format
+    if ($expirationDate =~ m{^(\d{1,2})/(\d{1,2})/(\d{4})$}) {
+        my ($month, $day, $year) = ($1, $2, $3);
+        $expirationDate = sprintf("%04d-%02d-%02d", $year, $month, $day);
+    }
     $telephone =~ s/^\s+|\s+$//g;
     $uniqueId =~ s/^\s+|\s+$//g;
     $barcode =~ s/^\s+|\s+$//g;
