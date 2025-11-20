@@ -169,10 +169,10 @@ sub _parseCSVRow
     $patronType =~ s/^\s+|\s+$//g;
     $expirationDate =~ s/^\s+|\s+$//g;
 
-    # Convert expiration date from M/D/YYYY to YYYY-MM-DD format
+    # Convert expiration date from M/D/YYYY to MM/DD/YY format (matches migrate.sql regex)
     if ($expirationDate =~ m{^(\d{1,2})/(\d{1,2})/(\d{4})$}) {
         my ($month, $day, $year) = ($1, $2, $3);
-        $expirationDate = sprintf("%04d-%02d-%02d", $year, $month, $day);
+        $expirationDate = sprintf("%02d/%02d/%02d", $month, $day, $year % 100);
     }
     $telephone =~ s/^\s+|\s+$//g;
     $uniqueId =~ s/^\s+|\s+$//g;
