@@ -5,6 +5,8 @@ use Text::CSV;
 use Data::Dumper;
 use Try::Tiny;
 use Spreadsheet::XLSX;
+use Parsers::ESID;
+use MOBIUS::Utils;
 
 # State Tech CSV/Excel parser
 use parent 'Parsers::ParserInterface';
@@ -63,7 +65,7 @@ sub parse
 
                 # Process each row
                 foreach my $row (@rows) {
-                    print "Processing row: " . Dumper($row) if ($main::conf->{print2Console});
+                    # print "Processing row: " . Dumper($row) if ($main::conf->{print2Console});
 
                     my $patron = $self->_parseCSVRow($row);
 
@@ -158,6 +160,7 @@ sub _readExcelFile
     for my $col ($minCol .. $maxCol) {
         my $cell = $worksheet->{Cells}->[$minRow]->[$col];
         my $header = $cell ? $cell->{Val} : "";
+        $header =~ s/&amp;/&/g;
         push @headers, $header;
     }
     
@@ -274,7 +277,7 @@ sub _parseCSVRow
         'address2'               => $cityStateZip,
         'telephone2'             => "",
         'department'             => "{}",
-        'unique_id'              => $row->{uniqueid} || "",
+        'unique_id'              => $row->{uniqueid} || $row->{emailaddress} || "",
         'barcode'                => $row->{'Student ID Barcode Number'} || "",
         'email_address'          => $row->{emailaddress} || "",
         'note'                   => "",
