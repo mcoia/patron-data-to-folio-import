@@ -184,8 +184,16 @@ sub _parseCSVRow
     my $self = shift;
     my $row = shift;
 
+    # Helper to convert literal "NULL" string to empty string
+    my $sanitize = sub {
+        my $value = shift;
+        return "" unless defined $value;
+        return "" if ($value eq "NULL" || $value eq "null");
+        return $value;
+    };
+
     # Parse the name from fullname field
-    my $fullname = $row->{fullname} || "";
+    my $fullname = $sanitize->($row->{fullname});
     $fullname =~ s/^\s+|\s+$//g; # Trim whitespace
     
     # Parse name components from "Last, First Middle" format
@@ -201,13 +209,63 @@ sub _parseCSVRow
         $middleName = join(" ", @nameParts);
     }
 
-    # Parse Sierra "0 line" format from Expiration Date field
-    my $zeroLine = $row->{'Expiration Date'} || "";
+    # Parse Sierra "0 line" format from PTYPE & Expiration field
+    my $zeroLine = $row->{'PTYPE & Expiration'} || $row->{'Expiration Date'} || "";
     
     # Extract patron info from Sierra "0 line" format using substr operations
     my ($patronType, $pcode1, $pcode2, $pcode3, $homeLibrary, $patronMessageCode, $patronBlockCode, $expirationDate) = ("", "", "", "", "", "", "", "");
     
-    if ($zeroLine =~ /^0/) {
+    # Check if this is State Tech hybrid format (e.g. "0061l-000lsb  --05/17/2026")
+    # This format follows standard Sierra positions 0-15, but uses extended date format
+    if ($zeroLine =~ /^0\d{3}l/) {
+        # State Tech hybrid format: follows standard Sierra positions 0-15,
+        # but uses extended date format (mm/dd/yyyy instead of mm-dd-yy)
+
+        # Clean the data first
+        $zeroLine =~ s/^\s*//g;
+        $zeroLine =~ s/\s*$//g;
+        $zeroLine =~ s/\n//g;
+        $zeroLine =~ s/\r//g;
+
+        # Parse using standard Sierra positions (0-15)
+        eval {
+            $patronType = substr($zeroLine, 1, 3) + 0;  # Positions 1-3, convert to number
+        };
+
+        eval {
+            $pcode1 = substr($zeroLine, 4, 1);  # Position 4
+        };
+
+        eval {
+            $pcode2 = substr($zeroLine, 5, 1);  # Position 5
+        };
+
+        eval {
+            $pcode3 = substr($zeroLine, 6, 3);  # Positions 6-8
+        };
+
+        eval {
+            $homeLibrary = substr($zeroLine, 9, 5);  # Positions 9-13
+        };
+
+        eval {
+            $patronMessageCode = substr($zeroLine, 14, 1);  # Position 14
+        };
+
+        eval {
+            $patronBlockCode = substr($zeroLine, 15, 1);  # Position 15
+        };
+
+        # Extract expiration date using regex (non-standard format at end)
+        # Handles mm/dd/yyyy, mm-dd-yy, or similar formats
+        eval {
+            ($expirationDate) = $zeroLine =~ /(\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{2,4})\s*$/;
+            $expirationDate ||= "";
+        };
+
+    } elsif ($zeroLine =~ /^0/) {
+        # New "Sierra Zero Line" parsing logic
+        
         # Clean the data first
         $zeroLine =~ s/^\s*//g;
         $zeroLine =~ s/\s*$//g; 
@@ -251,7 +309,7 @@ sub _parseCSVRow
     }
 
     # Parse address components
-    my $address = $row->{address} || "";
+    my $address = $sanitize->($row->{address});
     my ($street, $cityStateZip) = ("", "");
     if ($address =~ /^([^\$]+)\$(.+)$/) {
         $street = $1;
@@ -273,15 +331,15 @@ sub _parseCSVRow
         'name'                   => join(", ", grep {$_} ($lastName, $firstName, $middleName)),
         'preferred_name'         => "",
         'address'                => $street,
-        'telephone'              => $row->{mobilephone} || "",
+        'telephone'              => $sanitize->($row->{mobilephone}),
         'address2'               => $cityStateZip,
         'telephone2'             => "",
         'department'             => "{}",
-        'unique_id'              => $row->{uniqueid} || $row->{emailaddress} || "",
-        'barcode'                => $row->{'Student ID Barcode Number'} || "",
-        'email_address'          => $row->{emailaddress} || "",
+        'unique_id'              => $sanitize->($row->{username}) || $sanitize->($row->{uniqueid}) || $sanitize->($row->{emailaddress}),
+        'barcode'                => $sanitize->($row->{Barcode}) || $sanitize->($row->{'Student ID Barcode Number'}),
+        'email_address'          => $sanitize->($row->{emailaddress}),
         'note'                   => "",
-        'esid'                   => $row->{externalID} || "",
+        'esid'                   => $sanitize->($row->{externalID}),
         'custom_fields'          => "",
     };
 
