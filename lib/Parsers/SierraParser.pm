@@ -106,6 +106,13 @@ sub parse
                 my @patronRecord = ();
                 my $patronRecordSize = 0;
 
+                # Skip xlsx files - SierraParser only handles text-based Sierra format
+                if ($path =~ /\.(xlsx|xls)$/i) {
+                    print "WARNING: Skipping xlsx file [$path] - SierraParser only processes Sierra text format\n" if ($main::conf->{print2Console});
+                    $main::log->addLine("WARNING: Skipping xlsx file [$path] - SierraParser only processes Sierra text format");
+                    next;
+                }
+
                 print "Reading file: [$path]\n" if ($main::conf->{print2Console});
                 # Read our patron file into an array.
                 my $data = $main::files->readFileToArray($path);

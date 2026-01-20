@@ -15,6 +15,7 @@ use Parsers::MissouriWesternParser;
 use Parsers::StateTechParser;
 use Parsers::GoldfarbParser;
 use Parsers::WichitaParser;
+use Parsers::StephensParser;
 use MOBIUS::Utils;
 
 use Data::Dumper;
@@ -66,6 +67,17 @@ sub stagePatronRecords
 
         my $dropboxFolder = $main::files->patronFileDiscoverySpecificFolder($institution->{id});
 
+        # Check for access errors from dropbox discovery
+        if ($dropboxFolder->{error}) {
+            my $error_msg = "FILE ACCESS ERROR for $institution->{name}: " .
+                            "$dropboxFolder->{error} - $dropboxFolder->{error_message}";
+            print "$error_msg\n" if ($main::conf->{print2Console} eq 'true');
+            $main::log->addLine($error_msg);
+            # Store error on institution for later reference in status message
+            $institution->{access_error} = $dropboxFolder->{error};
+            $institution->{access_error_message} = $dropboxFolder->{error_message};
+        }
+
         # We push everything into the institution->folder and then iterate thru removing duplicates.
         push(@{$institution->{folders}}, $dropboxFolder);
         $self->removeDuplicatePaths($institution);
@@ -92,6 +104,11 @@ sub stagePatronRecords
         print "================================================================================\n\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("Total Patrons: [$totalPatrons]\n");
 
+        # press Enter to continue - WRITE THIS
+        # print "Press Enter to continue...\n" if ($main::conf->{print2Console} eq 'true');
+        # <STDIN>;
+        # exit;
+
         # We migrate records here, truncating the table after each loop
         my $migrationSuccess = $self->migrate();
 
@@ -106,6 +123,11 @@ sub stagePatronRecords
             $reason .= "deleteFiles=false " if ($main::conf->{deleteFiles} ne 'true');
             $reason .= "migration failed " if (!$migrationSuccess);
             $reason .= "no patrons parsed " if ($totalPatrons == 0);
+
+            # Include access error information if present
+            if ($institution->{access_error}) {
+                $reason .= "(ACCESS ERROR: $institution->{access_error}) ";
+            }
 
             print "$reason for institution: $institution->{name}\n" if ($main::conf->{print2Console} eq 'true');
             $main::log->addLine("$reason for institution: $institution->{name}");

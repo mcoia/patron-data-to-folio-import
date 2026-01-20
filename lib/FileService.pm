@@ -301,25 +301,45 @@ sub patronFileDiscoverySpecificFolder
     if (!defined($dropboxSpecificInstitutionDirectoryPath) || $dropboxSpecificInstitutionDirectoryPath eq '/import') {
         print "ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete");
-        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+        return {
+            path => $dropboxSpecificInstitutionDirectoryPath,
+            files => [],
+            error => 'INVALID_PATH',
+            error_message => "Invalid path for institution_id [$institution_id] - path is undefined or incomplete"
+        };
     }
 
     if (!-e $dropboxSpecificInstitutionDirectoryPath) {
         print "WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]");
-        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+        return {
+            path => $dropboxSpecificInstitutionDirectoryPath,
+            files => [],
+            error => 'NOT_FOUND',
+            error_message => "Directory does not exist: $dropboxSpecificInstitutionDirectoryPath"
+        };
     }
 
     if (!-d $dropboxSpecificInstitutionDirectoryPath) {
         print "WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]");
-        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+        return {
+            path => $dropboxSpecificInstitutionDirectoryPath,
+            files => [],
+            error => 'NOT_DIRECTORY',
+            error_message => "Path exists but is not a directory: $dropboxSpecificInstitutionDirectoryPath"
+        };
     }
 
     if (!-r $dropboxSpecificInstitutionDirectoryPath) {
         print "ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
         $main::log->addLine("ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]");
-        return { path => $dropboxSpecificInstitutionDirectoryPath, files => [] };
+        return {
+            path => $dropboxSpecificInstitutionDirectoryPath,
+            files => [],
+            error => 'PERMISSION_DENIED',
+            error_message => "Directory is not readable (permission denied): $dropboxSpecificInstitutionDirectoryPath"
+        };
     }
 
     my @files;
@@ -780,13 +800,19 @@ sub buildPathHash
     my $path = shift;
     my $institution_id = shift;
 
+    # Skip reading contents for binary Excel files - they're read directly by parsers
+    my $contents = '';
+    if ($path !~ /\.(xlsx|xls)$/i) {
+        $contents = $self->readFileAsString($path);
+    }
+
     return {
         'job_id'         => $main::jobID,
         'institution_id' => $institution_id,
         'path'           => $path,
         'size'           => (stat($path))[7],
         'lastModified'   => (stat($path))[9],
-        'contents'       => $self->readFileAsString($path)
+        'contents'       => $contents  # Empty string for xlsx/xls files
     };
 
 }

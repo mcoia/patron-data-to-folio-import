@@ -72,7 +72,7 @@ sub parse
                     my $esidBuilder = Parsers::ESID->new($institution, $patron);
 
                     # Set the External System ID
-                    $patron->{esid} = $row->{externalID} || $esidBuilder->getESID();
+                    $patron->{esid} = $row->{'External ID'} || $esidBuilder->getESID();
 
                     # skip if we didn't get an esid
                     next if (!defined($patron->{esid}));
@@ -185,26 +185,17 @@ sub _parseRow
     my $self = shift;
     my $row = shift;
 
-    # Parse the name from fullname field
-    my $fullname = $row->{fullname} || "";
-    $fullname =~ s/^\s+|\s+$//g; # Trim whitespace
-    
-    # Parse name components from "Last, First Middle" format
-    my ($lastName, $firstName, $middleName) = ("", "", "");
-    if ($fullname =~ /^([^,]+),\s*(.+)$/) {
-        $lastName = $1;
-        my $firstAndMiddle = $2;
-        $firstAndMiddle =~ s/^\s+|\s+$//g;
-        
-        # Split first and middle names
-        my @nameParts = split(/\s+/, $firstAndMiddle);
-        $firstName = shift @nameParts || "";
-        $middleName = join(" ", @nameParts);
-    }
+    # Parse the name from "Last Name" and "First Name" columns
+    my $lastName = $row->{'Last Name'} || "";
+    my $firstName = $row->{'First Name'} || "";
+    my $middleName = "";
 
-    # Parse Sierra "0 line" format from "PTYPE & Expiration" field
-    # Based on inspection, the header is "PTYPE & Expiration" (or with &amp;)
-    my $zeroLine = $row->{'PTYPE & Expiration'} || $row->{'PTYPE &amp; Expiration'} || "";
+    # Trim whitespace
+    $lastName =~ s/^\s+|\s+$//g;
+    $firstName =~ s/^\s+|\s+$//g;
+
+    # Parse Sierra "0 line" format from "Patron Group" field
+    my $zeroLine = $row->{'Patron Group'} || "";
     
     # Extract patron info from Sierra "0 line" format using substr operations
     my ($patronType, $pcode1, $pcode2, $pcode3, $homeLibrary, $patronMessageCode, $patronBlockCode, $expirationDate) = ("", "", "", "", "", "", "", "");
@@ -245,11 +236,8 @@ sub _parseRow
             $patronBlockCode = substr($zeroLine, 15, 1);
         };
         
-        # Extract expiration date using regex (from end of string)
-        eval {
-            ($expirationDate) = $zeroLine =~ /(\d{1,2}[\-\/\\.]\d{1,2}[\-\/\\.]\d{2,4})\s*$/;
-            $expirationDate ||= "";
-        };
+        # Get expiration date from separate "Expiration" column
+        $expirationDate = $row->{'Expiration'} || "";
     }
 
     # Parse address components
@@ -279,11 +267,11 @@ sub _parseRow
         'address2'               => $cityStateZip,
         'telephone2'             => "",
         'department'             => "{}",
-        'unique_id'              => $row->{uniqueid} || $row->{emailaddress} || "",
+        'unique_id'              => $row->{'Email'} || "",
         'barcode'                => $row->{'Barcode'} || "",
-        'email_address'          => $row->{emailaddress} || "",
+        'email_address'          => $row->{'Email'} || "",
         'note'                   => "",
-        'esid'                   => $row->{externalID} || "",
+        'esid'                   => $row->{'External ID'} || "",
         'custom_fields'          => "",
     };
 
