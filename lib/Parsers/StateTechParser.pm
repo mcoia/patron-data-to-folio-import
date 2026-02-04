@@ -308,15 +308,9 @@ sub _parseCSVRow
         };
     }
 
-    # Parse address components
+    # Get the full address - keep the $ delimiter intact for database trigger parsing
+    # The $ character is a line break delimiter in Sierra addresses (see SierraParser line 460)
     my $address = $sanitize->($row->{address});
-    my ($street, $cityStateZip) = ("", "");
-    if ($address =~ /^([^\$]+)\$(.+)$/) {
-        $street = $1;
-        $cityStateZip = $2;
-    } else {
-        $street = $address;
-    }
 
     # Create patron hash with properly parsed Sierra format fields
     my $patron = {
@@ -330,9 +324,9 @@ sub _parseCSVRow
         'patron_expiration_date' => $expirationDate,
         'name'                   => join(", ", grep {$_} ($lastName, $firstName, $middleName)),
         'preferred_name'         => "",
-        'address'                => $street,
+        'address'                => $address,  # Keep full address with $ delimiter for DB trigger
         'telephone'              => $sanitize->($row->{mobilephone}),
-        'address2'               => $cityStateZip,
+        'address2'               => "",        # Only for separate second address if provided
         'telephone2'             => "",
         'department'             => "{}",
         'unique_id'              => $sanitize->($row->{username}) || $sanitize->($row->{uniqueid}) || $sanitize->($row->{emailaddress}),
