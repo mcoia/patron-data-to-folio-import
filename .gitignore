@@ -8,3 +8,4 @@ patron-import.conf
 backup-remote.sh
 t/failed_patrons*
 tmp
+patron-files

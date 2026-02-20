@@ -1,3 +1,7 @@
+-- Migration 000: Initial Schema
+-- Baseline schema for patron_import database
+-- Note: Run once on fresh database
+
 create schema if not exists patron_import;
 
 create table if not exists patron_import.institution
@@ -121,6 +125,7 @@ create table if not exists patron_import.patron
     enrollmentdate         text,
     expirationdate         text,
     departments            text[],
+    note                   text,
 
     -- custom fields are stored as json but in a text field. We don't need the jsonb type as we're not searching this column.
     -- So the idea is we build a perl hash and convert that into json for storage, on retrieval we'll convert json->perl hash
@@ -192,7 +197,8 @@ create table if not exists patron_import.import_failed_users_json
     json               jsonb
 );
 
-create table pcode1_mapping
+-- FIXED: pcode tables now use patron_import schema (was missing in original db.sql)
+create table if not exists patron_import.pcode1_mapping
 (
     id             SERIAL primary key,
     institution_id int references patron_import.institution (id),
@@ -200,7 +206,7 @@ create table pcode1_mapping
     pcode1_value   text
 );
 
-create table pcode2_mapping
+create table if not exists patron_import.pcode2_mapping
 (
     id             SERIAL primary key,
     institution_id int references patron_import.institution (id),
@@ -208,7 +214,7 @@ create table pcode2_mapping
     pcode2_value   text
 );
 
-create table pcode3_mapping
+create table if not exists patron_import.pcode3_mapping
 (
     id             SERIAL primary key,
     institution_id int references patron_import.institution (id),

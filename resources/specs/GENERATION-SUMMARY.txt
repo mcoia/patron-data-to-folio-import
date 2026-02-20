@@ -1,0 +1,171 @@
+=================================================================
+MOBIUS PATRON DATA FILE SPECIFICATIONS - GENERATION SUMMARY
+=================================================================
+Generated: January 8, 2026
+Total Parsers: 10
+Total PDF Documents: 10
+Total Markdown Sources: 11 (includes README.md)
+
+=================================================================
+GENERATED SPECIFICATIONS
+=================================================================
+
+1. State Technical College of Missouri (StateTech-FileSpec.pdf)
+   - Format: Excel/CSV with Sierra zero-line
+   - Pages: 4
+   - Size: 28K
+   - Special: Hybrid format, NULL sanitization, mm/dd/yyyy dates
+
+2. Stephens College (Stephens-FileSpec.pdf)
+   - Format: Excel/CSV with Sierra zero-line
+   - Pages: 4
+   - Size: 25K
+   - Special: XML entity handling (&amp; support)
+
+3. Goldfarb Library (Goldfarb-FileSpec.pdf)
+   - Format: Excel/CSV direct mapping
+   - Pages: 4
+   - Size: 21K
+   - Special: No zero-line, separate name/address columns
+   - Note: "Home Libray" typo documented
+
+4. Midwestern Baptist Theological Seminary (MBTS-FileSpec.pdf)
+   - Format: CSV only
+   - Pages: 5
+   - Size: 28K
+   - Special: Line1-Line10 format, tagged fields, UTF-8 BOM
+
+5. Wichita State University (Wichita-FileSpec.pdf)
+   - Format: CSV only
+   - Pages: 5
+   - Size: 27K
+   - Special: Date conversion YYYY-MM-DD→MM-DD-YY, ESID required
+
+6. Three Rivers College (TRC-FileSpec.pdf)
+   - Format: CSV only
+   - Pages: 5
+   - Size: 26K
+   - Special: 11-char 'text' field with packed PCODE data
+
+7. Truman State University (Truman-FileSpec.pdf)
+   - Format: Sierra Text File Image (Format 3)
+   - Pages: 6
+   - Size: 30K
+   - Special: Standard Sierra + "Other Barcode 1" support
+
+8. Covenant College (Covenant-FileSpec.pdf)
+   - Format: Sierra Text File Image (Format 3)
+   - Pages: 5
+   - Size: 25K
+   - Special: PCODE3→department API mapping
+
+9. Kansas City Kansas Community College (KCKCC-FileSpec.pdf)
+   - Format: Sierra Text File Image (Format 3)
+   - Pages: 6
+   - Size: 27K
+   - Special: Barcode extraction from unique_id
+
+10. Missouri Western State University (MissouriWestern-FileSpec.pdf)
+    - Format: Sierra Text File Image (Format 3)
+    - Pages: 6
+    - Size: 28K
+    - Special: PCODE2/PCODE3 database mappings
+
+=================================================================
+FILE ORGANIZATION
+=================================================================
+
+resources/specs/
+├── Covenant-FileSpec.pdf
+├── Goldfarb-FileSpec.pdf
+├── KCKCC-FileSpec.pdf
+├── MBTS-FileSpec.pdf
+├── MissouriWestern-FileSpec.pdf
+├── StateTech-FileSpec.pdf
+├── Stephens-FileSpec.pdf
+├── TRC-FileSpec.pdf
+├── Truman-FileSpec.pdf
+├── Wichita-FileSpec.pdf
+├── GENERATION-SUMMARY.txt (this file)
+└── markdown/
+    ├── Covenant-FileSpec.md
+    ├── Goldfarb-FileSpec.md
+    ├── KCKCC-FileSpec.md
+    ├── MBTS-FileSpec.md
+    ├── MissouriWestern-FileSpec.md
+    ├── README.md (Master Index)
+    ├── StateTech-FileSpec.md
+    ├── Stephens-FileSpec.md
+    ├── TRC-FileSpec.md
+    ├── Truman-FileSpec.md
+    └── Wichita-FileSpec.md
+
+=================================================================
+SPECIFICATION CONTENT
+=================================================================
+
+Each specification document contains:
+
+✓ Institution name and parser information
+✓ File format requirements (CSV, Excel, Sierra text)
+✓ Complete column header reference with descriptions
+✓ Zero-line format breakdown (where applicable)
+✓ Position-by-position diagrams
+✓ Sample data files showing exact format
+✓ Special processing requirements
+✓ Validation checklist
+✓ Common errors and troubleshooting
+✓ File submission instructions
+✓ Contact information
+
+=================================================================
+FORMAT TYPES SUMMARY
+=================================================================
+
+Sierra Text File Image (Format 3): 4 parsers
+  - Truman, Covenant, KCKCC, Missouri Western
+  - 24-character zero-line
+  - Tagged variable-length fields
+  - Reference: resources/patron_batchloading.txt
+
+Excel/CSV with Zero-Line: 2 parsers
+  - State Tech, Stephens
+  - Spreadsheet format with encoded Sierra metadata
+  - Hybrid of convenience and Sierra standard
+
+CSV Direct Mapping: 2 parsers
+  - Goldfarb, Wichita
+  - Individual columns for each field
+  - Simplest format for manual preparation
+
+CSV Specialized: 2 parsers
+  - MBTS (multi-column tagged fields)
+  - TRC (packed PCODE data)
+  - Institution-specific custom formats
+
+=================================================================
+DISTRIBUTION
+=================================================================
+
+These specifications are ready for immediate distribution to:
+- Library IT staff preparing patron data files
+- Systems administrators configuring patron exports
+- MOBIUS support team for reference
+
+Each institution should receive ONLY their specific PDF.
+
+=================================================================
+CONVERSION DETAILS
+=================================================================
+
+Tool: wkhtmltopdf
+Page Size: Letter
+Margins: 20mm all sides
+Source Format: GitHub-flavored Markdown
+Output Format: PDF 1.4
+
+All conversions completed successfully with exit code 0.
+
+=================================================================
+END OF SUMMARY
+=================================================================

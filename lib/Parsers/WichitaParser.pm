@@ -54,7 +54,7 @@ sub parse
 
                 # Process each row
                 foreach my $row (@rows) {
-                    print "Processing row: " . Dumper($row) if ($main::conf->{print2Console});
+                    # print "Processing row: " . Dumper($row) if ($main::conf->{print2Console});
 
                     my $patron = $self->_parseCSVRow($row);
 

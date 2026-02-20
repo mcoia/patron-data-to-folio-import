@@ -306,7 +306,7 @@ sub migrate
 {
     my $self = shift;
 
-    my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/migrate.sql");
+    my $query = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/sql/etl/stage-to-patron.sql");
 
     my $migrationSuccess = 0;
     my $result = eval {

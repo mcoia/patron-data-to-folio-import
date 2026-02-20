@@ -1,3 +1,6 @@
+-- Fix: Parse preferred names and phone numbers from raw data
+-- Run periodically to repair patron records with missing data
+
 BEGIN;
 
 ----------------------------------------
@@ -54,4 +57,4 @@ WHERE p.id = subquery.id
 
 
 COMMIT;
-ROLLBACK;
+-- ROLLBACK;

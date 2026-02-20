@@ -30,11 +30,11 @@ Avalon,,,,,,
 ,,CMUfacyyyymmdd.out,no,as requested,961,
 ,Culver-Stockton College,csctmmddyyyy.txt,no,as requested,1273,
 ,Hannibal-LaGrange University,HLG-STUDENTS,yes,Weekly,464,
-,Missouri Valley College,MVC_Student_Updates_mm_dd.txt,no,as requested,1520,
+,Missouri Valley College,.*\.xlsx,no,as requested,1520,MVC xlsx files for students and staff/faculty
 ,Moberly Area Community College,MACCPatLoadmm-dd-yy,no,as requested,7683,
 ,State Fair Community College,SFCC_Student_mmddyy.txt,no,as requested,3229,
 ,,SFCC_Staff_mmddyy.txt,no,as requested,678,
-,State Technical College of Missouri,STC_yyyy-mm-dd,no,as requested,2263,ScottA: I found STC 2023 06 07 Patron Loads.txt | This also looks like a csv upload that gets converted to a patron file. Changing my csv mapping sheet to just 'STC'
+,State Technical College of Missouri,STC_.*\.xlsx,no,as requested,2263,ScottA: Updated to support Excel .xlsx files directly instead of converted CSV/txt files
 ,Truman State University,tpbstupat,yes,Weekly,3541,
 ,,,,,,
 Bridges,,,,,,

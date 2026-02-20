@@ -76,7 +76,7 @@ sub initDatabaseConnectionDBI
 sub initDatabaseSchema
 {
     my $self = shift;
-    my $filePath = $main::conf->{projectPath} . "/resources/sql/db.sql";
+    my $filePath = $main::conf->{projectPath} . "/resources/sql/migrate/000-initial-schema.sql";
 
     print "building schema using $filePath\n" if ($main::conf->{print2Console} eq 'true');
     $main::log->addLine("building schema using $filePath");

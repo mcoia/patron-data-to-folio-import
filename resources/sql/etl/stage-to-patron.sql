@@ -1,3 +1,10 @@
+-- ETL: Stage to Patron Migration
+-- Runs every job to move records from stage_patron to patron table
+-- Includes deduplication, priority rules, and validation
+--
+-- CRITICAL: This file must truncate stage_patron at the end
+-- If records remain after execution, migration failed
+
 -- BEGIN;
 
 ------------------------
@@ -122,6 +129,7 @@ INSERT INTO patron_import.patron (institution_id,
                                   preferredcontacttypeid,
                                   departments,
                                   custom_fields,
+                                  note,
                                   expirationdate)
 SELECT sp.institution_id,
        sp.file_id,
@@ -154,6 +162,7 @@ SELECT sp.institution_id,
        'email',
        sp.department,
        sp.custom_fields,
+       sp.note,
        CASE
            WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}' THEN sp.patron_expiration_date::DATE::TEXT
            ELSE NULL
@@ -161,7 +170,8 @@ SELECT sp.institution_id,
 FROM patron_import.stage_patron sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-         LEFT JOIN patron_import.patron p2 ON BTRIM(sp.esid) = BTRIM(p2.externalsystemid)
+         LEFT JOIN patron_import.patron p2 ON BTRIM(sp.esid) = BTRIM(p2.externalsystemid) AND sp.institution_id = p2.institution_id
+
 WHERE p2.id IS NULL
   AND sp.unique_id IS NOT NULL
   AND sp.unique_id != ''
@@ -209,6 +219,7 @@ SET file_id                = sp.file_id,
     address2_one_liner     = sp.address2,
     departments            = sp.department,
     custom_fields          = sp.custom_fields,
+    note                   = sp.note,
     expirationdate         = CASE
                                  WHEN sp.patron_expiration_date ~ '\d{1,2}[\-\/\.]\d{2}[\-\/\.]\d{2,4}'
                                      THEN sp.patron_expiration_date::DATE::TEXT

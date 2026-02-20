@@ -95,7 +95,7 @@ createdb foliopatronimport
 createuser foliopatronimport
 
 # Import schema
-psql -d foliopatronimport -f resources/sql/db.sql
+psql -d foliopatronimport -f resources/sql/migrate/000-initial-schema.sql
 
 # Grant permissions
 psql -d foliopatronimport -c "GRANT ALL PRIVILEGES ON SCHEMA patron_import TO foliopatronimport;"
