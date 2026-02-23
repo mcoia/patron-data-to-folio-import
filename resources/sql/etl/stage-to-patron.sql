@@ -40,17 +40,17 @@ WHERE id IN
        WHERE pt.priority < pt2.priority);
 
 -- Remove patrons that have a lower load priority than what we already have in the patron table. (ptype_mapping.priority)
-DELETE
-FROM patron_import.stage_patron
-WHERE id IN (SELECT sp.id
-             FROM patron_import.stage_patron sp
-                      JOIN patron_import.patron p
-                           ON p.externalsystemid = sp.esid AND BTRIM(LOWER(p.username)) = BTRIM(LOWER(sp.unique_id))
-                      JOIN patron_import.ptype_mapping spt
-                           ON spt.institution_id = sp.institution_id AND spt.ptype = sp.patron_type
-                      JOIN patron_import.ptype_mapping pt2
-                           ON pt2.institution_id = sp.institution_id AND p.patrongroup = pt2.foliogroup
-             WHERE spt.priority > pt2.priority  AND spt.foliogroup != pt2.foliogroup);
+-- DELETE
+-- FROM patron_import.stage_patron
+-- WHERE id IN (SELECT sp.id
+--              FROM patron_import.stage_patron sp
+--                       JOIN patron_import.patron p
+--                            ON p.externalsystemid = sp.esid AND BTRIM(LOWER(p.username)) = BTRIM(LOWER(sp.unique_id))
+--                       JOIN patron_import.ptype_mapping spt
+--                            ON spt.institution_id = sp.institution_id AND spt.ptype = sp.patron_type
+--                       JOIN patron_import.ptype_mapping pt2
+--                            ON pt2.institution_id = sp.institution_id AND p.patrongroup = pt2.foliogroup
+--              WHERE spt.priority > pt2.priority  AND spt.foliogroup != pt2.foliogroup);
 
 -- dedupe stage_patron
 UPDATE patron_import.stage_patron sp
