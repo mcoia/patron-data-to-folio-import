@@ -651,8 +651,12 @@ sub getFolioPatronGroupsByInstitutionId
     my $tenant = $main::dao->getInstitutionHashById($institution_id)->{tenant};
     $self->login($tenant);
 
-    my $endPoint = "/groups?query=cql.allRecords=1%20sortby%20group&limit=2000";
-    my $response = $self->HTTPRequest("GET", $endPoint);
+    my $header = [
+        'x-okapi-tenant' => "$tenant",
+    ];
+
+    my $endPoint = "/groups";
+    my $response = $self->HTTPRequest("GET", $endPoint, $header);
 
     my $json;
     eval {
