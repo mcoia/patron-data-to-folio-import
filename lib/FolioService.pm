@@ -655,7 +655,7 @@ sub getFolioPatronGroupsByInstitutionId
         'x-okapi-tenant' => "$tenant",
     ];
 
-    my $endPoint = "/groups";
+    my $endPoint = "/groups?limit=2000";
     my $response = $self->HTTPRequest("GET", $endPoint, $header);
 
     my $json;
