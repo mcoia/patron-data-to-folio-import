@@ -74,41 +74,47 @@ sub sendHTML
     my $subject = shift;
     my $bodyText = shift;
     my $bodyHTML = shift;
+    my $boundaryLength = 32;
+    my $boundary = _generateRandomString($boundaryLength);
 
-    # Create the plain text part
-    my $text_part = Email::MIME->create(
-        attributes => {
-            content_type => 'text/plain',
-            charset      => 'UTF-8',
-            encoding     => 'quoted-printable',
-        },
-        body_str => $bodyText,
+    # what is the point of this?!?!?!
+    while (index($bodyHTML, $boundary) != -1)
+    {$boundary = _generateRandomString($boundaryLength);}
+
+    my @bodyLines = (
+        '--' . $boundary,
+        'Content-Type: text/plain; charset="UTF-8"',
+        "\n" . $bodyText . "\n",
+        '--' . $boundary,
+        'Content-Type: text/html; charset="UTF-8"',
+        'Content-Transfer-Encoding: quoted-printable',
+        "\n" . $bodyHTML . "\n",
+        '--' . $boundary . '--',
     );
+    my $body_str = '';
+    $body_str .= "$_\n" foreach (@bodyLines);
 
-    # Create the HTML part
-    my $html_part = Email::MIME->create(
-        attributes => {
-            content_type => 'text/html',
-            charset      => 'UTF-8',
-            encoding     => 'quoted-printable',
-        },
-        body_str => $bodyHTML,
-    );
+    # print $body_str . "\n";
 
-    # Create the multipart/alternative message
-    # Email::MIME automatically handles boundary generation and MIME structure
+    # construct our email
     my $message = Email::MIME->create(
         header_str => [
             From    => $self->{fromEmailAddress},
             To      => [ @{$self->{finalToEmailList}} ],
             Subject => $subject,
         ],
-        parts => [ $text_part, $html_part ],
+        attributes => {
+            encoding     => 'quoted-printable',
+            charset      => 'ISO-8859-1',
+            content_type => 'multipart/alternative',
+            boundary     => $boundary,
+        },
+        body_str   => $body_str
     );
 
     use Email::Sender::Simple qw(sendmail);
 
-    _reportSummary($self, $subject, $bodyText);
+    _reportSummary($self, $subject, $body);
 
     sendmail($message);
 
