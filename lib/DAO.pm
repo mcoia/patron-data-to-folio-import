@@ -1153,11 +1153,46 @@ sub finalizePatron
 
 }
 
+sub getLastJobIDForInstitution
+{
+    my $self = shift;
+    my $institutionID = shift;
+    return $self->query("select max(job_id) from patron_import.import_response WHERE institution_id = $institutionID;")->[0]->[0];
+}
+
+sub getImportResponseTotalsForInstitution
+{
+    my $self = shift;
+    my $institutionID = shift;
+    my $job_id = shift;
+    return 0 if(!(defined($job_id)) && !(defined($institutionID)) );
+
+    my $ob = $self->query("
+    select
+    sum(created),
+    sum(updated),
+    sum(failed),
+    sum(total)
+    from patron_import.import_response
+    WHERE
+    institution_id = $institutionID
+    and job_id = $job_id;")->[0];
+
+    my %ret = (
+        created => $ob->[0],
+        updated => $ob->[1],
+        failed  => $ob->[2],
+        total   => $ob->[3]
+    );
+    return \%ret;
+
+}
+
 sub getLastImportResponseID
 {
     my $self = shift;
 
-    return $self->query("select id from patron_import.import_response r order by r.id desc;")->[0]->[0];
+    return $self->query("select id from patron_import.import_response r order by r.id desc limit 1;")->[0]->[0];
 
 }
 

@@ -83,18 +83,19 @@ sub sendHTML
 
     my @bodyLines = (
         '--' . $boundary,
-        'Content-Type: text/plain; charset="UTF-8"',
+        'Content-Type: text/plain;',
         "\n" . $bodyText . "\n",
         '--' . $boundary,
-        'Content-Type: text/html; charset="UTF-8"',
+        'Content-Type: text/html;',
         'Content-Transfer-Encoding: quoted-printable',
         "\n" . $bodyHTML . "\n",
         '--' . $boundary . '--',
     );
     my $body_str = '';
     $body_str .= "$_\n" foreach (@bodyLines);
+    # $body_str = substr($body_str, 0, -1);
 
-    # print $body_str . "\n";
+    print $body_str . "\n" if $self->{debug};
 
     # construct our email
     my $message = Email::MIME->create(
@@ -112,9 +113,11 @@ sub sendHTML
         body_str   => $body_str
     );
 
+    print Dumper($message->header_str_pairs) if $self->{debug};
+
     use Email::Sender::Simple qw(sendmail);
 
-    _reportSummary($self, $subject, $body);
+    _reportSummary($self, $subject, $bodyHTML);
 
     sendmail($message);
 

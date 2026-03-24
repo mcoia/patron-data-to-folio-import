@@ -22,23 +22,26 @@ use DAO;
 my $configFile;
 my $help;
 
-our ($conf, $log, $dao, $files, $parserManager, $folio, $jobID, $import, $stage, $test, $initDB);
+our ($conf, $log, $dao, $files, $parserManager, $folio, $jobID, $import, $stage, $test, $initDB, $email, $institution, $debug);
 
 GetOptions(
-    "config=s" => \$configFile,
-    "help:s"   => \$help,
-    "import:s" => \$import,
-    "stage:s"  => \$stage,
-    "test:s"   => \$test,
-    "initDB:s" => \$initDB,
+    "config=s"       => \$configFile,
+    "help"           => \$help,
+    "import"         => \$import,
+    "stage"          => \$stage,
+    "test"           => \$test,
+    "email=s"        => \$email,
+    "institution=i"  => \$institution,
+    "debug"          => \$debug,
+    "initDB"         => \$initDB,
 )
     or die("Error in command line arguments\nPlease see --help for more information.\n");
 
-checkOptions();
 getHelpMessage() if (defined $help);
 
 initConf();
 initLogger();
+checkOptions();
 main();
 
 sub main
@@ -113,18 +116,34 @@ sub checkOptions
     if (defined($test))
     {
         print "We are working!\n";
+        if ( (defined($email)) && (defined($institution)) )
+        {
+            $dao = DAO->new();
+            $dao->_cacheTableColumns();
+            $files = FileService->new();
+            my $institutions = $dao->getInstitutionsHashByEnabled();
+            my $didSomething = 0;
+            foreach(@$institutions)
+            {
+                if($_->{id} == $institution)
+                {
+                    # Override the To email address(es) with the user provided test email address
+                    $_->{emailsuccess} = $email;
+                    $jobID = $dao->getLastJobIDForInstitution($institution);
+                    my $importResponseTotals = $dao->getImportResponseTotalsForInstitution($institution, $jobID);
+                    print Dumper($_) if $debug;
+                    print Dumper($jobID) if $debug;
+                    print Dumper($importResponseTotals) if $debug;
+                    my @importFailedUsers = ();
+                    PatronImportReporter->new($_, $importResponseTotals, \@importFailedUsers, $debug)->buildReport()->sendEmail();
+                    $didSomething = 1;
+                }
+            }
+            print "Provided institution wasn't enabled or doesn't exit" unless $didSomething;
+        }
+
         exit;
     }
-
-
-    # god this is so dumb. I was watching youtube videos about binary and must have gotten inspired.
-    # I'm going to fix this nonsense.
-
-    # It's true/false 1 or 0 booleans. Binary
-    # First is stage
-    # This is kind of dumb. There's only 2 types so I guess it's not that bad.
-    $stage = (defined($stage) ? 1 : 0);
-    $import = (defined($import) ? 1 : 0);
 
     # if no args are passed in, then we do everything.
     if (!$stage && !$import)

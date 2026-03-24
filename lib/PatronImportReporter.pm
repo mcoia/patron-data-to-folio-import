@@ -14,6 +14,7 @@ sub new
         'response'    => shift,
         'failed'      => shift,
         'message'     => '',
+        'debug'       => shift,
     };
     bless $self, $class;
     return $self;
@@ -27,11 +28,12 @@ sub buildReport
     $self->{message} = $self->_buildMessage();
 
     my $template = "";
+    my $templatePlain = "";
     $self->{failedHTML} = "";
     $self->{failedHTML} = $self->_buildFailedUsersTextTemplate() if ($main::conf->{emailType} eq 'text' && $main::conf->{includeFailedPatrons} eq 'true');
     $self->{failedHTML} = $self->_buildFailedUsersHTMLTemplate() if ($main::conf->{emailType} eq 'html' && $main::conf->{includeFailedPatrons} eq 'true');
 
-    $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.txt") if ($main::conf->{emailType} eq 'text');
+    $templatePlain = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.txt");
     $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report-with-failures.html") if ($main::conf->{emailType} eq 'html' && $main::conf->{includeFailedPatrons} eq 'true');
     $template = $main::files->readFileAsString($main::conf->{projectPath} . "/resources/reports/report.html") if ($main::conf->{emailType} eq 'html' && $main::conf->{includeFailedPatrons} eq 'false');
 
@@ -40,10 +42,13 @@ sub buildReport
     $template =~ s/\%/\\%/g;
 
     $template = '$template = "' . $template . '";';
+    $templatePlain = '$templatePlain = "' . $templatePlain . '";';
 
     eval $template;
+    eval $templatePlain;
 
     $self->{template} = $template;
+    $self->{templatePlain} = $templatePlain;
 
     return $self;
 }
@@ -148,9 +153,13 @@ sub sendEmail
 
             $emailAddress =~ s/\s+//g;
             my @emailAddressSingleEmailArray = ($emailAddress);
+            my %conf = (
+                successemaillist => '',
+                erroremaillist => ''
+            );
 
-            my $email = MOBIUS::Email->new($main::conf->{fromAddress}, \@emailAddressSingleEmailArray, 0, 0);
-            $email->sendHTML($main::conf->{subject}, "MOBIUS", $self->{template});
+            my $email = MOBIUS::Email->new($main::conf->{fromAddress}, \@emailAddressSingleEmailArray, 0, 0, \%conf, $self->{debug});
+            $email->sendHTML($main::conf->{subject}, $self->{templatePlain}, $self->{template});
 
         }
 
