@@ -206,9 +206,16 @@ SET file_id                = sp.file_id,
     firstname = REGEXP_REPLACE(BTRIM(SPLIT_PART(REGEXP_REPLACE(sp.name, '^[^,]+,\s*', ''), ' ', 1)), ',', '', 'g'
                              ),
     preferredfirstname     = CASE
-                                 WHEN sp.preferred_name LIKE '%, %' THEN BTRIM(SUBSTRING(sp.preferred_name FROM ',(.*) '))
+                                 WHEN
+                                  length(btrim(sp.preferred_name)) > 2
+                                  THEN
+                                  (
+                                    CASE WHEN sp.preferred_name ~ '.+?,\s*.+' THEN btrim(regexp_replace(sp.preferred_name, '.+?,\s*(.*)','\1','g'))
+                                    ELSE btrim(regexp_replace(sp.preferred_name,',','','g'))
+                                    END
+                                  )
                                  ELSE NULL
-        END,
+                            END,
     phone                  = BTRIM(sp.telephone),
     mobilephone            = BTRIM(sp.telephone2),
     preferredcontacttypeid = 'email',
