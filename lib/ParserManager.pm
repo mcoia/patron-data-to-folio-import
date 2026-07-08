@@ -285,7 +285,8 @@ sub getPatronFingerPrint
 
     my $self = shift;
     my $patron = shift;
-    return MOBIUS::Utils->new()->getHash($patron);
+    my $pref_name = $patron->{'preferred_name'} || '';
+    return MOBIUS::Utils->new()->getHash($patron) . $pref_name;
 
 }
 
