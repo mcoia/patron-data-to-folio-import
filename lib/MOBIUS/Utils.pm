@@ -59,7 +59,7 @@ use DateTime;
 use Encode;
 use utf8;
 use FreezeThaw qw(freeze thaw);
-use Digest::SHA1;
+use Digest::SHA qw(sha1);
 
 =head1 CONSTRUCTOR
 
@@ -1069,7 +1069,7 @@ sub calcSHA1
     utf8::upgrade($data);
     $data = Encode::encode_utf8($data);
 
-    my $sha1 = Digest::SHA1->new;
+    my $sha1 = Digest::SHA->new('sha1');
     $sha1->add($data);
     return $sha1->hexdigest;
 }
