@@ -84,7 +84,7 @@ sub parse
         for my $file (@{$folder->{files}})
         {
             # Skip files without paths (shouldn't happen with our dropbox fix, but safety check)
-            if (!$file->{paths} || !@{$file->{paths}}) {
+            if (!$file->{paths} || ($#{$file->{paths}} < 0) ) {
                 print "Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown') . "\n" if ($main::conf->{print2Console} eq 'true');
                 $main::log->addLine("Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown'));
                 next;
