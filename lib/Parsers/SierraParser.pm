@@ -77,6 +77,7 @@ sub parse
     my $institution = $self->{institution};
 
     my @parsedPatrons = ();
+    $self->{parsedPatrons} = ();
 
     for my $folder (@{$institution->{folders}})
     {

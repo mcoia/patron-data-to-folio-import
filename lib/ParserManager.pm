@@ -156,6 +156,9 @@ sub removeDuplicatePaths
             {
                 if (!exists $allUniquePaths{$path})
                 {
+                    # Log when a file path is added
+                    print "Adding file path: [$path]\n" if ($main::conf->{print2Console} eq 'true');
+                    $main::log->addLine("Adding file path: [$path]");
                     $allUniquePaths{$path} = 1;
                     push @uniqueFilePaths, $path;
                 }

@@ -551,11 +551,7 @@ sub _convertColumnArrayToCSVString
     my $self = shift;
     my $data = shift;
 
-    my @array = @{$data};
-    my $csv = "@array";
-    $csv =~ s/\s/,/g;
-
-    return $csv;
+    return join(',', @{$data});
 }
 
 # array of hashes
