@@ -300,7 +300,7 @@ WHERE username = '';
 -- we don't load patrons without a patron group associated.
 UPDATE patron_import.patron
 SET ready = FALSE
-WHERE patrongroup IS NULL;
+WHERE ready AND patrongroup IS NULL;
 
 
 -- I like having this here. after we run this SQL file, we check the size of stage_patron
