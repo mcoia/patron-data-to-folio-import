@@ -10,25 +10,28 @@ use parent 'Parsers::ParserInterface';
 
 sub new
 {
-    my $class = shift;
-    my $self = {
-        institution => shift,
-    };
-    bless $self, $class;
+    my ($class, @args) = @_;
+    my ($self, $args) = $class->SUPER::new(@args);
+
+    $self = _init($self, $args);
     return $self;
 }
 
-sub onInit
+sub _init
 {
     my $self = shift;
-    print "TRC CSV Parser initialized\n" if ($main::conf->{print2Console} eq 'true');
-    return $self;
-}
 
-sub beforeParse
-{
-    my $self = shift;
-    print "TRC CSV Parser starting parse\n" if ($main::conf->{print2Console} eq 'true');
+    if ($self->{institution} && $self->{dao} && $self->{log})
+    {
+        if ($self->getError())
+        {
+            $self->addTrace("Error loading TRCParser");
+        }
+    }
+    else
+    {
+        $self->setError("Couldn't initialize TRCParser object");
+    }
     return $self;
 }
 
@@ -38,18 +41,19 @@ sub parse
     my $institution = $self->{institution};
     my @parsedPatrons = ();
 
-    print "Starting parse for institution: $institution->{id}\n" if ($main::conf->{print2Console});
+    print "Starting parse for institution: $institution->{id}\n" if $self->{debug};
 
     for my $folder (@{$institution->{folders}})
     {
         for my $file (@{$folder->{files}})
         {
-            print "Processing file: $file->{name}\n" if ($main::conf->{print2Console});
+            print "Processing file: $file->{name}\n" if $self->{debug};
 
             my $patronCounter = 0;
-            for my $path (@{$file->{'paths'}})
+            for my $pathob (@{$file->{'paths'}})
             {
-                print "Reading CSV file: [$path]\n" if ($main::conf->{print2Console});
+                my $path = $pathob->{path};
+                print "Reading CSV file: [$path]\n" if $self->{debug};
 
                 # Read CSV file
                 my $csv = Text::CSV->new({ binary => 1, auto_diag => 1 });
@@ -62,7 +66,7 @@ sub parse
                 # Process each line in the CSV
                 while (my $row = $csv->getline_hr($fh))
                 {
-                    print "Processing row: " . Dumper($row) if ($main::conf->{print2Console});
+                    print "Processing row: " . Dumper($row) if $self->{debug};
 
                     my $patron = $self->_parseCSVRow($row);
 
@@ -79,13 +83,13 @@ sub parse
                     next if ($patron->{esid} eq '');
 
                     # Note, everything in the patron hash gets 'fingerprinted'
-                    $patron->{fingerprint} = $main::parserManager->getPatronFingerPrint($patron);
+                    $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
 
                     # set some id's, I decided I needed these for tracking down trash
                     $patron->{load} = 'true';
                     $patron->{institution_id} = $institution->{id};
-                    $patron->{job_id} = $main::jobID;
-                    $patron->{file_id} = $main::dao->getFileTrackerIDByJobIDAndFilePath($path);
+                    $patron->{job_id} = $self->{jobID};
+                    $patron->{file_id} = $pathob->{id};
 
                     # We need to check this list for double entries
                     push(@parsedPatrons, $patron)
@@ -96,12 +100,12 @@ sub parse
                 close $fh;
             }
 
-            print "Total Patrons in $file->{name}: [$patronCounter]\n" if ($main::conf->{print2Console});
-            $main::log->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
+            print "Total Patrons in $file->{name}: [$patronCounter]\n" if $self->{debug};
+            $self->{log}->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
         }
     }
 
-    print "Finished parsing institution: $institution->{id}\n" if ($main::conf->{print2Console});
+    print "Finished parsing institution: $institution->{id}\n" if $self->{debug};
 
     $self->{parsedPatrons} = \@parsedPatrons;
     return \@parsedPatrons;
@@ -156,24 +160,9 @@ sub _parseCSVRow
 sub afterParse
 {
     my $self = shift;
-    print "TRC CSV Parser completed parse\n" if ($main::conf->{print2Console} eq 'true');
+    print "TRC CSV Parser completed parse\n" if ($self->{debug});
     return $self;
 }
 
-sub finish
-{
-    my $self = shift;
-    print "TRC CSV Parser finished\n" if ($main::conf->{print2Console} eq 'true');
-    return $self;
-}
-
-sub getPatronFingerPrint
-{
-    # On the off chance this getHash() function doesn't work as expected we
-    # can just update this method to point to something else.
-    my $self = shift;
-    my $patron = shift;
-    return MOBIUS::Utils->new()->getHash($patron);
-}
 
 1;

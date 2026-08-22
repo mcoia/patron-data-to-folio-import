@@ -15,99 +15,15 @@ use Text::CSV::Simple;
 sub new
 {
     my $class = shift;
-    my $self = {};
+    my $self = {
+        jobID => shift,
+        dao   => shift,
+        conf  => shift,
+        log   => shift,
+        debug => shift,
+    };
     bless $self, $class;
     return $self;
-}
-
-sub cleanLine
-{
-    my $self = shift;
-    my $line = shift;
-
-    $line =~ s/[\x{201c}\x{201d}]//g; # Remove smart quotes
-    $line =~ s/[\x{2018}\x{2019}]//g; # Remove smart apostrophes
-    $line =~ s/\\//g;                 # Remove backslashes
-    $line =~ s/\"//g;                 # Remove regular quotes
-    $line =~ s/[\x00-\x1F\x7F]//g;    # Remove control characters
-
-    return $line;
-}
-
-sub readFileToArray
-{
-    my $self = shift;
-    my $filePath = shift;
-
-    $main::log->addLogLine("reading file: [$filePath]");
-
-    # Check if file exists and is readable
-    unless (-e $filePath && -r $filePath) {
-        die "File does not exist or is not readable: $filePath";
-    }
-
-    my @data = ();
-    my $lineCount = 0;
-    my @encodings = ('UTF-8', 'cp1252', 'MacRoman');
-    my $lastError = "";
-    my $success = 0;
-
-    # Try different encodings
-    foreach my $encoding (@encodings)
-    {
-        eval {
-            @data = (); # Clear the array
-            $lineCount = 0;
-
-            # Set up the file handle with proper encoding and binmode
-            open(my $fh, '<', $filePath) or die "Could not open file '$filePath': $!";
-            binmode($fh, ":encoding($encoding)");
-
-            # Enable all platform line endings
-            local $/ = undef; # Slurp mode
-            my $content = <$fh>;
-            close($fh);
-
-            # Skip if content is empty
-            die "Empty file" unless defined $content && length($content) > 0;
-
-            # Split on any type of line ending
-            my @lines = split(/\r\n|\r|\n/, $content);
-
-            foreach my $line (@lines)
-            {
-                $line = $self->cleanLine($line);
-                if ($line =~ /\S/) { # Only keep non-empty lines
-                    push(@data, $line);
-                    $lineCount++;
-                }
-            }
-
-            # Check if we got any valid data
-            die "No valid data found with $encoding" unless @data;
-
-            $success = 1; # Mark as successful if we got here
-            1;
-        } or do {
-            $lastError = $@ || "Unknown error";
-            $main::log->addLogLine("Attempt with $encoding failed: $lastError");
-            next; # Try next encoding
-        };
-
-        # If successful, exit the loop
-        last if $success;
-    }
-
-    # If all encodings failed
-    unless ($success) {
-        $main::log->addLogLine("Failed to read file with any encoding. Last error: $lastError");
-        die "Failed to read file with any encoding. Last error: $lastError";
-    }
-
-    my $arraySize = @data;
-    $main::log->addLogLine("Total lines read: [$lineCount] : Total array size: [$arraySize]");
-
-    return \@data;
 }
 
 sub readFileAsString
@@ -126,43 +42,6 @@ sub readFileAsString
 
 }
 
-sub _loadMOBIUSPatronLoadsCSV
-{
-    # https://docs.google.com/spreadsheets/d/1Bm8cRxcrhthtDEaKduYiKrNU5l_9VtR7bhRtNH-gTSY/edit#gid=1394736163
-    my $self = shift;
-    my $csv = $self->_loadCSVFileAsArray($main::conf->{projectPath} . "/" . $main::conf->{clusterFilesMappingSheetPath});
-    my @clusterFiles = ();
-    my $cluster = '';
-    my $institution = '';
-
-    my $rowCount = 0;
-    for my $row (@{$csv})
-    {
-
-        # Skip the header row
-        if ($rowCount == 0)
-        {
-            $rowCount++;
-            next;
-        }
-
-        $cluster = $row->[0] if ($row->[0] ne '');
-        $institution = $row->[1] if ($row->[1] ne '');
-
-        my $files = {
-            'cluster'  => lc $cluster, # <== This is needed to build out the file paths.
-            'name'     => $institution,
-            'fileName' => $row->[2],
-        };
-
-        # we should skip all institutions that have a file of 'n/a' as they're not participating?
-        push(@clusterFiles, $files) if ($row->[2] ne '');
-
-        $rowCount++;
-    }
-
-    return \@clusterFiles;
-}
 
 sub _buildFilePatterns
 {
@@ -213,11 +92,13 @@ sub patronFileDiscovery
 
         # This is our File::Find module. This thing is super fast!
         try
-        {find(sub {push(@files, $File::Find::name)}, $folder->{'path'});}
+        {
+            find(sub {push(@files, $File::Find::name)}, $folder->{'path'});
+        }
         catch
         {
-            print "Could not find this folder path! $folder->{'path'}\n" if ($main::conf->{print2Console} eq 'true');
-            $main::log->addLine("Could not find this folder path! $folder->{'path'}");
+            print "Could not find this folder path! $folder->{'path'}\n" if ($self->{debug});
+            $self->{log}->addLine("Could not find this folder path! $folder->{'path'}");
         };
 
         for my $file (@{$folder->{files}})
@@ -226,8 +107,8 @@ sub patronFileDiscovery
             # Skip files that are 'n/a'
             next if ($file->{'pattern'} eq 'n/a' || $file->{'pattern'} eq '' || !defined($file->{'pattern'}));
 
-            print "Looking for pattern: [$file->{pattern}]\n" if ($main::conf->{print2Console} eq 'true');
-            $main::log->addLine("Looking for pattern: [$file->{pattern}]");
+            print "Looking for pattern: [$file->{pattern}]\n" if ($self->{debug});
+            $self->{log}->addLine("Looking for pattern: [$file->{pattern}]");
 
             my @paths = ();
             foreach (@files)
@@ -239,6 +120,7 @@ sub patronFileDiscovery
                 undef $thisFullPath;
                 undef @frags;
             }
+            my @saving = ();
 
             if (@paths)
             {
@@ -249,23 +131,25 @@ sub patronFileDiscovery
                     if (-f $path)
                     {
 
-                        print "File Found: [$institution->{name}]:[$path]\n" if ($main::conf->{print2Console} eq 'true');
-                        $main::log->addLine("File Found: [$folder->{'path'}]:[$path]");
+                        print "File Found: [$institution->{name}]:[$path]\n" if ($self->{debug});
+                        $self->{log}->addLine("File Found: [$folder->{'path'}]:[$path]");
 
                         my $pathHash = $self->buildPathHash($path, $institution->{'id'});
 
                         # we're going to skip files older than n days. Setting in conf file.
-                        my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
+                        my $maxPatronFileAge = $self->{conf}->{maxPatronFileAge} * 60 * 60 * 24;
 
                         # check our file dates for old files.
                         if (time > $pathHash->{lastModified} + $maxPatronFileAge)
                         {
-                            print "File is older than 3 months. Skipping.\n" if ($main::conf->{print2Console} eq 'true');
-                            $main::log->addLine("File is older than 3 months. Skipping.");
+                            print "File is older than configured [$maxPatronFileAge days] allowance. Skipping.\n" if ($self->{debug});
+                            $self->{log}->addLine("File is older than $maxPatronFileAge days . Skipping.");
                             next;
                         }
 
-                        $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
+                        my $id = $self->{dao}->insertHashIntoTable("file_tracker", $pathHash);
+                        my $s = {"path" => $path, "id" => $id};
+                        push @saving, $s;
 
                     }
 
@@ -273,7 +157,7 @@ sub patronFileDiscovery
 
             }
 
-            $file->{paths} = \@paths;
+            $file->{paths} = \@saving;
 
         }
 
@@ -286,21 +170,21 @@ sub patronFileDiscoverySpecificFolder
     my $self = shift;
     my $institution_id = shift;
 
-    print "Dropbox discovery starting for institution_id: [$institution_id]\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("Dropbox discovery starting for institution_id: [$institution_id]");
+    print "Dropbox discovery starting for institution_id: [$institution_id]\n" if ($self->{debug});
+    $self->{log}->addLine("Dropbox discovery starting for institution_id: [$institution_id]");
 
-    my $basePath = $main::dao->getFullPathByInstitutionId($institution_id);
-    print "Base path from database: [$basePath]\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("Base path from database: [$basePath]");
+    my $basePath = $self->{dao}->getFullPathByInstitutionId($institution_id);
+    print "Base path from database: [$basePath]\n" if ($self->{debug});
+    $self->{log}->addLine("Base path from database: [$basePath]");
 
     my $dropboxSpecificInstitutionDirectoryPath = $basePath . "/import";
-    print "Looking for dropbox files in: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("Looking for dropbox files in: [$dropboxSpecificInstitutionDirectoryPath]");
+    print "Looking for dropbox files in: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($self->{debug});
+    $self->{log}->addLine("Looking for dropbox files in: [$dropboxSpecificInstitutionDirectoryPath]");
 
     # Check if directory exists and is accessible
     if (!defined($dropboxSpecificInstitutionDirectoryPath) || $dropboxSpecificInstitutionDirectoryPath eq '/import') {
-        print "ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete");
+        print "ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete\n" if ($self->{debug});
+        $self->{log}->addLine("ERROR: Invalid path for institution_id [$institution_id] - path is undefined or incomplete");
         return {
             path => $dropboxSpecificInstitutionDirectoryPath,
             files => [],
@@ -310,8 +194,8 @@ sub patronFileDiscoverySpecificFolder
     }
 
     if (!-e $dropboxSpecificInstitutionDirectoryPath) {
-        print "WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]");
+        print "WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($self->{debug});
+        $self->{log}->addLine("WARNING: Directory does not exist: [$dropboxSpecificInstitutionDirectoryPath]");
         return {
             path => $dropboxSpecificInstitutionDirectoryPath,
             files => [],
@@ -321,8 +205,8 @@ sub patronFileDiscoverySpecificFolder
     }
 
     if (!-d $dropboxSpecificInstitutionDirectoryPath) {
-        print "WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]");
+        print "WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($self->{debug});
+        $self->{log}->addLine("WARNING: Path exists but is not a directory: [$dropboxSpecificInstitutionDirectoryPath]");
         return {
             path => $dropboxSpecificInstitutionDirectoryPath,
             files => [],
@@ -332,8 +216,8 @@ sub patronFileDiscoverySpecificFolder
     }
 
     if (!-r $dropboxSpecificInstitutionDirectoryPath) {
-        print "ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]");
+        print "ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]\n" if ($self->{debug});
+        $self->{log}->addLine("ERROR: Directory is not readable: [$dropboxSpecificInstitutionDirectoryPath]");
         return {
             path => $dropboxSpecificInstitutionDirectoryPath,
             files => [],
@@ -356,13 +240,13 @@ sub patronFileDiscoverySpecificFolder
     catch
     {
         my $error = $_ || $@ || 'Unknown error';
-        print "ERROR: File::Find failed for [$dropboxSpecificInstitutionDirectoryPath]: $error\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("ERROR: File::Find failed for [$dropboxSpecificInstitutionDirectoryPath]: $error");
+        print "ERROR: File::Find failed for [$dropboxSpecificInstitutionDirectoryPath]: $error\n" if ($self->{debug});
+        $self->{log}->addLine("ERROR: File::Find failed for [$dropboxSpecificInstitutionDirectoryPath]: $error");
     };
 
     my $fileCount = scalar(@files);
-    print "Found [$fileCount] files in dropbox directory\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("Found [$fileCount] files in dropbox directory");
+    print "Found [$fileCount] files in dropbox directory\n" if ($self->{debug});
+    $self->{log}->addLine("Found [$fileCount] files in dropbox directory");
 
     my $folder = {
         path  => $dropboxSpecificInstitutionDirectoryPath,
@@ -374,35 +258,33 @@ sub patronFileDiscoverySpecificFolder
 
         # Check file age (same logic as pattern discovery)
         my $pathHash = $self->buildPathHash($filePath, $institution_id);
-        my $maxPatronFileAge = $main::conf->{maxPatronFileAge} * 60 * 60 * 24;
+        my $maxPatronFileAge = $self->{conf}->{maxPatronFileAge} * 60 * 60 * 24;
         if (time > $pathHash->{lastModified} + $maxPatronFileAge)
         {
-            print "Dropbox file is older than $main::conf->{maxPatronFileAge} days. Skipping: [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
-            $main::log->addLine("Dropbox file is older than $main::conf->{maxPatronFileAge} days. Skipping: [$filePath]");
+            print "Dropbox file is older than $self->{conf}->{maxPatronFileAge} days. Skipping: [$filePath]\n" if ($self->{debug});
+            $self->{log}->addLine("Dropbox file is older than $self->{conf}->{maxPatronFileAge} days. Skipping: [$filePath]");
             next;
         }
 
         my $fileName = $filePath;
         $fileName =~ s|.*/||; # Extract just the filename
 
-        my @filePathArray = ();
-        push @filePathArray, $filePath;
+        # Log that we found and backed up a dropbox file
+        print "Dropbox file found and backed up: [$fileName] at [$filePath]\n" if ($self->{debug});
+        $self->{log}->addLine("Dropbox file found and backed up: [$fileName] at [$filePath]");
 
-        # FIX: Create file entry that parsers can process
+        # Backup file contents to database
+        my $id = $self->{dao}->insertHashIntoTable("file_tracker", $pathHash);
+        my $s = {"path" => $filePath, "id" => $id};
+        my @saving = ($s);
+
         push @{$folder->{files}}, {
-            paths => \@filePathArray,
+            paths => \@saving,
             name  => $fileName,
             pattern => ".*", # Accept any file from dropbox (no pattern restriction)
             dropbox_file => 1, # Flag to indicate this came from dropbox discovery
             institution_id => $institution_id
         };
-
-        # Log that we found and backed up a dropbox file
-        print "Dropbox file found and backed up: [$fileName] at [$filePath]\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Dropbox file found and backed up: [$fileName] at [$filePath]");
-
-        # Backup file contents to database
-        $main::dao->_insertHashIntoTable("file_tracker", $pathHash);
     }
 
     return $folder;
@@ -427,7 +309,7 @@ sub saveFilePath # <== is this being used?!?!
     my $self = shift;
     my $filePathsHash = shift;
 
-    my $institution = $main::dao->getInstitutionMapHashByName($filePathsHash->{institution});
+    my $institution = $self->{dao}->getInstitutionMapHashByName($filePathsHash->{institution});
     my $files = $filePathsHash->{files};
     my @files = @{$files};
 
@@ -440,13 +322,13 @@ sub saveFilePath # <== is this being used?!?!
         {
 
             my @data = (
-                $main::jobID,
+                $self->{jobID},
                 $institution->{id},
                 $path
             );
 
-            $main::dao->_insertIntoTable("file_tracker", \@data);
-            my $file = $main::dao->getLastFileTrackerEntryByName($path);
+            $self->{dao}->_insertIntoTable("file_tracker", \@data);
+            my $file = $self->{dao}->getLastFileTrackerEntryByName($path);
             # getLastFileTrackerEntry
         }
 
@@ -457,281 +339,13 @@ sub saveFilePath # <== is this being used?!?!
     # No files found
 
     my @data = (
-        $main::jobID,
+        $self->{jobID},
         $institution->{id},
         'file-not-found'
     );
 
-    $main::dao->_insertArrayIntoTable("file_tracker", \@data);
+    $self->{dao}->_insertArrayIntoTable("file_tracker", \@data);
 
-}
-
-sub _buildFolderPaths
-{
-    my $self = shift;
-    my $fileHashArray = shift;
-
-    my @newFileHashArray = ();
-    for my $file (@{$fileHashArray})
-    {
-        $file->{folder_path} = "$main::conf->{dropBoxPath}/$file->{cluster}/home/$file->{cluster}/incoming";
-        push(@newFileHashArray, $file);
-    }
-
-    return \@newFileHashArray;
-}
-
-sub buildInstitutionTableData
-{
-    my $self = shift;
-
-    my $institutions = $self->_loadMOBIUSPatronLoadsCSV();
-    $institutions = $self->_buildFilePatterns($institutions);
-    $institutions = $self->_buildFolderPaths($institutions);
-    $institutions = $self->_addTenants($institutions);
-
-    # load the esid csv
-    $self->_loadSSO_ESID_MappingCSV();
-
-    my @existingFolders = ();
-    my @existingInstitutions = ();
-    my @existingInstitutionsFolderMap = ();
-    my $folder_id = 0;
-    my $institution_id = 0;
-
-    for my $institution (@{$institutions})
-    {
-
-        my $esid = $main::dao->getESIDFromMappingTable($institution);
-
-        my $institutionToSave = {
-            'name'    => $institution->{name},
-            'enabled' => 'TRUE',
-            'module'  => "SierraParser",
-            'esid'    => $esid,
-            'tenant'  => $institution->{tenant}
-        };
-
-        # I'm not happy with how I wrote this. It works, but it's just not that clean.
-
-        # we store the institution name into an array and check for it's existence on each cycle
-        unless (grep(/$institutionToSave->{name}/, @existingInstitutions))
-        {
-            $main::dao->_insertHashIntoTable("institution", $institutionToSave);
-            $institution_id = $main::dao->_getLastIDByTableName("institution"); # <== this works because we only build this 1 time
-            push(@existingInstitutions, $institutionToSave->{name});
-        }
-
-        my $folder = {
-            'path' => "$main::conf->{dropBoxPath}/$institution->{cluster}/home/$institution->{cluster}/incoming"
-        };
-
-        # crossref array to see if it's already been added.
-        unless (grep(/$folder->{path}/, @existingFolders))
-        {
-            $main::dao->_insertHashIntoTable("folder", $folder);
-            $folder_id = $main::dao->_getLastIDByTableName("folder");
-            push(@existingFolders, $folder->{path});
-        }
-
-        # our institution -> folder mapping table
-        my $institutionFolderMap = {
-            'institution_id' => $institution_id,
-            'folder_id'      => $folder_id
-        };
-
-        # no duplicated entries. Same logic as the unless statements above.
-        unless (grep {$_->{'folder_id'} == $institutionFolderMap->{'folder_id'} &&
-            $_->{'institution_id'} == $institutionFolderMap->{'institution_id'}} @existingInstitutionsFolderMap)
-        {
-            $main::dao->_insertHashIntoTable("institution_folder_map", $institutionFolderMap);
-            push(@existingInstitutionsFolderMap, $institutionFolderMap);
-        }
-
-        # files are 100% unique here.
-        my $file = {
-            'institution_id' => $institution_id,
-            'name'           => $institution->{fileName},
-            'pattern'        => $institution->{pattern}
-        };
-
-        $main::dao->_insertHashIntoTable("file", $file);
-
-    }
-
-}
-
-sub buildPtypeMappingFromCSV
-{
-    my $self = shift;
-
-    my $mappingSheet = $self->_loadCSVFileAsArray($main::conf->{projectPath} . "/" . $main::conf->{patronTypeMappingSheetPath});
-    my $institutions = $main::dao->getInstitutionsFoldersAndFilesHash();
-
-    for my $row (@{$mappingSheet})
-    {
-
-        # skip the first row
-        next if ($row->[0] eq 'Name');
-
-        my $institution = $row->[0];
-        my $pType = $row->[1];
-        my $folioType = $row->[2];
-
-        # trim white spaces
-        $institution =~ s/^\s*//g;
-        $institution =~ s/\s*$//g;
-
-        $pType =~ s/^\s*//g;
-        $pType =~ s/\s*$//g;
-
-        $folioType =~ s/^\s*//g;
-        $folioType =~ s/\s*$//g;
-
-        my $record = {
-            'institution_id' => $self->_getInstitutionIDFromArray($institutions, $institution),
-            'pType'          => $pType,
-            'foliogroup'     => $folioType
-        };
-
-        # We have a bunch of institutions with a file listed as 'n/a'. We don't even insert these institutions into the db
-        # When we try inserting this ptype mapping table we look for these institutions by name, but we didn't insert them
-        # so they get an institution_id = -1 which isn't going to work. So we drop them too with the if statement.
-        $main::dao->_insertHashIntoTable("ptype_mapping", $record) if ($record->{institution_id} != -1);
-
-    }
-
-}
-
-sub _getInstitutionIDFromArray
-{
-    my $self = shift;
-    my $institutions = shift;
-    my $institution = shift;
-
-    for my $i (@{$institutions})
-    {
-        return $i->{'id'} if ($institution eq $i->{'name'});
-    }
-
-    # uh... why didn't we find anything?
-    return -1;
-
-}
-
-sub _loadSSO_ESID_MappingCSV
-{
-    my $self = shift;
-    my $tableName = "sso_esid_mapping";
-
-    # load our sso_esid_mapping sheet.
-    $main::dao->createTableFromCSV("sso_esid_mapping", $main::conf->{projectPath} . "/" . $main::conf->{sso_esid_mapping});
-
-    # I don't want to touch the csv and I don't want to keep updating it as I test. So I'll just sql it.
-    my $updates = "
-    update patron_import.sso_esid_mapping set c1='Conception Abbey and Seminary' where c1='Conception Abbey and Seminary College';
-    update patron_import.sso_esid_mapping set c1='Concordia' where c1='Concordia Seminary';
-    update patron_import.sso_esid_mapping set c1='Goldfarb School of Nursing' where c1='Goldfarb School of Nursing at Barnes-Jewish College';
-    update patron_import.sso_esid_mapping set c1='Kenrick-Glennon Seminary' where c1='Kenrick-Glennon Theological Seminary';
-    update patron_import.sso_esid_mapping set c1='Missouri Historical Society' where c1='Missouri History Museum';
-    update patron_import.sso_esid_mapping set c1='University of Health Sciences and Pharmacy' where c1='University of Health Sciences and Pharmacy in St. Louis';
-    update patron_import.sso_esid_mapping set c1='Webster University/Eden Seminary' where c1='Webster University';";
-
-    $main::dao->query($updates);
-
-}
-
-sub getFileStats
-{
-    my $self = shift;
-    my $filename = shift;
-
-    my $currentTime = time();
-
-    my $hash = {};
-    $hash->{path} = $filename;
-    $hash->{lastAccess} = (stat($filename))[8];
-    $hash->{lastModified} = (stat($filename))[9];
-    $hash->{currentTime} = $currentTime;
-    $hash->{ageInMinutes} = ($currentTime - $hash->{lastModified}) / 60;
-
-    return $hash;
-
-}
-
-sub checkFileForSpecialChars
-{
-
-    # uggg.... these csv's are a freakin mess.
-    my $self = shift;
-    my $fileName = shift;
-
-    print "checking file $fileName\n" if ($main::conf->{print2Console} eq 'true');
-
-    my $data = $self->readFileToArray($fileName);
-
-    # ascii char range?
-    my $allowedChars = "+-,.0123456789:;<=>?\@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\]^_`abcdefghijklmnopqrstuvwxyz ";
-    my @allowedChars = split('', $allowedChars);
-
-    print "$allowedChars\n" if ($main::conf->{print2Console} eq 'true');
-
-    my $lineCount = 0;
-    for my $line (@{$data})
-    {
-
-        # print "[$lineCount]: $line\n" if($main::conf->{print2Console});
-        my @lineArray = split('', $line);
-        for my $char (@lineArray)
-        {
-            my $match;
-            for (@allowedChars)
-            {$match = 1 if ($_ eq $char);}
-            print "[$lineCount]:[$char][" . ord($char) . "]\n" if (!defined $match && $main::conf->{print2Console});
-
-        }
-
-        $lineCount++;
-    }
-
-    # return 1;
-
-}
-
-sub _addTenants
-{
-    my $self = shift;
-    my $institutions = shift;
-
-    $main::dao->createTableFromCSV("tenant_mapping", $main::conf->{projectPath} . "/resources/mapping/tenant_mapping.csv");
-    my $tenants = $main::dao->query("select c1,c2 from patron_import.tenant_mapping");
-
-    for my $institution (@{$institutions})
-    {
-
-        for my $tenant (@{$tenants})
-        {
-
-            if ($tenant->[0] eq $institution->{name})
-            {
-                $institution->{tenant} = $tenant->[1];
-                next;
-            }
-
-        }
-
-
-    }
-
-    return $institutions;
-
-}
-
-sub deletePatronFiles
-{
-    my $self = shift;
-
-    return $self;
 }
 
 sub normalizeLineEndings
@@ -759,41 +373,6 @@ sub normalizeLineEndings
     print "File processed. Line endings converted to \\n.\n";
 }
 
-sub checkAndConvertIfNeeded
-{
-    my $self = shift;
-    my $filePath = shift;
-
-    open my $fh, '<:raw', $filePath or die "Cannot open file '$filePath': $!";
-
-    my $containsCR = 0;
-    while (my $line = <$fh>)
-    {
-        if ($line =~ /\r/)
-        {
-            $containsCR = 1;
-            last;
-        }
-    }
-
-    close $fh;
-
-    if ($containsCR != 0)
-    {
-        $main::log->addLogLine("File '$filePath' contains \\r line endings. Converting...");
-        print "File '$filePath' contains \\r line endings. Converting...\n" if ($main::conf->{print2Console} eq 'true');
-        my $tmpFile = $filePath . ".tmp";
-        $self->normalizeLineEndings($filePath, $tmpFile);
-        rename $tmpFile, $filePath or die "Cannot rename file: $!";
-        print "Conversion complete. Original file updated.\n" if ($main::conf->{print2Console} eq 'true');
-    }
-    else
-    {
-        print "File '$filePath' does not contain \\r line endings. No conversion needed.\n" if ($main::conf->{print2Console} eq 'true');
-    }
-
-}
-
 sub buildPathHash
 {
     my $self = shift;
@@ -807,7 +386,7 @@ sub buildPathHash
     }
 
     return {
-        'job_id'         => $main::jobID,
+        'job_id'         => $self->{jobID},
         'institution_id' => $institution_id,
         'path'           => $path,
         'size'           => (stat($path))[7],

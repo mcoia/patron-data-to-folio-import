@@ -20,7 +20,7 @@ initConf();
 initLog();
 
 our $dao = DAO->new()->_cacheTableColumns();
-our $files = FileService->new();
+our $files = FileService->new($dao, $conf, $log, $debug);
 our $parser = Parsers::SierraParser->new();
 
 our $folio = FolioService->new({

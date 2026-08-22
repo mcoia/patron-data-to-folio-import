@@ -11,7 +11,6 @@ use Getopt::Long;
 use Data::Dumper;
 use MOBIUS::Email;
 use MOBIUS::Loghandler;
-use MOBIUS::DBhandler;
 use JSON;
 use MOBIUS::Utils;
 use FileService;
@@ -23,10 +22,11 @@ $| = 1;  # Disable output buffering on STDOUT
 
 my $configFile;
 
-our ($conf, $log, $dao, $files, $parserManager, $folio, $getFolioUserByUsername, $getFolioUserByESID, $getFolioPatronGroupByInstitutionId, $processInstitutionId);
+our ($jobID, $conf, $log, $dao, $files, $parserManager, $folio, $debug, $getFolioUserByUsername, $getFolioUserByESID, $getFolioPatronGroupByInstitutionId, $processInstitutionId);
 
 GetOptions(
     "config=s"                             => \$configFile,
+    "debug"                                => \$debug,
     "getFolioUserByUsername:s"             => \$getFolioUserByUsername,
     "getFolioUserByESID:s"                 => \$getFolioUserByESID,
     "getFolioPatronGroupByInstitutionId:s" => \$getFolioPatronGroupByInstitutionId,
@@ -97,7 +97,7 @@ sub initLogger
         $logFileName = $processInstitutionId . "_manual_$epoch.log";
     }
 
-    $log = Loghandler->new($logFileName);
+    $log = MOBIUS::Loghandler->new($logFileName);
     $log->truncFile("");
 
 }
@@ -105,11 +105,8 @@ sub initLogger
 sub instantiateObjects
 {
     # Create our main objects
-    $dao = DAO->new();
-    $files = FileService->new();
-    $dao->_cacheTableColumns();
-    $parserManager = ParserManager->new();
-    $folio = FolioService->new();
+    $dao = DAO->new($conf, $log, $debug);
+    $folio = FolioService->new(-1);
 }
 
 sub processInstitutionId
@@ -118,13 +115,14 @@ sub processInstitutionId
     my $institution_id = $processInstitutionId;
 
     # Create our main objects
-    $dao = DAO->new();
-    $files = FileService->new();
-    $dao->_cacheTableColumns();
+    $dao = DAO->new($conf, $log, $debug);
+    
+    $jobID = $dao->startJob();
+    $folio = FolioService->new($jobID);
+    $files = FileService->new($jobID, $dao, $conf, $log, $debug);
 
-    $dao->startJob();
-
-    $parserManager->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash($institution_id));
+    $parserManager = ParserManager->new($dao, $files, $conf, $log, $jobID, $debug);
+    $parserManager->stagePatronRecords($institution_id);
     $folio->importPatronsByInstitutionId($institution_id) if($conf->{web_import} eq 'true');
 
     $dao->finishJob();

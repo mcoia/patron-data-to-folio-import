@@ -13,6 +13,7 @@ sub new
         'institution' => shift,
         'response'    => shift,
         'failed'      => shift,
+        'jobID'       => shift,
         'message'     => '',
         'debug'       => shift,
     };
@@ -78,7 +79,7 @@ sub buildFailedPatronCSVReport
                              LEFT JOIN patron_import.patron p
                                        ON ifu.externalsystemid = p.externalsystemid AND ifu.username = p.username
                     WHERE ir.institution_id = $institution->{id}
-                      AND ir.job_id = $main::jobID
+                      AND ir.job_id = $self->{jobID}
                     ORDER BY ifu.id";
         
         my $results = $main::dao->query($query);
@@ -96,7 +97,7 @@ sub buildFailedPatronCSVReport
             my $folder = $main::dao->getFullPathByInstitutionId($institution->{id});
             my $reports_dir = $folder . "/reports" ;
 
-            my $filename = "failed_patrons_$institution->{abbreviation}_$main::jobID\_$timestamp.csv";
+            my $filename = "failed_patrons_$institution->{abbreviation}_$self->{jobID}\_$timestamp.csv";
             my $filepath = "$reports_dir/$filename";
             
             open my $fh, ">", $filepath or die "Could not open '$filepath': $!";

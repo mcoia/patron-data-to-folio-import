@@ -49,7 +49,9 @@ timeout                 180
 sub new
 {
     my $class = shift;
-    my $self = {};
+    my $self = {
+        'jobID' => shift
+    };
     bless $self, $class;
     return $self;
 }
@@ -134,6 +136,7 @@ sub importPatrons
 {
     my $self = shift;
     my $institutions = shift;
+    $self->_cleanPatronDatabase();
 
     for my $institution (@{$institutions})
     {
@@ -235,14 +238,14 @@ sub importPatrons
                 my $responseHash = decode_json($responseContent);
                 my $importResponseHash = {
                     'institution_id' => $institution->{id},
-                    'job_id'         => $main::jobID,
+                    'job_id'         => $self->{jobID},
                     'message'        => $responseHash->{message},
                     'created'        => $responseHash->{createdRecords},
                     'updated'        => $responseHash->{updatedRecords},
                     'failed'         => $responseHash->{failedRecords},
                     'total'          => $responseHash->{totalRecords},
                 };
-                $main::dao->_insertHashIntoTable("import_response", $importResponseHash);
+                $main::dao->insertHashIntoTable("import_response", $importResponseHash);
                 push(@importResponse, $importResponseHash);
 
                 my $import_response_id = $main::dao->getLastImportResponseID();
@@ -256,7 +259,7 @@ sub importPatrons
                         'username'           => $failedUser->{username},
                         'errorMessage'       => $failedUser->{errorMessage},
                     };
-                    $main::dao->_insertHashIntoTable("import_failed_users", $importFailedUsersHash);
+                    $main::dao->insertHashIntoTable("import_failed_users", $importFailedUsersHash);
 
                     # Contain this list size for email.
                     my $importFailedUsersSize = scalar(@importFailedUsers);
@@ -265,7 +268,7 @@ sub importPatrons
                 }
 
                 # Save the failed json object for inspection.
-                $main::dao->_insertHashIntoTable("import_failed_users_json", {
+                $main::dao->insertHashIntoTable("import_failed_users_json", {
                     'import_response_id' => $import_response_id,
                     'json'               => $json,
                 }) if ($responseHash->{failedRecords} > 0);
@@ -286,7 +289,7 @@ sub importPatrons
 
         my $importResponseTotals = $self->_getImportUserImportResponseTotals(\@importResponse);
 
-        PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers)->buildReport()->buildFailedPatronCSVReport()->sendEmail()
+        PatronImportReporter->new($institution, $importResponseTotals, \@importFailedUsers, $self->{jobID})->buildReport()->buildFailedPatronCSVReport()->sendEmail()
             if ($importResponseTotals->{total} > 0 || $importResponseTotals->{failed} > 0 || $importResponseTotals->{created} > 0 || $importResponseTotals->{updated} > 0);
 
     }
@@ -347,6 +350,7 @@ sub _buildPatronJSON
             firstName              => defined($patron->{firstname}) ? $patron->{firstname} : "",
             middleName             => defined($patron->{middlename}) ? $patron->{middlename} : "",
             preferredFirstName     => defined($patron->{preferredfirstname}) ? $patron->{preferredfirstname} : "",
+            pronouns               => defined($patron->{pronouns}) ? $patron->{pronouns} : "",
             phone                  => defined($patron->{phone}) ? $patron->{phone} : "",
             mobilePhone            => defined($patron->{mobilephone}) ? $patron->{mobilephone} : "",
             dateOfBirth            => defined($patron->{dateofbirth}) ? $patron->{dateofbirth} : "",
@@ -356,7 +360,6 @@ sub _buildPatronJSON
         },
         enrollmentDate   => defined($patron->{enrollmentdate}) ? $patron->{enrollmentdate} : "",
         expirationDate   => defined($patron->{expirationdate}) ? $patron->{expirationdate} : "",
-        # note             => defined($patron->{note}) ? $patron->{note} : "", # Note field not supported by FOLIO User model
     };
 
     # Add departments only if there's valid data
@@ -497,6 +500,103 @@ sub _logLoginFailed
 
     return 0;
 
+}
+
+sub _cleanPatronDatabase
+{
+    my $self = shift;
+
+    # fix middle names
+    my $query = <<'query_line';
+        UPDATE patron_import.patron p
+        SET middlename = ''
+        WHERE p.firstname = p.middlename
+query_line
+    $self->_runDBQuery($query);
+
+    # fix expirationdate
+    $query = <<'query_line';
+        UPDATE patron_import.patron
+        SET expirationdate = NULL
+        WHERE expirationdate = ''
+query_line
+    $self->_runDBQuery($query);
+
+    # Clean up some of these addresses only having a $ dollar sign or being ''. We want NULL for these.
+    $query = <<'query_line';
+        UPDATE patron_import.address
+        SET addressline1 = NULL
+        WHERE BTRIM(addressline1) = ''
+query_line
+    $self->_runDBQuery($query);
+
+    # fix addressline2
+    $query = <<'query_line';
+        UPDATE patron_import.address
+        SET addressline2 = NULL
+        WHERE BTRIM(addressline2) = ''
+query_line
+    $self->_runDBQuery($query);
+
+    # fix addressline1
+    $query = <<'query_line';
+        UPDATE patron_import.address
+        SET addressline1 = NULL
+        WHERE BTRIM(addressline1) = '$'
+query_line
+    $self->_runDBQuery($query);
+
+    # fix addressline2
+    $query = <<'query_line';
+        UPDATE patron_import.address
+        SET addressline2 = NULL
+        WHERE BTRIM(addressline2) = '$'
+query_line
+    $self->_runDBQuery($query);
+
+    # set ready false for '' on last name. folio requires a last name
+    $query = <<'query_line';
+        UPDATE patron_import.patron p
+        SET ready    = FALSE,
+            lastname = NULL
+        WHERE p.lastname = ''
+           OR p.lastname IS NULL
+query_line
+    $self->_runDBQuery($query);
+
+    # external system id
+    $query = <<'query_line';
+        UPDATE patron_import.patron
+        SET ready            = FALSE,
+            externalsystemid = NULL
+        WHERE externalsystemid = ''
+query_line
+    $self->_runDBQuery($query);
+
+    # username
+    $query = <<'query_line';
+        UPDATE patron_import.patron
+        SET ready    = FALSE,
+            username = NULL
+        WHERE username = ''
+query_line
+    $self->_runDBQuery($query);
+
+    # we don't load patrons without a patron group associated.
+    $query = <<'query_line';
+        UPDATE patron_import.patron
+        SET ready = FALSE
+        WHERE ready AND patrongroup IS NULL
+query_line
+    $self->_runDBQuery($query);
+    
+}
+
+sub _runDBQuery
+{
+    my $self = shift;
+    my $query = shift;
+    $main::dao->{db}->update($query) if $query;
 }
 
 sub _getImportUserImportResponseTotals
@@ -839,7 +939,6 @@ sub getFailedPatronsCSVFilename
     my $patron = shift;
 
     my $institution = $main::dao->getInstitutionHashById($patron->{institution_id});
-    my $jobID = $patron->{job_id};
 
     my $time = localtime();
     my $epoch = time();
@@ -847,7 +946,7 @@ sub getFailedPatronsCSVFilename
     $time =~ s/\s/_/g;
 
     # todo: this is a filepath and needs to have the directory added to it.
-    my $filename = $institution->{name} . "_job" . $jobID . "_" . $time . ".csv";
+    my $filename = $institution->{name} . "_job" . $self->{jobID} . "_" . $time . ".csv";
 
     return $filename;
 

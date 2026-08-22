@@ -117,6 +117,7 @@ create table if not exists patron_import.patron
     lastname               text,
     firstname              text,
     middlename             text,
+    pronouns               text,
     preferredfirstname     text,
     phone                  text,
     mobilephone            text,
@@ -126,11 +127,7 @@ create table if not exists patron_import.patron
     expirationdate         text,
     departments            text[],
     note                   text,
-
-    -- custom fields are stored as json but in a text field. We don't need the jsonb type as we're not searching this column.
-    -- So the idea is we build a perl hash and convert that into json for storage, on retrieval we'll convert json->perl hash
-    -- this way we can store complex datasets without busting this up into another table, doing complex joins and overly complicating this field.
-    -- we just need the custom field data which consist of a
+    -- custom fields are stored as json but in a text field
     custom_fields          text
 );
 

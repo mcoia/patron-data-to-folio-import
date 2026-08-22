@@ -19,7 +19,7 @@ initConf();
 initLog();
 
 our $dao = DAO->new();
-our $files = FileService->new();
+our $files = FileService->new($dao, $conf, $log, $debug);
 our $parser = Parser->new();
 
 sub initConf
@@ -220,7 +220,7 @@ I want to load up all the patron files that don't map to a ptype and figure out 
         {
             for my $line (@{$file})
             {
-                $dao->_insertHashIntoTable("issue", {
+                $dao->insertHashIntoTable("issue", {
                     'zeroline' => $line,
                     'path'     => $path->[0]
                 }) if ($line =~ /^0/);;

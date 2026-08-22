@@ -190,11 +190,6 @@ sub onInit {
     # Initialize parser settings
 }
 
-sub beforeParse {
-    my $self = shift;
-    # Pre-processing logic
-}
-
 sub parse {
     my ($self, $line) = @_;
     # Main parsing logic
@@ -206,10 +201,6 @@ sub afterParse {
     # Post-processing logic
 }
 
-sub finish {
-    my $self = shift;
-    # Cleanup and finalization
-}
 ```
 
 2. **Register the Parser**:
@@ -234,7 +225,6 @@ Your Institution,your_institution,patron_*.txt,TRUE
 | Method | Purpose | Required |
 |--------|---------|----------|
 | `onInit()` | Initialize parser state | ✓ |
-| `beforeParse()` | Pre-processing setup | ✓ |
 | `parse($line)` | Parse individual record | ✓ |
 | `afterParse()` | Post-processing cleanup | ✓ |
 | `finish()` | Finalization tasks | ✓ |
