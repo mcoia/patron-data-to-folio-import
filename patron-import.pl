@@ -11,7 +11,6 @@ use Getopt::Long;
 use Data::Dumper;
 use MOBIUS::Email;
 use MOBIUS::Loghandler;
-use MOBIUS::DBhandler;
 use JSON;
 use MOBIUS::Utils;
 use FileService;
@@ -19,7 +18,7 @@ use FolioService;
 use ParserManager;
 use DAO;
 
-my $configFile;
+our $configFile = "patron-import.conf";
 my $help;
 
 our ($conf, $log, $dao, $files, $parserManager, $folio, $jobID, $import, $stage, $test, $initDB, $email, $institution, $debug);
@@ -48,19 +47,15 @@ sub main
 {
 
     # Create our main objects
-    $dao = DAO->new();
-    $files = FileService->new();
-    $dao->_cacheTableColumns();
-
-    $dao->startJob();
-    $folio = FolioService->new();
-    $parserManager = ParserManager->new();
-
-    $parserManager->stagePatronRecords($main::dao->getInstitutionsFoldersAndFilesHash()) if ($stage);
+    $dao = DAO->new($conf, $log, $debug, $initDB);
+    $jobID = $dao->startJob();
+    $files = FileService->new($jobID, $dao, $conf, $log, $debug);
+    $parserManager = ParserManager->new($dao, $files, $conf, $log, $jobID, $debug);
+    $parserManager->stagePatronRecords() if ($stage);
+    $folio = FolioService->new($jobID);
     $folio->importPatronsForEnabledInstitutions() if ($import);
 
     $dao->finishJob();
-
 }
 
 sub initConf
@@ -68,14 +63,11 @@ sub initConf
 
     my $utils = MOBIUS::Utils->new();
 
-    # Check our conf file
-    $configFile = "patron-import.conf" if (!defined $configFile);
     $conf = $utils->readConfFile($configFile);
 
-    exit if ($conf eq "false");
+    undef $utils;
 
-    # leave it de-reffed, talk with blake about this being the norm.
-    # %conf = %{$conf};
+    exit if ($conf eq "false");
 
 }
 
@@ -89,8 +81,9 @@ sub initLogger
 
     my $logFileName = $conf->{logfile};
     $logFileName = lc $conf->{logfile} =~ s/\{time\}/_$time/gr if ($conf->{logfile} =~ /\{time\}/);
+    # $logFileName = "test.log";
 
-    $log = Loghandler->new($logFileName);
+    $log = MOBIUS::Loghandler->new($logFileName);
     $log->truncFile("");
 }
 
@@ -105,6 +98,7 @@ sub getHelpMessage
         --initDB                                      This will initialize the database.
         --getFolioUserByUsername                      returns a json users[] array of the folio user using the username as the search parameter
         --getFolioUserByESID                          returns a json users[] array of the folio user using the external system id as the search parameter
+        --debug                                       run in debug mode
         \n";
     exit;
 }
@@ -118,9 +112,7 @@ sub checkOptions
         print "We are working!\n";
         if ( (defined($email)) && (defined($institution)) )
         {
-            $dao = DAO->new();
-            $dao->_cacheTableColumns();
-            $files = FileService->new();
+            $dao = DAO->new($conf, $log, $debug);
             my $institutions = $dao->getInstitutionsHashByEnabled();
             my $didSomething = 0;
             foreach(@$institutions)
@@ -130,12 +122,13 @@ sub checkOptions
                     # Override the To email address(es) with the user provided test email address
                     $_->{emailsuccess} = $email;
                     $jobID = $dao->getLastJobIDForInstitution($institution);
+                    $files = FileService->new($jobID, $dao, $conf, $log, $debug);
                     my $importResponseTotals = $dao->getImportResponseTotalsForInstitution($institution, $jobID);
                     print Dumper($_) if $debug;
                     print Dumper($jobID) if $debug;
                     print Dumper($importResponseTotals) if $debug;
                     my @importFailedUsers = ();
-                    PatronImportReporter->new($_, $importResponseTotals, \@importFailedUsers, $debug)->buildReport()->sendEmail();
+                    PatronImportReporter->new($_, $importResponseTotals, \@importFailedUsers, $jobID, $debug)->buildReport()->sendEmail();
                     $didSomething = 1;
                 }
             }

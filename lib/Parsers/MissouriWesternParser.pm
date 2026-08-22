@@ -5,7 +5,6 @@ use Data::Dumper;
 use JSON;
 
 use parent 'Parsers::SierraParser';
-use FolioService;
 
 =head1 NAME
 
@@ -28,115 +27,78 @@ sub afterParse
 {
     my $self = shift;
 
-    print "=== Missouri Western Parser: afterParse ===\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("Missouri Western Parser: Starting afterParse processing");
+    my $pcode_mappings = {
+        pcode2 => {
+            'f'      => 'FRESHMAN',
+            'g'      => 'GRADUATE',
+            'h'      => 'HIGH SCHOOL',
+            'j'      => 'JUNIOR',
+            'r'      => 'SENIOR',
+            's'      => 'SOPHOMORE',
+            '-'      => 'NONE'
+        },
+        pcode3 => {
+            '0'       => 'Undecided',
+            '1'       => 'Accounting',
+            '2'       => 'Administrators/Staff',
+            '10'      => 'Art',
+            '12'      => 'Biology',
+            '15'      => 'Chemistry',
+            '17'      => 'Communication Studies',
+            '18'      => 'Computer Science',
+            '21'      => 'Continuing Education',
+            '23'      => 'Criminal Justice',
+            '28'      => 'Economics',
+            '30'      => 'Education-Elementary',
+            '31'      => 'Education-General',
+            '37'      => 'English',
+            '40'      => 'Engineering Technology',
+            '47'      => 'General Business',
+            '53'      => 'History',
+            '69'      => 'Mathematics',
+            '77'      => 'Music',
+            '79'      => 'Nursing',
+            '82'      => 'Physical Education',
+            '84'      => 'Physical Therapist Assistant',
+            '88'      => 'Psychology',
+            '103'     => 'Academic Affairs',
+            '104'     => 'Fine Arts',
+            '105'     => 'Health Professions'
+        }
+    };
+
+    print "Loaded PCODE mappings: " . scalar(keys %{$pcode_mappings->{pcode2}}) . " PCODE2, " .
+        scalar(keys %{$pcode_mappings->{pcode3}}) . " PCODE3\n" if ($self->{debug});
+
+    print "=== Missouri Western Parser: afterParse ===\n" if ($self->{debug});
+    $self->{log}->addLine("Missouri Western Parser: Starting afterParse processing");
 
     my $institution_id = $self->{institution}->{id};
     my $tenant = $self->{institution}->{tenant};
 
-    print "Processing institution ID: $institution_id, tenant: $tenant\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("Processing institution ID: $institution_id, tenant: $tenant");
-
-    # Load PCODE mappings from database
-    my $pcode_mappings = $self->_loadPcodeMappings($institution_id);
-
-    if (!$pcode_mappings)
-    {
-        $main::log->addLine("ERROR: Failed to load PCODE mappings for institution $institution_id");
-        return $self;
-    }
-
-    print "Loaded PCODE mappings: " . scalar(keys %{$pcode_mappings->{pcode2}}) . " PCODE2, " .
-        scalar(keys %{$pcode_mappings->{pcode3}}) . " PCODE3\n" if ($main::conf->{print2Console} eq 'true');
+    print "Processing institution ID: $institution_id, tenant: $tenant\n" if ($self->{debug});
+    $self->{log}->addLine("Processing institution ID: $institution_id, tenant: $tenant");
 
     # Process each parsed patron
     if ($self->{parsedPatrons} && @{$self->{parsedPatrons}})
     {
         print "Processing " . scalar(@{$self->{parsedPatrons}}) . " patrons for custom field mapping\n"
-            if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Processing " . scalar(@{$self->{parsedPatrons}}) . " patrons for custom field mapping");
+            if ($self->{debug});
+        $self->{log}->addLine("Processing " . scalar(@{$self->{parsedPatrons}}) . " patrons for custom field mapping");
 
-        foreach my $patron (@{$self->{parsedPatrons}})
-        {
-            $self->_processPatronCustomFields($patron, $pcode_mappings);
-        }
+        $self->_processPatronCustomFields($_, $pcode_mappings) foreach (@{$self->{parsedPatrons}});
     }
     else
     {
-        print "No patrons to process\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("No patrons to process in afterParse");
+        print "No patrons to process\n" if ($self->{debug});
+        $self->{log}->addLine("No patrons to process in afterParse");
     }
 
-    print "=== Missouri Western Parser: afterParse Complete ===\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("Missouri Western Parser: afterParse processing complete");
+    print "=== Missouri Western Parser: afterParse Complete ===\n" if ($self->{debug});
+    $self->{log}->addLine("Missouri Western Parser: afterParse processing complete");
 
     return $self;
 }
-
-=head2 _loadPcodeMappings($institution_id)
-
-Loads PCODE mappings from the database for the specified institution.
-Returns a hashref with pcode2 and pcode3 mappings.
-
-=cut
-
-sub _loadPcodeMappings
-{
-    my ($self, $institution_id) = @_;
-
-    my $mappings = {
-        pcode2 => {},
-        pcode3 => {}
-    };
-
-    # Load PCODE2 mappings (Class Level)
-    eval {
-        my $pcode2_query = "SELECT pcode2, pcode2_value FROM patron_import.pcode2_mapping WHERE institution_id = ?";
-        my @pcode2_results = @{$main::dao->{db}->query($pcode2_query, [ $institution_id ])};
-
-        foreach my $row (@pcode2_results)
-        {
-            $mappings->{pcode2}->{$row->[0]} = $row->[1];
-        }
-
-        print "Loaded " . scalar(@pcode2_results) . " PCODE2 mappings\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Loaded " . scalar(@pcode2_results) . " PCODE2 mappings for institution $institution_id");
-    };
-    if ($@)
-    {
-        $main::log->addLine("ERROR loading PCODE2 mappings: $@");
-        print "ERROR loading PCODE2 mappings: $@\n" if ($main::conf->{print2Console} eq 'true');
-        return undef;
-    }
-
-    # Load PCODE3 mappings (Department)
-    eval {
-        my $pcode3_query = "SELECT pcode3, pcode3_value FROM patron_import.pcode3_mapping WHERE institution_id = ?";
-        my @pcode3_results = @{$main::dao->{db}->query($pcode3_query, [ $institution_id ])};
-
-        foreach my $row (@pcode3_results)
-        {
-            $mappings->{pcode3}->{$row->[0]} = $row->[1];
-        }
-
-        print "Loaded " . scalar(@pcode3_results) . " PCODE3 mappings\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Loaded " . scalar(@pcode3_results) . " PCODE3 mappings for institution $institution_id");
-    };
-    if ($@)
-    {
-        $main::log->addLine("ERROR loading PCODE3 mappings: $@");
-        print "ERROR loading PCODE3 mappings: $@\n" if ($main::conf->{print2Console} eq 'true');
-        return undef;
-    }
-
-    return $mappings;
-}
-
-=head2 _processPatronCustomFields($patron, $pcode_mappings)
-
-Processes a single patron record to populate custom fields based on PCODE mappings.
-
-=cut
 
 sub _processPatronCustomFields
 {
@@ -144,7 +106,6 @@ sub _processPatronCustomFields
 
     my $patron_id = $patron->{unique_id} || $patron->{barcode} || 'unknown';
     my %custom_fields = ();
-    my $updated_fields = 0;
 
     # PCODE1 mapping removed - originalTenantID not needed
 
@@ -155,13 +116,12 @@ sub _processPatronCustomFields
         if ($class_level)
         {
             $custom_fields{'classlevel'} = $class_level;
-            $updated_fields++;
-            print "  Mapped PCODE2 '$patron->{pcode2}' -> Class Level: $class_level\n" if ($main::conf->{print2Console} eq 'true');
+            print "  Mapped PCODE2 '$patron->{pcode2}' -> Class Level: $class_level\n" if ($self->{debug});
         }
         else
         {
-            $main::log->addLine("WARNING: No mapping found for PCODE2 '$patron->{pcode2}' for patron $patron_id");
-            print "  WARNING: No mapping found for PCODE2 '$patron->{pcode2}'\n" if ($main::conf->{print2Console} eq 'true');
+            $self->{log}->addLine("WARNING: No mapping found for PCODE2 '$patron->{pcode2}' for patron $patron_id");
+            print "  WARNING: No mapping found for PCODE2 '$patron->{pcode2}'\n" if ($self->{debug});
         }
     }
 
@@ -175,23 +135,13 @@ sub _processPatronCustomFields
         {
             # Update the department field as PostgreSQL array (staging table expects text[])
             $patron->{department} = [ $department ];
-            $updated_fields++;
-            print "  Mapped PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3) -> Department: $department\n" if ($main::conf->{print2Console} eq 'true');
+            print "  Mapped PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3) -> Department: $department\n" if ($self->{debug});
         }
         else
         {
-            $main::log->addLine("WARNING: No mapping found for PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3) for patron $patron_id");
-            print "  WARNING: No mapping found for PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3)\n" if ($main::conf->{print2Console} eq 'true');
+            $self->{log}->addLine("WARNING: No mapping found for PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3) for patron $patron_id");
+            print "  WARNING: No mapping found for PCODE3 '$patron->{pcode3}' (normalized: $normalized_pcode3)\n" if ($self->{debug});
         }
-    }
-
-    # Map Note directly to note field (not in custom_fields)
-    if ($patron->{note} && $patron->{note} ne '')
-    {
-        # Note field is already mapped in the base parser, so we don't need to do anything here
-        # Just log the note for visibility
-        $updated_fields++;
-        print "  Note field preserved: '$patron->{note}'\n" if ($main::conf->{print2Console} eq 'true');
     }
 
     # Store custom fields in the patron record
@@ -203,17 +153,9 @@ sub _processPatronCustomFields
         };
         if ($@)
         {
-            $main::log->addLine("ERROR encoding custom fields to JSON for patron $patron_id: $@");
-            print "ERROR encoding custom fields to JSON: $@\n" if ($main::conf->{print2Console} eq 'true');
+            $self->{log}->addLine("ERROR encoding custom fields to JSON for patron $patron_id: $@");
+            print "ERROR encoding custom fields to JSON: $@\n" if ($self->{debug});
         }
-    }
-
-    if ($updated_fields > 0)
-    {
-        # Recalculate fingerprint after modifying patron data
-        $patron->{fingerprint} = $main::parserManager->getPatronFingerPrint($patron);
-        print "Updated $updated_fields custom fields for patron: $patron_id (fingerprint recalculated)\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Updated $updated_fields custom fields for patron: $patron_id");
     }
 
     return $patron;

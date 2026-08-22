@@ -109,7 +109,7 @@ sub readConfFile
     my %ret = ();
     my $ret = \%ret;
 
-    my $confFile = new Loghandler($filepath);
+    my $confFile = new MOBIUS::Loghandler($filepath);
     if (!$confFile->fileExists())
     {
         print "Config File does not exist\n";
@@ -184,7 +184,7 @@ sub readQueryFile
     my %ret = ();
     my $ret = \%ret;
 
-    my $confFile = Loghandler->new($filepath);
+    my $confFile = MOBIUS::Loghandler->new($filepath);
     if (!$confFile->fileExists())
     {
         print "Query file does not exist\n";

@@ -10,25 +10,28 @@ use parent 'Parsers::ParserInterface';
 
 sub new
 {
-    my $class = shift;
-    my $self = {
-        institution => shift,
-    };
-    bless $self, $class;
+    my ($class, @args) = @_;
+    my ($self, $args) = $class->SUPER::new(@args);
+
+    $self = _init($self, $args);
     return $self;
 }
 
-sub onInit
+sub _init
 {
     my $self = shift;
-    print "Parser onInit not implemented\n" if ($main::conf->{print2Console} eq 'true');
-    return $self;
-}
 
-sub beforeParse
-{
-    my $self = shift;
-    print "Parser beforeParse not implemented\n" if ($main::conf->{print2Console} eq 'true');
+    if ($self->{institution} && $self->{dao} && $self->{log})
+    {
+        if ($self->getError())
+        {
+            $self->addTrace("Error loading SierraParser");
+        }
+    }
+    else
+    {
+        $self->setError("Couldn't initialize SierraParser object");
+    }
     return $self;
 }
 
@@ -86,21 +89,22 @@ sub parse
         {
             # Skip files without paths (shouldn't happen with our dropbox fix, but safety check)
             if (!$file->{paths} || ($#{$file->{paths}} < 0) ) {
-                print "Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown') . "\n" if ($main::conf->{print2Console} eq 'true');
-                $main::log->addLine("Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown'));
+                print "Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown') . "\n" if ($self->{debug});
+                $self->{log}->addLine("Warning: File entry has no paths, skipping: " . ($file->{name} || 'unknown'));
                 next;
             }
 
             my $patronCounter = 0;
-            for my $path (@{$file->{'paths'}})
+            for my $pathob (@{$file->{'paths'}})
             {
+                my $path = $pathob->{path};
                 # Log whether this is a pattern-matched file or dropbox file
                 if ($file->{dropbox_file}) {
-                    print "Processing dropbox file: $file->{name} at $path\n" if ($main::conf->{print2Console} eq 'true');
-                    $main::log->addLine("Processing dropbox file: $file->{name} at $path");
+                    print "Processing dropbox file: $file->{name} at $path\n" if ($self->{debug});
+                    $self->{log}->addLine("Processing dropbox file: $file->{name} at $path");
                 } else {
-                    print "Processing pattern-matched file: $file->{name} at $path\n" if ($main::conf->{print2Console} eq 'true');
-                    $main::log->addLine("Processing pattern-matched file: $file->{name} at $path");
+                    print "Processing pattern-matched file: $file->{name} at $path\n" if ($self->{debug});
+                    $self->{log}->addLine("Processing pattern-matched file: $file->{name} at $path");
                 }
 
                 my @patronRecords = ();
@@ -109,15 +113,16 @@ sub parse
 
                 # Skip xlsx files - SierraParser only handles text-based Sierra format
                 if ($path =~ /\.(xlsx|xls)$/i) {
-                    print "WARNING: Skipping xlsx file [$path] - SierraParser only processes Sierra text format\n" if ($main::conf->{print2Console});
-                    $main::log->addLine("WARNING: Skipping xlsx file [$path] - SierraParser only processes Sierra text format");
+                    print "WARNING: Skipping xlsx file [$path] - SierraParser only processes Sierra text format\n" if ($self->{debug});
+                    $self->{log}->addLine("WARNING: Skipping xlsx file [$path] - SierraParser only processes Sierra text format");
                     next;
                 }
 
-                print "Reading file: [$path]\n" if ($main::conf->{print2Console});
+                print "Reading file: [$path]\n" if ($self->{debug});
                 # Read our patron file into an array.
-                my $data = $main::files->readFileToArray($path);
-                $self->{debug}->{path} = $path;
+
+                my $data = $self->readFileToArray($path);
+                $self->addTrace($path);
 
                 for my $line (@{$data})
                 {
@@ -160,13 +165,13 @@ sub parse
                     # Note, everything in the patron hash gets 'fingerprinted'.
                     # id's are basically irrelevant after and may change on subsequent loads. So we don't want
                     # to finger print id's. job_id being one that WILL change.
-                    $patron->{fingerprint} = $main::parserManager->getPatronFingerPrint($patron);
+                    $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
 
                     # set some id's, I decided I needed these for tracking down trash
                     $patron->{load} = 'true';
                     $patron->{institution_id} = $institution->{id};
-                    $patron->{job_id} = $main::jobID;
-                    $patron->{file_id} = $main::dao->getFileTrackerIDByJobIDAndFilePath($path);
+                    $patron->{job_id} = $self->{jobID};
+                    $patron->{file_id} = $pathob->{id};
 
                     # We need to check this list for double entries, defined patrons or patrons without any keys.
                     push(@parsedPatrons, $patron)
@@ -177,16 +182,14 @@ sub parse
 
             }
 
-            print "Total Patrons in $file->{name}: [$patronCounter]\n" if ($main::conf->{print2Console});
-            $main::log->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
+            print "Total Patrons in $file->{name}: [$patronCounter]\n" if ($self->{debug});
+            $self->{log}->addLine("Total Patrons in $file->{name}: [$patronCounter]\n");
 
         }
 
     }
 
     $self->{parsedPatrons} = \@parsedPatrons;
-    return \@parsedPatrons;
-
 }
 
 =head1 _parsePatronRecord(@patronrecord)
@@ -241,7 +244,6 @@ sub _parsePatronRecord
         'telephone'              => "",
         'address2'               => "",
         'telephone2'             => "",
-        'department'             => "",
         'unique_id'              => "",
         'barcode'                => "",
         'email_address'          => "",
@@ -279,10 +281,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! patron_type\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! patron_type");
-                $main::log->addLine("data: [$data]");
+                print "we failed! patron_type\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{debug});
+                $self->{log}->addLine("we failed! patron_type");
+                $self->{log}->addLine("data: [$data]");
                 $isParsed = 0; # <== We keep this! Very important. Patron Groups are permissions.
             };
         };
@@ -302,10 +304,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! pcode1\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! pcode1");
-                $main::log->addLine("data: [$data]");
+                print "we failed! pcode1\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{log});
+                $self->{log}->addLine("we failed! pcode1");
+                $self->{log}->addLine("data: [$data]");
             };
         };
 
@@ -324,10 +326,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! pcode2\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! pcode2");
-                $main::log->addLine("data: [$data]");
+                print "we failed! pcode2\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{debug});
+                $self->{log}->addLine("we failed! pcode2");
+                $self->{log}->addLine("data: [$data]");
             };
         };
 
@@ -347,10 +349,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! pcode3\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! pcode3");
-                $main::log->addLine("data: [$data]");
+                print "we failed! pcode3\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{debug});
+                $self->{log}->addLine("we failed! pcode3");
+                $self->{log}->addLine("data: [$data]");
             };
         };
 
@@ -370,10 +372,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! home_library\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! home_library");
-                $main::log->addLine("data: [$data]");
+                print "we failed! home_library\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{debug});
+                $self->{log}->addLine("we failed! home_library");
+                $self->{log}->addLine("data: [$data]");
             };
         };
 
@@ -393,10 +395,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! patron_message_code\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! patron_message_code");
-                $main::log->addLine("data: [$data]");
+                print "we failed! patron_message_code\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{debug});
+                $self->{log}->addLine("we failed! patron_message_code");
+                $self->{log}->addLine("data: [$data]");
             };
         };
 
@@ -419,10 +421,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! patron_block_code\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! patron_block_code");
-                $main::log->addLine("data: [$data]");
+                print "we failed! patron_block_code\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{debug});
+                $self->{log}->addLine("we failed! patron_block_code");
+                $self->{log}->addLine("data: [$data]");
             };
         };
 
@@ -442,10 +444,10 @@ sub _parsePatronRecord
             }
             catch
             {
-                print "we failed! patron_expiration_date\n" if ($main::conf->{print2Console});
-                print "data: [$data]\n" if ($main::conf->{print2Console});
-                $main::log->addLine("we failed! patron_expiration_date");
-                $main::log->addLine("data: [$data]");
+                print "we failed! patron_expiration_date\n" if ($self->{debug});
+                print "data: [$data]\n" if ($self->{debug});
+                $self->{log}->addLine("we failed! patron_expiration_date");
+                $self->{log}->addLine("data: [$data]");
                 $patron->{'patron_expiration_date'} = "";
             };
         };
@@ -537,8 +539,8 @@ sub _parsePatronRecord
     # Patron groups are permissions and need to be parsed correctly.
     if ($isParsed == 0)
     {
-        print Dumper($patron) if ($main::conf->{print2Console});
-        $main::log->addLine(Dumper($patron));
+        print Dumper($patron) if ($self->{debug});
+        $self->{log}->addLine(Dumper($patron));
     }
 
     return undef if ($isParsed == 0);
@@ -562,7 +564,7 @@ sub _parseDepartment
         push @departments, $department;
     }
 
-    return encode_json(\@departments);
+    return \@departments;
 }
 
 sub _parseCustomFieldsOLD
@@ -636,26 +638,9 @@ sub _parseCustomFields
 sub afterParse
 {
     my $self = shift;
-    print "Parser afterParse not implemented\n" if ($main::conf->{print2Console} eq 'true');
+    print "Parser afterParse not implemented\n" if ($self->{debug});
     return $self;
 }
 
-sub finish
-{
-    my $self = shift;
-    print "Parser finish not implemented\n" if ($main::conf->{print2Console} eq 'true');
-    return $self;
-}
-
-sub getPatronFingerPrint
-{
-    # On the off chance this getHash() function doesn't work as expected we
-    # can just update this method to point to something else.
-
-    my $self = shift;
-    my $patron = shift;
-    return MOBIUS::Utils->new()->getHash($patron);
-
-}
 
 1;

@@ -19,7 +19,7 @@ initLog();
 our $dao = DAO->new();
 $dao->_initDatabaseCache();
 
-our $files = FileService->new();
+our $files = FileService->new($dao, $conf, $log, $debug);
 our $parser = Parser->new();
 
 sub initConf
@@ -333,7 +333,7 @@ sub test__insertHash
     # 'note'                   => ""
 };
 
-    $dao->_insertHashIntoTable("stage_patron", $patron);
+    $dao->insertHashIntoTable("stage_patron", $patron);
 
 }
 

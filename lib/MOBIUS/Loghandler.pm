@@ -18,7 +18,7 @@
 # blake@mobiusconsortium.org
 # 2013-1-24
 
-package Loghandler;
+package MOBIUS::Loghandler;
 
 use DateTime;
 use File::Copy;

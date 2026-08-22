@@ -13,25 +13,28 @@ use parent 'Parsers::ParserInterface';
 
 sub new
 {
-    my $class = shift;
-    my $self = {
-        institution => shift,
-    };
-    bless $self, $class;
+    my ($class, @args) = @_;
+    my ($self, $args) = $class->SUPER::new(@args);
+
+    $self = _init($self, $args);
     return $self;
 }
 
-sub onInit
+sub _init
 {
     my $self = shift;
-    print "Missouri Valley College Parser initialized\n" if ($main::conf->{print2Console} eq 'true');
-    return $self;
-}
 
-sub beforeParse
-{
-    my $self = shift;
-    print "Missouri Valley College Parser starting parse\n" if ($main::conf->{print2Console} eq 'true');
+    if ($self->{institution} && $self->{dao} && $self->{log})
+    {
+        if ($self->getError())
+        {
+            $self->addTrace("Error loading MVCParser");
+        }
+    }
+    else
+    {
+        $self->setError("Couldn't initialize MVCParser object");
+    }
     return $self;
 }
 
@@ -42,44 +45,52 @@ sub parse
     my @parsedPatrons = ();
 
     my $folderCount = scalar(@{$institution->{folders}});
-    print "Starting parse for institution: $institution->{id}\n" if ($main::conf->{print2Console});
-    $main::log->addLine("MVCParser: Starting parse for institution $institution->{id}, folder count: $folderCount");
+    print "Starting parse for institution: $institution->{id}\n" if $self->{debug};
+    $self->{log}->addLine("MVCParser: Starting parse for institution $institution->{id}, folder count: $folderCount");
 
-    if ($folderCount == 0) {
-        $main::log->addLine("MVCParser WARNING: No folders found for institution $institution->{id}");
+    if ($folderCount == 0)
+    {
+        $self->{log}->addLine("MVCParser WARNING: No folders found for institution $institution->{id}");
     }
 
     my $folderIndex = 0;
-    for my $folder (@{$institution->{folders}}) {
+    for my $folder (@{$institution->{folders}})
+    {
         $folderIndex++;
         my $fileCount = scalar(@{$folder->{files}});
-        $main::log->addLine("MVCParser: Processing folder $folderIndex/$folderCount, file count: $fileCount");
+        $self->{log}->addLine("MVCParser: Processing folder $folderIndex/$folderCount, file count: $fileCount");
 
-        if ($fileCount == 0) {
-            $main::log->addLine("MVCParser WARNING: No files found in folder $folderIndex");
+        if ($fileCount == 0)
+        {
+            $self->{log}->addLine("MVCParser WARNING: No files found in folder $folderIndex");
         }
 
-        for my $file (@{$folder->{files}}) {
-            print "Processing file: $file->{name}\n" if ($main::conf->{print2Console});
-            $main::log->addLine("MVCParser: Processing file: $file->{name}");
+        for my $file (@{$folder->{files}})
+        {
+            print "Processing file: $file->{name}\n" if $self->{debug};
+            $self->{log}->addLine("MVCParser: Processing file: $file->{name}");
 
             my $patronCounter = 0;
             my $pathCount = scalar(@{$file->{'paths'}});
-            $main::log->addLine("MVCParser: File has $pathCount path(s)");
+            $self->{log}->addLine("MVCParser: File has $pathCount path(s)");
 
-            for my $path (@{$file->{'paths'}}) {
+            for my $pathob (@{$file->{'paths'}})
+            {
                 my @rows = ();
-                $main::log->addLine("MVCParser: Examining path: $path");
+                my $path = $pathob->{path};
+                $self->{log}->addLine("MVCParser: Examining path: $path");
 
                 # Read Excel file
-                if ($path =~ /\.xlsx$/i) {
-                    print "Reading Excel file: [$path]\n" if ($main::conf->{print2Console});
-                    $main::log->addLine("MVCParser: Path matches xlsx pattern, reading Excel file");
+                if ($path =~ /\.xlsx$/i)
+                {
+                    print "Reading Excel file: [$path]\n" if $self->{debug};
+                    $self->{log}->addLine("MVCParser: Path matches xlsx pattern, reading Excel file");
                     @rows = $self->_readExcelFile($path);
-                    $main::log->addLine("MVCParser: Read " . scalar(@rows) . " rows from Excel file");
-                } else {
-                    print "Skipping non-xlsx file: [$path]\n" if ($main::conf->{print2Console});
-                    $main::log->addLine("MVCParser: SKIPPING non-xlsx file: $path");
+                    $self->{log}->addLine("MVCParser: Read " . scalar(@rows) . " rows from Excel file");
+                } else
+                {
+                    print "Skipping non-xlsx file: [$path]\n" if $self->{debug};
+                    $self->{log}->addLine("MVCParser: SKIPPING non-xlsx file: $path");
                     next;
                 }
 
@@ -89,12 +100,14 @@ sub parse
                 my $skippedNoEsid = 0;
                 my $skippedEmptyEsid = 0;
 
-                foreach my $row (@rows) {
+                foreach my $row (@rows)
+                {
                     $rowIndex++;
                     my $patron = $self->_parseRow($row, $rowIndex);
 
                     # skip if we didn't get a patron
-                    if (!defined($patron)) {
+                    if (!defined($patron))
+                    {
                         $skippedNoPatron++;
                         next;
                     }
@@ -105,25 +118,27 @@ sub parse
                     $patron->{esid} = $patron->{email_address} || $esidBuilder->getESID();
 
                     # skip if we didn't get an esid
-                    if (!defined($patron->{esid})) {
-                        $main::log->addLine("MVCParser: Row $rowIndex SKIPPED - esid is undefined (barcode: $patron->{barcode}, email: $patron->{email_address})");
+                    if (!defined($patron->{esid}))
+                    {
+                        $self->{log}->addLine("MVCParser: Row $rowIndex SKIPPED - esid is undefined (barcode: $patron->{barcode}, email: $patron->{email_address})");
                         $skippedNoEsid++;
                         next;
                     }
-                    if ($patron->{esid} eq '') {
-                        $main::log->addLine("MVCParser: Row $rowIndex SKIPPED - esid is empty (barcode: $patron->{barcode}, email: $patron->{email_address})");
+                    if ($patron->{esid} eq '')
+                    {
+                        $self->{log}->addLine("MVCParser: Row $rowIndex SKIPPED - esid is empty (barcode: $patron->{barcode}, email: $patron->{email_address})");
                         $skippedEmptyEsid++;
                         next;
                     }
 
                     # Note, everything in the patron hash gets 'fingerprinted'
-                    $patron->{fingerprint} = $main::parserManager->getPatronFingerPrint($patron);
+                    $patron->{fingerprint} = $self->getPatronFingerPrint($patron);
 
                     # set some id's, I decided I needed these for tracking down trash
                     $patron->{load} = 'true';
                     $patron->{institution_id} = $institution->{id};
-                    $patron->{job_id} = $main::jobID;
-                    $patron->{file_id} = $main::dao->getFileTrackerIDByJobIDAndFilePath($path);
+                    $patron->{job_id} = $self->{jobID};
+                    $patron->{file_id} = $pathob->{id};
 
                     # We need to check this list for double entries - use exact string comparison
                     push(@parsedPatrons, $patron)
@@ -132,16 +147,16 @@ sub parse
                 }
 
                 # Log skip summary for this path
-                $main::log->addLine("MVCParser: Path processing complete - Rows: $rowIndex, Skipped(no patron): $skippedNoPatron, Skipped(no esid): $skippedNoEsid, Skipped(empty esid): $skippedEmptyEsid");
+                $self->{log}->addLine("MVCParser: Path processing complete - Rows: $rowIndex, Skipped(no patron): $skippedNoPatron, Skipped(no esid): $skippedNoEsid, Skipped(empty esid): $skippedEmptyEsid");
             }
 
-            print "Total Patrons in $file->{name}: [$patronCounter]\n" if ($main::conf->{print2Console});
-            $main::log->addLine("MVCParser: Total Patrons in $file->{name}: [$patronCounter]");
+            print "Total Patrons in $file->{name}: [$patronCounter]\n" if $self->{debug};
+            $self->{log}->addLine("MVCParser: Total Patrons in $file->{name}: [$patronCounter]");
         }
     }
 
-    print "Finished parsing institution: $institution->{id}\n" if ($main::conf->{print2Console});
-    $main::log->addLine("MVCParser: Finished parsing institution $institution->{id}, total unique patrons: " . scalar(@parsedPatrons));
+    print "Finished parsing institution: $institution->{id}\n" if $self->{debug};
+    $self->{log}->addLine("MVCParser: Finished parsing institution $institution->{id}, total unique patrons: " . scalar(@parsedPatrons));
 
     $self->{parsedPatrons} = \@parsedPatrons;
     return \@parsedPatrons;
@@ -155,13 +170,15 @@ sub _readExcelFile
 
     # Read Excel file
     my $excel = Spreadsheet::XLSX->new($path);
-    unless ($excel) {
+    unless ($excel)
+    {
         die "Cannot open Excel file: $path";
     }
 
     # Get the first worksheet
     my $worksheet = $excel->{Worksheet}->[0];
-    unless ($worksheet) {
+    unless ($worksheet)
+    {
         die "No worksheet found in Excel file: $path";
     }
 
@@ -173,7 +190,8 @@ sub _readExcelFile
 
     # Read header row (first row)
     my @headers = ();
-    for my $col ($minCol .. $maxCol) {
+    for my $col ($minCol .. $maxCol)
+    {
         my $cell = $worksheet->{Cells}->[$minRow]->[$col];
         my $header = $cell ? $cell->{Val} : "";
         # Clean up header
@@ -183,21 +201,23 @@ sub _readExcelFile
 
     # Log headers found
     my $headerList = join(", ", map { "'$_'" } @headers);
-    $main::log->addLine("MVCParser: Excel headers found: [$headerList]");
-    $main::log->addLine("MVCParser: Excel row range: $minRow to $maxRow (expected data rows: " . ($maxRow - $minRow) . ")");
+    $self->{log}->addLine("MVCParser: Excel headers found: [$headerList]");
+    $self->{log}->addLine("MVCParser: Excel row range: $minRow to $maxRow (expected data rows: " . ($maxRow - $minRow) . ")");
 
     # Check for expected headers
     my %headerCheck = map { $_ => 1 } @headers;
     my @expectedHeaders = ('NAME', 'BAR CODE', 'PATRON CODE', 'EMAIL', 'Expiration Date', 'ID', 'calc1');
     my @foundHeaders = grep { $headerCheck{$_} } @expectedHeaders;
     my @missingHeaders = grep { !$headerCheck{$_} } @expectedHeaders;
-    $main::log->addLine("MVCParser: Expected headers found: " . join(", ", @foundHeaders));
-    $main::log->addLine("MVCParser: Expected headers missing: " . join(", ", @missingHeaders)) if @missingHeaders;
+    $self->{log}->addLine("MVCParser: Expected headers found: " . join(", ", @foundHeaders));
+    $self->{log}->addLine("MVCParser: Expected headers missing: " . join(", ", @missingHeaders)) if @missingHeaders;
 
     # Read data rows
-    for my $row (($minRow + 1) .. $maxRow) {
+    for my $row (($minRow + 1) .. $maxRow)
+    {
         my %rowData = ();
-        for my $col ($minCol .. $maxCol) {
+        for my $col ($minCol .. $maxCol)
+        {
             my $cell = $worksheet->{Cells}->[$row]->[$col];
             my $value = $cell ? $cell->{Val} : "";
             my $header = $headers[$col - $minCol];
@@ -239,8 +259,9 @@ sub _parseRow
     $email =~ s/^\s+|\s+$//g;
 
     # Log key fields for first few rows to help debugging
-    if ($rowIndex <= 3) {
-        $main::log->addLine("MVCParser: Row $rowIndex key fields - NAME='$nameField', BAR CODE='" . ($row->{'BAR CODE'} || '') . "', ID='" . ($row->{'ID'} || '') . "', PATRON CODE='" . ($row->{'PATRON CODE'} || '') . "', calc1='" . ($row->{'calc1'} || '') . "', EMAIL='$email'");
+    if ($rowIndex <= 3)
+    {
+        $self->{log}->addLine("MVCParser: Row $rowIndex key fields - NAME='$nameField', BAR CODE='" . ($row->{'BAR CODE'} || '') . "', ID='" . ($row->{'ID'} || '') . "', PATRON CODE='" . ($row->{'PATRON CODE'} || '') . "', calc1='" . ($row->{'calc1'} || '') . "', EMAIL='$email'");
     }
 
     # Get address - Student files have "PERM_ADDRESS", Staff files have "ODS_ADDRESS.ADDRESS_LINE_1"
@@ -256,7 +277,8 @@ sub _parseRow
     $zip =~ s/^\s+|\s+$//g;
 
     my $cityStateZip = "";
-    if ($city || $state || $zip) {
+    if ($city || $state || $zip)
+    {
         $cityStateZip = join(", ", grep {$_} ($city, $state)) . " " . $zip;
         $cityStateZip =~ s/^\s+|\s+$//g;
     }
@@ -268,9 +290,12 @@ sub _parseRow
     $phoneNumber =~ s/^\s+|\s+$//g;
 
     my $telephone = "";
-    if ($areaCode && $phoneNumber) {
+    if ($areaCode && $phoneNumber)
+    {
         $telephone = "$areaCode-$phoneNumber";
-    } elsif ($phoneNumber) {
+    }
+    elsif ($phoneNumber)
+    {
         $telephone = $phoneNumber;
     }
 
@@ -279,14 +304,16 @@ sub _parseRow
     $expDate =~ s/^\s+|\s+$//g;
 
     my $expirationDate = "";
-    if ($expDate =~ m|^(\d{2})/(\d{2})/(\d{4})$|) {
+    if ($expDate =~ m|^(\d{2})/(\d{2})/(\d{4})$|)
+    {
         my ($month, $day, $year) = ($1, $2, $3);
         $expirationDate = sprintf("%02d-%02d-%02d", $month, $day, $year % 100);
     }
 
     # Log expiration date for first few rows
-    if ($rowIndex <= 3) {
-        $main::log->addLine("MVCParser: Row $rowIndex expiration - raw='$expDate', parsed='$expirationDate'");
+    if ($rowIndex <= 3)
+    {
+        $self->{log}->addLine("MVCParser: Row $rowIndex expiration - raw='$expDate', parsed='$expirationDate'");
     }
 
     # Create patron hash
@@ -316,7 +343,8 @@ sub _parseRow
 
     # Build raw_data for fingerprinting
     my $raw_data = "";
-    foreach my $key (sort keys %$row) {
+    foreach my $key (sort keys %$row)
+    {
         $raw_data .= "$key: " . ($row->{$key} || "") . "\n";
     }
     $patron->{raw_data} = $raw_data;
@@ -327,22 +355,8 @@ sub _parseRow
 sub afterParse
 {
     my $self = shift;
-    print "Missouri Valley College Parser completed parse\n" if ($main::conf->{print2Console} eq 'true');
+    print "Missouri Valley College Parser completed parse\n" if ($self->{debug});
     return $self;
-}
-
-sub finish
-{
-    my $self = shift;
-    print "Missouri Valley College Parser finished\n" if ($main::conf->{print2Console} eq 'true');
-    return $self;
-}
-
-sub getPatronFingerPrint
-{
-    my $self = shift;
-    my $patron = shift;
-    return MOBIUS::Utils->new()->getHash($patron);
 }
 
 1;

@@ -16,23 +16,27 @@ sub new
 {
     my $class = shift;
     my $self = {
-        'db'    => 0,
-        'cache' => {},
-        'dbh'   => 0,
+        'conf'    => shift,
+        'log'     => shift,
+        'debug'   => shift,
+        'initDB'  => shift,
+        'db'      => 0,
+        'cache'   => {},
+        'dbh'     => 0,
     };
-    $self = init($self);
     bless $self, $class;
+    $self = init($self);
     return $self;
 }
 
 sub init
 {
     my $self = shift;
-    $schema = $main::conf->{schema};
+    $schema = $self->{conf}->{schema};
 
-    $self = initDatabaseConnection($self);
-    $self = initDatabaseConnectionDBI($self);
-    initDatabaseSchema($self) if ($main::initDB);
+    $self->initDatabaseConnection();
+    initDatabaseSchema() if($self->{initDB});
+    $self->_cacheTableColumns();
 
     return $self;
 
@@ -42,31 +46,10 @@ sub initDatabaseConnection
 {
     my $self = shift;
 
-    eval {$self->{db} = DBhandler->new($main::conf->{db}, $main::conf->{dbhost}, $main::conf->{dbuser}, $main::conf->{dbpass}, $main::conf->{port} || $main::conf->{port}, "postgres", 1);};
+    eval {$self->{db} = DBhandler->new($self->{conf}->{db}, $self->{conf}->{dbhost}, $self->{conf}->{dbuser}, $self->{conf}->{dbpass}, $self->{conf}->{port} || $self->{conf}->{port}, "postgres", 1);};
     if ($@)
     {
-        print "Could not establish a connection to the database\n" if ($main::conf->{print2Console} eq 'true');
-        exit 1;
-    }
-
-    return $self;
-}
-
-sub initDatabaseConnectionDBI
-{
-    my $self = shift;
-
-    eval {
-        $self->{dbh} = DBI->connect(
-            "dbi:Pg:dbname=$main::conf->{db};host=$main::conf->{dbhost};port=$main::conf->{port}",
-            $main::conf->{dbuser},
-            $main::conf->{dbpass},
-            { RaiseError => 1, AutoCommit => 1 }
-        );
-    };
-    if ($@)
-    {
-        print "Could not establish a connection to the database: $@\n" if ($main::conf->{print2Console} eq 'true');
+        print "Could not establish a connection to the database\n" if ($self->{debug});
         exit 1;
     }
 
@@ -76,10 +59,10 @@ sub initDatabaseConnectionDBI
 sub initDatabaseSchema
 {
     my $self = shift;
-    my $filePath = $main::conf->{projectPath} . "/resources/sql/migrate/000-initial-schema.sql";
+    my $filePath = $self->{conf}->{projectPath} . "/resources/sql/migrate/000-initial-schema.sql";
 
-    print "building schema using $filePath\n" if ($main::conf->{print2Console} eq 'true');
-    $main::log->addLine("building schema using $filePath");
+    print "building schema using $filePath\n" if ($self->{debug});
+    $self->{log}->addLine("building schema using $filePath");
 
     open my $fileHandle, '<', $filePath or die "Could not open file '$filePath' $!";
 
@@ -92,102 +75,12 @@ sub initDatabaseSchema
 
 }
 
-sub checkDatabaseStatus
-{
-    my $self = shift;
-
-    # init our cache
-    $self->_cacheTableColumns();
-
-    my $institutionTableSize = $self->getTableSize("institution");
-    if ($institutionTableSize == 0)
-    {
-        print "building database tables\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("building database tables");
-
-        # Insert the MOBIUS Primary tenant. This should be in the db.sql yea?
-        print "Insert the MOBIUS Primary tenant.\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Insert the MOBIUS Primary tenant.");
-        $self->query("INSERT INTO patron_import.institution (enabled, name, tenant, module, esid)
-        VALUES (false, 'MOBIUS Office', 'cs00000001', 'SierraParser', '')");
-
-        # Check our institution map
-        print "Building the institution tables.\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Building the institution tables.");
-        $main::files->buildInstitutionTableData();
-
-        # build out our ptype mapping table
-        print "Building the ptype mapping tables.\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Building the ptype mapping.");
-        $main::files->buildPtypeMappingFromCSV();
-
-        # insert our folio logins
-        print "Populating login tables.\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Populating login tables.");
-        $self->populateFolioLoginTable();
-
-        # re-cache our columns due to db update.
-        print "Caching tables.\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("Caching tables.");
-        $self->_cacheTableColumns();
-
-    }
-
-}
-
-sub _initDatabaseCache
-{
-    my $self = shift;
-
-    # A kind of registry for all database cache objects
-    $self->_cacheTableColumns();
-
-    # We can't cache things that haven't been created yet!!!
-    # This is some idea's for future caching
-    # $self->_initDatabaseCacheInstitutions();
-    # $self->_initDatabaseCachePtype_mapping();
-
-}
-
 sub query
 {
-
     my $self = shift;
     my $query = shift;
 
-    # I'm a lazy developer. I don't want to type $main::dao->{db}->query(...) each time saving valuable seconds off my life!
     return $self->{db}->query($query);
-
-}
-
-sub queryAsHash
-{
-    my ($self, $query) = @_;
-
-    unless ($self->{dbh})
-    {
-        $self->initDatabaseConnectionDBI();
-    }
-
-    my @results;
-    eval {
-        my $sth = $self->{dbh}->prepare($query);
-        $sth->execute();
-
-        while (my $row = $sth->fetchrow_hashref)
-        {
-            push @results, $row;
-        }
-
-        $sth->finish();
-    };
-    if ($@)
-    {
-        print "Error executing query: $@\n" if ($main::conf->{print2Console} eq 'true');
-        return undef;
-    }
-
-    return \@results;
 }
 
 sub queryHash
@@ -203,7 +96,7 @@ sub queryHash
     try
     {$self->_convertQueryResultsToHash($tableName, $self->query($query));}
     catch
-    {$main::log->addLine("queryHash failed! $query");};
+    {$self->{log}->addLine("queryHash failed! $query");};
 
     return $results;
 
@@ -220,13 +113,12 @@ sub update
 sub _cacheTableColumns
 {
     my $self = shift;
-    # I'm not sure how far this rabbit hole can go. I may start caching other data too.
-    # I'm putting this in $self->{cache}->{table}->{columns} = () array
 
     my $query = "select t.table_name, c.column_name,c.ordinal_position from information_schema.tables t
                 join information_schema.columns c on(t.table_name = c.table_name)
                 where t.table_schema='patron_import'
-                group by t.table_name, c.ordinal_position, c.column_name;";
+                group by t.table_name, c.ordinal_position, c.column_name
+                order by t.table_name, c.ordinal_position, c.column_name;";
 
     my $results = $self->query($query);
     my $tableName = "";
@@ -260,9 +152,6 @@ sub _cacheTableColumns
         my @columnCopy = @columns;
         $self->{'cache'}->{'columns'}->{$tableName} = \@columnCopy;
     }
-
-    return $self;
-
 }
 
 sub getStagedPatrons
@@ -287,7 +176,7 @@ sub getStagedPatrons
 
 }
 
-sub _insertHashIntoTable
+sub insertHashIntoTable
 {
     my $self = shift;
     my $tableName = shift;
@@ -313,10 +202,15 @@ sub _insertHashIntoTable
 
     # taking advantage of perls natural templating
     my $query = "INSERT INTO $schema.$tableName($columns) VALUES($dataString);";
-    # $main::log->addLine($query);
+    my $maxBefore = 0;
+    my $maxAfter = 0;
+    $maxBefore = $self->getMaxIDFromTable($tableName) + 0;
 
     $self->{'db'}->updateWithParameters($query, \@data);
 
+    $maxAfter = $self->getMaxIDFromTable($tableName) + 0;
+    return $maxAfter if($maxAfter > $maxBefore);
+    return 0;
 }
 
 sub _insertArrayIntoTable
@@ -351,7 +245,6 @@ sub _insertArrayIntoTable
 
     # taking advantage of perls natural templating
     my $query = "INSERT INTO $schema.$tableName($columns) VALUES($dataString);";
-    # $main::log->addLine($query);
 
     # eval {$self->{'db'}->updateWithParameters($query, $data);};
     $self->{'db'}->updateWithParameters($query, $data);
@@ -392,14 +285,14 @@ sub getPatronByUsername
 
     my $results = [];
     my $query = "select $columns from $schema.$tableName where username='$username';";
-    print "$query\n" if ($main::conf->{print2Console} eq 'true');
+    print "$query\n" if ($self->{debug});
 
     try
     {$results = $self->_convertQueryResultsToHash($tableName, $self->query($query));}
     catch
     {
-        print "queryHash failed! $query\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("queryHash failed! $query");
+        print "queryHash failed! $query\n" if ($self->{debug});
+            $self->{log}->addLine("queryHash failed! $query");
     };
 
     return $results->[0];
@@ -437,14 +330,14 @@ sub getPatronByESID
 
     my $results = [];
     my $query = "select $columns from $schema.$tableName where externalsystemid='$esid';";
-    print "$query\n" if ($main::conf->{print2Console} eq 'true');
+    print "$query\n" if ($self->{debug});
 
     try
     {$results = $self->_convertQueryResultsToHash($tableName, $self->query($query));}
     catch
     {
-        print "queryHash failed! $query\n" if ($main::conf->{print2Console} eq 'true');
-        $main::log->addLine("queryHash failed! $query");
+        print "queryHash failed! $query\n" if ($self->{debug});
+        $self->{log}->addLine("queryHash failed! $query");
     };
 
     return $results->[0];
@@ -503,13 +396,6 @@ sub getTenantByInstitutionId
 
     return $results->[0]->{tenant};
 
-}
-
-sub getStagePatronCount
-{
-    my $self = shift;
-    my $query = "SELECT count(*) as count FROM patron_import.stage_patron";
-    return $main::dao->query($query)->[0]->[0];
 }
 
 sub _convertQueryResultsToHash
@@ -601,103 +487,6 @@ sub getInstitutionMapHashByName
     my $query = "select $columns from $schema.$tableName t where t.institution='$name';";
 
     return $self->_convertQueryResultsToHash($tableName, $self->{db}->query($query))->[0];
-
-}
-
-sub getInstitutionsFoldersAndFilesHashOLD
-{
-    my $self = shift;
-
-    return $self->{'cache'}->{'institutions'} if (defined($self->{'cache'}->{'institutions'}));
-
-    my @institutions = ();
-    my $columns = $self->_getTableColumns("institution");
-
-    for my $institution (@{$self->_convertQueryResultsToHash("institution", $self->query("select $columns from patron_import.institution i order by i.id asc"))})
-    {
-
-        # get the folders
-        for my $folder (@{$self->_convertQueryResultsToHash("folder", $self->query("select f.id,f.path from patron_import.folder f
-                                        join patron_import.institution_folder_map fm on(fm.folder_id=f.id)
-                                        where fm.institution_id = $institution->{'id'}"))})
-        {
-
-=pod
-
-
-This is the current data structure. It's wrong. It should be an array of folders[]
-
-* I think this is how it should be.
-'folders' => [
-    'path' => 'some-folder-path',
-    'files' => [
-                 {
-                   'id' => 1,
-                   'institution_id' => 2,
-                   'name' => 'eccpat.txt',
-                   'pattern' => 'eccpat\\.txt',
-                 }
-    ],
-]
-
-* This is how it currently is.
-
-{
-          'module' => 'SierraParser',
-          'esid' => 'padLeft($self->{patron}->{barcode},\'0\', 7);',
-          'id' => 2,
-          'tenant' => 'cs00000001_0060',
-          'folder' => {
-                        'files' => [
-                                     {
-                                       'id' => 1,
-                                       'name' => 'eccpat.txt',
-                                       'pattern' => 'eccpat\\.txt',
-                                       'paths' => [
-                                                    '/mnt/dropbox/archway/home/archway/incoming/eccpat.txt'
-                                                  ],
-                                       'institution_id' => 2
-                                     }
-                                   ],
-                        'path' => '/mnt/dropbox/archway/home/archway/incoming',
-                        'id' => 1
-                      },
-          'enabled' => 1,
-          'name' => 'East Central College'
-        };
-
-
-
-We have nothing tieing the file -> folder. If we start adding custom folders each folder will have a full set of files.  But maybe that's what we want?
-Also, this is scoped wrong. It needs to be outside this folder loop. This logic is wrong.
-
-=cut
-
-
-            my @files = @{$self->_convertQueryResultsToHash("file", $self->query("select * from patron_import.file f where f.institution_id = $institution->{'id'} order by f.id desc"))};
-            my $institutionHash = {
-                'id'      => $institution->{'id'},
-                'enabled' => $institution->{'enabled'},
-                'name'    => $institution->{'name'},
-                'tenant'  => $institution->{tenant},
-                'module'  => $institution->{'module'},
-                'esid'    => $institution->{'esid'},
-                'folder'  => {
-                    'id'    => $folder->{'id'},
-                    'path'  => $folder->{'path'},
-                    'files' => \@files
-                }
-            };
-
-            push(@institutions, $institutionHash);
-
-        }
-
-    }
-
-    $self->{'cache'}->{'institutions'} = \@institutions;
-
-    return $self->{'cache'}->{'institutions'};
 
 }
 
@@ -859,7 +648,7 @@ sub dropTable
     my $tableName = shift;
 
     my $query = "drop table if exists $schema.$tableName;";
-    print "$query\n" if ($main::conf->{print2Console} eq 'true');
+    print "$query\n" if ($self->{debug});
     $self->query($query);
 
 }
@@ -887,50 +676,6 @@ sub createTableFromHash
     $self->query($query);
 
     return $self;
-}
-
-sub createTableFromCSV
-{
-
-    my $self = shift;
-    my $tableName = shift;
-    my $filePath = shift;
-    my $rowsToSkip = shift | 0;
-
-    my $csv = $main::files->_loadCSVFileAsArray($filePath);
-    my $totalColumns = @{$csv->[$rowsToSkip]};
-
-    # create our table
-    my $columns = "";
-    for my $index (1 .. $totalColumns)
-    {
-        $columns .= "C$index text,";
-    }
-    chop($columns); # ,
-
-    my $query = "create table if not exists $schema.$tableName ($columns);";
-    $self->query($query);
-
-    # now load the csv into this table
-    my $count = 0;
-    for my $row (@{$csv})
-    {
-
-        # skip n rows
-        if ($count < $rowsToSkip)
-        {
-            $count++;
-            next;
-        }
-
-        $self->_insertArrayIntoTable($tableName, $row);
-        $count++;
-    }
-
-    print "inserted [$count] records into $tableName\n" if ($main::conf->{print2Console} eq 'true');
-
-    return $csv;
-
 }
 
 sub getESIDFromMappingTable
@@ -1014,7 +759,7 @@ sub getPatronBatch2Import
     my $self = shift;
     my $institutionID = shift;
 
-    my $chunkSize = shift || $main::conf->{patronImportChunkSize};
+    my $chunkSize = shift || $self->{conf}->{patronImportChunkSize};
 
     my $tableName = "patron";
     my $columns = $self->_getTableColumns($tableName);
@@ -1050,23 +795,7 @@ sub getPatronBatch2Import
 
         $patron->{address} = $address;
 
-        # Can I not do this? I should be grabbing the specified columns.
-        # This _convertQueryResultsToHash is the freaking problem here. It want's all the column names.
-        # I really need to fix that. DBD::pg
-
-        # remove unwanted columns. todo: does this matter? We don't populate these fields in the json data.
-        # delete($patron->{id});
-        # delete($patron->{institution_id});
-        # delete($patron->{file_id});
-        # delete($patron->{job_id});
-        # delete($patron->{fingerprint});
-        # delete($patron->{ready});
-        # delete($patron->{error});
-        # delete($patron->{errormessage});
-
         # remove unwanted address fields
-
-        # This should go above the assignment above.
         my $addressIndex = 0;
         for ($patron->{address})
         {
@@ -1109,24 +838,6 @@ sub getInstitutionsHashByEnabled
 
 }
 
-# sub enablePatrons
-# {
-#     my $self = shift;
-#     my $patrons = shift;
-#     $self->setPatronsReadyStatus("true", $patrons);
-#
-#     return $self;
-# }
-#
-# sub disablePatrons
-# {
-#     my $self = shift;
-#     my $patrons = shift;
-#     $self->setPatronsReadyStatus("false", $patrons);
-#
-#     return $self;
-# }
-
 sub finalizePatron
 {
     my $self = shift;
@@ -1139,8 +850,8 @@ sub finalizePatron
     }
 
     my $ids = "@patronIds";
-    $ids =~ s/,$//g; # <== removes the last comma?
-    my $jobID = $main::jobID;
+    $ids =~ s/,$//g; # <== removes the last comma
+    my $jobID = $self->{jobID};
 
     my $query = "update patron_import.patron set ready=false, job_id=$jobID, load_date=now()
     where id in($ids)";
@@ -1189,24 +900,6 @@ sub getLastImportResponseID
     my $self = shift;
 
     return $self->query("select id from patron_import.import_response r order by r.id desc limit 1;")->[0]->[0];
-
-}
-
-sub populateFolioLoginTable
-{
-    my $self = shift;
-
-    my $csv = $main::dao->createTableFromCSV("mobius_api_user", $main::conf->{projectPath} . "/resources/mapping/mobius_api_user.csv");
-
-    my $update = "
-    insert into patron_import.login (institution_id, username)
-                    (select i.id, api.c2
-                     from patron_import.institution i
-                              join patron_import.mobius_api_user api on api.c1 = i.name);";
-
-    $self->query($update);
-
-    return $self;
 
 }
 
@@ -1281,7 +974,7 @@ sub setPatronsJobId
     my $self = shift;
     my $patrons = shift;
 
-    my $jobId = $main::jobID;
+    my $jobId = $self->{jobID};
 
     for my $patron (@{$patrons})
     {$self->query("update patron_import.patron set job_id=$jobId where id=$patron->{id}");}
@@ -1349,9 +1042,9 @@ sub startJob
         'stop_time'  => $self->_getCurrentTimestamp,
     };
 
-    $self->_insertHashIntoTable("job", $job);
-    $main::jobID = $self->getLastJobID();
-
+    $self->insertHashIntoTable("job", $job);
+    $self->{jobID} = $self->getLastJobID();
+    return $self->{jobID};
 }
 
 sub finishJob
@@ -1359,26 +1052,35 @@ sub finishJob
     my $self = shift;
 
     my $timestamp = $self->_getCurrentTimestamp();
-    my $jobID = $main::jobID;
+    my $jobID = $self->{jobID};
     my $query = "update $schema.job
                  set stop_time='$timestamp' where id=$jobID;";
-    print $query . "\n" if ($main::conf->{print2Console} eq 'true');
+    print $query . "\n" if ($self->{debug});
     $self->{db}->update($query);
-    $main::log->addLine("Job $main::jobID finished at $timestamp");
+    $self->{log}->addLine("Job $self->{jobID} finished at $timestamp");
 
 }
 
-# getFileTrackerIDByJobIDAndFilePath($main::jobID, $path);
+# getFileTrackerIDByJobIDAndFilePath($self->{jobID}, $path);
 sub getFileTrackerIDByJobIDAndFilePath
 {
     my $self = shift;
     my $path = shift;
 
-    my $jobID = $main::jobID;
+    my $jobID = $self->{jobID};
 
     my $query = "select id from $schema.file_tracker where job_id=$jobID and path='$path'";
     return $self->query($query)->[0]->[0];
 
 }
 
+sub getMaxIDFromTable
+{
+    my $self = shift;
+    my $table = shift;
+    my $ret = $self->query("select max(id) from patron_import.$table");
+    return 0 unless $ret;
+    return 0 unless $ret->[0];
+    return $ret->[0]->[0];
+}
 1;

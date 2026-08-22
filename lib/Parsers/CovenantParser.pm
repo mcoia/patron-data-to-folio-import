@@ -12,7 +12,7 @@ sub afterParse
     # We make an api call to folio and get the departments and set it to class object
     $self->{'departments'} = $main::folio->getDepartmentsByTenant($self->{institution}->{tenant}) || [];
 
-    print "Updating departments for Covenant\n" if ($main::conf->{print2Console});
+    print "Updating departments for Covenant\n" if ($self->{debug});
 
     # loop over each patron and update the department
     for my $patron (@{$self->{parsedPatrons}})
