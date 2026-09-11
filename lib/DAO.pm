@@ -697,48 +697,6 @@ sub getESIDFromMappingTable
 
 }
 
-sub _getLastIDByTableName
-{
-    my $self = shift;
-    my $table = shift;
-
-    my $query = "select last_value from $schema." . $table . "_id_seq";
-
-    return $self->query($query)->[0]->[0];
-
-}
-
-sub getFiles
-{
-    my $self = shift;
-
-    my $tableName = "file";
-    my $columns = $self->_getTableColumns($tableName);
-
-    my $query = "select $columns from $schema.file f order by f.id asc";
-    return $self->query($query);
-
-}
-
-sub getALLPatronImportPendingSize
-{
-    my $self = shift;
-
-    # select count(p.id) from patron_import.patron p
-    # where p.ready and
-    # p.patrongroup is not null and
-    # p.externalsystemid is not null and
-    # p.username is not null and
-    # p.institution_id=9;
-
-    return $self->query("select count(p.id) from patron_import.patron p where
-    p.ready and
-    p.patrongroup is not null and
-    p.externalsystemid is not null and
-    p.username is not null;")->[0]->[0];
-
-}
-
 # get the total number of patrons left to load
 sub getPatronImportPendingSize
 {
@@ -807,20 +765,6 @@ sub getPatronBatch2Import
     }
 
     return $patrons;
-
-}
-
-sub getFOLIOLoginCredentials
-{
-    my $self = shift;
-    my $institution_id = shift;
-
-    my $tableName = "login";
-    my $columns = $self->_getTableColumns($tableName);
-
-    return $self->_convertQueryResultsToHash(
-        $tableName, $self->query("select $columns from $schema.$tableName l where l.institution_id=$institution_id")
-    )->[0];
 
 }
 
@@ -923,110 +867,6 @@ sub getFolioCredentials
     };
 
     return $credentials;
-
-}
-
-sub convertHashToSQLTable
-{
-    my $self = shift;
-    my $tableName = shift;
-    my $hash = shift;
-
-    my @columns;
-    push @columns, "id SERIAL PRIMARY KEY";
-
-    foreach my $key (keys %$hash)
-    {
-        next if $key eq 'id'; # Skip the 'id' key if it exists in the hash
-
-        my $value = $hash->{$key};
-        my $type;
-
-        if ($value =~ /^\d+$/)
-        {
-            $type = "INTEGER";
-        }
-        elsif ($value =~ /^\d+\.\d+$/)
-        {
-            $type = "DECIMAL";
-        }
-        else
-        {
-            $type = "TEXT";
-        }
-
-        push @columns, "$key $type";
-    }
-
-    my $columnsString = join ", ", @columns;
-
-    my $sql = qq{
-        CREATE TABLE $tableName (
-            $columnsString
-        );
-    };
-
-    return $sql;
-}
-
-sub setPatronsJobId
-{
-    my $self = shift;
-    my $patrons = shift;
-
-    my $jobId = $self->{jobID};
-
-    for my $patron (@{$patrons})
-    {$self->query("update patron_import.patron set job_id=$jobId where id=$patron->{id}");}
-
-}
-
-sub getArrayOfEnabledInstitutionIDs
-{
-    my $self = shift;
-
-    my $tableName = "institution";
-    my $columns = $self->_getTableColumns($tableName);
-
-    my $query = "select i.id from $schema.$tableName i where i.enabled";
-
-    my $results = $self->query($query);
-    my @ids = map {$_->[0]} @{$results};
-
-    return \@ids;
-
-}
-
-sub disableInstitution
-{
-    my $self = shift;
-    my $institutionID = shift;
-
-    my $query = "update patron_import.institution set enabled=false where id=$institutionID";
-    $self->query($query);
-
-}
-
-sub enableInstitution
-{
-    my $self = shift;
-    my $institutionID = shift;
-
-    my $query = "update patron_import.institution set enabled=true where id=$institutionID";
-    $self->query($query);
-
-}
-
-sub bulkEnableDisable
-{
-    my $self = shift;
-    my $enable = shift;
-    my $institutionIDs = shift;
-
-    my $idsAsString = join(",", @{$institutionIDs});
-
-    my $query = "update patron_import.institution set enabled=$enable where id in($idsAsString)";
-    $self->query($query);
 
 }
 
