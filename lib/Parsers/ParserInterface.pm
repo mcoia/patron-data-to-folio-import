@@ -421,7 +421,7 @@ sub insertPatronsIntoStageTable
     if(@values)
     {
         $query = substr($query, 0, -2);
-        $self->{log}->addLogline($query . Dumper(\@values)) if $self->{debug};
+        $self->{log}->addLogLine($query . Dumper(\@values)) if $self->{debug};
         $self->{dao}->update($query, \@values);
     }
 
