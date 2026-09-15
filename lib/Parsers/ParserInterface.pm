@@ -164,13 +164,14 @@ SELECT sp.institution_id,
            END
 FROM patron_import.!stagetable! sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
-         LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-         LEFT JOIN patron_import.patron p2 ON BTRIM(sp.esid) = BTRIM(p2.externalsystemid) AND sp.institution_id = p2.institution_id
+         LEFT JOIN patron_import.ptype_mapping pt ON ( pt.ptype = sp.patron_type AND pt.institution_id = i.id )
+         LEFT JOIN patron_import.patron p2 ON ( sp.esid = p2.externalsystemid AND sp.institution_id = p2.institution_id )
+         LEFT JOIN patron_import.patron p3 ON ( LOWER(p3.username) = LOWER(sp.unique_id) )
 
 WHERE p2.id IS NULL
   AND sp.unique_id IS NOT NULL
   AND sp.unique_id != ''
-  AND LOWER(sp.unique_id) NOT IN (SELECT BTRIM(LOWER(username)) FROM patron_import.patron where LOWER(username) = LOWER(sp.unique_id))
+  AND p3.id IS NULL
 
   AND sp.esid IS NOT NULL
   AND sp.esid != ''
@@ -232,7 +233,7 @@ FROM patron_import.!stagetable! sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
 WHERE sp.fingerprint != p.fingerprint
-  AND BTRIM(sp.esid) = BTRIM(p.externalsystemid) -- <== We have to MATCH our ESID
+  AND sp.esid = p.externalsystemid -- <== We have to MATCH our ESID
   AND sp.institution_id = p.institution_id
   AND sp.unique_id != ''
   AND sp.unique_id is NOT NULL
@@ -260,7 +261,10 @@ sub _cleanAndPrepStageTable
 
     my $query = <<'query_line';
     UPDATE patron_import.!stagetable!
-    SET unique_id = BTRIM(unique_id);
+    SET
+    unique_id = BTRIM(unique_id),
+    esid = BTRIM(esid)
+    ;
 query_line
     $self->_runUpdateQuery($query);
 
@@ -275,7 +279,7 @@ query_line
     $query = <<'query_line';
     DELETE
     FROM patron_import.!stagetable! sp
-    WHERE BTRIM(sp.unique_id) = ''
+    WHERE sp.unique_id = ''
        OR sp.unique_id IS NULL;
 query_line
     $self->_runUpdateQuery($query);
@@ -535,11 +539,20 @@ sub _createStageTable
     DROP TABLE patron_import.!stagetable!;
 query_line
     $self->_runUpdateQuery($query);
+    my $indexQueryTemplate = "CREATE INDEX IF NOT EXISTS idx_!stagetable!_!col!_idx ON patron_import.!stagetable! USING btree(!col!);\n";
+    my $indexQuery = "";
 
     $query = 'CREATE TABLE patron_import.!stagetable!(id serial primary key,';
     while ((my $internal, my $mvalue ) = each(%{$self->{base_stage_columns}}))
     {
         $query .= "$internal $mvalue,";
+        if( $mvalue =~ /text/ || $mvalue =~ /int/)
+        {
+            $indexQuery .= $indexQueryTemplate;
+            $indexQuery =~ s/!col!/$internal/g;
+            $indexQuery .= "CREATE INDEX IF NOT EXISTS idx_!stagetable!_lower_uniqueid_idx ON patron_import.!stagetable! USING btree(LOWER(unique_id));\n"
+                if ($internal =~ /unique_id/);
+        }
     }
     while ((my $internal, my $mvalue ) = each(%{$self->{stage_columns}}))
     {
@@ -550,6 +563,7 @@ query_line
     $query = substr($query, 0, -1) . ');';
 
     $self->_runUpdateQuery($query);
+    $self->_runUpdateQuery($indexQuery);
 }
 
 sub normalizeText

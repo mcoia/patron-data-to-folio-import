@@ -50,9 +50,9 @@ sub main
     $dao = DAO->new($conf, $log, $debug, $initDB);
     $jobID = $dao->startJob();
     $files = FileService->new($jobID, $dao, $conf, $log, $debug);
+    $folio = FolioService->new($jobID);
     $parserManager = ParserManager->new($dao, $files, $conf, $log, $jobID, $debug);
     $parserManager->stagePatronRecords() if ($stage);
-    $folio = FolioService->new($jobID);
     $folio->importPatronsForEnabledInstitutions() if ($import);
 
     $dao->finishJob();

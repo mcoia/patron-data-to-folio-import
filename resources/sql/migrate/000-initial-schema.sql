@@ -225,6 +225,8 @@ CREATE INDEX IF NOT EXISTS patron_import_patron_fingerprint_idx ON patron_import
 CREATE INDEX IF NOT EXISTS patron_import_patron_external_system_id_idx ON patron_import.patron USING btree (externalsystemid);
 CREATE INDEX IF NOT EXISTS patron_import_patron_username_idx ON patron_import.patron USING btree (username);
 CREATE INDEX IF NOT EXISTS patron_import_ptype_mapping_foliogroup ON patron_import.ptype_mapping USING btree (foliogroup);
+CREATE INDEX IF NOT EXISTS idx_patron_ptype_idx ON patron_import.patron USING btree(ptype);
+CREATE INDEX IF NOT EXISTS idx_patron_lower_username_idx ON patron_import.patron USING btree(LOWER(username));
 
 CREATE TYPE patron_import.address_unit AS
 (
