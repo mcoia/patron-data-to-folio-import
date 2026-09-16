@@ -399,7 +399,15 @@ sub insertPatronsIntoStageTable
         my $thisRow = "(";
         foreach(@order)
         {
-            push @values, ($thisPatron->{$_} || '');
+            # fixes the literal "0" value data
+            if(defined($thisPatron->{$_}))
+            {
+                push @values, ($thisPatron->{$_});
+            }
+            else
+            {
+                push (@values, '');
+            }
             $thisRow .= " \$$index,";
             $index++;
         }

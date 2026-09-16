@@ -269,25 +269,35 @@ sub _parsePatronRecord
         # Each library defines a specific set of values for locally needed patron types. This value determines the borrowers’
         # privileges, renewals, loan periods, notices, and fine amounts if any.
         # I'm adding + 0 to have perl convert this to a number.
-        try
-        {
-            $patron->{'patron_type'} = substr($data, 1, 3) + 0 if ($data =~ /^0/);
-        }
-        catch
+        if ($data =~ /^0/)
         {
             try
             {
-                $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0] + 0 if ($data =~ /^0/);
+                $patron->{'patron_type'} = substr($data, 1, 3);
+                # print "patron_type: [ $patron->{'patron_type'} ] \n";
+                # Remove preceeding 0's
+                $patron->{'patron_type'} =~ s/^0{1,2}//;
+                # print "thin_type: [ $patron->{'patron_type'} ] \n";
             }
             catch
             {
-                print "we failed! patron_type\n" if ($self->{debug});
-                print "data: [$data]\n" if ($self->{debug});
-                $self->{log}->addLine("we failed! patron_type");
-                $self->{log}->addLine("data: [$data]");
-                $isParsed = 0; # <== We keep this! Very important. Patron Groups are permissions.
+                try
+                {
+                    $self->{log}->addLogLine("patron_type: failed substr, trying regex instead");
+                    $patron->{'patron_type'} = ($data =~ /^0(\d{3}).*/gm)[0];
+                    # Remove preceeding 0's
+                    $patron->{'patron_type'} =~ s/^0{1,2}//;
+                }
+                catch
+                {
+                    print "we failed! patron_type\n" if ($self->{debug});
+                    print "data: [$data]\n" if ($self->{debug});
+                    $self->{log}->addLine("we failed! patron_type");
+                    $self->{log}->addLine("data: [$data]");
+                    $isParsed = 0; # <== We keep this! Very important. Patron Groups are permissions.
+                };
             };
-        };
+        }
 
         # pcode1 (1 character)
         # This one-character code can be used for a variety of statistical subdivisions. Libraries in a system (cluster)
