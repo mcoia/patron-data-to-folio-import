@@ -40,6 +40,7 @@ sub _init
         'firstname',
         'middlename',
         'preferredfirstname',
+        'barcode',
         'pronouns',
         'address1_line1',
         'address1_line2',
@@ -185,28 +186,29 @@ sub _parseRow
 
     undef @required;
 
+    my $raw_data = "";
     while ( (my $key, my $value) = each(%{$self->{stage_columns}}) )
     {
-        if($key eq 'department')
+        if(defined($row->{$key}))
         {
-            #dollar sign delimited field
-            if($row->{$key} && length($row->{$key}) > 0)
+            if($key eq 'department')
             {
-                my @departments = split(/$/,$row->{$key});
-                $patron->{$key} = \@departments;
+                #dollar sign delimited field
+                if($row->{$key} && length($row->{$key}) > 0)
+                {
+                    my @departments = split(/$/,$row->{$key});
+                    $patron->{$key} = \@departments;
+                }
+            }
+            else
+            {
+                $patron->{$key} = $row->{$key};
             }
         }
-        else
-        {
-            $patron->{$key} = $row->{$key} if($row->{$key});
-        }
+        $raw_data .= "$key: " . ( defined($row->{$key}) ? $row->{$key} : "") . "\n";
     }
-
-    my $raw_data = "";
-    foreach my $key (sort keys %{$self->{stage_columns}})
-    {
-        $raw_data .= "$key: " . ($row->{$key} || "") . "\n";
-    }
+    $patron->{patron_type} = $row->{'patron_type'} if(defined $row->{'patron_type'});
+    $raw_data .= "patron_type: " . ( defined($row->{'patron_type'}) ? $row->{'patron_type'} : "") . "\n";
     $patron->{raw_data} = $raw_data;
 
     # save some memory, come get it garbage collector!
@@ -225,7 +227,27 @@ sub updateFinalTable
 {
     my $self = shift;
 
+# Instead of removing the patron, we simply reset the date if it is in an invalid format
     my $query = <<'query_line';
+UPDATE patron_import.!stagetable! sp
+SET expirationdate = NULL
+WHERE SUBSTRING(sp.expirationdate FROM '^(\d+)')::INT > 12;
+query_line
+    $self->_runUpdateQuery($query);
+
+# folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024, and it's confusing the staff
+    $query = <<'query_line';
+UPDATE patron_import.!stagetable!
+SET expirationdate = (
+    CASE
+        WHEN expirationdate IS NULL OR expirationdate = '' THEN NULL
+        ELSE (expirationdate::DATE + INTERVAL '1 day')::DATE
+        END
+    );
+query_line
+    $self->_runUpdateQuery($query);
+
+    $query = <<'query_line';
 
 INSERT INTO patron_import.patron
 (
@@ -252,7 +274,7 @@ mobilephone,
 address1_one_liner,
 address2_one_liner,
 preferredcontacttypeid,
-department,
+departments,
 custom_fields
 )
 SELECT sp.institution_id,
@@ -317,13 +339,14 @@ END
        sp.custom_fields
 FROM patron_import.!stagetable! sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
-         LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
-         LEFT JOIN patron_import.patron p2 ON BTRIM(sp.esid) = BTRIM(p2.externalsystemid) AND sp.institution_id = p2.institution_id
+         LEFT JOIN patron_import.ptype_mapping pt ON ( pt.ptype = sp.patron_type AND pt.institution_id = i.id )
+         LEFT JOIN patron_import.patron p2 ON ( sp.esid = p2.externalsystemid AND sp.institution_id = p2.institution_id )
+         LEFT JOIN patron_import.patron p3 ON ( LOWER(p3.username) = LOWER(sp.unique_id) )
 
 WHERE p2.id IS NULL
   AND sp.unique_id IS NOT NULL
   AND sp.unique_id != ''
-  AND LOWER(sp.unique_id) NOT IN (SELECT BTRIM(LOWER(username)) FROM patron_import.patron where LOWER(username) = LOWER(sp.unique_id))
+  AND p3.id IS NULL
 
   AND sp.esid IS NOT NULL
   AND sp.esid != ''
@@ -361,14 +384,14 @@ SET
                                     ELSE NULL
                                 END
                             ),
-    email                  = BTRIM(sp.email_address),
+    email                  = BTRIM(sp.email),
     lastname               = BTRIM(sp.lastname),
     middlename             = BTRIM(sp.middlename),
     firstname              = BTRIM(sp.firstname),
     pronouns               = BTRIM(sp.pronouns),
     preferredfirstname     = NULLIF(BTRIM(COALESCE(sp.preferredfirstname, $$$$)), $$$$),
-    phone                  = BTRIM(sp.telephone),
-    mobilephone            = BTRIM(sp.telephone2),
+    phone                  = BTRIM(sp.phone),
+    mobilephone            = BTRIM(sp.mobilephone),
     address1_one_liner     =
                             -- Address smasher "line1$line2$city, state zip"
                             (CASE WHEN sp.address1_line1 IS NOT NULL AND LENGTH(sp.address1_line1) > 1 THEN
@@ -397,12 +420,12 @@ SET
     departments            = sp.department,
     custom_fields          = sp.custom_fields,
     ready                  = TRUE,
-    update_date            = NOW(),
+    update_date            = NOW()
 FROM patron_import.!stagetable! sp
          JOIN patron_import.institution i ON (sp.institution_id = i.id)
          LEFT JOIN patron_import.ptype_mapping pt ON (pt.ptype = sp.patron_type AND pt.institution_id = i.id)
 WHERE sp.fingerprint != p.fingerprint
-  AND BTRIM(sp.esid) = BTRIM(p.externalsystemid)
+  AND sp.esid = p.externalsystemid
   AND sp.institution_id = p.institution_id
   AND sp.unique_id != ''
   AND sp.unique_id is NOT NULL

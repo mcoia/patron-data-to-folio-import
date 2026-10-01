@@ -98,7 +98,27 @@ sub updateFinalTable
     # Function needs to be overridden by child classes if the staging table takes a differen form
     my $self = shift;
 
+# Instead of removing the patron, we simply reset the date if it is in an invalid format
     my $query = <<'query_line';
+UPDATE patron_import.!stagetable! sp
+SET patron_expiration_date = NULL
+WHERE SUBSTRING(sp.patron_expiration_date FROM '^(\d+)')::INT > 12;
+query_line
+    $self->_runUpdateQuery($query);
+
+# folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024, and it's confusing the staff
+    $query = <<'query_line';
+UPDATE patron_import.!stagetable!
+SET patron_expiration_date = (
+    CASE
+        WHEN patron_expiration_date IS NULL OR patron_expiration_date = '' THEN NULL
+        ELSE (patron_expiration_date::DATE + INTERVAL '1 day')::DATE
+        END
+    );
+query_line
+    $self->_runUpdateQuery($query);
+
+    $query = <<'query_line';
 
 INSERT INTO patron_import.patron
 (
@@ -346,26 +366,6 @@ WHERE id IN (SELECT sp.id
 query_line
     $self->_runUpdateQuery($query);
 
-# Instead of removing the patron, we simply reset the date if it is in an invalid format
-    $query = <<'query_line';
-UPDATE patron_import.!stagetable! sp
-SET patron_expiration_date = NULL
-WHERE SUBSTRING(sp.patron_expiration_date FROM '^(\d+)')::INT > 12;
-query_line
-    $self->_runUpdateQuery($query);
-
-# folio is subtracting a day from the expiration date. 12/10/2024 shows in folio as 12/09/2024, and it's confusing the staff
-    $query = <<'query_line';
-UPDATE patron_import.!stagetable!
-SET patron_expiration_date = (
-    CASE
-        WHEN patron_expiration_date IS NULL OR patron_expiration_date = '' THEN NULL
-        ELSE (patron_expiration_date::DATE + INTERVAL '1 day')::DATE
-        END
-    );
-query_line
-    $self->_runUpdateQuery($query);
-
 }
 
 sub insertPatronsIntoStageTable
@@ -406,7 +406,7 @@ sub insertPatronsIntoStageTable
             }
             else
             {
-                push (@values, '');
+                push (@values, undef);
             }
             $thisRow .= " \$$index,";
             $index++;
