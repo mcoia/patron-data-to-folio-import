@@ -230,12 +230,13 @@ CREATE INDEX IF NOT EXISTS idx_patron_lower_username_idx ON patron_import.patron
 
 CREATE TYPE patron_import.address_unit AS
 (
-    line1 TEXT,
-    line2 TEXT,
-    city  TEXT,
-    state TEXT,
-    zip   TEXT,
-    valid BOOLEAN
+    line1       TEXT,
+    line2       TEXT,
+    city        TEXT,
+    state       TEXT,
+    zip         TEXT,
+    countryId   TEXT,
+    valid       BOOLEAN
 );
 
 CREATE OR REPLACE FUNCTION patron_import.parse_city_state_zip_liner_address(one_liner TEXT)
@@ -317,11 +318,17 @@ BEGIN
     result.line2 := regexp_replace(result.line2, '\s+', ' ', 'g');
 
     -- get the city, state, zip from what's left
+    loopres := nullif(btrim(split_part(one_liner, '!!', 2)), '');
+    one_liner := btrim(split_part(one_liner, '!!', 1));
     city_state_zip := patron_import.parse_city_state_zip_liner_address(one_liner);
 
     result.city := city_state_zip.city;
     result.state := city_state_zip.state;
     result.zip := city_state_zip.zip;
+    result.countryId = 'US';
+    IF loopres IS NOT NULL THEN
+        result.countryId = loopres;
+    END IF;
 
     result.valid := TRUE;
     RETURN result;
@@ -362,10 +369,10 @@ BEGIN
 
         FOREACH test_address IN ARRAY incoming_addresses
             LOOP
-                INSERT INTO patron_import.address (patron_id, addressLine1, addressLine2, city, region, postalCode,
+                INSERT INTO patron_import.address (patron_id, addressLine1, addressLine2, city, region, postalCode, countryId
                                                    primaryaddress, addressTypeId)
                 VALUES (NEW.id, test_address.line1, test_address.line2, test_address.city, test_address.state,
-                        test_address.zip, primary_address, address_type);
+                        test_address.zip, test_address.countryId, primary_address, address_type);
                 -- only the first address is primary, the rest are secondary+
                 primary_address := FALSE;
                 address_type := 'Address 2';

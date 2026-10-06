@@ -28,11 +28,13 @@
 | address1_city | No | Text | Address1: City | `Metropolis` |
 | address1_state | No | Text | Address1: State | `MO` |
 | address1_zip | No | Text | Address1: Zip | `12345` |
+| address1_country | No | Text | Address1: Country | `US` |
 | address2_line1 | No | Text | Address2: line1 | `123 Home Street` |
 | address2_line2 | No | Text | Address2: line2 | `Grandma's door` |
 | address2_city | No | Text | Address2: City | `Metropolis` |
 | address2_state | No | Text | Address2: State | `MO` |
 | address2_zip | No | Text | Address2: Zip | `12345` |
+| address2_country | No | Text | Address2: Country | `US` |
 | phone | No | Text | Patron Phone | `123-456-7890` |
 | mobilephone | No | Text | Patron Mobile Phone | `123-456-7890` |
 | enrollmentdate | No | Date | Patron Enrollment Date (MM/DD/YYYY) | `12/31/2021` |

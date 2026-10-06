@@ -47,11 +47,13 @@ sub _init
         'address1_city',
         'address1_state',
         'address1_zip',
+        'address1_country',
         'address2_line1',
         'address2_line2',
         'address2_city',
         'address2_state',
         'address2_zip',
+        'address2_country',
         'phone',
         'mobilephone',
         'enrollmentdate',
@@ -312,24 +314,26 @@ SELECT sp.institution_id,
        NULLIF(BTRIM(COALESCE(sp.preferredfirstname, $$$$)), $$$$),
        NULLIF(BTRIM(COALESCE(sp.phone, $$$$)), $$$$),
        NULLIF(BTRIM(COALESCE(sp.mobilephone, $$$$)), $$$$),
--- Address smasher "line1$line2$city, state zip"
+-- Address smasher "line1$line2$city, state zip!!country"
 (CASE WHEN sp.address1_line1 IS NOT NULL AND LENGTH(sp.address1_line1) > 1 THEN
     regexp_replace(sp.address1_line1, $a$$$a$, $$$$, $$g$$) || $a$$$a$ ||
     COALESCE(regexp_replace(sp.address1_line2, $a$$$a$, $$$$, $$g$$), $$$$) || $a$$$a$ ||
     COALESCE(regexp_replace(sp.address1_city, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$, $a$ ||
     COALESCE(regexp_replace(sp.address1_state, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$ $a$ ||
-    COALESCE(regexp_replace(sp.address1_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$)
+    COALESCE(regexp_replace(sp.address1_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$) ||
+    COALESCE($a$!!$a$ || regexp_replace(sp.address1_country, $a$[\$,!]$a$, $$$$, $$g$$), $$$$)
 ELSE
     $$$$
 END
 ),
--- Address smasher "line1$line2$city, state zip"
+-- Address smasher "line1$line2$city, state zip!!country"
 (CASE WHEN sp.address2_line1 IS NOT NULL AND LENGTH(sp.address2_line1) > 1 THEN
     regexp_replace(sp.address2_line1, $a$$$a$, $$$$, $$g$$) || $a$$$a$ ||
     COALESCE(regexp_replace(sp.address2_line2, $a$$$a$, $$$$, $$g$$), $$$$) || $a$$$a$ ||
     COALESCE(regexp_replace(sp.address2_city, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$, $a$ ||
     COALESCE(regexp_replace(sp.address2_state, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$ $a$ ||
-    COALESCE(regexp_replace(sp.address2_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$)
+    COALESCE(regexp_replace(sp.address2_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$) ||
+    COALESCE($a$!!$a$ || regexp_replace(sp.address2_country, $a$[\$,!]$a$, $$$$, $$g$$), $$$$)
 ELSE
     $$$$
 END
@@ -393,25 +397,27 @@ SET
     phone                  = BTRIM(sp.phone),
     mobilephone            = BTRIM(sp.mobilephone),
     address1_one_liner     =
-                            -- Address smasher "line1$line2$city, state zip"
+                            -- Address smasher "line1$line2$city, state zip!!country"
                             (CASE WHEN sp.address1_line1 IS NOT NULL AND LENGTH(sp.address1_line1) > 1 THEN
                                 regexp_replace(sp.address1_line1, $a$$$a$, $$$$, $$g$$) || $a$$$a$ ||
                                 COALESCE(regexp_replace(sp.address1_line2, $a$$$a$, $$$$, $$g$$), $$$$) || $a$$$a$ ||
                                 COALESCE(regexp_replace(sp.address1_city, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$, $a$ ||
                                 COALESCE(regexp_replace(sp.address1_state, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$ $a$ ||
-                                COALESCE(regexp_replace(sp.address1_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$)
+                                COALESCE(regexp_replace(sp.address1_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$) ||
+                                COALESCE($a$!!$a$ || regexp_replace(sp.address1_country, $a$[\$,!]$a$, $$$$, $$g$$), $$$$)
                             ELSE
                                 $$$$
                             END
                             ),
     address2_one_liner     =
-                            -- Address smasher "line1$line2$city, state zip"
+                            -- Address smasher "line1$line2$city, state zip!!country"
                             (CASE WHEN sp.address2_line1 IS NOT NULL AND LENGTH(sp.address2_line1) > 1 THEN
                                 regexp_replace(sp.address2_line1, $a$$$a$, $$$$, $$g$$) || $a$$$a$ ||
                                 COALESCE(regexp_replace(sp.address2_line2, $a$$$a$, $$$$, $$g$$), $$$$) || $a$$$a$ ||
                                 COALESCE(regexp_replace(sp.address2_city, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$, $a$ ||
                                 COALESCE(regexp_replace(sp.address2_state, $a$[\$,]$a$, $$$$, $$g$$), $$$$) || $a$ $a$ ||
-                                COALESCE(regexp_replace(sp.address2_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$)
+                                COALESCE(regexp_replace(sp.address2_zip, $a$[\$,]$a$, $$$$, $$g$$), $$$$) ||
+                                COALESCE($a$!!$a$ || regexp_replace(sp.address2_country, $a$[\$,!]$a$, $$$$, $$g$$), $$$$)
                             ELSE
                                 $$$$
                             END
