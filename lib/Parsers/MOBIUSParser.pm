@@ -288,7 +288,7 @@ SELECT sp.institution_id,
        BTRIM(sp.esid),
        NULLIF(BTRIM(COALESCE(sp.barcode, $$$$)), $$$$),
        NULLIF(BTRIM(COALESCE(sp.email, $$$$)), $$$$),
-       pt.foliogroup,
+       COALESCE(pt.foliogroup, sp.patron_type),
        (
             CASE
                 WHEN sp.enrollmentdate ~ '\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{4}' THEN sp.enrollmentdate::DATE::TEXT
@@ -369,7 +369,7 @@ SET
     username               = BTRIM(sp.unique_id),
     externalsystemid       = BTRIM(sp.esid),
     barcode                = NULLIF(BTRIM(COALESCE(sp.barcode, $$$$)), $$$$),
-    patrongroup            = pt.foliogroup,
+    patrongroup            = COALESCE(pt.foliogroup, sp.patron_type),
     enrollmentdate         = (
                                 CASE
                                     WHEN sp.enrollmentdate ~ '\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{4}' THEN sp.enrollmentdate::DATE::TEXT
