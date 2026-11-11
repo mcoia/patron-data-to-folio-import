@@ -264,8 +264,8 @@ barcode,
 email,
 patrongroup,
 enrollmentdate,
-expirationdate,
 dateofbirth,
+expirationdate,
 lastname,
 middlename,
 firstname,
@@ -297,16 +297,11 @@ SELECT sp.institution_id,
        ),
        (
             CASE
-                WHEN sp.expirationdate ~ '\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{4}' THEN sp.expirationdate::DATE::TEXT
-                ELSE NULL
-            END
-       ),
-       (
-            CASE
                 WHEN sp.dateofbirth ~ '\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{4}' THEN sp.dateofbirth::DATE::TEXT
                 ELSE NULL
             END
         ),
+       sp.expirationdate::DATE::TEXT,
        BTRIM(sp.lastname),
        BTRIM(sp.middlename),
        BTRIM(sp.firstname),
@@ -376,18 +371,13 @@ SET
                                     ELSE NULL
                                 END
                             ),
-    expirationdate         = (
-                                CASE
-                                    WHEN sp.expirationdate ~ '\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{4}' THEN sp.expirationdate::DATE::TEXT
-                                    ELSE NULL
-                                END
-                            ),
     dateofbirth            = (
                                 CASE
                                     WHEN sp.dateofbirth ~ '\d{1,2}[\-\/\.]\d{1,2}[\-\/\.]\d{4}' THEN sp.dateofbirth::DATE::TEXT
                                     ELSE NULL
                                 END
                             ),
+    expirationdate         = sp.expirationdate::DATE::TEXT,
     email                  = BTRIM(sp.email),
     lastname               = BTRIM(sp.lastname),
     middlename             = BTRIM(sp.middlename),
